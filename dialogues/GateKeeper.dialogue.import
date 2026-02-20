@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://10sk1ykdc3n5"
+path="res://.godot/imported/GateKeeper.dialogue-c3c68c1b6c6d3703f309f271bbf73aa4.tres"
+
+[deps]
+
+source_file="res://dialogues/GateKeeper.dialogue"
+dest_files=["res://.godot/imported/GateKeeper.dialogue-c3c68c1b6c6d3703f309f271bbf73aa4.tres"]
+
+[params]
+
+defaults=true

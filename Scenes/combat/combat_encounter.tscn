@@ -1,0 +1,49 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource path="res://scripts/combat/combat_ui.gd" type="Script" id=1]
+
+[node name="CombatEncounter" type="Control"]
+script = ExtResource( 1 )
+
+[node name="Layout" type="HBoxContainer" parent="."]
+
+[node name="Stage" type="VBoxContainer" parent="Layout"]
+
+[node name="Characters" type="HBoxContainer" parent="Layout/Stage"]
+[node name="PlayerSprite" type="ColorRect" parent="Layout/Stage/Characters"]
+color = Color( 0.2, 0.2, 0.6, 1 )
+rect_min_size = Vector2( 160, 160 )
+[node name="EnemySprite" type="ColorRect" parent="Layout/Stage/Characters"]
+color = Color( 0.6, 0.2, 0.2, 1 )
+rect_min_size = Vector2( 160, 160 )
+
+[node name="Anim" type="AnimationPlayer" parent="Layout/Stage"]
+
+[node name="RightPanel" type="VBoxContainer" parent="Layout"]
+
+[node name="SideUI" type="VBoxContainer" parent="Layout/RightPanel"]
+[node name="PlayerLabel" type="Label" parent="Layout/RightPanel/SideUI"]
+text = "Player Integrity"
+[node name="PlayerHP" type="ProgressBar" parent="Layout/RightPanel/SideUI"]
+value = 100
+max_value = 100
+[node name="EnemyLabel" type="Label" parent="Layout/RightPanel/SideUI"]
+text = "Enemy HP"
+[node name="EnemyHP" type="ProgressBar" parent="Layout/RightPanel/SideUI"]
+value = 80
+max_value = 80
+[node name="CommandsList" type="RichTextLabel" parent="Layout/RightPanel/SideUI"]
+bbcode_enabled = true
+rect_min_size = Vector2( 240, 120 )
+
+[node name="TerminalPanel" type="Panel" parent="."]
+rect_min_size = Vector2( 800, 240 )
+[node name="Terminal" type="RichTextLabel" parent="TerminalPanel"]
+bbcode_enabled = true
+rect_min_size = Vector2( 760, 160 )
+[node name="InputRow" type="HBoxContainer" parent="TerminalPanel"]
+[node name="TurnIndicator" type="Label" parent="TerminalPanel/InputRow"]
+text = ""
+[node name="CommandInput" type="LineEdit" parent="TerminalPanel/InputRow"]
+[node name="SuggestionLabel" type="Label" parent="TerminalPanel/InputRow"]
+text = ""

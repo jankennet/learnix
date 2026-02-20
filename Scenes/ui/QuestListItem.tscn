@@ -1,0 +1,34 @@
+[gd_scene load_steps=2 format=3 uid="uid://quest_list_item"]
+
+[ext_resource type="Script" path="res://scripts/QuestListItem.gd" id="1_questitem"]
+
+[node name="QuestListItem" type="PanelContainer"]
+custom_minimum_size = Vector2(250, 0)
+script = ExtResource("1_questitem")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="QuestName" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Quest Name"
+
+[node name="QuestStatus" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "[Not Started]"
+
+[node name="QuestDescription" type="Label" parent="MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "Quest description goes here..."
+autowrap_mode = 2

@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://fdn3j5m4b4ri"]
+
+[ext_resource type="PackedScene" uid="uid://dfmth68n240j6" path="res://levelAssets/fbxLevels/BiosVault.fbx" id="1_2awa2"]
+
+[node name="BiosVault" instance=ExtResource("1_2awa2")]
+
+[node name="Plane" parent="." index="109"]
+visible = false
+
+[node name="Spot" parent="." index="110"]
+visible = false

@@ -1,0 +1,27 @@
+~ start
+if SceneManager.met_elder_shell == true:
+	Elder Shell: Reflection is a process that never ends, Nova.
+	if SceneManager.met_gate_keeper == true:
+		- Who is speaking as the Gate Keeper?
+			Elder Shell: A watcher, not a tyrant. A role written into policy.
+			Elder Shell: The voice you hear belongs to the system's oldest guard.
+			Elder Shell: Respect the function, and the function respects you.
+		- I will return later.
+			=> END
+	else:
+		=> END
+else:
+	Elder Shell: Ah… a new process enters the loop.
+	Elder Shell: Sit, Nova. Observe before you execute.
+	Elder Shell: Linux rewards patience.
+	- Teach me
+		Elder Shell: Begin with understanding structure.
+		Elder Shell: Files live in directories. Order brings stability.
+		Elder Shell: Speak to the Messy Directory. She knows loss.
+	- What happened here?
+		Elder Shell: Files were deleted in haste.
+		Elder Shell: Some deserved removal. Others did not.
+	- Any advice?
+		Elder Shell: Never run a command you do not understand.
+	set SceneManager.met_elder_shell = true
+	=> END

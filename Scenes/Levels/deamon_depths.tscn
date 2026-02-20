@@ -1,0 +1,307 @@
+[gd_scene load_steps=40 format=3 uid="uid://lbre8n3j6pem"]
+
+[ext_resource type="PackedScene" uid="uid://8tcr4q23277d" path="res://levelAssets/fbxLevels/Dungeon.fbx" id="1_ts3xc"]
+[ext_resource type="Script" uid="uid://dvrxfibrcccd0" path="res://scripts/teleport.gd" id="2_d5g6v"]
+[ext_resource type="Texture2D" uid="uid://bl03nelov8at8" path="res://Assets/characterSpriteSheets/ss_DriversDen/PrinterBoss.png" id="3_6sqg1"]
+[ext_resource type="Script" uid="uid://b0ir6gis4a7s3" path="res://scripts/npc_script.gd" id="3_k8yqp"]
+[ext_resource type="Texture2D" uid="uid://t10epby1mdcr" path="res://Assets/characterSpriteSheets/ss_DriversDen/driverRemnant_idle.png" id="4_x2aml"]
+[ext_resource type="Texture2D" uid="uid://d2ebsrf6jedug" path="res://Assets/characterSpriteSheets/ss_DriversDen/hardwareGhost_idle.png" id="5_k8yqp"]
+[ext_resource type="Script" uid="uid://ce0f0ugerh3tg" path="res://scripts/sudo_boss_door.gd" id="6_3teor"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ts3xc"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_k8yqp"]
+size = Vector3(1.9710693, 2.6991577, 2.7246094)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_o5iuf"]
+radius = 9.523787
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_x2aml"]
+atlas = ExtResource("3_6sqg1")
+region = Rect2(0, 0, 100, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k8yqp"]
+atlas = ExtResource("3_6sqg1")
+region = Rect2(100, 0, 100, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_m653t"]
+atlas = ExtResource("3_6sqg1")
+region = Rect2(200, 0, 100, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_o18mp"]
+atlas = ExtResource("3_6sqg1")
+region = Rect2(300, 0, 100, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tuulv"]
+atlas = ExtResource("3_6sqg1")
+region = Rect2(400, 0, 100, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4cv53"]
+atlas = ExtResource("3_6sqg1")
+region = Rect2(500, 0, 100, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qo7kh"]
+atlas = ExtResource("3_6sqg1")
+region = Rect2(600, 0, 100, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ovu8s"]
+atlas = ExtResource("3_6sqg1")
+region = Rect2(700, 0, 100, 80)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_1okqw"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_x2aml")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k8yqp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_m653t")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_o18mp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tuulv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4cv53")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qo7kh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ovu8s")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_m653t"]
+radius = 0.84802467
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1okqw"]
+atlas = ExtResource("4_x2aml")
+region = Rect2(192, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_su1ts"]
+atlas = ExtResource("4_x2aml")
+region = Rect2(240, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d24dx"]
+atlas = ExtResource("4_x2aml")
+region = Rect2(288, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hhh8d"]
+atlas = ExtResource("4_x2aml")
+region = Rect2(336, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hhccx"]
+atlas = ExtResource("4_x2aml")
+region = Rect2(0, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ce2vh"]
+atlas = ExtResource("4_x2aml")
+region = Rect2(48, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1cd5e"]
+atlas = ExtResource("4_x2aml")
+region = Rect2(96, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pbvfj"]
+atlas = ExtResource("4_x2aml")
+region = Rect2(144, 0, 48, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_aghyr"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1okqw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_su1ts")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d24dx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hhh8d")
+}],
+"loop": true,
+"name": &"bad_idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hhccx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ce2vh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1cd5e")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pbvfj")
+}],
+"loop": true,
+"name": &"good_idle",
+"speed": 5.0
+}]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_f54o5"]
+radius = 0.98832184
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6b332"]
+atlas = ExtResource("5_k8yqp")
+region = Rect2(192, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ixgpv"]
+atlas = ExtResource("5_k8yqp")
+region = Rect2(240, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hrg1h"]
+atlas = ExtResource("5_k8yqp")
+region = Rect2(288, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bt5kd"]
+atlas = ExtResource("5_k8yqp")
+region = Rect2(336, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4ls1i"]
+atlas = ExtResource("5_k8yqp")
+region = Rect2(0, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_50mq0"]
+atlas = ExtResource("5_k8yqp")
+region = Rect2(48, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vg4gh"]
+atlas = ExtResource("5_k8yqp")
+region = Rect2(96, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3owqo"]
+atlas = ExtResource("5_k8yqp")
+region = Rect2(144, 0, 48, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_bjbd7"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6b332")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ixgpv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hrg1h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bt5kd")
+}],
+"loop": true,
+"name": &"bad_idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4ls1i")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_50mq0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vg4gh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3owqo")
+}],
+"loop": true,
+"name": &"good_idle",
+"speed": 5.0
+}]
+
+[node name="Deamon Depths" type="Node3D"]
+
+[node name="Dungeon" parent="." instance=ExtResource("1_ts3xc")]
+transform = Transform3D(1, 0, -1.7484555e-07, 0, 1, 0, 1.7484555e-07, 0, 1, 1.0486152, 0, 0.1679554)
+
+[node name="Spawn_DD" type="Marker3D" parent="Dungeon" groups=["spawn_point"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.99091, 0.128937, -22.8492)
+
+[node name="Teleport_DDTFM" type="Area3D" parent="Dungeon"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.98568, 1.83477, -27.5796)
+script = ExtResource("2_d5g6v")
+target_scene = "res://Scenes/Levels/fallback_hamlet.tscn"
+spawn_name = "Fallback_Hamlet_Final/Spawn_DDTFM"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Dungeon/Teleport_DDTFM"]
+transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0)
+shape = SubResource("BoxShape3D_ts3xc")
+
+[node name="BoosRoomArea3D" type="Area3D" parent="Dungeon"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.1054907, 0, -8.408547)
+script = ExtResource("6_3teor")
+
+[node name="BossRoomDoor" type="CollisionShape3D" parent="Dungeon/BoosRoomArea3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.33729506, 1.3495178, 0.5001149)
+shape = SubResource("BoxShape3D_k8yqp")
+
+[node name="CSGBox3D" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, -1.7484555e-07, 0, 1, 0, 1.7484555e-07, 0, 1, 8.995802, -0.5, -1.1756978)
+use_collision = true
+size = Vector3(50, 1, 64.16)
+
+[node name="NPCS" type="Node3D" parent="."]
+
+[node name="Printer Boss" type="CharacterBody3D" parent="NPCS" groups=["npcs"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.252104, 0, -15.114656)
+script = ExtResource("3_k8yqp")
+encounter_id = "printer_beast"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NPCS/Printer Boss"]
+transform = Transform3D(1, 0, -1.7484555e-07, 0, 1, 0, 1.7484555e-07, 0, 1, 2.2721481, 0, 6.358179)
+shape = SubResource("SphereShape3D_o5iuf")
+
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="NPCS/Printer Boss"]
+transform = Transform3D(1, 0, -1.7484555e-07, 0, 1, 0, 1.7484555e-07, 0, 1, 2.3842354, 2.6200824, 6.4268284)
+pixel_size = 0.1
+billboard = 2
+shaded = true
+texture_filter = 0
+sprite_frames = SubResource("SpriteFrames_1okqw")
+
+[node name="Driver Remnant" type="CharacterBody3D" parent="NPCS" groups=["npcs"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.948769, 0, -9.577864)
+script = ExtResource("3_k8yqp")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NPCS/Driver Remnant"]
+transform = Transform3D(1, 0, -1.7484555e-07, 0, 1, 0, 1.7484555e-07, 0, 1, 1.0486178, 0.51642275, 0.16795588)
+shape = SubResource("SphereShape3D_m653t")
+
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="NPCS/Driver Remnant"]
+transform = Transform3D(1, 0, -1.7484555e-07, 0, 1, 0, 1.7484555e-07, 0, 1, 1.0486178, 1.0521317, 0.16795588)
+pixel_size = 0.07
+billboard = 2
+texture_filter = 0
+sprite_frames = SubResource("SpriteFrames_aghyr")
+animation = &"bad_idle"
+
+[node name="Hardware Ghost" type="CharacterBody3D" parent="NPCS" groups=["npcs"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.7873116, 1.102134, 23.523928)
+script = ExtResource("3_k8yqp")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NPCS/Hardware Ghost"]
+transform = Transform3D(1, 0, -1.7484555e-07, 0, 1, 0, 1.7484555e-07, 0, 1, 0.8520355, 0, 0.006454468)
+shape = SubResource("SphereShape3D_f54o5")
+
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="NPCS/Hardware Ghost"]
+transform = Transform3D(1, 0, -1.7484555e-07, 0, 1, 0, 1.7484555e-07, 0, 1, 1.0486102, 0, 0.1679554)
+pixel_size = 0.07
+billboard = 2
+texture_filter = 0
+sprite_frames = SubResource("SpriteFrames_bjbd7")
+animation = &"bad_idle"

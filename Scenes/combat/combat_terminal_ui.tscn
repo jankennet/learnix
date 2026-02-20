@@ -1,0 +1,223 @@
+[gd_scene load_steps=5 format=3 uid="uid://combat_terminal_ui"]
+
+[ext_resource type="Script" path="res://scripts/combat/combat_terminal_ui.gd" id="1_script"]
+[ext_resource type="Theme" path="res://Scenes/combat/crt_terminal_theme.tres" id="2_theme"]
+[ext_resource type="Shader" path="res://Scenes/combat/crt_effect.gdshader" id="3_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_crt"]
+shader = ExtResource("3_shader")
+shader_parameter/scanline_intensity = 0.06
+shader_parameter/scanline_frequency = 2.5
+shader_parameter/vignette_intensity = 0.12
+shader_parameter/curvature = 0.012
+shader_parameter/flicker_intensity = 0.008
+shader_parameter/glow_intensity = 0.1
+shader_parameter/chromatic_aberration = 0.0004
+shader_parameter/phosphor_color = Vector3(0.35, 0.95, 0.4)
+shader_parameter/bezel_color = Vector3(0.65, 0.68, 0.62)
+shader_parameter/bezel_glow = 0.15
+
+[node name="CombatTerminalUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.08, 0.02, 0.98)
+
+[node name="TerminalContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -270.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TerminalHeader" type="Label" parent="TerminalContainer"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 0.9, 0.3, 1)
+theme_override_font_sizes/font_size = 14
+text = ""
+
+[node name="TerminalOutput" type="RichTextLabel" parent="TerminalContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.4, 0.95, 0.45, 1)
+theme_override_font_sizes/normal_font_size = 12
+bbcode_enabled = true
+scroll_following = true
+
+[node name="InputContainer" type="HBoxContainer" parent="TerminalContainer"]
+layout_mode = 2
+
+[node name="PromptLabel" type="Label" parent="TerminalContainer/InputContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.95, 0.45, 1)
+theme_override_font_sizes/font_size = 16
+text = "$"
+
+[node name="CommandInput" type="LineEdit" parent="TerminalContainer/InputContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.4, 0.95, 0.45, 1)
+theme_override_colors/caret_color = Color(0.5, 1.0, 0.5, 1)
+theme_override_font_sizes/font_size = 16
+placeholder_text = "type command here..."
+caret_blink = true
+caret_blink_interval = 0.5
+
+[node name="SubmitButton" type="Button" parent="TerminalContainer/InputContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.95, 0.45, 1)
+text = "[ENTER]"
+
+[node name="ExitButton" type="Button" parent="TerminalContainer/InputContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.6, 0.45, 1)
+text = "[EXIT]"
+
+[node name="StatusPanel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -250.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="StatusPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="StatusTitle" type="Label" parent="StatusPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.95, 0.45, 1)
+theme_override_font_sizes/font_size = 8
+text = "═══ STATUS ═══"
+horizontal_alignment = 1
+
+[node name="ModeLabel" type="Label" parent="StatusPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.3, 1)
+theme_override_font_sizes/font_size = 8
+text = "[COMBAT MODE]"
+horizontal_alignment = 1
+
+[node name="Separator1" type="HSeparator" parent="StatusPanel/VBox"]
+layout_mode = 2
+
+[node name="PlayerTitle" type="Label" parent="StatusPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.95, 0.45, 1)
+theme_override_font_sizes/font_size = 8
+text = "INTEGRITY:"
+
+[node name="PlayerStatus" type="HBoxContainer" parent="StatusPanel/VBox"]
+layout_mode = 2
+
+[node name="HPBar" type="ProgressBar" parent="StatusPanel/VBox/PlayerStatus"]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 100.0
+value = 100.0
+show_percentage = false
+
+[node name="HPLabel" type="Label" parent="StatusPanel/VBox/PlayerStatus"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.95, 0.45, 1)
+theme_override_font_sizes/font_size = 8
+text = "100 / 100"
+
+[node name="Separator2" type="HSeparator" parent="StatusPanel/VBox"]
+layout_mode = 2
+
+[node name="EnemyTitle" type="Label" parent="StatusPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.5, 0.3, 1)
+theme_override_font_sizes/font_size = 8
+text = "TARGET:"
+
+[node name="EnemyStatus" type="VBoxContainer" parent="StatusPanel/VBox"]
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="StatusPanel/VBox/EnemyStatus"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.7, 0.3, 1)
+theme_override_font_sizes/font_size = 8
+text = "<unknown>"
+horizontal_alignment = 1
+
+[node name="HPBar" type="ProgressBar" parent="StatusPanel/VBox/EnemyStatus"]
+layout_mode = 2
+max_value = 100.0
+value = 50.0
+show_percentage = false
+
+[node name="HPLabel" type="Label" parent="StatusPanel/VBox/EnemyStatus"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.7, 0.3, 1)
+theme_override_font_sizes/font_size = 8
+text = "??? / ???"
+horizontal_alignment = 1
+
+[node name="Separator3" type="HSeparator" parent="StatusPanel/VBox"]
+layout_mode = 2
+
+[node name="TurnIndicator" type="Label" parent="StatusPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.95, 0.45, 1)
+theme_override_font_sizes/font_size = 8
+text = "[ AWAITING INPUT ]"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="StatusPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HelpLabel" type="Label" parent="StatusPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.75, 0.4, 1)
+theme_override_font_sizes/font_size = 8
+text = "Type 'help' for
+available commands"
+horizontal_alignment = 1
+
+[node name="CRTEffectOverlay" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+material = SubResource("ShaderMaterial_crt")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]

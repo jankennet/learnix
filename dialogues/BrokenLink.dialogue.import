@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://cafq3ysd3605f"
+path="res://.godot/imported/BrokenLink.dialogue-441b6265deeaaf6e7df1f83a882dc916.tres"
+
+[deps]
+
+source_file="res://dialogues/BrokenLink.dialogue"
+dest_files=["res://.godot/imported/BrokenLink.dialogue-441b6265deeaaf6e7df1f83a882dc916.tres"]
+
+[params]
+
+defaults=true

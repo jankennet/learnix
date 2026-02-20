@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://dn0hic0f4nd7r"
+path="res://.godot/imported/BossDoor.dialogue-def5b92a1193a51bc8e3ac74aae0730c.tres"
+
+[deps]
+
+source_file="res://dialogues/BossDoor.dialogue"
+dest_files=["res://.godot/imported/BossDoor.dialogue-def5b92a1193a51bc8e3ac74aae0730c.tres"]
+
+[params]
+
+defaults=true

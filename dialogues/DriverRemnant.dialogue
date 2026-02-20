@@ -1,0 +1,25 @@
+~ start
+if SceneManager.driver_remnant_defeated == true:
+	Driver Remnant: [dead stack] ...
+	Driver Remnant: The aggressive thread is gone.
+	Driver Remnant: [faint trace] Sudo token granted... use it on the boss room door.
+	=> END
+else:
+	Driver Remnant: [volatile burst] INVALID! INVALID!
+	Driver Remnant: Unmapped calls. Unstable memory.
+	Driver Remnant: You do not belong in this address space.
+	- Stand down.
+		Driver Remnant: [glitch] No rollback. No safe state.
+		Driver Remnant: The remnant spikes.
+	- Isolate the remnant. (Puzzle)
+		set SceneManager.met_driver_remnant = true
+		do SceneManager.quest_manager.start_quest("drivers_den_cleanup")
+		do start_puzzle()
+		=> END
+	- Purge it now. (Combat)
+		set SceneManager.met_driver_remnant = true
+		do SceneManager.quest_manager.start_quest("drivers_den_cleanup")
+		do start_combat()
+		=> END
+	- Back away.
+		=> END

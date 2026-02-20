@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://cuxt7fyhdwpfw"
+path="res://.godot/imported/DriverRemnant.dialogue-102850e8f40c542226cd81fa8559dbc6.tres"
+
+[deps]
+
+source_file="res://dialogues/DriverRemnant.dialogue"
+dest_files=["res://.godot/imported/DriverRemnant.dialogue-102850e8f40c542226cd81fa8559dbc6.tres"]
+
+[params]
+
+defaults=true

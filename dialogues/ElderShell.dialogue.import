@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://calllg3a0biq1"
+path="res://.godot/imported/ElderShell.dialogue-150bb5324b08b03e827f236706ad47b7.tres"
+
+[deps]
+
+source_file="res://dialogues/ElderShell.dialogue"
+dest_files=["res://.godot/imported/ElderShell.dialogue-150bb5324b08b03e827f236706ad47b7.tres"]
+
+[params]
+
+defaults=true

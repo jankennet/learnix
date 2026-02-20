@@ -1,0 +1,42 @@
+[gd_scene load_steps=3 format=3 uid="uid://interaction_prompt"]
+
+[ext_resource type="Script" path="res://scripts/ui/interaction_prompt.gd" id="1_script"]
+[ext_resource type="FontFile" path="res://Assets/fonts/PressStart2P-Regular.ttf" id="2_font"]
+
+[node name="InteractionPrompt" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_script")
+
+[node name="PromptContainer" type="CenterContainer" parent="."]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -100.0
+offset_top = -120.0
+offset_right = 100.0
+offset_bottom = -60.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="PromptPanel" type="PanelContainer" parent="PromptContainer"]
+layout_mode = 2
+
+[node name="HBox" type="HBoxContainer" parent="PromptContainer/PromptPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="KeyLabel" type="Label" parent="PromptContainer/PromptPanel/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.8, 0.2, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+text = "[E]"
+
+[node name="ActionLabel" type="Label" parent="PromptContainer/PromptPanel/HBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+text = "Interact"

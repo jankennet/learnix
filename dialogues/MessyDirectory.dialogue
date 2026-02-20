@@ -1,0 +1,55 @@
+﻿~ start
+# Check quest completion status
+if SceneManager.helped_lost_file == true:
+	Messy Directory: [Tears of joy and relief]
+	Messy Directory: My child is alive. Whole again.
+	Messy Directory: You gave me back what I thought was lost forever.
+	Messy Directory: Thank you, kind stranger. Thank you so much.
+	Messy Directory: I don't know how to repay you. You've restored my hope.
+	=> END
+elif SceneManager.deleted_lost_file == true:
+	Messy Directory: [Vacant stare, tears of digital rain]
+	Messy Directory: My child... truly gone now.
+	Messy Directory: I don't want to talk about it. Please... leave me alone.
+	=> END
+elif SceneManager.quest_manager.is_quest_active("find_lost_file"):
+	Messy Directory: Have you found my child yet?
+	- Not yet. (Leave)
+		=> END
+	- I found them...
+		=> found_lost_file
+else:
+	Messy Directory: You... you see them too, don't you?
+	Messy Directory: My child... my Lost File...
+	- What happened?
+		Messy Directory: Someone ran rm without thinking.
+		Messy Directory: No backup. No confirmation.
+		Messy Directory: Just gone.
+	- I can help
+		Messy Directory: Can you?
+		Messy Directory: Or will you delete what remains?
+	Messy Directory: Find my child in the Filesystem Forest.
+	Messy Directory: Decide their fate wisely.
+	set SceneManager.met_messy_directory = true
+	do SceneManager.quest_manager.start_quest("find_lost_file")
+	=> END
+
+~ found_lost_file
+if SceneManager.npc_states.get("Lost File") == "helped":
+	Messy Directory: You helped them? You gave them peace?
+	Messy Directory: [Tears of digital rain]
+	Messy Directory: Thank you. Thank you for restoring what was lost.
+	Messy Directory: You're not like the others. You understand that every file matters.
+	set SceneManager.helped_lost_file = true
+	do SceneManager.quest_manager.complete_quest("find_lost_file")
+	=> END
+elif SceneManager.npc_states.get("Lost File") == "hostile":
+	Messy Directory: You... you destroyed them?
+	Messy Directory: My child is truly gone now.
+	Messy Directory: I don't know what you are, but you are not welcome here.
+	set SceneManager.deleted_lost_file = true
+	do SceneManager.quest_manager.fail_quest("find_lost_file")
+	=> END
+else:
+	Messy Directory: What happened? Did you find them?
+	=> END

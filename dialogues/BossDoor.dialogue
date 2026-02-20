@@ -1,0 +1,15 @@
+~ needs_sudo_token
+Door Console: ACCESS DENIED.
+Door Console: Elevated privileges required.
+Door Console: A sudo token from Driver Remnant is required.
+=> END
+
+~ already_open
+Door Console: ACCESS GRANTED.
+Door Console: Boss room lock is already disengaged.
+=> END
+
+~ unlocked
+Door Console: AUTHENTICATION ACCEPTED.
+Door Console: Boss room lock disengaged.
+=> END

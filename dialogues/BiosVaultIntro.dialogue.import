@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://cppx4xnrwesln"
+path="res://.godot/imported/BiosVaultIntro.dialogue-3bb64302cdcfbba8af57d9ad4c5c8689.tres"
+
+[deps]
+
+source_file="res://dialogues/BiosVaultIntro.dialogue"
+dest_files=["res://.godot/imported/BiosVaultIntro.dialogue-3bb64302cdcfbba8af57d9ad4c5c8689.tres"]
+
+[params]
+
+defaults=true

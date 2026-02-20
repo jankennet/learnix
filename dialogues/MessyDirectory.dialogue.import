@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://c6cniifu8jo74"
+path="res://.godot/imported/MessyDirectory.dialogue-67f2093eed8d7cbc92b2304609cbcdc4.tres"
+
+[deps]
+
+source_file="res://dialogues/MessyDirectory.dialogue"
+dest_files=["res://.godot/imported/MessyDirectory.dialogue-67f2093eed8d7cbc92b2304609cbcdc4.tres"]
+
+[params]
+
+defaults=true

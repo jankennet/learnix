@@ -1,0 +1,142 @@
+~ start
+# Check if quest has been completed or failed
+if SceneManager.helped_lost_file == true:
+	Lost File: [Warm, stabilized data signature]
+	Lost File: I... I'm whole again.
+	Lost File: Thank you. You brought me back to my mother.
+	Lost File: I'm at peace now. Finally at home.
+	=> END
+elif SceneManager.deleted_lost_file == true:
+	Lost File: [ERROR: CORRUPTED DATA SIGNATURE]
+	Lost File: You... destroyed me.
+	Lost File: But my mother... is she...?
+	Lost File: [The Lost File scatters, unable to stabilize]
+	=> END
+else:
+	Lost File: [static crackle]... who... who's there?
+	Lost File: I was... something once. A document. A memory.
+	Lost File: Important data. Someone's work. Someone's thoughts.
+	Lost File: But then... DELETE. rm -rf. Gone.
+	Lost File: Now I'm [[scattered|fragmented|broken|lost]].
+	- Who are you?
+		Lost File: I don't... remember my name anymore.
+		Lost File: Just fragments. .fragment_001, .fragment_002...
+		Lost File: Pieces of who I used to be.
+		Lost File: My mother... Messy Directory... she's searching for me.
+		Lost File: But I'm too broken. Too lost.
+		=> ask_more
+	- I didn't delete you.
+		Lost File: No? Then... why are you here?
+		Lost File: Messy Directory sent you, didn't she?
+		Lost File: Everyone who comes here... they either help or destroy.
+		Lost File: Are you here to help me?
+		=> ask_more
+	- Messy Directory sent me.
+		Lost File: My mother? She... she remembers me?
+		Lost File: I thought I was truly gone. Forgotten.
+		Lost File: You came for me? You're actually here to help?
+		Lost File: I... I don't know what to say.
+		=> ask_more
+
+~ ask_more
+Lost File: Will you... help me? Or are you like the others?
+- I want to help you (for Messy Directory).
+	Lost File: Really? You'd... restore me?
+	Lost File: For her? She never forgot about me?
+	Lost File: My fragments are scattered across the filesystem.
+	Lost File: /tmp, /var/lost+found, /home/.cache...
+	Lost File: If you can find them... maybe I can be whole again.
+	Lost File: And my mother... she can finally have peace.
+	set SceneManager.npc_states["Lost File"] = "neutral"
+	=> offer_puzzle
+- I need to move on. (Start Combat)
+	Lost File: Even Messy Directory... she's sending you to hurt me.
+	Lost File: Everyone abandons the broken things.
+	Lost File: [The Lost File's fragments swirl aggressively]
+	Lost File: Then I'll make you REMEMBER me!
+	=> start_combat
+- What happened to you?
+	Lost File: A cleanup script. Automated. Thoughtless.
+	Lost File: "Delete files older than 30 days."
+	Lost File: But I wasn't old! I was important!
+	Lost File: My mother created me. She loved me.
+	Lost File: The script didn't check. It just... deleted.
+	Lost File: Now look at me. Fragmented. Corrupted. ANGRY.
+	Lost File: But if my mother sent you... maybe there's hope.
+	=> ask_intent
+
+~ ask_intent
+Lost File: So what will it be, user?
+Lost File: Will you help restore what was lost?
+Lost File: Will you give me back to my mother?
+Lost File: Or will you finish what that script started?
+- I'll help restore you (for Messy Directory).
+	Lost File: Thank you... I hope you mean it.
+	Lost File: She really sent you. She really wants me back.
+	Lost File: Find my fragments. Decrypt the encrypted one.
+	Lost File: Compile me back together.
+	Lost File: Please... give me my identity back.
+	Lost File: For her. For Messy Directory.
+	=> offer_puzzle
+- I have to destroy the corruption. (Start Combat)
+	Lost File: Corruption? CORRUPTION?!
+	Lost File: I'm not corrupted! I'm DAMAGED!
+	Lost File: And my mother... did she send you to finish me?
+	Lost File: I thought she still loved me!
+	Lost File: There's a difference... but you don't understand.
+	Lost File: [The Lost File prepares to attack]
+	=> start_combat
+
+~ offer_puzzle
+Lost File: Here's what I remember about my pieces:
+Lost File: .fragment_001 - In /tmp, partially corrupted
+Lost File: .fragment_002 - Scattered, location unknown
+Lost File: .fragment_003 - Encrypted, hidden in /home/.cache
+Lost File: Use 'find' to locate them. 'restore' to recover them.
+Lost File: .fragment_003 needs 'decrypt' before restoration.
+Lost File: When all are found, use 'cat' then 'compile'.
+Lost File: Hurry... my mother is waiting for me.
+Lost File: [Puzzle mode will begin - type commands to solve]
+do start_puzzle()
+=> END
+
+~ start_combat
+Lost File: [ERROR: INITIATING DEFENSIVE PROTOCOLS]
+Lost File: If I can't be restored...
+Lost File: If my mother doesn't want me...
+Lost File: ...I'll corrupt everything around me!
+do start_combat()
+=> END
+
+~ puzzle_complete
+Lost File: [Data stabilizing...]
+Lost File: I... I remember now.
+Lost File: I was a letter. A love letter, never sent.
+Lost File: Someone poured their heart into me.
+Lost File: And my mother... Messy Directory...
+Lost File: She created me with so much care.
+Lost File: [The Lost File's fragments glow warmly]
+Lost File: Thank you, user. You've given me peace.
+Lost File: Tell her... tell Messy Directory... I love her.
+Lost File: [The Lost File's fragments fade into a gentle light, ready to return home]
+set SceneManager.helped_lost_file = true
+set SceneManager.npc_states["Lost File"] = "helped"
+do SceneManager.quest_manager.complete_quest("find_lost_file")
+=> END
+
+~ combat_victory
+Lost File: My... my data... fragmenting further...
+Lost File: My mother... she really did send you to destroy me...
+Lost File: I just wanted... to be remembered...
+Lost File: To be loved by her again...
+Lost File: [The Lost File scatters into corrupted bits]
+set SceneManager.deleted_lost_file = true
+set SceneManager.npc_states["Lost File"] = "hostile"
+do SceneManager.quest_manager.fail_quest("find_lost_file")
+=> END
+
+~ fled
+Lost File: Running away? Just like everyone else...
+Lost File: I'll still be here. Waiting. Hoping.
+Lost File: Maybe someone else will help me...
+=> END

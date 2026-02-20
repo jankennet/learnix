@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://ddjycwvegfami"
+path="res://.godot/imported/PrinterBeast.dialogue-f49936336843dbd388a29c002cf69a1b.tres"
+
+[deps]
+
+source_file="res://dialogues/PrinterBeast.dialogue"
+dest_files=["res://.godot/imported/PrinterBeast.dialogue-f49936336843dbd388a29c002cf69a1b.tres"]
+
+[params]
+
+defaults=true

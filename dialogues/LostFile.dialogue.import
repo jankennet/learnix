@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://ciud53gdwfci7"
+path="res://.godot/imported/LostFile.dialogue-f4ff2b97fb606f88a6190b320bbf99ec.tres"
+
+[deps]
+
+source_file="res://dialogues/LostFile.dialogue"
+dest_files=["res://.godot/imported/LostFile.dialogue-f4ff2b97fb606f88a6190b320bbf99ec.tres"]
+
+[params]
+
+defaults=true

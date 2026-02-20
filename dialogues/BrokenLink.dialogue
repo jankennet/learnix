@@ -1,0 +1,75 @@
+~ start
+if SceneManager.proficiency_key_forest == true:
+	Broken Link: [200 OK] ...path resolved...
+	Broken Link: The link is repaired. The forest is quieter now.
+	=> END
+elif SceneManager.broken_link_fragmented_key == true:
+	Broken Link: [404 ping] ...missing... severed...
+	Broken Link: You took the fragments. Only broken pointers remain.
+	=> END
+else:
+	Broken Link: [404 ping] link not found...
+	Broken Link: I am a stub. A path to nowhere.
+	Broken Link: Pointers corrupted. Target missing.
+	Broken Link: Will you repair... or sever?
+	- What are you?
+		Broken Link: A shortcut with nowhere to go.
+		Broken Link: A missing reference. A corrupted map.
+		Broken Link: I keep looping. I keep pinging.
+		Broken Link: [404... 404...]
+		=> ask_intent
+	- Can I help?
+		Broken Link: Maybe. Scan me. Find the target.
+		Broken Link: Reconnect the stub and patch the table.
+		Broken Link: If you repair me, I can open the way.
+		=> ask_intent
+	- I cannot wait. (Start Combat)
+		Broken Link: [ERROR] sever request detected.
+		Broken Link: Then I will defend the fragments.
+		=> start_combat
+
+~ ask_intent
+Broken Link: Choose.
+- I will repair the link.
+	Broken Link: [static softens] ...help...
+	Broken Link: Start with a scan. Then find the target.
+	Broken Link: Reconnect. Patch. Verify.
+	=> offer_puzzle
+- I will destroy the corruption. (Start Combat)
+	Broken Link: [ERROR] request denied.
+	Broken Link: The stub refuses to collapse.
+	=> start_combat
+
+~ offer_puzzle
+Broken Link: The repair sequence is short but precise.
+Broken Link: scan broken_link
+Broken Link: find /forest/target
+Broken Link: disconnect stub
+Broken Link: connect stub /forest/target
+Broken Link: chmod link_table 644
+Broken Link: patch link_table
+Broken Link: scan link_table
+Broken Link: compile link_map
+Broken Link: [Puzzle mode will begin - type commands to solve]
+do start_puzzle()
+=> END
+
+~ start_combat
+Broken Link: [ERROR: DEFENSIVE LOOP INITIATED]
+Broken Link: I will not be severed quietly.
+do start_combat()
+=> END
+
+~ puzzle_complete
+Broken Link: [200 OK] link resolved.
+Broken Link: Pointers stabilized. Target restored.
+Broken Link: [visual] The stub settles into a calm, steady idle.
+Broken Link: Take the Proficiency key.
+Broken Link: The forest will remember this repair.
+=> END
+
+~ combat_victory
+Broken Link: [404 ping] signal lost...
+Broken Link: Fragmented key... only shards remain...
+Broken Link: The link collapses into dead pointers.
+=> END

@@ -1,0 +1,346 @@
+[gd_scene load_steps=44 format=3 uid="uid://chmevb4eedjte"]
+
+[ext_resource type="PackedScene" uid="uid://04qh4al76ow3" path="res://levelAssets/fbxLevels/Forest_NoPlain.fbx" id="1_dobqq"]
+[ext_resource type="Texture2D" uid="uid://bk16viuaasjia" path="res://Assets/characterSpriteSheets/ss_FilesystemForest/lostFile_idle.png" id="2_tmp33"]
+[ext_resource type="Texture2D" uid="uid://ccagne8v0y8of" path="res://Assets/characterSpriteSheets/ss_FilesystemForest/brokenLink_idle.png" id="3_0tgjb"]
+[ext_resource type="Script" uid="uid://b0ir6gis4a7s3" path="res://scripts/npc_script.gd" id="3_aollw"]
+[ext_resource type="Script" uid="uid://dvrxfibrcccd0" path="res://scripts/teleport.gd" id="4_tmp33"]
+[ext_resource type="Texture2D" uid="uid://cfx7tpu2djna7" path="res://addons/terrain_textures/packed_albedo_height.png" id="5_aollw"]
+[ext_resource type="Texture2D" uid="uid://bjkt38i7f3nmr" path="res://addons/terrain_textures/packed_normal_roughness.png" id="6_p3nc1"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_aollw"]
+radius = 0.8749099
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_krlgy"]
+atlas = ExtResource("2_tmp33")
+region = Rect2(192, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_aollw"]
+atlas = ExtResource("2_tmp33")
+region = Rect2(240, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p3nc1"]
+atlas = ExtResource("2_tmp33")
+region = Rect2(288, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5soyy"]
+atlas = ExtResource("2_tmp33")
+region = Rect2(336, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y4344"]
+atlas = ExtResource("2_tmp33")
+region = Rect2(0, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2ka1h"]
+atlas = ExtResource("2_tmp33")
+region = Rect2(48, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3ijoi"]
+atlas = ExtResource("2_tmp33")
+region = Rect2(96, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rmcuf"]
+atlas = ExtResource("2_tmp33")
+region = Rect2(144, 0, 48, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_jbn3e"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_krlgy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_aollw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p3nc1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5soyy")
+}],
+"loop": true,
+"name": &"bad_idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_y4344")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2ka1h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3ijoi")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rmcuf")
+}],
+"loop": true,
+"name": &"good_idle",
+"speed": 5.0
+}]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_p3nc1"]
+radius = 1.9295739
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ncgbv"]
+atlas = ExtResource("3_0tgjb")
+region = Rect2(192, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4x2w3"]
+atlas = ExtResource("3_0tgjb")
+region = Rect2(240, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rmgi5"]
+atlas = ExtResource("3_0tgjb")
+region = Rect2(288, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_heyvb"]
+atlas = ExtResource("3_0tgjb")
+region = Rect2(336, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jpv5p"]
+atlas = ExtResource("3_0tgjb")
+region = Rect2(0, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_iemak"]
+atlas = ExtResource("3_0tgjb")
+region = Rect2(48, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0lnho"]
+atlas = ExtResource("3_0tgjb")
+region = Rect2(96, 0, 48, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4j2s8"]
+atlas = ExtResource("3_0tgjb")
+region = Rect2(144, 0, 48, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_0j0kh"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ncgbv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4x2w3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rmgi5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_heyvb")
+}],
+"loop": true,
+"name": &"bad_idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jpv5p")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_iemak")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0lnho")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4j2s8")
+}],
+"loop": true,
+"name": &"good_idle",
+"speed": 5.0
+}]
+
+[sub_resource type="Gradient" id="Gradient_dobqq"]
+offsets = PackedFloat32Array(0.2, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_tmp33"]
+noise_type = 2
+frequency = 0.03
+cellular_jitter = 3.0
+cellular_return_type = 0
+domain_warp_enabled = true
+domain_warp_type = 1
+domain_warp_amplitude = 50.0
+domain_warp_fractal_type = 2
+domain_warp_fractal_lacunarity = 1.5
+domain_warp_fractal_gain = 1.0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_0tgjb"]
+noise = SubResource("FastNoiseLite_tmp33")
+color_ramp = SubResource("Gradient_dobqq")
+seamless = true
+
+[sub_resource type="Terrain3DMaterial" id="Terrain3DMaterial_krlgy"]
+_shader_parameters = {
+&"bias_distance": 512.0,
+&"blend_sharpness": 0.5,
+&"depth_blur": 0.0,
+&"enable_macro_variation": true,
+&"enable_projection": true,
+&"flat_terrain_normals": false,
+&"macro_variation1": Color(1, 1, 1, 1),
+&"macro_variation2": Color(1, 1, 1, 1),
+&"macro_variation_slope": 0.333,
+&"mipmap_bias": 1.0,
+&"noise1_angle": 0.0,
+&"noise1_offset": Vector2(0.5, 0.5),
+&"noise1_scale": 0.04,
+&"noise2_scale": 0.076,
+&"noise_texture": SubResource("NoiseTexture2D_0tgjb"),
+&"projection_threshold": 0.8
+}
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_aollw"]
+transparency = 4
+cull_mode = 2
+vertex_color_use_as_albedo = true
+backlight_enabled = true
+backlight = Color(0.5, 0.5, 0.5, 1)
+distance_fade_mode = 1
+distance_fade_min_distance = 128.0
+distance_fade_max_distance = 96.0
+
+[sub_resource type="Terrain3DMeshAsset" id="Terrain3DMeshAsset_p3nc1"]
+generated_type = 1
+height_offset = 0.5
+material_override = SubResource("StandardMaterial3D_aollw")
+last_lod = 0
+last_shadow_lod = 0
+lod0_range = 128.0
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_rmcuf"]
+name = "file_system_forest"
+albedo_texture = ExtResource("5_aollw")
+normal_texture = ExtResource("6_p3nc1")
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_5soyy"]
+name = "packed_albedo_height"
+id = 1
+albedo_texture = ExtResource("5_aollw")
+normal_texture = ExtResource("6_p3nc1")
+
+[sub_resource type="Terrain3DAssets" id="Terrain3DAssets_jbn3e"]
+mesh_list = Array[Terrain3DMeshAsset]([SubResource("Terrain3DMeshAsset_p3nc1")])
+texture_list = Array[Terrain3DTextureAsset]([SubResource("Terrain3DTextureAsset_rmcuf"), SubResource("Terrain3DTextureAsset_5soyy")])
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_dobqq"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_aollw"]
+size = Vector3(5.30377, 7.59619, 20.251)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_p3nc1"]
+size = Vector3(26.1672, 9.10107, 7.71069)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_5soyy"]
+size = Vector3(1, 4.67395, 1.28613)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_y4344"]
+size = Vector3(20.5437, 7.58386, 3.42389)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_2ka1h"]
+size = Vector3(35.6375, 3.72461, 5.73795)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_3ijoi"]
+size = Vector3(17.2311, 4.79501, 0.772949)
+
+[node name="FileSystem Forest" type="Node3D"]
+
+[node name="Forest_NoPlain" parent="." instance=ExtResource("1_dobqq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.3254, 0, 74.6298)
+
+[node name="Spawn_FSF" type="Marker3D" parent="Forest_NoPlain" groups=["spawn_point"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.6958, 2.70626, 14.8576)
+
+[node name="NPC" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 29.0752, 0, 28.938)
+
+[node name="Lost File" type="CharacterBody3D" parent="NPC" groups=["npcs"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.4328575, 0, 44.47064)
+script = ExtResource("3_aollw")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NPC/Lost File"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.24708557, 2.1218667, 1.4842224)
+shape = SubResource("SphereShape3D_aollw")
+
+[node name="Lost File Anim" type="AnimatedSprite3D" parent="NPC/Lost File"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2132225, 2.37491, 1.4396591)
+pixel_size = 0.05
+billboard = 2
+texture_filter = 0
+sprite_frames = SubResource("SpriteFrames_jbn3e")
+animation = &"good_idle"
+
+[node name="Broken Link" type="CharacterBody3D" parent="NPC" groups=["npcs"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.664085, 0, 9.434849)
+script = ExtResource("3_aollw")
+encounter_id = "broken_link"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NPC/Broken Link"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5901184, 2.332262, 1.5874062)
+shape = SubResource("SphereShape3D_p3nc1")
+
+[node name="Broken Link Anim" type="AnimatedSprite3D" parent="NPC/Broken Link"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.70568466, 2.88066, 1.5625534)
+pixel_size = 0.1
+billboard = 2
+texture_filter = 0
+sprite_frames = SubResource("SpriteFrames_0j0kh")
+animation = &"good_idle"
+
+[node name="Terrain3D" type="Terrain3D" parent="."]
+data_directory = "res://addons/terrain_3d"
+material = SubResource("Terrain3DMaterial_krlgy")
+assets = SubResource("Terrain3DAssets_jbn3e")
+save_16_bit = true
+mesh_lods = 5
+top_level = true
+metadata/_edit_lock_ = true
+
+[node name="Teleport_STFH" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 70.4987, 0, 89.3394)
+script = ExtResource("4_tmp33")
+target_scene = "res://Scenes/Levels/fallback_hamlet.tscn"
+spawn_name = "Fallback_Hamlet_Final/Spawn_FTFM"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Teleport_STFH"]
+transform = Transform3D(7.315, 0, 0, 0, 7.315, 0, 0, 0, 7.315, -1.49125, 2.81312, 0)
+shape = SubResource("BoxShape3D_dobqq")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.989736, 0.142905, 0, -0.142905, 0.989736, 28.1877, 25.1343, 94.3265)
+light_color = Color(1, 1, 0.635294, 1)
+shadow_enabled = true
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 39.118, 0, 55.7465)
+
+[node name="Wall for TP" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30.2709, 5.46436, 35.6537)
+shape = SubResource("BoxShape3D_aollw")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.3268, 6.27722, 40.3143)
+shape = SubResource("BoxShape3D_p3nc1")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.6225, 4.15093, 35.6301)
+shape = SubResource("BoxShape3D_5soyy")
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.9705, 5.08422, 24.6759)
+shape = SubResource("BoxShape3D_y4344")
+
+[node name="CollisionShape3D4" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(0.960376, 0, -0.278706, 0, 1, 0, 0.278706, 0, 0.960376, -5.98845, 3.53109, 28.9078)
+shape = SubResource("BoxShape3D_2ka1h")
+
+[node name="CollisionShape3D5" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(0.921863, 0, -0.387516, 0, 1, 0, 0.387516, 0, 0.921863, 4.7231, 1.77783, 24.9923)
+shape = SubResource("BoxShape3D_3ijoi")
+
+[node name="CollisionShape3D6" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(0.921531, 0, -0.388304, 0, 1, 0, 0.388304, 0, 0.921531, 3.19144, 1.77783, 27.8432)
+shape = SubResource("BoxShape3D_3ijoi")

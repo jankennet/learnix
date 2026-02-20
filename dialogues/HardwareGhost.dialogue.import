@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://cr3xaqci6lt3u"
+path="res://.godot/imported/HardwareGhost.dialogue-2e0fe18459e36734eb82e85a0406084c.tres"
+
+[deps]
+
+source_file="res://dialogues/HardwareGhost.dialogue"
+dest_files=["res://.godot/imported/HardwareGhost.dialogue-2e0fe18459e36734eb82e85a0406084c.tres"]
+
+[params]
+
+defaults=true

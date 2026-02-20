@@ -1,0 +1,13 @@
+~ start
+if SceneManager.proficiency_key_printer == true:
+	Printer Beast: [tray empty] ...
+	Printer Beast: The daemon is silent. The shuriken are gone.
+	=> END
+else:
+	Printer Beast: PCL XL Error!
+	Printer Beast: Paper jam. Spool overflow. Memory fault.
+	Printer Beast: [paper shuriken whirl]
+	set SceneManager.met_printer_boss = true
+	do SceneManager.quest_manager.start_quest("drivers_den_cleanup")
+	do start_combat()
+	=> END

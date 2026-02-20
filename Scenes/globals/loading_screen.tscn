@@ -1,0 +1,21 @@
+[gd_scene load_steps=2 format=3 uid="uid://4jy31f1108jc"]
+
+[ext_resource type="Script" uid="uid://d14cf7gr3ghxy" path="res://scripts/loading_screen.gd" id="1_ty0e1"]
+
+[node name="Loading Screen" type="Node3D"]
+
+[node name="ColorRect" type="ColorRect" parent="."]
+offset_right = 1152.0
+offset_bottom = 648.0
+color = Color(0.0562916, 0.0562916, 0.0562916, 1)
+script = ExtResource("1_ty0e1")
+
+[node name="Label" type="Label" parent="ColorRect"]
+layout_mode = 0
+offset_left = 412.0
+offset_top = 220.0
+offset_right = 709.0
+offset_bottom = 380.0
+text = "Lodeng..."
+horizontal_alignment = 1
+vertical_alignment = 1

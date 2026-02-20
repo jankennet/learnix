@@ -1,0 +1,39 @@
+~ start
+if SceneManager.proficiency_key_forest == true and SceneManager.proficiency_key_printer == true:
+	Gate Keeper: Your credentials are verified.
+	Gate Keeper: You have earned passage to the next zone.
+	set SceneManager.gatekeeper_pass_granted = true
+	do SceneManager.quest_manager.complete_quest("gatekeeper_proficiency")
+	- Open the BIOS Vault.
+		Gate Keeper: Transfer protocol engaged.
+		do start_bios_vault_transfer()
+		=> END
+	- Not yet.
+		=> END
+elif SceneManager.proficiency_key_forest == true and SceneManager.proficiency_key_printer == false:
+	Gate Keeper: One key verified. The Printer key from the Deamon Depths is still required.
+	=> END
+elif SceneManager.proficiency_key_forest == false and SceneManager.proficiency_key_printer == true:
+	Gate Keeper: One key verified. The Broken Link key from the Filesystem Forest is still required.
+	=> END
+elif SceneManager.quest_manager.is_quest_active("gatekeeper_proficiency"):
+	Gate Keeper: Two Proficiency keys are required for passage.
+	- Remind me where to get them.
+		=> reminder
+	- I will return with both keys.
+		=> END
+else:
+	Gate Keeper: Halt. Access to the next zone is restricted by policy.
+	Gate Keeper: Bring me two Proficiency keys and I will open the way.
+	- What keys?
+		Gate Keeper: Broken Link in the Filesystem Forest holds the first.
+		Gate Keeper: The Printer boss in the Deamon Depths holds the second.
+	- Understood.
+	set SceneManager.met_gate_keeper = true
+	do SceneManager.quest_manager.start_quest("gatekeeper_proficiency")
+	=> END
+
+~ reminder
+Gate Keeper: Broken Link in the Filesystem Forest holds one key.
+Gate Keeper: The Printer boss in the Deamon Depths holds the other.
+=> END

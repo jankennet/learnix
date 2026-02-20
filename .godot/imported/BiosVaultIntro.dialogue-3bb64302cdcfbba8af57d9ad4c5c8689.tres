@@ -1,0 +1,776 @@
+[gd_resource type="Resource" script_class="DialogueResource" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://dbs4435dsf3ry" path="res://addons/dialogue_manager/dialogue_resource.gd" id="1_gdwxk"]
+
+[resource]
+script = ExtResource("1_gdwxk")
+using_states = PackedStringArray()
+titles = {
+"nova_where": "1",
+"q1": "29",
+"q2": "41",
+"q3": "53",
+"quiz_fail": "72",
+"quiz_pass": "65",
+"sage_intro": "5",
+"sage_skill_check": "11"
+}
+character_names = PackedStringArray("Nova", "Sage")
+first_title = "0"
+lines = {
+"0": {
+&"id": "0",
+&"next_id": "1",
+&"type": "title"
+},
+"1": {
+&"character": "Nova",
+&"id": "1",
+&"next_id": "2",
+&"text": "Where am I?",
+&"type": "dialogue"
+},
+"10": {
+&"id": "10",
+&"next_id": "11",
+&"type": "title"
+},
+"11": {
+&"condition": {
+&"expression": Array[Dictionary]([{
+&"i": 3,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 15,
+&"type": &"dot"
+}, {
+&"i": 16,
+&"type": &"variable",
+&"value": "player_karma"
+}, {
+&"i": 29,
+&"type": &"comparison",
+&"value": "=="
+}, {
+&"i": 32,
+&"type": &"string",
+&"value": "bad"
+}, {
+&"i": 38,
+&"type": &"and_or",
+&"value": "and"
+}, {
+&"i": 42,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 54,
+&"type": &"dot"
+}, {
+&"i": 55,
+&"type": &"variable",
+&"value": "deleted_lost_file"
+}, {
+&"i": 73,
+&"type": &"comparison",
+&"value": "=="
+}, {
+&"i": 76,
+&"type": &"variable",
+&"value": "true"
+}])
+},
+&"id": "11",
+&"next_id": "12",
+&"next_id_after": "28",
+&"next_sibling_id": "17",
+&"type": "condition"
+},
+"12": {
+&"character": "Sage",
+&"id": "12",
+&"next_id": "13",
+&"text": "[SECURITY.FLAG] Hostile user pattern detected.",
+&"type": "dialogue"
+},
+"13": {
+&"character": "Sage",
+&"id": "13",
+&"next_id": "14",
+&"text": "[AUDIT] Lost File terminated. Mercy checksum failed.",
+&"type": "dialogue"
+},
+"14": {
+&"character": "Sage",
+&"id": "14",
+&"next_id": "15",
+&"text": "No quiz. Only hard mode remains.",
+&"type": "dialogue"
+},
+"15": {
+&"id": "15",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"function": "start_sage_combat",
+&"i": 3,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 21,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "16",
+&"type": "mutation"
+},
+"16": {
+&"id": "16",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"17": {
+&"condition": {
+&"expression": Array[Dictionary]([{
+&"i": 5,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 17,
+&"type": &"dot"
+}, {
+&"i": 18,
+&"type": &"variable",
+&"value": "player_karma"
+}, {
+&"i": 31,
+&"type": &"comparison",
+&"value": "=="
+}, {
+&"i": 34,
+&"type": &"string",
+&"value": "bad"
+}, {
+&"i": 40,
+&"type": &"and_or",
+&"value": "and"
+}, {
+&"i": 44,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 56,
+&"type": &"dot"
+}, {
+&"i": 57,
+&"type": &"variable",
+&"value": "broken_link_fragmented_key"
+}, {
+&"i": 84,
+&"type": &"comparison",
+&"value": "=="
+}, {
+&"i": 87,
+&"type": &"variable",
+&"value": "true"
+}])
+},
+&"id": "17",
+&"next_id": "18",
+&"next_id_after": "28",
+&"next_sibling_id": "23",
+&"type": "condition"
+},
+"18": {
+&"character": "Sage",
+&"id": "18",
+&"next_id": "19",
+&"text": "[SECURITY.FLAG] Corruption-first behavior confirmed.",
+&"type": "dialogue"
+},
+"19": {
+&"character": "Sage",
+&"id": "19",
+&"next_id": "20",
+&"text": "[AUDIT] Broken Link severed into fragments.",
+&"type": "dialogue"
+},
+"2": {
+&"id": "2",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"20": {
+&"character": "Sage",
+&"id": "20",
+&"next_id": "21",
+&"text": "Boot protocols deny oral verification.",
+&"type": "dialogue"
+},
+"21": {
+&"id": "21",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"function": "start_sage_combat",
+&"i": 3,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 21,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "22",
+&"type": "mutation"
+},
+"22": {
+&"id": "22",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"23": {
+&"condition": {},
+&"id": "23",
+&"next_id": "24",
+&"next_id_after": "28",
+&"type": "condition"
+},
+"24": {
+&"character": "Sage",
+&"id": "24",
+&"next_id": "25",
+&"text": "[BOOT.SEQ] Initializing skill-check protocol.",
+&"type": "dialogue"
+},
+"25": {
+&"character": "Sage",
+&"id": "25",
+&"next_id": "26",
+&"text": "Three prompts. Parse. Recall. Respond.",
+&"type": "dialogue"
+},
+"26": {
+&"id": "26",
+&"is_snippet": false,
+&"next_id": "29",
+&"next_id_after": "",
+&"type": "goto"
+},
+"27": {
+&"id": "27",
+&"next_id": "28",
+&"type": ""
+},
+"28": {
+&"id": "28",
+&"next_id": "29",
+&"type": "title"
+},
+"29": {
+&"character": "Sage",
+&"id": "29",
+&"next_id": "30",
+&"text": "[Q1] In the Broken Link repair chain, what command comes first?",
+&"type": "dialogue"
+},
+"3": {
+&"id": "3",
+&"next_id": "4",
+&"type": ""
+},
+"30": {
+&"id": "30",
+&"next_id": "31",
+&"responses": PackedStringArray("30", "33", "36"),
+&"text": "scan broken_link",
+&"type": "response"
+},
+"31": {
+&"character": "Sage",
+&"id": "31",
+&"next_id": "32",
+&"text": "[ACK] Correct. Diagnostics before mutation.",
+&"type": "dialogue"
+},
+"32": {
+&"id": "32",
+&"is_snippet": false,
+&"next_id": "41",
+&"next_id_after": "",
+&"type": "goto"
+},
+"33": {
+&"id": "33",
+&"next_id": "34",
+&"text": "kill broken_link",
+&"type": "response"
+},
+"34": {
+&"character": "Sage",
+&"id": "34",
+&"next_id": "35",
+&"text": "[NACK] You choose destruction over diagnosis.",
+&"type": "dialogue"
+},
+"35": {
+&"id": "35",
+&"is_snippet": false,
+&"next_id": "72",
+&"next_id_after": "",
+&"type": "goto"
+},
+"36": {
+&"id": "36",
+&"next_id": "37",
+&"text": "compile link_map",
+&"type": "response"
+},
+"37": {
+&"character": "Sage",
+&"id": "37",
+&"next_id": "38",
+&"text": "[NACK] Compilation is terminal-phase, not bootstrap.",
+&"type": "dialogue"
+},
+"38": {
+&"id": "38",
+&"is_snippet": false,
+&"next_id": "72",
+&"next_id_after": "",
+&"type": "goto"
+},
+"39": {
+&"id": "39",
+&"next_id": "40",
+&"type": ""
+},
+"4": {
+&"id": "4",
+&"next_id": "5",
+&"type": "title"
+},
+"40": {
+&"id": "40",
+&"next_id": "41",
+&"type": "title"
+},
+"41": {
+&"character": "Sage",
+&"id": "41",
+&"next_id": "42",
+&"text": "[Q2] Which fragment required decryption in Lost File recovery?",
+&"type": "dialogue"
+},
+"42": {
+&"id": "42",
+&"next_id": "43",
+&"responses": PackedStringArray("42", "45", "48"),
+&"text": ".fragment_003",
+&"type": "response"
+},
+"43": {
+&"character": "Sage",
+&"id": "43",
+&"next_id": "44",
+&"text": "[ACK] Correct. Encrypted payload identified.",
+&"type": "dialogue"
+},
+"44": {
+&"id": "44",
+&"is_snippet": false,
+&"next_id": "53",
+&"next_id_after": "",
+&"type": "goto"
+},
+"45": {
+&"id": "45",
+&"next_id": "46",
+&"text": ".fragment_001",
+&"type": "response"
+},
+"46": {
+&"character": "Sage",
+&"id": "46",
+&"next_id": "47",
+&"text": "[NACK] Partial corruption is not encryption.",
+&"type": "dialogue"
+},
+"47": {
+&"id": "47",
+&"is_snippet": false,
+&"next_id": "72",
+&"next_id_after": "",
+&"type": "goto"
+},
+"48": {
+&"id": "48",
+&"next_id": "49",
+&"text": "recovered_file",
+&"type": "response"
+},
+"49": {
+&"character": "Sage",
+&"id": "49",
+&"next_id": "50",
+&"text": "[NACK] That is the assembled output, not an input fragment.",
+&"type": "dialogue"
+},
+"5": {
+&"character": "Sage",
+&"id": "5",
+&"next_id": "6",
+&"text": "[BOOT.LOG 00A1] Guardian process awakened.",
+&"type": "dialogue"
+},
+"50": {
+&"id": "50",
+&"is_snippet": false,
+&"next_id": "72",
+&"next_id_after": "",
+&"type": "goto"
+},
+"51": {
+&"id": "51",
+&"next_id": "52",
+&"type": ""
+},
+"52": {
+&"id": "52",
+&"next_id": "53",
+&"type": "title"
+},
+"53": {
+&"character": "Sage",
+&"id": "53",
+&"next_id": "54",
+&"text": "[Q3] Which boss guarded the Deamon Depths proficiency key?",
+&"type": "dialogue"
+},
+"54": {
+&"id": "54",
+&"next_id": "55",
+&"responses": PackedStringArray("54", "57", "60"),
+&"text": "Printer Beast",
+&"type": "response"
+},
+"55": {
+&"character": "Sage",
+&"id": "55",
+&"next_id": "56",
+&"text": "[ACK] Correct. Key-path verified.",
+&"type": "dialogue"
+},
+"56": {
+&"id": "56",
+&"is_snippet": false,
+&"next_id": "65",
+&"next_id_after": "",
+&"type": "goto"
+},
+"57": {
+&"id": "57",
+&"next_id": "58",
+&"text": "Driver Remnant",
+&"type": "response"
+},
+"58": {
+&"character": "Sage",
+&"id": "58",
+&"next_id": "59",
+&"text": "[NACK] Wrong process. Driver Remnant held the sudo token path.",
+&"type": "dialogue"
+},
+"59": {
+&"id": "59",
+&"is_snippet": false,
+&"next_id": "72",
+&"next_id_after": "",
+&"type": "goto"
+},
+"6": {
+&"character": "Sage",
+&"id": "6",
+&"next_id": "7",
+&"text": "Welcome, traveler. You stand within the BIOS Vault.",
+&"type": "dialogue"
+},
+"60": {
+&"id": "60",
+&"next_id": "61",
+&"text": "Hardware Ghost",
+&"type": "response"
+},
+"61": {
+&"character": "Sage",
+&"id": "61",
+&"next_id": "62",
+&"text": "[NACK] Hardware Ghost is advisory, not keyholder.",
+&"type": "dialogue"
+},
+"62": {
+&"id": "62",
+&"is_snippet": false,
+&"next_id": "72",
+&"next_id_after": "",
+&"type": "goto"
+},
+"63": {
+&"id": "63",
+&"next_id": "64",
+&"type": ""
+},
+"64": {
+&"id": "64",
+&"next_id": "65",
+&"type": "title"
+},
+"65": {
+&"character": "Sage",
+&"id": "65",
+&"next_id": "66",
+&"text": "[RESULT] PASS",
+&"type": "dialogue"
+},
+"66": {
+&"character": "Sage",
+&"id": "66",
+&"next_id": "67",
+&"text": "Boot literacy accepted. Access posture: trusted.",
+&"type": "dialogue"
+},
+"67": {
+&"character": "Sage",
+&"id": "67",
+&"next_id": "68",
+&"text": "Continue, and let your commands stay clean.",
+&"type": "dialogue"
+},
+"68": {
+&"id": "68",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"function": "mark_sage_quiz_passed",
+&"i": 3,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 25,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "69",
+&"type": "mutation"
+},
+"69": {
+&"id": "69",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"7": {
+&"character": "Sage",
+&"id": "7",
+&"next_id": "8",
+&"text": "[KERNEL.MSG] Prove your learning, or be tested by force.",
+&"type": "dialogue"
+},
+"70": {
+&"id": "70",
+&"next_id": "71",
+&"type": ""
+},
+"71": {
+&"id": "71",
+&"next_id": "72",
+&"type": "title"
+},
+"72": {
+&"character": "Sage",
+&"id": "72",
+&"next_id": "73",
+&"text": "[RESULT] FAIL",
+&"type": "dialogue"
+},
+"73": {
+&"character": "Sage",
+&"id": "73",
+&"next_id": "74",
+&"text": "Your command history is unstable.",
+&"type": "dialogue"
+},
+"74": {
+&"id": "74",
+&"next_id": "75",
+&"responses": PackedStringArray("74", "77"),
+&"text": "Let me retry the quiz.",
+&"type": "response"
+},
+"75": {
+&"character": "Sage",
+&"id": "75",
+&"next_id": "76",
+&"text": "Reinitializing assessment buffer.",
+&"type": "dialogue"
+},
+"76": {
+&"id": "76",
+&"is_snippet": false,
+&"next_id": "29",
+&"next_id_after": "",
+&"type": "goto"
+},
+"77": {
+&"id": "77",
+&"next_id": "78",
+&"text": "I will take the hard check.",
+&"type": "response"
+},
+"78": {
+&"character": "Sage",
+&"id": "78",
+&"next_id": "79",
+&"text": "[COMBAT.INIT] Then prove it under pressure.",
+&"type": "dialogue"
+},
+"79": {
+&"id": "79",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"function": "start_sage_combat",
+&"i": 3,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 21,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "80",
+&"type": "mutation"
+},
+"8": {
+&"id": "8",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"80": {
+&"id": "80",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"81": {
+&"id": "81",
+&"next_id": "82",
+&"type": ""
+},
+"82": {
+&"id": "82",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"9": {
+&"id": "9",
+&"next_id": "10",
+&"type": ""
+}
+}
+raw_text = "~ nova_where
+Nova: Where am I?
+=> END
+
+~ sage_intro
+Sage: [BOOT.LOG 00A1] Guardian process awakened.
+Sage: Welcome, traveler. You stand within the BIOS Vault.
+Sage: [KERNEL.MSG] Prove your learning, or be tested by force.
+=> END
+
+~ sage_skill_check
+if SceneManager.player_karma == \"bad\" and SceneManager.deleted_lost_file == true:
+	Sage: [SECURITY.FLAG] Hostile user pattern detected.
+	Sage: [AUDIT] Lost File terminated. Mercy checksum failed.
+	Sage: No quiz. Only hard mode remains.
+	do start_sage_combat()
+	=> END
+elif SceneManager.player_karma == \"bad\" and SceneManager.broken_link_fragmented_key == true:
+	Sage: [SECURITY.FLAG] Corruption-first behavior confirmed.
+	Sage: [AUDIT] Broken Link severed into fragments.
+	Sage: Boot protocols deny oral verification.
+	do start_sage_combat()
+	=> END
+else:
+	Sage: [BOOT.SEQ] Initializing skill-check protocol.
+	Sage: Three prompts. Parse. Recall. Respond.
+	=> q1
+
+~ q1
+Sage: [Q1] In the Broken Link repair chain, what command comes first?
+- scan broken_link
+	Sage: [ACK] Correct. Diagnostics before mutation.
+	=> q2
+- kill broken_link
+	Sage: [NACK] You choose destruction over diagnosis.
+	=> quiz_fail
+- compile link_map
+	Sage: [NACK] Compilation is terminal-phase, not bootstrap.
+	=> quiz_fail
+
+~ q2
+Sage: [Q2] Which fragment required decryption in Lost File recovery?
+- .fragment_003
+	Sage: [ACK] Correct. Encrypted payload identified.
+	=> q3
+- .fragment_001
+	Sage: [NACK] Partial corruption is not encryption.
+	=> quiz_fail
+- recovered_file
+	Sage: [NACK] That is the assembled output, not an input fragment.
+	=> quiz_fail
+
+~ q3
+Sage: [Q3] Which boss guarded the Deamon Depths proficiency key?
+- Printer Beast
+	Sage: [ACK] Correct. Key-path verified.
+	=> quiz_pass
+- Driver Remnant
+	Sage: [NACK] Wrong process. Driver Remnant held the sudo token path.
+	=> quiz_fail
+- Hardware Ghost
+	Sage: [NACK] Hardware Ghost is advisory, not keyholder.
+	=> quiz_fail
+
+~ quiz_pass
+Sage: [RESULT] PASS
+Sage: Boot literacy accepted. Access posture: trusted.
+Sage: Continue, and let your commands stay clean.
+do mark_sage_quiz_passed()
+=> END
+
+~ quiz_fail
+Sage: [RESULT] FAIL
+Sage: Your command history is unstable.
+- Let me retry the quiz.
+	Sage: Reinitializing assessment buffer.
+	=> q1
+- I will take the hard check.
+	Sage: [COMBAT.INIT] Then prove it under pressure.
+	do start_sage_combat()
+	=> END
+"
+metadata/dialogue_manager_version = "3.9.0"

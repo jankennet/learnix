@@ -1,0 +1,48 @@
+~ start
+if SceneManager.proficiency_key_printer == true and SceneManager.driver_remnant_defeated == true:
+	Hardware Ghost: [soft static] The logs are quiet.
+	Hardware Ghost: You silenced the remnant and stopped the daemon.
+	Hardware Ghost: The old drivers can finally rest.
+	Hardware Ghost: Take this gratitude. It is all I have left.
+	do SceneManager.quest_manager.complete_quest("drivers_den_cleanup")
+	=> END
+elif SceneManager.quest_manager.is_quest_active("drivers_den_cleanup"):
+	Hardware Ghost: The remnant still lashes out.
+	Hardware Ghost: The printer daemon still screams.
+	Hardware Ghost: Please, end the errors.
+	- I will calm the logs. (Puzzle)
+		do start_puzzle()
+		=> END
+	- I am done listening. (Combat)
+		do start_combat()
+		=> END
+	- I will return later.
+		=> END
+else:
+	Hardware Ghost: [whisper] Legacy device... no longer recognized.
+	Hardware Ghost: I am a driver from a machine long gone.
+	Hardware Ghost: I only remember the logs. I only remember the faults.
+	- What happened here?
+		Hardware Ghost: A purge. A rewrite. The stack moved on.
+		Hardware Ghost: We were left behind, still calling, still failing.
+	- What do you need?
+		Hardware Ghost: A remnant rages nearby. It tears at the bus.
+		Hardware Ghost: And the Printer Beast hoards the key to the depths.
+		Hardware Ghost: Quiet them both, and the logs will settle.
+	- I will help.
+		Hardware Ghost: Then listen for the whispers. They point to the faults.
+		Hardware Ghost: If you can calm the logs, I can guide you.
+		set SceneManager.met_hardware_ghost = true
+		do SceneManager.quest_manager.start_quest("drivers_den_cleanup")
+		do start_puzzle()
+		=> END
+	- Enough whispers. (Aggravate)
+		Hardware Ghost: [static spikes] Threat detected.
+		Hardware Ghost: The logs turn to screams.
+		set SceneManager.met_hardware_ghost = true
+		do SceneManager.quest_manager.start_quest("drivers_den_cleanup")
+		do start_combat()
+		=> END
+	set SceneManager.met_hardware_ghost = true
+	do SceneManager.quest_manager.start_quest("drivers_den_cleanup")
+	=> END

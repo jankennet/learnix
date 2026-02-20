@@ -1,0 +1,97 @@
+[gd_scene load_steps=13 format=3 uid="uid://da7as37itnpif"]
+
+[ext_resource type="PackedScene" uid="uid://fdn3j5m4b4ri" path="res://Scenes/Levels/bios_vault_.tscn" id="1_tuy4t"]
+[ext_resource type="Texture2D" uid="uid://b1qh4gi60jfmy" path="res://Assets/characterSpriteSheets/ss_FallbackHamletNPC/sage.png" id="2_sm7vc"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_tuy4t"]
+size = Vector3(2.6243896, 2.4403076, 1.7050781)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jmks2"]
+atlas = ExtResource("2_sm7vc")
+region = Rect2(0, 0, 80, 150)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g7vw4"]
+atlas = ExtResource("2_sm7vc")
+region = Rect2(80, 0, 80, 150)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2s0pi"]
+atlas = ExtResource("2_sm7vc")
+region = Rect2(160, 0, 80, 150)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5a1ks"]
+atlas = ExtResource("2_sm7vc")
+region = Rect2(240, 0, 80, 150)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ldrqf"]
+atlas = ExtResource("2_sm7vc")
+region = Rect2(320, 0, 80, 150)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lht3h"]
+atlas = ExtResource("2_sm7vc")
+region = Rect2(400, 0, 80, 150)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g1xyy"]
+atlas = ExtResource("2_sm7vc")
+region = Rect2(480, 0, 80, 150)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cc0hh"]
+atlas = ExtResource("2_sm7vc")
+region = Rect2(560, 0, 80, 150)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_sm7vc"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jmks2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g7vw4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2s0pi")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5a1ks")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ldrqf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lht3h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g1xyy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cc0hh")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="BiosVault" type="Node3D"]
+
+[node name="BiosVault" parent="." instance=ExtResource("1_tuy4t")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.12356472, 0, -0.14987564)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="BiosVault"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.72735214, -0.24163818, -1.1087036)
+use_collision = true
+size = Vector3(13.929543, 0.51672363, 11.599976)
+
+[node name="Sage" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8748288, -0.75430727)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Sage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.022155762, 0.7201538, 0.35253906)
+shape = SubResource("BoxShape3D_tuy4t")
+
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="Sage"]
+pixel_size = 0.05
+billboard = 2
+texture_filter = 0
+sprite_frames = SubResource("SpriteFrames_sm7vc")
+
+[node name="Spawn_BV" type="Marker3D" parent="." groups=["spawn_point"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.20953369, 0.043192, 2.28695)

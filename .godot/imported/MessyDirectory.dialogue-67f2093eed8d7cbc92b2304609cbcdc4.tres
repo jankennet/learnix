@@ -1,0 +1,753 @@
+[gd_resource type="Resource" script_class="DialogueResource" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://dbs4435dsf3ry" path="res://addons/dialogue_manager/dialogue_resource.gd" id="1_n44i6"]
+
+[resource]
+script = ExtResource("1_n44i6")
+using_states = PackedStringArray()
+titles = {
+"found_lost_file": "37",
+"start": "2"
+}
+character_names = PackedStringArray("Messy Directory")
+first_title = "0"
+lines = {
+"0": {
+&"id": "0",
+&"next_id": "2",
+&"type": "title"
+},
+"1": {
+&"id": "1",
+&"next_id": "2",
+&"type": ""
+},
+"10": {
+&"character": "Messy Directory",
+&"id": "10",
+&"next_id": "11",
+&"text": "[Vacant stare, tears of digital rain]",
+&"type": "dialogue"
+},
+"11": {
+&"character": "Messy Directory",
+&"id": "11",
+&"next_id": "12",
+&"text": "My child... truly gone now.",
+&"type": "dialogue"
+},
+"12": {
+&"character": "Messy Directory",
+&"id": "12",
+&"next_id": "13",
+&"text": "I don't want to talk about it. Please... leave me alone.",
+&"type": "dialogue"
+},
+"13": {
+&"id": "13",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"14": {
+&"condition": {
+&"expression": Array[Dictionary]([{
+&"i": 5,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 17,
+&"type": &"dot"
+}, {
+&"i": 18,
+&"type": &"variable",
+&"value": "quest_manager"
+}, {
+&"i": 31,
+&"type": &"dot"
+}, {
+&"function": "is_quest_active",
+&"i": 32,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 48,
+&"type": &"string",
+&"value": "find_lost_file"
+}, {
+&"i": 64,
+&"type": &"parens_close"
+}])])
+}])
+},
+&"id": "14",
+&"next_id": "15",
+&"next_id_after": "36",
+&"next_sibling_id": "20",
+&"type": "condition"
+},
+"15": {
+&"character": "Messy Directory",
+&"id": "15",
+&"next_id": "16",
+&"text": "Have you found my child yet?",
+&"type": "dialogue"
+},
+"16": {
+&"id": "16",
+&"next_id": "17",
+&"responses": PackedStringArray("16", "18"),
+&"text": "Not yet. (Leave)",
+&"type": "response"
+},
+"17": {
+&"id": "17",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"18": {
+&"id": "18",
+&"next_id": "19",
+&"text": "I found them...",
+&"type": "response"
+},
+"19": {
+&"id": "19",
+&"is_snippet": false,
+&"next_id": "37",
+&"next_id_after": "",
+&"type": "goto"
+},
+"2": {
+&"condition": {
+&"expression": Array[Dictionary]([{
+&"i": 3,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 15,
+&"type": &"dot"
+}, {
+&"i": 16,
+&"type": &"variable",
+&"value": "helped_lost_file"
+}, {
+&"i": 33,
+&"type": &"comparison",
+&"value": "=="
+}, {
+&"i": 36,
+&"type": &"variable",
+&"value": "true"
+}])
+},
+&"id": "2",
+&"next_id": "3",
+&"next_id_after": "36",
+&"next_sibling_id": "9",
+&"type": "condition"
+},
+"20": {
+&"condition": {},
+&"id": "20",
+&"next_id": "21",
+&"next_id_after": "36",
+&"type": "condition"
+},
+"21": {
+&"character": "Messy Directory",
+&"id": "21",
+&"next_id": "22",
+&"text": "You... you see them too, don't you?",
+&"type": "dialogue"
+},
+"22": {
+&"character": "Messy Directory",
+&"id": "22",
+&"next_id": "23",
+&"text": "My child... my Lost File...",
+&"type": "dialogue"
+},
+"23": {
+&"id": "23",
+&"next_id": "24",
+&"responses": PackedStringArray("23", "27"),
+&"text": "What happened?",
+&"type": "response"
+},
+"24": {
+&"character": "Messy Directory",
+&"id": "24",
+&"next_id": "25",
+&"text": "Someone ran rm without thinking.",
+&"type": "dialogue"
+},
+"25": {
+&"character": "Messy Directory",
+&"id": "25",
+&"next_id": "26",
+&"text": "No backup. No confirmation.",
+&"type": "dialogue"
+},
+"26": {
+&"character": "Messy Directory",
+&"id": "26",
+&"next_id": "30",
+&"text": "Just gone.",
+&"type": "dialogue"
+},
+"27": {
+&"id": "27",
+&"next_id": "28",
+&"text": "I can help",
+&"type": "response"
+},
+"28": {
+&"character": "Messy Directory",
+&"id": "28",
+&"next_id": "29",
+&"text": "Can you?",
+&"type": "dialogue"
+},
+"29": {
+&"character": "Messy Directory",
+&"id": "29",
+&"next_id": "30",
+&"text": "Or will you delete what remains?",
+&"type": "dialogue"
+},
+"3": {
+&"character": "Messy Directory",
+&"id": "3",
+&"next_id": "4",
+&"text": "[Tears of joy and relief]",
+&"type": "dialogue"
+},
+"30": {
+&"character": "Messy Directory",
+&"id": "30",
+&"next_id": "31",
+&"text": "Find my child in the Filesystem Forest.",
+&"type": "dialogue"
+},
+"31": {
+&"character": "Messy Directory",
+&"id": "31",
+&"next_id": "32",
+&"text": "Decide their fate wisely.",
+&"type": "dialogue"
+},
+"32": {
+&"id": "32",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"i": 4,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 16,
+&"type": &"dot"
+}, {
+&"i": 17,
+&"type": &"variable",
+&"value": "met_messy_directory"
+}, {
+&"i": 37,
+&"type": &"assignment",
+&"value": "="
+}, {
+&"i": 39,
+&"type": &"variable",
+&"value": "true"
+}]),
+&"is_blocking": true
+},
+&"next_id": "33",
+&"type": "mutation"
+},
+"33": {
+&"id": "33",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"i": 3,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 15,
+&"type": &"dot"
+}, {
+&"i": 16,
+&"type": &"variable",
+&"value": "quest_manager"
+}, {
+&"i": 29,
+&"type": &"dot"
+}, {
+&"function": "start_quest",
+&"i": 30,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 42,
+&"type": &"string",
+&"value": "find_lost_file"
+}, {
+&"i": 58,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "34",
+&"type": "mutation"
+},
+"34": {
+&"id": "34",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"35": {
+&"id": "35",
+&"next_id": "36",
+&"type": ""
+},
+"36": {
+&"id": "36",
+&"next_id": "37",
+&"type": "title"
+},
+"37": {
+&"condition": {
+&"expression": Array[Dictionary]([{
+&"i": 3,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 15,
+&"type": &"dot"
+}, {
+&"i": 16,
+&"type": &"variable",
+&"value": "npc_states"
+}, {
+&"i": 26,
+&"type": &"dot"
+}, {
+&"function": "get",
+&"i": 27,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 31,
+&"type": &"string",
+&"value": "Lost File"
+}, {
+&"i": 42,
+&"type": &"parens_close"
+}])])
+}, {
+&"i": 44,
+&"type": &"comparison",
+&"value": "=="
+}, {
+&"i": 47,
+&"type": &"string",
+&"value": "helped"
+}])
+},
+&"id": "37",
+&"next_id": "38",
+&"next_id_after": "56",
+&"next_sibling_id": "45",
+&"type": "condition"
+},
+"38": {
+&"character": "Messy Directory",
+&"id": "38",
+&"next_id": "39",
+&"text": "You helped them? You gave them peace?",
+&"type": "dialogue"
+},
+"39": {
+&"character": "Messy Directory",
+&"id": "39",
+&"next_id": "40",
+&"text": "[Tears of digital rain]",
+&"type": "dialogue"
+},
+"4": {
+&"character": "Messy Directory",
+&"id": "4",
+&"next_id": "5",
+&"text": "My child is alive. Whole again.",
+&"type": "dialogue"
+},
+"40": {
+&"character": "Messy Directory",
+&"id": "40",
+&"next_id": "41",
+&"text": "Thank you. Thank you for restoring what was lost.",
+&"type": "dialogue"
+},
+"41": {
+&"character": "Messy Directory",
+&"id": "41",
+&"next_id": "42",
+&"text": "You're not like the others. You understand that every file matters.",
+&"type": "dialogue"
+},
+"42": {
+&"id": "42",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"i": 4,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 16,
+&"type": &"dot"
+}, {
+&"i": 17,
+&"type": &"variable",
+&"value": "helped_lost_file"
+}, {
+&"i": 34,
+&"type": &"assignment",
+&"value": "="
+}, {
+&"i": 36,
+&"type": &"variable",
+&"value": "true"
+}]),
+&"is_blocking": true
+},
+&"next_id": "43",
+&"type": "mutation"
+},
+"43": {
+&"id": "43",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"i": 3,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 15,
+&"type": &"dot"
+}, {
+&"i": 16,
+&"type": &"variable",
+&"value": "quest_manager"
+}, {
+&"i": 29,
+&"type": &"dot"
+}, {
+&"function": "complete_quest",
+&"i": 30,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 45,
+&"type": &"string",
+&"value": "find_lost_file"
+}, {
+&"i": 61,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "44",
+&"type": "mutation"
+},
+"44": {
+&"id": "44",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"45": {
+&"condition": {
+&"expression": Array[Dictionary]([{
+&"i": 5,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 17,
+&"type": &"dot"
+}, {
+&"i": 18,
+&"type": &"variable",
+&"value": "npc_states"
+}, {
+&"i": 28,
+&"type": &"dot"
+}, {
+&"function": "get",
+&"i": 29,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 33,
+&"type": &"string",
+&"value": "Lost File"
+}, {
+&"i": 44,
+&"type": &"parens_close"
+}])])
+}, {
+&"i": 46,
+&"type": &"comparison",
+&"value": "=="
+}, {
+&"i": 49,
+&"type": &"string",
+&"value": "hostile"
+}])
+},
+&"id": "45",
+&"next_id": "46",
+&"next_id_after": "56",
+&"next_sibling_id": "52",
+&"type": "condition"
+},
+"46": {
+&"character": "Messy Directory",
+&"id": "46",
+&"next_id": "47",
+&"text": "You... you destroyed them?",
+&"type": "dialogue"
+},
+"47": {
+&"character": "Messy Directory",
+&"id": "47",
+&"next_id": "48",
+&"text": "My child is truly gone now.",
+&"type": "dialogue"
+},
+"48": {
+&"character": "Messy Directory",
+&"id": "48",
+&"next_id": "49",
+&"text": "I don't know what you are, but you are not welcome here.",
+&"type": "dialogue"
+},
+"49": {
+&"id": "49",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"i": 4,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 16,
+&"type": &"dot"
+}, {
+&"i": 17,
+&"type": &"variable",
+&"value": "deleted_lost_file"
+}, {
+&"i": 35,
+&"type": &"assignment",
+&"value": "="
+}, {
+&"i": 37,
+&"type": &"variable",
+&"value": "true"
+}]),
+&"is_blocking": true
+},
+&"next_id": "50",
+&"type": "mutation"
+},
+"5": {
+&"character": "Messy Directory",
+&"id": "5",
+&"next_id": "6",
+&"text": "You gave me back what I thought was lost forever.",
+&"type": "dialogue"
+},
+"50": {
+&"id": "50",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"i": 3,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 15,
+&"type": &"dot"
+}, {
+&"i": 16,
+&"type": &"variable",
+&"value": "quest_manager"
+}, {
+&"i": 29,
+&"type": &"dot"
+}, {
+&"function": "fail_quest",
+&"i": 30,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 41,
+&"type": &"string",
+&"value": "find_lost_file"
+}, {
+&"i": 57,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "51",
+&"type": "mutation"
+},
+"51": {
+&"id": "51",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"52": {
+&"condition": {},
+&"id": "52",
+&"next_id": "53",
+&"next_id_after": "56",
+&"type": "condition"
+},
+"53": {
+&"character": "Messy Directory",
+&"id": "53",
+&"next_id": "54",
+&"text": "What happened? Did you find them?",
+&"type": "dialogue"
+},
+"54": {
+&"id": "54",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"55": {
+&"id": "55",
+&"next_id": "56",
+&"type": ""
+},
+"56": {
+&"id": "56",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"6": {
+&"character": "Messy Directory",
+&"id": "6",
+&"next_id": "7",
+&"text": "Thank you, kind stranger. Thank you so much.",
+&"type": "dialogue"
+},
+"7": {
+&"character": "Messy Directory",
+&"id": "7",
+&"next_id": "8",
+&"text": "I don't know how to repay you. You've restored my hope.",
+&"type": "dialogue"
+},
+"8": {
+&"id": "8",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"9": {
+&"condition": {
+&"expression": Array[Dictionary]([{
+&"i": 5,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 17,
+&"type": &"dot"
+}, {
+&"i": 18,
+&"type": &"variable",
+&"value": "deleted_lost_file"
+}, {
+&"i": 36,
+&"type": &"comparison",
+&"value": "=="
+}, {
+&"i": 39,
+&"type": &"variable",
+&"value": "true"
+}])
+},
+&"id": "9",
+&"next_id": "10",
+&"next_id_after": "36",
+&"next_sibling_id": "14",
+&"type": "condition"
+}
+}
+raw_text = "~ start
+# Check quest completion status
+if SceneManager.helped_lost_file == true:
+	Messy Directory: [Tears of joy and relief]
+	Messy Directory: My child is alive. Whole again.
+	Messy Directory: You gave me back what I thought was lost forever.
+	Messy Directory: Thank you, kind stranger. Thank you so much.
+	Messy Directory: I don't know how to repay you. You've restored my hope.
+	=> END
+elif SceneManager.deleted_lost_file == true:
+	Messy Directory: [Vacant stare, tears of digital rain]
+	Messy Directory: My child... truly gone now.
+	Messy Directory: I don't want to talk about it. Please... leave me alone.
+	=> END
+elif SceneManager.quest_manager.is_quest_active(\"find_lost_file\"):
+	Messy Directory: Have you found my child yet?
+	- Not yet. (Leave)
+		=> END
+	- I found them...
+		=> found_lost_file
+else:
+	Messy Directory: You... you see them too, don't you?
+	Messy Directory: My child... my Lost File...
+	- What happened?
+		Messy Directory: Someone ran rm without thinking.
+		Messy Directory: No backup. No confirmation.
+		Messy Directory: Just gone.
+	- I can help
+		Messy Directory: Can you?
+		Messy Directory: Or will you delete what remains?
+	Messy Directory: Find my child in the Filesystem Forest.
+	Messy Directory: Decide their fate wisely.
+	set SceneManager.met_messy_directory = true
+	do SceneManager.quest_manager.start_quest(\"find_lost_file\")
+	=> END
+
+~ found_lost_file
+if SceneManager.npc_states.get(\"Lost File\") == \"helped\":
+	Messy Directory: You helped them? You gave them peace?
+	Messy Directory: [Tears of digital rain]
+	Messy Directory: Thank you. Thank you for restoring what was lost.
+	Messy Directory: You're not like the others. You understand that every file matters.
+	set SceneManager.helped_lost_file = true
+	do SceneManager.quest_manager.complete_quest(\"find_lost_file\")
+	=> END
+elif SceneManager.npc_states.get(\"Lost File\") == \"hostile\":
+	Messy Directory: You... you destroyed them?
+	Messy Directory: My child is truly gone now.
+	Messy Directory: I don't know what you are, but you are not welcome here.
+	set SceneManager.deleted_lost_file = true
+	do SceneManager.quest_manager.fail_quest(\"find_lost_file\")
+	=> END
+else:
+	Messy Directory: What happened? Did you find them?
+	=> END
+"
+metadata/dialogue_manager_version = "3.9.0"

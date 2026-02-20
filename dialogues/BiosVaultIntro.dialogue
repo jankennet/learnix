@@ -1,0 +1,81 @@
+~ nova_where
+Nova: Where am I?
+=> END
+
+~ sage_intro
+Sage: [BOOT.LOG 00A1] Guardian process awakened.
+Sage: Welcome, traveler. You stand within the BIOS Vault.
+Sage: [KERNEL.MSG] Prove your learning, or be tested by force.
+=> END
+
+~ sage_skill_check
+if SceneManager.player_karma == "bad" and SceneManager.deleted_lost_file == true:
+	Sage: [SECURITY.FLAG] Hostile user pattern detected.
+	Sage: [AUDIT] Lost File terminated. Mercy checksum failed.
+	Sage: No quiz. Only hard mode remains.
+	do start_sage_combat()
+	=> END
+elif SceneManager.player_karma == "bad" and SceneManager.broken_link_fragmented_key == true:
+	Sage: [SECURITY.FLAG] Corruption-first behavior confirmed.
+	Sage: [AUDIT] Broken Link severed into fragments.
+	Sage: Boot protocols deny oral verification.
+	do start_sage_combat()
+	=> END
+else:
+	Sage: [BOOT.SEQ] Initializing skill-check protocol.
+	Sage: Three prompts. Parse. Recall. Respond.
+	=> q1
+
+~ q1
+Sage: [Q1] In the Broken Link repair chain, what command comes first?
+- scan broken_link
+	Sage: [ACK] Correct. Diagnostics before mutation.
+	=> q2
+- kill broken_link
+	Sage: [NACK] You choose destruction over diagnosis.
+	=> quiz_fail
+- compile link_map
+	Sage: [NACK] Compilation is terminal-phase, not bootstrap.
+	=> quiz_fail
+
+~ q2
+Sage: [Q2] Which fragment required decryption in Lost File recovery?
+- .fragment_003
+	Sage: [ACK] Correct. Encrypted payload identified.
+	=> q3
+- .fragment_001
+	Sage: [NACK] Partial corruption is not encryption.
+	=> quiz_fail
+- recovered_file
+	Sage: [NACK] That is the assembled output, not an input fragment.
+	=> quiz_fail
+
+~ q3
+Sage: [Q3] Which boss guarded the Deamon Depths proficiency key?
+- Printer Beast
+	Sage: [ACK] Correct. Key-path verified.
+	=> quiz_pass
+- Driver Remnant
+	Sage: [NACK] Wrong process. Driver Remnant held the sudo token path.
+	=> quiz_fail
+- Hardware Ghost
+	Sage: [NACK] Hardware Ghost is advisory, not keyholder.
+	=> quiz_fail
+
+~ quiz_pass
+Sage: [RESULT] PASS
+Sage: Boot literacy accepted. Access posture: trusted.
+Sage: Continue, and let your commands stay clean.
+do mark_sage_quiz_passed()
+=> END
+
+~ quiz_fail
+Sage: [RESULT] FAIL
+Sage: Your command history is unstable.
+- Let me retry the quiz.
+	Sage: Reinitializing assessment buffer.
+	=> q1
+- I will take the hard check.
+	Sage: [COMBAT.INIT] Then prove it under pressure.
+	do start_sage_combat()
+	=> END
