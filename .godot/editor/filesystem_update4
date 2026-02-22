@@ -1,1 +1,5 @@
 res://Scenes/Levels/bios_vault.tscn
+res://scripts/combat/combat_terminal_ui.gd
+res://scripts/SceneManager.gd
+res://scripts/npc_script.gd
+res://scripts/bios_vault_intro.gd

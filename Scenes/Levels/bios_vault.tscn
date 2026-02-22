@@ -1,10 +1,15 @@
-[gd_scene load_steps=13 format=3 uid="uid://da7as37itnpif"]
+[gd_scene load_steps=17 format=3 uid="uid://da7as37itnpif"]
 
 [ext_resource type="PackedScene" uid="uid://fdn3j5m4b4ri" path="res://Scenes/Levels/bios_vault_.tscn" id="1_tuy4t"]
 [ext_resource type="Texture2D" uid="uid://b1qh4gi60jfmy" path="res://Assets/characterSpriteSheets/ss_FallbackHamletNPC/sage.png" id="2_sm7vc"]
+[ext_resource type="Script" uid="uid://b0ir6gis4a7s3" path="res://scripts/npc_script.gd" id="3_sage_npc"]
+[ext_resource type="Script" uid="uid://bxbhqli8vhkha" path="res://scripts/bios_vault_intro.gd" id="4_bvintro"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_g7vw4"]
+size = Vector3(5.788788, 1.3035889, 1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_tuy4t"]
-size = Vector3(2.6243896, 2.4403076, 1.7050781)
+size = Vector3(2.6243896, 2.4403076, 2.4736328)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_jmks2"]
 atlas = ExtResource("2_sm7vc")
@@ -70,28 +75,55 @@ animations = [{
 "speed": 5.0
 }]
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(40, 1, 40)
+
 [node name="BiosVault" type="Node3D"]
+script = ExtResource("4_bvintro")
+bios_vault_camera_path = NodePath("BiosVault/CameraforSage")
 
 [node name="BiosVault" parent="." instance=ExtResource("1_tuy4t")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.12356472, 0, -0.14987564)
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -0.12356472, 0, -0.14987564)
 
 [node name="CSGBox3D" type="CSGBox3D" parent="BiosVault"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.72735214, -0.24163818, -1.1087036)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.03009224, -0.23967743, 3.0898976)
 use_collision = true
-size = Vector3(13.929543, 0.51672363, 11.599976)
+size = Vector3(13.929543, 0.51672363, 20.104187)
+
+[node name="SageArea-Intro" type="Area3D" parent="BiosVault"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.008061)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="BiosVault/SageArea-Intro"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.23564148, 0.15179443, 0)
+shape = SubResource("BoxShape3D_g7vw4")
+
+[node name="CameraforSage" type="Camera3D" parent="BiosVault"]
+transform = Transform3D(0.5, 0, 0, 0, 0.48063084, -0.13781868, 0, 0.13781868, 0.48063084, 0.06178236, 0.6484364, 1.2406087)
 
 [node name="Sage" type="CharacterBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8748288, -0.75430727)
+transform = Transform3D(1.2, 0, 0, 0, 1.2, 0, 0, 0, 1.2, 0, 0.95, -0.75430727)
+script = ExtResource("3_sage_npc")
+interact_radius = 3.0
+dialogue_resource_path = "res://dialogues/BiosVaultIntro.dialogue"
+dialogue_start_title = "sage_intro"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Sage"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.022155762, 0.7201538, 0.35253906)
+transform = Transform3D(1.4999998, 0, 0, 0, 1.4999998, 0, 0, 0, 1.4999998, 0.022155756, 0.72015387, -0.39252716)
 shape = SubResource("BoxShape3D_tuy4t")
 
 [node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="Sage"]
+transform = Transform3D(0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, 0, 0.628771, 0)
 pixel_size = 0.05
 billboard = 2
 texture_filter = 0
 sprite_frames = SubResource("SpriteFrames_sm7vc")
+autoplay = "default"
+
+[node name="SpawnSafetyFloor" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SpawnSafetyFloor"]
+shape = SubResource("BoxShape3D_floor")
 
 [node name="Spawn_BV" type="Marker3D" parent="." groups=["spawn_point"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.20953369, 0.043192, 2.28695)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.20953369, 0.064504, 14.402878)

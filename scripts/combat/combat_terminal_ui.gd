@@ -155,7 +155,7 @@ func open_combat_ui() -> void:
 func close_combat_ui() -> void:
 	is_open = false
 	hide()
-	call_deferred("_show_queued_reward_popup")
+	_show_queued_reward_popup()
 	
 	# Cancel any active timing minigame
 	if timing_minigame and timing_minigame.is_active:
@@ -182,7 +182,6 @@ func close_combat_ui() -> void:
 	enemy_controller = null
 
 func _show_queued_reward_popup() -> void:
-	await get_tree().process_frame
 	if not SceneManager:
 		return
 	if not SceneManager.has_meta("pending_reward_popup_key"):

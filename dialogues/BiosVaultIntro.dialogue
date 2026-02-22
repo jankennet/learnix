@@ -2,80 +2,221 @@
 Nova: Where am I?
 => END
 
+~ sage_rules
+Sage: Welcome to the BIOS Vault.
+Sage: I assess your knowledge with a quiz.
+Sage: Three wrong answers, and we settle it in combat.
+Sage: Ready?
+=> END
+
 ~ sage_intro
-Sage: [BOOT.LOG 00A1] Guardian process awakened.
-Sage: Welcome, traveler. You stand within the BIOS Vault.
-Sage: [KERNEL.MSG] Prove your learning, or be tested by force.
+Sage: Welcome to the BIOS Vault.
+Sage: I guard boot protocols.
+Sage: Quick check—show me what you’ve learned.
 => END
 
 ~ sage_skill_check
+do reset_sage_quiz_attempts()
 if SceneManager.player_karma == "bad" and SceneManager.deleted_lost_file == true:
-	Sage: [SECURITY.FLAG] Hostile user pattern detected.
-	Sage: [AUDIT] Lost File terminated. Mercy checksum failed.
-	Sage: No quiz. Only hard mode remains.
+	Sage: Your log reads hostile.
+	Sage: No quiz. Combat verification only.
 	do start_sage_combat()
 	=> END
 elif SceneManager.player_karma == "bad" and SceneManager.broken_link_fragmented_key == true:
-	Sage: [SECURITY.FLAG] Corruption-first behavior confirmed.
-	Sage: [AUDIT] Broken Link severed into fragments.
-	Sage: Boot protocols deny oral verification.
+	Sage: You broke the link instead of repairing it.
+	Sage: Combat verification only.
 	do start_sage_combat()
 	=> END
 else:
-	Sage: [BOOT.SEQ] Initializing skill-check protocol.
-	Sage: Three prompts. Parse. Recall. Respond.
-	=> q1
+	Sage: Quiz commencing. 15 questions ahead. Answers shuffle each time.
+	do shuffle_quiz_questions()
+	do show_next_question()
+	=> END
 
 ~ q1
-Sage: [Q1] In the Broken Link repair chain, what command comes first?
+Sage: First step for Broken Link?
 - scan broken_link
-	Sage: [ACK] Correct. Diagnostics before mutation.
-	=> q2
+	Sage: Correct.
+	do show_next_question()
+	=> END
 - kill broken_link
-	Sage: [NACK] You choose destruction over diagnosis.
-	=> quiz_fail
+	=> quiz_wrong
 - compile link_map
-	Sage: [NACK] Compilation is terminal-phase, not bootstrap.
-	=> quiz_fail
+	=> quiz_wrong
 
 ~ q2
-Sage: [Q2] Which fragment required decryption in Lost File recovery?
+Sage: Which Lost File fragment was encrypted?
 - .fragment_003
-	Sage: [ACK] Correct. Encrypted payload identified.
-	=> q3
+	Sage: Correct.
+	do show_next_question()
+	=> END
 - .fragment_001
-	Sage: [NACK] Partial corruption is not encryption.
-	=> quiz_fail
+	=> quiz_wrong
 - recovered_file
-	Sage: [NACK] That is the assembled output, not an input fragment.
-	=> quiz_fail
+	=> quiz_wrong
 
 ~ q3
-Sage: [Q3] Which boss guarded the Deamon Depths proficiency key?
+Sage: Who held the Deamon Depths proficiency key?
 - Printer Beast
-	Sage: [ACK] Correct. Key-path verified.
-	=> quiz_pass
+	Sage: Correct.
+	do show_next_question()
+	=> END
 - Driver Remnant
-	Sage: [NACK] Wrong process. Driver Remnant held the sudo token path.
-	=> quiz_fail
+	=> quiz_wrong
 - Hardware Ghost
-	Sage: [NACK] Hardware Ghost is advisory, not keyholder.
-	=> quiz_fail
+	=> quiz_wrong
+
+~ q4
+Sage: What do you get from scanning Broken Link?
+- Diagnostic data and a key fragment
+	Sage: Correct.
+	do show_next_question()
+	=> END
+- Only a sudo token
+	=> quiz_wrong
+- A direct path to Gate Keeper
+	=> quiz_wrong
+
+~ q5
+Sage: Which NPC dwells in the isolated terminals?
+- Lost File
+	Sage: Correct.
+	do show_next_question()
+	=> END
+- Messy Directory
+	=> quiz_wrong
+- Elder Shell
+	=> quiz_wrong
+
+~ q6
+Sage: What does the sudo token grant?
+- Alternate path to Gate Keeper
+	Sage: Correct.
+	do show_next_question()
+	=> END
+- Full system access
+	=> quiz_wrong
+- A second proficiency key
+	=> quiz_wrong
+
+~ q7
+Sage: How many fragments was Lost File split into?
+- Multiple encrypted pieces
+	Sage: Correct.
+	do show_next_question()
+	=> END
+- Just one hidden file
+	=> quiz_wrong
+- Seven parts exactly
+	=> quiz_wrong
+
+~ q8
+Sage: What's the goal of debugging Broken Link?
+- Restore it to working condition and earn trust
+	Sage: Correct.
+	do show_next_question()
+	=> END
+- Delete it completely
+	=> quiz_wrong
+- Ignore it entirely
+	=> quiz_wrong
+
+~ q9
+Sage: What proves Broken Link was helped?
+- Proficiency key from Broken Link
+	Sage: Correct.
+	do show_next_question()
+	=> END
+- Fragmented key only
+	=> quiz_wrong
+- Sudo token
+	=> quiz_wrong
+
+~ q10
+Sage: Who grants the sudo token path?
+- Driver Remnant
+	Sage: Correct.
+	do show_next_question()
+	=> END
+- Printer Beast
+	=> quiz_wrong
+- Hardware Ghost
+	=> quiz_wrong
+
+~ q11
+Sage: What's the role of Elder Shell?
+- Guardian of wisdom, grants access if respected
+	Sage: Correct.
+	do show_next_question()
+	=> END
+- Direct enemy blocking progress
+	=> quiz_wrong
+- Irrelevant to the main path
+	=> quiz_wrong
+
+~ q12
+Sage: How does reputation affect combat?
+- Good karma makes some encounters optional
+	Sage: Correct.
+	do show_next_question()
+	=> END
+- Reputation doesn't matter
+	=> quiz_wrong
+- Bad reputation gives you special powers
+	=> quiz_wrong
+
+~ q13
+Sage: What do Messy Directory's fragments track?
+- System disorganization and corruption patterns
+	Sage: Correct.
+	do show_next_question()
+	=> END
+- Player progress only
+	=> quiz_wrong
+- Gate Keeper's location
+	=> quiz_wrong
+
+~ q14
+Sage: What's the safest trust path through the Vault?
+- Help causes, ignore hostile options, gather keys
+	Sage: Correct.
+	do show_next_question()
+	=> END
+- Maximize combat encounters for profit
+	=> quiz_wrong
+- Trust no one, delete everything
+	=> quiz_wrong
+
+~ q15
+Sage: What's the meta-challenge of the Vault?
+- Balancing system integrity with survival
+	Sage: Correct.
+	do show_next_question()
+	=> END
+- Maximizing combat encounters
+	=> quiz_wrong
+- Breaking all established rules
+	=> quiz_wrong
 
 ~ quiz_pass
-Sage: [RESULT] PASS
-Sage: Boot literacy accepted. Access posture: trusted.
-Sage: Continue, and let your commands stay clean.
+Sage: Nice. You pass.
+Sage: Access posture updated to trusted.
 do mark_sage_quiz_passed()
 => END
 
-~ quiz_fail
-Sage: [RESULT] FAIL
-Sage: Your command history is unstable.
-- Let me retry the quiz.
-	Sage: Reinitializing assessment buffer.
-	=> q1
-- I will take the hard check.
-	Sage: [COMBAT.INIT] Then prove it under pressure.
+~ quiz_wrong
+do register_sage_quiz_fail()
+if SceneManager.sage_force_combat == true:
+	Sage: Three wrong answers logged.
+	Sage: Combat verification begins now.
 	do start_sage_combat()
 	=> END
+else:
+	Sage: Not quite.
+	Sage: Wrong count: {{SceneManager.sage_quiz_fail_count}} / 3.
+	- Try next question.
+		do show_next_question()
+		=> END
+	- Skip to combat.
+		do start_sage_combat()
+		=> END

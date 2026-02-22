@@ -17,8 +17,8 @@ var met_lost_file: bool = false
 var helped_lost_file: bool = false
 var deleted_lost_file: bool = false
 var met_gate_keeper: bool = false
-var proficiency_key_forest: bool = false
-var proficiency_key_printer: bool = false
+var proficiency_key_forest: bool = true
+var proficiency_key_printer: bool = true
 var broken_link_fragmented_key: bool = false
 var gatekeeper_pass_granted: bool = false
 var met_hardware_ghost: bool = false
@@ -29,12 +29,37 @@ var printer_beast_defeated: bool = false
 var sudo_token_driver_remnant: bool = false
 var deamon_depths_boss_door_unlocked: bool = false
 var deamon_depths_printer_intro_played: bool = false
+var sage_has_many_quests: bool = false
+var sage_boss_only_progress: bool = false
+var sage_quiz_tier: String = "intermediate"
+var sage_quiz_fail_count: int = 0
+var sage_force_combat: bool = false
 
 # ✅ Quest system
 var quest_manager: QuestManager
 var quest_definitions = preload("res://scripts/QuestDefinitions.gd")
 var lost_file_spawner_class = preload("res://scripts/LostFileSpawner.gd")
 var lost_file_spawner: Node
+
+func _instantiate_player_from_scene() -> CharacterBody3D:
+	var player_scene = load(player_scene_path)
+	if not player_scene:
+		push_error("Failed to load player scene: " + player_scene_path)
+		return null
+
+	var instance = player_scene.instantiate()
+	if instance is CharacterBody3D:
+		return instance as CharacterBody3D
+
+	var nested_player = instance.get_node_or_null("CharacterBody3D")
+	if nested_player and nested_player is CharacterBody3D:
+		instance.remove_child(nested_player)
+		instance.queue_free()
+		return nested_player as CharacterBody3D
+
+	instance.queue_free()
+	push_error("Player scene does not contain a CharacterBody3D root or child")
+	return null
 
 func _ready():
 	# Initialize quest system
@@ -62,15 +87,33 @@ func _ready():
 	
 	# Load the player dynamically
 	if not player:
-		var player_scene = load(player_scene_path)
-		if player_scene:
-			player = player_scene.instantiate() as CharacterBody3D
-		else:
-			push_error("Failed to load player scene: " + player_scene_path)
+		player = _instantiate_player_from_scene()
+
+func _ensure_player() -> CharacterBody3D:
+	if is_instance_valid(player):
+		return player
+
+	var player_in_group = get_tree().get_first_node_in_group("player")
+	if player_in_group and player_in_group is CharacterBody3D:
+		player = player_in_group as CharacterBody3D
+		return player
+
+	var player_scene = load(player_scene_path)
+	if player_scene:
+		player = _instantiate_player_from_scene()
+		if is_instance_valid(player):
+			return player
+
+	push_error("Failed to resolve player instance for teleport")
+	return null
 
 # 🌀 Universal teleport (with loading screen + NPC refresh)
 func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.0):
 	print("🌍 Teleporting to:", scene_path)
+
+	var active_player := _ensure_player()
+	if not active_player:
+		return
 
 	# Show loading screen
 	await _show_loading_screen()
@@ -85,6 +128,10 @@ func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.
 	var new_scene = new_scene_res.instantiate()
 	var root = get_tree().root
 
+	var previous_parent = active_player.get_parent()
+	if previous_parent:
+		previous_parent.remove_child(active_player)
+
 	# Remove current scene
 	if get_tree().current_scene:
 		get_tree().current_scene.queue_free()
@@ -92,26 +139,34 @@ func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.
 	root.add_child(new_scene)
 	get_tree().current_scene = new_scene
 
-	new_scene.add_child(player)
+	new_scene.add_child(active_player)
+	player = active_player
 
 	# Find spawn point
 	var spawn = new_scene.get_node_or_null(spawn_name)
 	if spawn:
 		var spawn_transform = spawn.global_transform
 		var yaw = spawn_transform.basis.get_euler().y
-		player.global_transform = Transform3D(Basis(Vector3.UP, yaw), spawn_transform.origin)
+		active_player.global_transform = Transform3D(Basis(Vector3.UP, yaw), spawn_transform.origin)
 	else:
 		push_warning("Spawn point not found: " + spawn_name)
 
 	await get_tree().create_timer(delay).timeout
 
 	# 🎥 Reactivate camera
-	var cam = player.get_node_or_null("Camera3D")
+	var cam = active_player.get_node_or_null("Camera3D")
 	if cam:
 		cam.current = true
 
 	# 🧠 Notify all NPCs to "wake up"
 	_activate_scene_npcs(new_scene)
+
+	# 🔓 Hard recovery: always restore player input after transfer
+	input_locked = false
+	active_player.process_mode = Node.PROCESS_MODE_INHERIT
+	active_player.set_physics_process(true)
+	active_player.set_process_input(true)
+	active_player.set_process_unhandled_input(true)
 
 	await _hide_loading_screen()
 

@@ -1,8 +1,9 @@
+CollisionShape3D
+Area3D
+Camera3D
 CSGBox3D
 AnimatedSprite3D
-CollisionShape3D
 CharacterBody3D
-Area3D
 Node3D
 PanelContainer
 Marker3D
@@ -11,5 +12,3 @@ Label
 Label3D
 CanvasLayer
 Control
-Panel
-DirectionalLight3D

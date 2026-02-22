@@ -274,6 +274,44 @@ func start_combat() -> void:
 func start_puzzle() -> void:
 	_start_encounter_with_mode("puzzle")
 
+func mark_sage_quiz_passed() -> void:
+	var scene_controller = get_tree().current_scene
+	if scene_controller and scene_controller.has_method("mark_sage_quiz_passed"):
+		scene_controller.call("mark_sage_quiz_passed")
+		return
+
+	if SceneManager:
+		SceneManager.set_meta("bios_vault_sage_quiz_passed", true)
+
+func reset_sage_quiz_attempts() -> void:
+	var scene_controller = get_tree().current_scene
+	if scene_controller and scene_controller.has_method("reset_sage_quiz_attempts"):
+		scene_controller.call("reset_sage_quiz_attempts")
+		return
+
+	if SceneManager:
+		SceneManager.sage_quiz_fail_count = 0
+		SceneManager.sage_force_combat = false
+
+func register_sage_quiz_fail() -> void:
+	var scene_controller = get_tree().current_scene
+	if scene_controller and scene_controller.has_method("register_sage_quiz_fail"):
+		scene_controller.call("register_sage_quiz_fail")
+		return
+
+	if SceneManager:
+		SceneManager.sage_quiz_fail_count += 1
+		if SceneManager.sage_quiz_fail_count >= 3:
+			SceneManager.sage_force_combat = true
+
+func start_sage_combat() -> void:
+	var scene_controller = get_tree().current_scene
+	if scene_controller and scene_controller.has_method("start_sage_combat"):
+		scene_controller.call("start_sage_combat")
+		return
+
+	_start_encounter_with_mode("combat")
+
 func start_bios_vault_transfer() -> void:
 	if _gatekeeper_transfer_running:
 		return
@@ -295,13 +333,6 @@ func _run_bios_vault_transfer() -> void:
 	if SceneManager:
 		await SceneManager.teleport_to_scene(target_scene_path, "Spawn_BV", 0.1)
 		await get_tree().process_frame
-
-		var current_scene_path := ""
-		if get_tree().current_scene:
-			current_scene_path = get_tree().current_scene.scene_file_path
-
-		if current_scene_path != target_scene_path:
-			get_tree().change_scene_to_file(target_scene_path)
 
 		SceneManager.input_locked = false
 	else:
