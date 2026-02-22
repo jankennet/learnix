@@ -1,4 +1,4 @@
-[gd_scene load_steps=63 format=3 uid="uid://djwelxifkmkf7"]
+[gd_scene load_steps=64 format=3 uid="uid://djwelxifkmkf7"]
 
 [ext_resource type="Script" uid="uid://3tjo4ty6qgpg" path="res://scripts/nova_controls.gd" id="1_a3d8c"]
 [ext_resource type="Texture2D" uid="uid://backns8cap53v" path="res://Assets/characterSpriteSheets/ss_Nova/nova_idle.png" id="2_xpcdj"]
@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://n06vxg7mgtfl" path="res://Assets/characterSpriteSheets/ss_Nova/walk_anim_down.png" id="7_oikmp"]
 [ext_resource type="Texture2D" uid="uid://vflcwvvg6oog" path="res://Assets/characterSpriteSheets/ss_Nova/walk_anim_left.png" id="8_06tpx"]
 [ext_resource type="Texture2D" uid="uid://chjcr0bqm755" path="res://Assets/characterSpriteSheets/ss_Nova/walk_anim_up.png" id="9_7g0yx"]
+[ext_resource type="PackedScene" uid="uid://dexka4nfcsts4" path="res://Scenes/Player/tux.tscn" id="9_gk6dx"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_gk6dx"]
 size = Vector3(1.08792, 0.935364, 1.08435)
@@ -446,3 +447,6 @@ offset_top = 574.0
 offset_right = 650.0
 offset_bottom = 597.0
 text = "Press E to Teleport"
+
+[node name="Tux" parent="." instance=ExtResource("9_gk6dx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.1049933, 0.14652622, 0)

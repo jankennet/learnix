@@ -1,3 +1,5 @@
+res://Scenes/Player
+res://Assets/characterSpriteSheets/ss_Tux
 res://Assets/characterSpriteSheets/ss_FallbackHamletNPC
 res://Scenes/Levels
 res://scripts
@@ -13,5 +15,4 @@ res://Addons/terrain_3d
 E:/Games/Learnix/learnix/Addons/terrain_textures
 res://Addons
 res://Assets/characterSpriteSheets/ss_Nova
-res://Scenes/Player
 res://Scenes

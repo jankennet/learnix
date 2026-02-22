@@ -98,7 +98,8 @@ func start_encounter() -> void:
 	# Check if player previously fled combat with this enemy - restore has_attacked state
 	if enemy_controller and "enemy_name" in enemy_controller:
 		var npc_name = enemy_controller.enemy_name
-		var saved_state = SceneManager.get_meta("combat_state_" + npc_name) if SceneManager.has_meta("combat_state_" + npc_name) else null
+		var combat_state_key := _combat_state_meta_key(npc_name)
+		var saved_state = SceneManager.get_meta(combat_state_key) if SceneManager.has_meta(combat_state_key) else null
 		if saved_state and saved_state is Dictionary:
 			if saved_state.get("has_attacked", false):
 				enemy_controller.has_attacked = true
@@ -148,8 +149,9 @@ func _on_encounter_ended(method: String) -> void:
 			else:
 				SceneManager.npc_states[npc_name] = "neutral"
 		# Clear saved combat state
-		if SceneManager.has_meta("combat_state_" + npc_name):
-			SceneManager.remove_meta("combat_state_" + npc_name)
+		var combat_state_key := _combat_state_meta_key(npc_name)
+		if SceneManager.has_meta(combat_state_key):
+			SceneManager.remove_meta(combat_state_key)
 	
 	# Close UI after delay
 	await get_tree().create_timer(2.0).timeout
@@ -169,3 +171,22 @@ func reset_encounter() -> void:
 	if enemy_controller:
 		enemy_controller.queue_free()
 	_create_enemy_controller()
+
+func _combat_state_meta_key(npc_name: String) -> String:
+	var sanitized_name := ""
+	for i in npc_name.length():
+		var ch := npc_name[i]
+		var code := ch.unicode_at(0)
+		var is_ascii_letter := (code >= 65 and code <= 90) or (code >= 97 and code <= 122)
+		var is_ascii_digit := code >= 48 and code <= 57
+		if is_ascii_letter or is_ascii_digit or ch == "_":
+			sanitized_name += ch.to_lower()
+		else:
+			sanitized_name += "_"
+
+	if sanitized_name.is_empty():
+		sanitized_name = "npc"
+	elif sanitized_name[0].unicode_at(0) >= 48 and sanitized_name[0].unicode_at(0) <= 57:
+		sanitized_name = "_" + sanitized_name
+
+	return "combat_state_" + sanitized_name

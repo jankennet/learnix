@@ -1,5 +1,9 @@
 res://Scenes/Levels/bios_vault.tscn
-res://scripts/combat/combat_terminal_ui.gd
 res://scripts/SceneManager.gd
-res://scripts/npc_script.gd
-res://scripts/bios_vault_intro.gd
+res://Scenes/globals/loading_screen.tscn
+res://Scenes/Player/tux.tscn
+res://Scenes/Player/player.tscn
+res://scripts/tux_follower.gd
+res://scripts/combat/combat_terminal_ui.gd
+res://scripts/combat/encounter_controller.gd
+res://Scenes/dialogue_balloon.gd

@@ -173,8 +173,10 @@ func apply_dialogue_line() -> void:
 	# Update portrait based on character
 	_update_portrait(dialogue_line.character)
 
-	dialogue_label.hide()
+	dialogue_label.visible_characters = 0
 	dialogue_label.dialogue_line = dialogue_line
+	dialogue_label.visible_characters = 0
+	dialogue_label.modulate = Color(1, 1, 1, 1)
 
 	responses_menu.hide()
 	responses_menu.responses = dialogue_line.responses
@@ -182,9 +184,8 @@ func apply_dialogue_line() -> void:
 	# Show our balloon
 	balloon.show()
 	will_hide_balloon = false
-
-	dialogue_label.show()
 	if not dialogue_line.text.is_empty():
+		dialogue_label.visible_characters = 0
 		dialogue_label.type_out()
 		await dialogue_label.finished_typing
 

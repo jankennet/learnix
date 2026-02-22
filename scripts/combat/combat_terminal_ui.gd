@@ -325,7 +325,7 @@ func _attempt_escape() -> void:
 				SceneManager.npc_states[npc_name] = "fled_combat"
 				# Also store that player has attacked (for resuming combat)
 				if "has_attacked" in enemy_controller and enemy_controller.has_attacked:
-					SceneManager.set_meta("combat_state_" + npc_name, {"has_attacked": true})
+					SceneManager.set_meta(_combat_state_meta_key(npc_name), {"has_attacked": true})
 			
 			await get_tree().create_timer(1.0).timeout
 			_force_close_and_cleanup()
@@ -547,6 +547,25 @@ func _get_color_for_type(type) -> String:
 			return "#d9bf40"
 		_:  # INFO
 			return "#4de64d"
+
+func _combat_state_meta_key(npc_name: String) -> String:
+	var sanitized_name := ""
+	for i in npc_name.length():
+		var ch := npc_name[i]
+		var code := ch.unicode_at(0)
+		var is_ascii_letter := (code >= 65 and code <= 90) or (code >= 97 and code <= 122)
+		var is_ascii_digit := code >= 48 and code <= 57
+		if is_ascii_letter or is_ascii_digit or ch == "_":
+			sanitized_name += ch.to_lower()
+		else:
+			sanitized_name += "_"
+
+	if sanitized_name.is_empty():
+		sanitized_name = "npc"
+	elif sanitized_name[0].unicode_at(0) >= 48 and sanitized_name[0].unicode_at(0) <= 57:
+		sanitized_name = "_" + sanitized_name
+
+	return "combat_state_" + sanitized_name
 
 func _close_active_dialogue() -> void:
 	# Find and close any active dialogue balloon

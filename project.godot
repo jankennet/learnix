@@ -21,6 +21,7 @@ SceneManager="*res://scripts/SceneManager.gd"
 InteractionManager="*res://scripts/Interaction_Manager.gd"
 DialogueManager="*res://addons/dialogue_manager/dialogue_manager.gd"
 InteractionPrompt="*res://Scenes/ui/interaction_prompt.tscn"
+ControlsHelp="*res://Scenes/ui/controls_help.tscn"
 
 [dialogue_manager]
 

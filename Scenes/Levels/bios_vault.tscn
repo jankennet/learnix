@@ -76,7 +76,7 @@ animations = [{
 }]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
-size = Vector3(40, 1, 40)
+size = Vector3(40, 1, 46.36902)
 
 [node name="BiosVault" type="Node3D"]
 script = ExtResource("4_bvintro")
@@ -123,6 +123,7 @@ autoplay = "default"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="SpawnSafetyFloor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.1845093)
 shape = SubResource("BoxShape3D_floor")
 
 [node name="Spawn_BV" type="Marker3D" parent="." groups=["spawn_point"]]
