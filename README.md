@@ -111,11 +111,7 @@ learnix/
 - [Godot Engine](https://godotengine.org/)
 - [Dialogic 2](https://github.com/dialogic-godot/dialogic) - Dialogue system addon
 - Terrain3D addon for environmental design
-- Character sprite assets from community resources
-
-## License
-
-[Your License Here]
+- Character sprite art by **miwabun**
 
 ---
 
