@@ -107,6 +107,23 @@ func _ensure_player() -> CharacterBody3D:
 	push_error("Failed to resolve player instance for teleport")
 	return null
 
+func _apply_spawn_transform(transfer_node: Node, active_player: CharacterBody3D, spawn_transform: Transform3D) -> void:
+	var yaw := spawn_transform.basis.get_euler().y
+	var target_player_transform := Transform3D(Basis(Vector3.UP, yaw), spawn_transform.origin)
+
+	if transfer_node == active_player:
+		active_player.global_transform = target_player_transform
+		return
+
+	var transfer_node_3d := transfer_node as Node3D
+	if transfer_node_3d:
+		var player_local_transform := active_player.transform
+		transfer_node_3d.global_transform = target_player_transform * player_local_transform.affine_inverse()
+		active_player.global_transform = target_player_transform
+		return
+
+	active_player.global_transform = target_player_transform
+
 # 🌀 Universal teleport (with loading screen + NPC refresh)
 func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.0):
 	print("🌍 Teleporting to:", scene_path)
@@ -114,6 +131,11 @@ func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.
 	var active_player := _ensure_player()
 	if not active_player:
 		return
+
+	var transfer_node: Node = active_player
+	var active_player_parent := active_player.get_parent()
+	if active_player_parent and active_player_parent != get_tree().current_scene and active_player_parent.name == "Player":
+		transfer_node = active_player_parent
 
 	# Show loading screen
 	await _show_loading_screen()
@@ -128,9 +150,9 @@ func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.
 	var new_scene = new_scene_res.instantiate()
 	var root = get_tree().root
 
-	var previous_parent = active_player.get_parent()
+	var previous_parent = transfer_node.get_parent()
 	if previous_parent:
-		previous_parent.remove_child(active_player)
+		previous_parent.remove_child(transfer_node)
 
 	# Remove current scene
 	if get_tree().current_scene:
@@ -139,15 +161,13 @@ func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.
 	root.add_child(new_scene)
 	get_tree().current_scene = new_scene
 
-	new_scene.add_child(active_player)
+	new_scene.add_child(transfer_node)
 	player = active_player
 
 	# Find spawn point
 	var spawn = new_scene.get_node_or_null(spawn_name)
 	if spawn:
-		var spawn_transform = spawn.global_transform
-		var yaw = spawn_transform.basis.get_euler().y
-		active_player.global_transform = Transform3D(Basis(Vector3.UP, yaw), spawn_transform.origin)
+		_apply_spawn_transform(transfer_node, active_player, spawn.global_transform)
 	else:
 		push_warning("Spawn point not found: " + spawn_name)
 

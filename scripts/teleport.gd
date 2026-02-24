@@ -64,9 +64,14 @@ func _do_teleport():
 
 	print("Teleporting to:", target_scene)
 
-	var player_parent = player.get_parent()
+	var transfer_node: Node = player
+	var player_parent_for_transfer := player.get_parent()
+	if player_parent_for_transfer and player_parent_for_transfer != get_tree().current_scene and player_parent_for_transfer.name == "Player":
+		transfer_node = player_parent_for_transfer
+
+	var player_parent = transfer_node.get_parent()
 	if player_parent:
-		player_parent.remove_child(player)
+		player_parent.remove_child(transfer_node)
 
 	await get_tree().create_timer(delay).timeout
 
@@ -85,7 +90,7 @@ func _do_teleport():
 	root.add_child(new_scene)
 	get_tree().current_scene = new_scene
 
-	new_scene.add_child(player)
+	new_scene.add_child(transfer_node)
 
 	# ✅ Spawn search
 	var spawn: Node3D = new_scene.get_node_or_null(spawn_name)
@@ -98,9 +103,7 @@ func _do_teleport():
 			print("⚠️ Fallback spawn used:", spawn.name)
 
 	if spawn:
-		var spawn_transform = spawn.global_transform
-		var yaw = spawn_transform.basis.get_euler().y
-		player.global_transform = Transform3D(Basis(Vector3.UP, yaw), spawn_transform.origin)
+		_apply_spawn_transform(transfer_node, player, spawn.global_transform)
 	else:
 		push_warning("No spawn found! Player at default pos")
 
@@ -118,6 +121,24 @@ func _do_teleport():
 		cam.current = true
 
 	can_teleport = true
+
+
+func _apply_spawn_transform(transfer_node: Node, active_player: CharacterBody3D, spawn_transform: Transform3D) -> void:
+	var yaw := spawn_transform.basis.get_euler().y
+	var target_player_transform := Transform3D(Basis(Vector3.UP, yaw), spawn_transform.origin)
+
+	if transfer_node == active_player:
+		active_player.global_transform = target_player_transform
+		return
+
+	var transfer_node_3d := transfer_node as Node3D
+	if transfer_node_3d:
+		var player_local_transform := active_player.transform
+		transfer_node_3d.global_transform = target_player_transform * player_local_transform.affine_inverse()
+		active_player.global_transform = target_player_transform
+		return
+
+	active_player.global_transform = target_player_transform
 
 
 func _find_node_recursive(node: Node, node_name: String) -> Node:
