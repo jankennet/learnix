@@ -258,7 +258,7 @@ size = Vector3(50, 1, 64.16)
 [node name="NPCS" type="Node3D" parent="."]
 
 [node name="Printer Boss" type="CharacterBody3D" parent="NPCS" groups=["npcs"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.252104, 0, -15.114656)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.88911, 0, -15.114656)
 script = ExtResource("3_k8yqp")
 encounter_id = "printer_beast"
 
@@ -270,7 +270,6 @@ shape = SubResource("SphereShape3D_o5iuf")
 transform = Transform3D(1, 0, -1.7484555e-07, 0, 1, 0, 1.7484555e-07, 0, 1, 2.3842354, 2.6200824, 6.4268284)
 pixel_size = 0.1
 billboard = 2
-shaded = true
 texture_filter = 0
 sprite_frames = SubResource("SpriteFrames_1okqw")
 

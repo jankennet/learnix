@@ -21,6 +21,36 @@ const DialogueManagerConstants = preload("res://addons/dialogue_manager/constant
 ## Dictionary mapping character names to portrait textures
 @export var character_portraits: Dictionary = {}
 
+const DIALOGUE_PORTRAITS_BASE := {
+	"Broken Installer": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_broken_installer.png",
+	"Elder Shell": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_elder_shell.png",
+	"Gate Keeper": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_mount_whisperer.png",
+	"Mount Whisperer": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_mount_whisperer.png"
+}
+
+const DIALOGUE_PORTRAITS_VARIANTS := {
+	"Broken Link": {
+		"good": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_good_broken_link.png",
+		"bad": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_bad_broken_link.png"
+	},
+	"Driver Remnant": {
+		"good": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_good_driver_remnant.png",
+		"bad": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_bad_driver_remnant.png"
+	},
+	"Hardware Ghost": {
+		"good": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_good_hardware_ghost.png",
+		"bad": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_bad_hardware_ghost.png"
+	},
+	"Lost File": {
+		"good": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_good_lost_file.png",
+		"bad": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_bad_lost_file.png"
+	},
+	"Messy Directory": {
+		"good": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_good_messy_directory.png",
+		"bad": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_bad_messy_directory.png"
+	}
+}
+
 ## A sound player for voice lines (if they exist).
 @onready var audio_stream_player: AudioStreamPlayer = %AudioStreamPlayer
 
@@ -210,12 +240,45 @@ func apply_dialogue_line() -> void:
 
 ## Update the portrait based on character name
 func _update_portrait(character_name: String) -> void:
+	var resolved_texture := _resolve_character_portrait(character_name)
+	if resolved_texture:
+		portrait.texture = resolved_texture
+	portrait_panel.show()
+
+
+func _resolve_character_portrait(character_name: String) -> Texture2D:
 	if character_portraits.has(character_name):
-		portrait.texture = character_portraits[character_name]
-		portrait_panel.show()
-	else:
-		# Show placeholder if no portrait is set
-		portrait_panel.show()
+		return character_portraits[character_name]
+
+	var variant := _get_character_alignment_variant(character_name)
+	if variant != "" and DIALOGUE_PORTRAITS_VARIANTS.has(character_name):
+		var variant_path: String = DIALOGUE_PORTRAITS_VARIANTS[character_name].get(variant, "")
+		if variant_path != "" and ResourceLoader.exists(variant_path):
+			return load(variant_path) as Texture2D
+
+	if DIALOGUE_PORTRAITS_BASE.has(character_name):
+		var base_path: String = DIALOGUE_PORTRAITS_BASE[character_name]
+		if ResourceLoader.exists(base_path):
+			return load(base_path) as Texture2D
+
+	return null
+
+
+func _get_character_alignment_variant(character_name: String) -> String:
+	var scene_manager = get_node_or_null("/root/SceneManager")
+	if scene_manager:
+		if scene_manager.npc_states.has(character_name):
+			var npc_state: String = str(scene_manager.npc_states[character_name])
+			if npc_state in ["helped", "solved", "good", "peaceful"]:
+				return "good"
+			if npc_state in ["hostile", "bad", "fled_combat", "defeated"]:
+				return "bad"
+
+		var player_karma: String = str(scene_manager.player_karma)
+		if player_karma in ["good", "bad"]:
+			return player_karma
+
+	return ""
 
 
 ## Set a portrait for a character (can be called from dialogue or externally)
