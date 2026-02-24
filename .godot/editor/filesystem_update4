@@ -1,5 +1,4 @@
-res://Scenes/Levels/deamon_depths.tscn
-res://Scenes/dialogue_balloon.gd
-res://scripts/SceneManager.gd
-res://scripts/teleport.gd
-res://scripts/tux_follower.gd
+res://Scenes/Levels/fallback_hamlet.tscn
+res://shaders/ui/title_crt_overlay.gdshader
+res://scripts/ui/pause_menu.gd
+res://scripts/ui/title_menu.gd

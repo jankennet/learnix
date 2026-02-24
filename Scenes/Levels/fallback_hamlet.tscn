@@ -308,7 +308,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_tw1yc")
 }],
 "loop": true,
-"name": &"gatekeeper_idle",
+"name": &"idle",
 "speed": 5.0
 }]
 
@@ -546,7 +546,7 @@ billboard = 2
 shaded = true
 texture_filter = 0
 sprite_frames = SubResource("SpriteFrames_0ylds")
-animation = &"gatekeeper_idle"
+animation = &"idle"
 
 [node name="CharacterBody3D" type="CharacterBody3D" parent="NPC"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.8081665, 0, -0.22860193)

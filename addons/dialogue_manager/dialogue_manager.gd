@@ -74,14 +74,16 @@ var _expression_parser: DMExpressionParser = DMExpressionParser.new()
 func _ready() -> void:
 	# Cache the known Node2D properties
 	_node_properties = ["Script Variables"]
-	var temp_node: Node2D = Node2D.new()
-	for property in temp_node.get_property_list():
-		_node_properties.append(property.name)
-	temp_node.free()
+	call_deferred("_cache_node_properties")
 
 	# Make the dialogue manager available as a singleton
 	if not Engine.has_singleton("DialogueManager"):
 		Engine.register_singleton("DialogueManager", self)
+
+
+func _cache_node_properties() -> void:
+	for property in ClassDB.class_get_property_list("Node2D"):
+		_node_properties.append(property.name)
 
 
 ## Step through lines and run any mutations until we either hit some dialogue or the end of the conversation
