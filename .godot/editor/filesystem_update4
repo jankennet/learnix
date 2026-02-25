@@ -1,4 +1,5 @@
 res://Scenes/Levels/fallback_hamlet.tscn
-res://shaders/ui/title_crt_overlay.gdshader
-res://scripts/ui/pause_menu.gd
-res://scripts/ui/title_menu.gd
+res://scripts/combat/dependency_resolver_minigame.gd
+res://Scenes/Levels/deamon_depths.tscn
+res://scripts/npc_script.gd
+res://scripts/combat/combat_terminal_ui.gd

@@ -247,9 +247,17 @@ func on_interact() -> void:
 	if npc_name in SceneManager.npc_states:
 		var state = SceneManager.npc_states[npc_name]
 		if state == "fled_combat":
-			# Player fled before, resume combat directly (skip dialogue)
-			_start_encounter_with_mode("combat")
-			return
+			# Only resume if a matching combat state marker exists.
+			# This avoids stale fled_combat flags forcing first-contact combat.
+			var combat_state_key := _combat_state_meta_key(npc_name)
+			var has_saved_combat_state := SceneManager.has_meta(combat_state_key)
+			if has_saved_combat_state:
+				# Player fled before, resume combat directly (skip dialogue)
+				_start_encounter_with_mode("combat")
+				return
+			else:
+				# Stale flag cleanup: fall back to normal dialogue flow.
+				SceneManager.npc_states[npc_name] = "neutral"
 	
 	# Show NPC dialog
 	# If a dialogue resource path is configured and DialogueManager exists, show the balloon
@@ -427,6 +435,26 @@ func _start_encounter_with_mode(mode: String) -> void:
 	
 	get_tree().current_scene.add_child(ec)
 	ec.start_encounter()
+
+
+func _combat_state_meta_key(npc_label: String) -> String:
+	var sanitized_name := ""
+	for i in npc_label.length():
+		var ch := npc_label[i]
+		var code := ch.unicode_at(0)
+		var is_ascii_letter := (code >= 65 and code <= 90) or (code >= 97 and code <= 122)
+		var is_ascii_digit := code >= 48 and code <= 57
+		if is_ascii_letter or is_ascii_digit or ch == "_":
+			sanitized_name += ch.to_lower()
+		else:
+			sanitized_name += "_"
+
+	if sanitized_name.is_empty():
+		sanitized_name = "npc"
+	elif sanitized_name[0].unicode_at(0) >= 48 and sanitized_name[0].unicode_at(0) <= 57:
+		sanitized_name = "_" + sanitized_name
+
+	return "combat_state_" + sanitized_name
 
 
 func _on_interact_area_entered(body: Node) -> void:

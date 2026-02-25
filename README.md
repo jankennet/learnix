@@ -67,13 +67,15 @@ learnix/
 
 **In Development** - Bios Vault assessment area with Sage NPC and adaptive 15-question knowledge quiz (randomized questions, shuffled answer options to prevent click-spam)
 
-### Recently Completed
-- ✅ Player teleportation and scene manager refactor
-- ✅ Interactive NPC system with dialogue triggering
-- ✅ Sage character with adaptive difficulty quiz
-- ✅ Area-based intro sequence with camera effects
-- ✅ 3-fail combat gate mechanic
-- ✅ Quest progression tracking
+### Screenshots
+![Title Menu](image-1.png)
+![Main Town](image-2.png)
+![Sample dialogues](image-3.png)
+![Main Menu](image-5.png)
+![Terminal](image-6.png)
+![Puzzle minigame](image-7.png)
+![Combat minigame](image-8.png)
+
 
 ### In Progress
 - Combat encounter system integration

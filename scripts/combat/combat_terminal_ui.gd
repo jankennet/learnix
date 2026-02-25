@@ -24,6 +24,8 @@ var combat_manager: Node = null
 var enemy_controller: Node = null
 var is_open: bool = false
 var timing_minigame: TimingMinigame = null
+var dependency_minigame: DependencyResolverMinigame = null
+var _puzzle_minigame_pending: bool = false
 #endregion
 
 func _ready() -> void:
@@ -41,6 +43,7 @@ func _ready() -> void:
 	
 	# Setup timing minigame
 	_setup_timing_minigame()
+	_setup_dependency_minigame()
 
 func _setup_timing_minigame() -> void:
 	# Create timing minigame instance
@@ -51,6 +54,16 @@ func _setup_timing_minigame() -> void:
 	# Connect timing signals
 	timing_minigame.timing_completed.connect(_on_timing_completed)
 	timing_minigame.timing_cancelled.connect(_on_timing_cancelled)
+
+func _setup_dependency_minigame() -> void:
+	# Create dependency resolver minigame instance for puzzle mode
+	dependency_minigame = DependencyResolverMinigame.new()
+	dependency_minigame.name = "DependencyResolverMinigame"
+	add_child(dependency_minigame)
+
+	# Connect resolver signals
+	dependency_minigame.resolver_completed.connect(_on_dependency_resolver_completed)
+	dependency_minigame.resolver_closed.connect(_on_dependency_resolver_closed)
 
 #region Public API
 
@@ -101,6 +114,7 @@ func setup_combat(manager: Node, enemy: Node) -> void:
 func open_combat_ui() -> void:
 	is_open = true
 	show()
+	_set_terminal_for_dependency_mode(false)
 	
 	# Close any active dialogue balloon FIRST (before locking input)
 	# This prevents dialogue_balloon from unlocking input when it's freed
@@ -155,11 +169,18 @@ func open_combat_ui() -> void:
 func close_combat_ui() -> void:
 	is_open = false
 	hide()
+	_set_terminal_for_dependency_mode(false)
 	_show_queued_reward_popup()
 	
 	# Cancel any active timing minigame
 	if timing_minigame and timing_minigame.is_active:
 		timing_minigame.cancel_timing()
+
+	# Ensure dependency resolver is closed if active
+	if dependency_minigame and dependency_minigame.visible:
+		dependency_minigame.close_minigame()
+
+	_puzzle_minigame_pending = false
 	
 	# Unlock player input
 	if SceneManager:
@@ -252,11 +273,18 @@ func _on_command_submitted(text: String) -> void:
 		if result is Dictionary:
 			# Display message from enemy controller
 			if result.get("message", "") != "":
-				_print_terminal("[color=#66f266]%s[/color]\n" % result.message)
+				var message_text := str(result.message)
+				var should_simplify := bool(result.get("requires_timing", false))
+				should_simplify = should_simplify or message_text.find("TIMING REQUIRED") != -1
+				if enemy_controller and "current_mode" in enemy_controller:
+					should_simplify = should_simplify or int(enemy_controller.current_mode) == 2
+				if should_simplify:
+					message_text = _simplify_puzzle_message(message_text)
+				_print_terminal("[color=#66f266]%s[/color]\n" % message_text)
 			
 			# Check if timing minigame is required (for puzzles)
 			if result.get("requires_timing", false):
-				_start_puzzle_timing(result.get("timing_difficulty", 1.0))
+				_start_puzzle_minigame(result.get("timing_difficulty", 1.0))
 				return
 			
 			# Update mode label if mode changed
@@ -634,29 +662,30 @@ func _on_timing_minigame_requested(command: CommandParser.CommandResult, difficu
 	# Start the timing minigame
 	timing_minigame.start_timing(TimingMinigame.TimingContext.COMBAT, difficulty)
 
-## Start timing minigame for puzzle commands
-func _start_puzzle_timing(difficulty: float) -> void:
-	if not timing_minigame:
+## Start dependency resolver minigame for puzzle commands
+func _start_puzzle_minigame(_difficulty: float) -> void:
+	if not dependency_minigame:
 		# Fallback: if no minigame, apply with normal success
 		_apply_puzzle_timing_result(1, 0.7)
 		return
-	
+
 	# Print message in terminal
-	_print_terminal("\n[color=#f2e066]🔧 TIMING CHALLENGE! Press SPACE at the right moment![/color]\n")
-	
-	# Disable input while timing
+	_print_terminal("\n[color=#f2e066]🔧 LINK PUZZLE STARTED[/color]\n")
+	_print_terminal("[color=#aaaaaa]Make a full green path from Kernel to App.[/color]\n")
+
+	# Disable command input while puzzle minigame is active
 	if command_input:
 		command_input.editable = false
-	
+
 	# Update turn indicator
 	if turn_indicator:
-		turn_indicator.text = "[ TIMING! ]"
-	
-	# Store that this is puzzle timing
+		turn_indicator.text = "[ PUZZLE CHALLENGE ]"
+
+	# Mark pending puzzle resolution and open minigame
 	_current_timing_context = "puzzle"
-	
-	# Start the timing minigame
-	timing_minigame.start_timing(TimingMinigame.TimingContext.PUZZLE, difficulty)
+	_puzzle_minigame_pending = true
+	_set_terminal_for_dependency_mode(true)
+	dependency_minigame.open_minigame()
 
 ## Track current timing context
 var _current_timing_context: String = "combat"
@@ -695,7 +724,7 @@ func _apply_puzzle_timing_result(zone: int, success_chance: float) -> void:
 		var result = enemy_controller.apply_puzzle_timing_result(zone, success_chance)
 		if result is Dictionary:
 			if result.get("message", "") != "":
-				_print_terminal("[color=#66f266]%s[/color]\n" % result.message)
+				_print_terminal("[color=#66f266]%s[/color]\n" % _simplify_puzzle_message(str(result.message)))
 			if result.get("mode_changed", false):
 				_update_mode_display()
 			if result.get("encounter_ended", false):
@@ -712,10 +741,66 @@ func _on_timing_cancelled() -> void:
 		command_input.editable = true
 		command_input.grab_focus()
 	
-		# Treat as miss based on context
-		if _current_timing_context == "puzzle":
-			_apply_puzzle_timing_result(0, 0.0)
-		elif combat_manager and combat_manager.has_method("apply_timing_result"):
-			combat_manager.apply_timing_result(0, 0.0, true)
+	# Treat as miss based on context
+	if _current_timing_context == "puzzle":
+		_apply_puzzle_timing_result(0, 0.0)
+	elif combat_manager and combat_manager.has_method("apply_timing_result"):
+		combat_manager.apply_timing_result(0, 0.0, true)
+
+func _on_dependency_resolver_completed(success: bool) -> void:
+	if not _puzzle_minigame_pending:
+		return
+
+	_puzzle_minigame_pending = false
+	_set_terminal_for_dependency_mode(false)
+
+	if success:
+		_print_terminal("[color=#66f266]Puzzle solved![/color]\n")
+		_apply_puzzle_timing_result(2, 1.0)
+	else:
+		_print_terminal("[color=#e65959]Puzzle failed.[/color]\n")
+		_apply_puzzle_timing_result(0, 0.0)
+
+func _on_dependency_resolver_closed() -> void:
+	_set_terminal_for_dependency_mode(false)
+
+	# If the puzzle was pending and player closed the minigame, treat as failed attempt.
+	if _puzzle_minigame_pending:
+		_puzzle_minigame_pending = false
+		_print_terminal("[color=#aaaaaa]Puzzle closed.[/color]\n")
+		_apply_puzzle_timing_result(0, 0.0)
+
+	# Ensure terminal input is restored after close.
+	if command_input:
+		command_input.editable = true
+		command_input.grab_focus()
+	if turn_indicator:
+		turn_indicator.text = "[ AWAITING INPUT ]"
+
+func _set_terminal_for_dependency_mode(active: bool) -> void:
+	var terminal_container := get_node_or_null("TerminalContainer") as CanvasItem
+	var status_panel_node := get_node_or_null("StatusPanel") as CanvasItem
+	var crt_overlay := get_node_or_null("CRTEffectOverlay") as CanvasItem
+
+	if terminal_container:
+		terminal_container.visible = not active
+	if status_panel_node:
+		status_panel_node.visible = not active
+	if crt_overlay:
+		crt_overlay.visible = not active
+
+func _simplify_puzzle_message(message: String) -> String:
+	var out := message
+	out = out.replace("[TIMING REQUIRED]", "[PUZZLE STEP]")
+	out = out.replace("[ TIMING REQUIRED ]", "[PUZZLE STEP]")
+	out = out.replace("[Timing Required]", "[Puzzle Step]")
+	out = out.replace("[timing required]", "[puzzle step]")
+	out = out.replace("perfect timing", "great solve")
+	out = out.replace("PERFECT TIMING", "GREAT SOLVE")
+	out = out.replace("timing", "solve")
+	out = out.replace("Timing", "Solve")
+	out = out.replace("Dependency", "Link")
+	out = out.replace("dependency", "link")
+	return out
 	
 	#endregion
