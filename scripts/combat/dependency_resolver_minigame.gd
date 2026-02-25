@@ -17,6 +17,15 @@ const NODE_SIZE := Vector2(106, 56)
 const PANIC_CONFLICT_THRESHOLD := 4
 const CURSOR_STEP := 56.0
 
+const OBJECTIVE_PATH_TO_APP := "path_to_app"
+const OBJECTIVE_STABLE_NODES := "stable_nodes"
+const OBJECTIVE_STABLE_LINKS := "stable_links"
+
+const MUTATOR_NONE := "none"
+const MUTATOR_NO_DIRECT_KERNEL := "no_direct_kernel"
+const MUTATOR_MAX_LINKS := "max_links"
+const MUTATOR_ARM_UNSTABLE := "arm_unstable"
+
 var _workspace: Control
 var _repo_panel: VBoxContainer
 var _status_label: Label
@@ -54,6 +63,14 @@ var _layout_ready := false
 var _draw_overlay: Control
 var _saved_mouse_mode: int = Input.MOUSE_MODE_VISIBLE
 var _mouse_mode_saved := false
+
+var _objective_type: String = OBJECTIVE_PATH_TO_APP
+var _objective_target := 0
+var _mutator_type: String = MUTATOR_NONE
+var _mutator_link_cap := 6
+var _last_objective_type: String = ""
+var _last_mutator_type: String = ""
+var _encounter_profile: String = "default"
 
 var _kernel_node_id := -1
 var _application_node_id := -1
@@ -115,6 +132,12 @@ func close_minigame() -> void:
 		Input.mouse_mode = _saved_mouse_mode as Input.MouseMode
 		_mouse_mode_saved = false
 	resolver_closed.emit()
+
+func configure_for_encounter(profile: String) -> void:
+	var normalized := profile.strip_edges().to_lower()
+	if normalized == "":
+		normalized = "default"
+	_encounter_profile = normalized
 
 func _build_templates() -> void:
 	_templates.clear()
@@ -961,8 +984,12 @@ func _recompute_graph_state() -> void:
 		var exact_ok := exact_inputs <= 0 or incoming.size() == exact_inputs
 		var kernel_ok := (not bool(node.get("requires_kernel", false))) or has_direct_kernel
 		var arch_conflict := source_arches.size() > 1
+		var arm_unstable := _mutator_type == MUTATOR_ARM_UNSTABLE and str(node.get("arch", "")) == "arm"
 
-		if arch_conflict:
+		if arm_unstable:
+			node["status"] = STATUS_CONFLICT
+			node["reason"] = "ARM noisy"
+		elif arch_conflict:
 			node["status"] = STATUS_CONFLICT
 			node["reason"] = "Mixed types"
 		elif not version_ok:
@@ -995,7 +1022,13 @@ func _recompute_graph_state() -> void:
 		var src: Dictionary = _nodes[from_id]
 		var dst: Dictionary = _nodes[to_id]
 
-		if float(src.get("version", 0.0)) > float(dst.get("max_input_version", 99.0)):
+		if _mutator_type == MUTATOR_MAX_LINKS and idx >= _mutator_link_cap:
+			link["state"] = LINK_BROKEN
+			link["reason"] = "overload"
+		elif _mutator_type == MUTATOR_NO_DIRECT_KERNEL and bool(src.get("is_core", false)) and bool(dst.get("is_application", false)):
+			link["state"] = LINK_BROKEN
+			link["reason"] = "kernel-lock"
+		elif float(src.get("version", 0.0)) > float(dst.get("max_input_version", 99.0)):
 			link["state"] = LINK_BROKEN
 			link["reason"] = "version"
 		elif int(dst.get("status", STATUS_BROKEN)) == STATUS_CONFLICT:
@@ -1060,14 +1093,28 @@ func _update_node_visual(node_id: int) -> void:
 func _update_state_labels() -> void:
 	var stable_count := 0
 	var conflict_count := 0
+	var stable_link_count := 0
 	for node in _nodes.values():
 		match int(node.get("status", STATUS_BROKEN)):
 			STATUS_STABLE, STATUS_CORE:
 				stable_count += 1
 			STATUS_CONFLICT:
 				conflict_count += 1
+	for link in _connections:
+		if int(link.get("state", LINK_BROKEN)) == LINK_STABLE:
+			stable_link_count += 1
 
-	_status_label.text = "Good Nodes: %d | Clashes: %d | Links: %d" % [stable_count, conflict_count, _connections.size()]
+	var goal_text := _objective_short_text()
+	var rule_text := _mutator_short_text()
+
+	_status_label.text = "Good Nodes: %d | Clashes: %d | Links: %d | Good Links: %d | Goal: %s | Rule: %s" % [
+		stable_count,
+		conflict_count,
+		_connections.size(),
+		stable_link_count,
+		goal_text,
+		rule_text
+	]
 
 func _check_fail_or_win() -> void:
 	if _is_resolved:
@@ -1090,13 +1137,7 @@ func _check_fail_or_win() -> void:
 	_panic_mode = false
 	_panic_overlay.visible = false
 
-	if _application_node_id < 0 or _kernel_node_id < 0:
-		return
-	if not _nodes.has(_application_node_id):
-		return
-	if int(_nodes[_application_node_id].get("status", STATUS_BROKEN)) != STATUS_STABLE:
-		return
-	if not _has_green_path(_kernel_node_id, _application_node_id):
+	if not _is_objective_complete(conflict_count):
 		return
 
 	_is_resolved = true
@@ -1184,9 +1225,137 @@ func _reset_puzzle() -> void:
 	if _terminal_exit_button:
 		_terminal_exit_button.disabled = true
 
+	_select_run_variation()
+
 	_spawn_core_nodes()
 	_recompute_graph_state()
-	_hint_label.text = "Goal: connect Kernel to App with all green links."
+	_hint_label.text = "Goal: %s | Rule: %s" % [_objective_short_text(), _mutator_short_text()]
 	if _template_order.size() > 0:
 		_template_cursor_index = clampi(_template_cursor_index, 0, _template_order.size() - 1)
 		_on_repository_item_pressed(_template_order[_template_cursor_index])
+
+func _select_run_variation() -> void:
+	var objectives := PackedStringArray([
+		OBJECTIVE_PATH_TO_APP,
+		OBJECTIVE_STABLE_NODES,
+		OBJECTIVE_STABLE_LINKS,
+	])
+	var mutators := PackedStringArray([
+		MUTATOR_NONE,
+		MUTATOR_NO_DIRECT_KERNEL,
+		MUTATOR_MAX_LINKS,
+		MUTATOR_ARM_UNSTABLE,
+	])
+
+	var objective_weights := PackedInt32Array([3, 3, 3])
+	var mutator_weights := PackedInt32Array([4, 2, 2, 2])
+
+	match _encounter_profile:
+		"driver_remnant":
+			objective_weights = PackedInt32Array([2, 2, 6])
+			mutator_weights = PackedInt32Array([2, 3, 5, 1])
+		"hardware_ghost":
+			objective_weights = PackedInt32Array([2, 6, 2])
+			mutator_weights = PackedInt32Array([2, 2, 1, 5])
+		"printer_beast":
+			objective_weights = PackedInt32Array([5, 2, 3])
+			mutator_weights = PackedInt32Array([2, 1, 6, 1])
+		"broken_link":
+			objective_weights = PackedInt32Array([3, 1, 6])
+			mutator_weights = PackedInt32Array([1, 6, 2, 1])
+		"lost_file":
+			objective_weights = PackedInt32Array([6, 3, 1])
+			mutator_weights = PackedInt32Array([6, 1, 1, 1])
+
+	_objective_type = objectives[_pick_weighted_index(objective_weights)]
+	_mutator_type = mutators[_pick_weighted_index(mutator_weights)]
+
+	for _i in range(4):
+		if _objective_type != _last_objective_type or _mutator_type != _last_mutator_type:
+			break
+		_objective_type = objectives[_pick_weighted_index(objective_weights)]
+		_mutator_type = mutators[_pick_weighted_index(mutator_weights)]
+
+	match _objective_type:
+		OBJECTIVE_STABLE_NODES:
+			_objective_target = 5
+		OBJECTIVE_STABLE_LINKS:
+			_objective_target = 4
+		_:
+			_objective_target = 0
+
+	if _mutator_type == MUTATOR_MAX_LINKS:
+		_mutator_link_cap = 6
+
+	_last_objective_type = _objective_type
+	_last_mutator_type = _mutator_type
+
+func _objective_short_text() -> String:
+	match _objective_type:
+		OBJECTIVE_STABLE_NODES:
+			return "Make %d GOOD nodes" % _objective_target
+		OBJECTIVE_STABLE_LINKS:
+			return "Make %d GOOD links" % _objective_target
+		_:
+			return "Kernel -> App (all green)"
+
+func _mutator_short_text() -> String:
+	match _mutator_type:
+		MUTATOR_NO_DIRECT_KERNEL:
+			return "No Kernel -> App shortcut"
+		MUTATOR_MAX_LINKS:
+			return "Max %d links" % _mutator_link_cap
+		MUTATOR_ARM_UNSTABLE:
+			return "ARM nodes always CLASH"
+		_:
+			return "Normal"
+
+func _is_objective_complete(_conflict_count: int) -> bool:
+	if not _is_app_connected_green():
+		return false
+
+	match _objective_type:
+		OBJECTIVE_STABLE_NODES:
+			var stable_count := 0
+			for node in _nodes.values():
+				var status := int(node.get("status", STATUS_BROKEN))
+				if status == STATUS_STABLE or status == STATUS_CORE:
+					stable_count += 1
+			return stable_count >= _objective_target
+		OBJECTIVE_STABLE_LINKS:
+			var stable_links := 0
+			for link in _connections:
+				if int(link.get("state", LINK_BROKEN)) == LINK_STABLE:
+					stable_links += 1
+			return stable_links >= _objective_target
+		_:
+			return true
+
+func _is_app_connected_green() -> bool:
+	if _application_node_id < 0 or _kernel_node_id < 0:
+		return false
+	if not _nodes.has(_application_node_id):
+		return false
+	if int(_nodes[_application_node_id].get("status", STATUS_BROKEN)) != STATUS_STABLE:
+		return false
+	return _has_green_path(_kernel_node_id, _application_node_id)
+
+func _pick_weighted_index(weights: PackedInt32Array) -> int:
+	if weights.is_empty():
+		return 0
+
+	var total := 0
+	for w in weights:
+		total += maxi(0, int(w))
+
+	if total <= 0:
+		return 0
+
+	var roll := randi_range(1, total)
+	var acc := 0
+	for i in range(weights.size()):
+		acc += maxi(0, int(weights[i]))
+		if roll <= acc:
+			return i
+
+	return weights.size() - 1

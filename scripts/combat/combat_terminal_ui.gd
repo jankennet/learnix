@@ -669,6 +669,9 @@ func _start_puzzle_minigame(_difficulty: float) -> void:
 		_apply_puzzle_timing_result(1, 0.7)
 		return
 
+	if dependency_minigame.has_method("configure_for_encounter"):
+		dependency_minigame.configure_for_encounter(_get_dependency_profile())
+
 	# Print message in terminal
 	_print_terminal("\n[color=#f2e066]🔧 LINK PUZZLE STARTED[/color]\n")
 	_print_terminal("[color=#aaaaaa]Make a full green path from Kernel to App.[/color]\n")
@@ -686,6 +689,29 @@ func _start_puzzle_minigame(_difficulty: float) -> void:
 	_puzzle_minigame_pending = true
 	_set_terminal_for_dependency_mode(true)
 	dependency_minigame.open_minigame()
+
+func _get_dependency_profile() -> String:
+	if not enemy_controller:
+		return "default"
+
+	var enemy_label := ""
+	if "enemy_name" in enemy_controller:
+		enemy_label = str(enemy_controller.enemy_name).to_lower()
+	elif "enemy_data" in enemy_controller and enemy_controller.enemy_data and "id" in enemy_controller.enemy_data:
+		enemy_label = str(enemy_controller.enemy_data.id).to_lower()
+
+	if enemy_label.find("remnant") != -1:
+		return "driver_remnant"
+	if enemy_label.find("ghost") != -1:
+		return "hardware_ghost"
+	if enemy_label.find("printer") != -1:
+		return "printer_beast"
+	if enemy_label.find("broken") != -1 and enemy_label.find("link") != -1:
+		return "broken_link"
+	if enemy_label.find("lost") != -1:
+		return "lost_file"
+
+	return "default"
 
 ## Track current timing context
 var _current_timing_context: String = "combat"
