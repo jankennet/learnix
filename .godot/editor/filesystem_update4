@@ -1,5 +1,2 @@
-res://Scenes/Levels/fallback_hamlet.tscn
-res://scripts/combat/dependency_resolver_minigame.gd
 res://Scenes/Levels/deamon_depths.tscn
-res://scripts/npc_script.gd
-res://scripts/combat/combat_terminal_ui.gd
+res://scripts/combat/dependency_resolver_minigame.gd

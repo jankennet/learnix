@@ -13,9 +13,11 @@ const LINK_BROKEN := 0
 const LINK_CONFLICT := 1
 const LINK_STABLE := 2
 
-const NODE_SIZE := Vector2(106, 56)
+const NODE_SIZE := Vector2(88, 52)
 const PANIC_CONFLICT_THRESHOLD := 4
 const CURSOR_STEP := 56.0
+const FLOW_SPEED := 132.0
+const RESET_TRY_MAX := 3
 
 const OBJECTIVE_PATH_TO_APP := "path_to_app"
 const OBJECTIVE_STABLE_NODES := "stable_nodes"
@@ -40,6 +42,7 @@ var _build_btn_left: Button
 var _build_btn_up: Button
 var _build_btn_down: Button
 var _build_btn_right: Button
+var _build_help_label: Label
 
 var _templates: Dictionary = {}
 var _nodes: Dictionary = {}
@@ -61,8 +64,17 @@ var _panic_mode := false
 var _open_input_grace := 0.0
 var _layout_ready := false
 var _draw_overlay: Control
+var _metadata_tooltip: PanelContainer
+var _metadata_tooltip_label: Label
+var _mono_font: Font
+var _breadcrumb_label: Label
+var _preflight_label: Label
 var _saved_mouse_mode: int = Input.MOUSE_MODE_VISIBLE
 var _mouse_mode_saved := false
+var _flow_phase := 0.0
+var _hovered_node_id := -1
+var _preflight_progress := 0.0
+var _reset_tries_left := RESET_TRY_MAX
 
 var _objective_type: String = OBJECTIVE_PATH_TO_APP
 var _objective_target := 0
@@ -114,6 +126,7 @@ func open_minigame() -> void:
 	offset_right = 0
 	offset_bottom = 0
 
+	_update_reset_help_text()
 	_reset_puzzle()
 	_open_input_grace = 0.35
 	show()
@@ -128,6 +141,9 @@ func close_minigame() -> void:
 	hide()
 	_is_active = false
 	_open_input_grace = 0.0
+	_hovered_node_id = -1
+	if _metadata_tooltip:
+		_metadata_tooltip.visible = false
 	if _mouse_mode_saved:
 		Input.mouse_mode = _saved_mouse_mode as Input.MouseMode
 		_mouse_mode_saved = false
@@ -299,7 +315,7 @@ func _build_ui() -> void:
 	shell.add_child(root)
 
 	_status_label = Label.new()
-	_status_label.text = "Good Nodes: 0 | Clashes: 0 | Links: 0"
+	_status_label.text = "GOOD: 0 | CLASH: 0 | GREEN: 0"
 	_status_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	_status_label.offset_left = 0
 	_status_label.offset_top = 0
@@ -310,7 +326,7 @@ func _build_ui() -> void:
 	root.add_child(_status_label)
 
 	_hint_label = Label.new()
-	_hint_label.text = "Goal: connect Kernel to App with all green links."
+	_hint_label.text = "Goal: Kernel -> App | Rule: Normal"
 	_hint_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	_hint_label.offset_left = 0
 	_hint_label.offset_top = 22
@@ -320,12 +336,24 @@ func _build_ui() -> void:
 	_hint_label.add_theme_color_override("font_color", Color(0.8, 0.95, 0.98))
 	root.add_child(_hint_label)
 
+	_preflight_label = Label.new()
+	_preflight_label.text = "PRE-FLIGHT [..........] 0%"
+	_preflight_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	_preflight_label.offset_left = 0
+	_preflight_label.offset_top = 44
+	_preflight_label.offset_right = 0
+	_preflight_label.offset_bottom = 66
+	_preflight_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_preflight_label.add_theme_color_override("font_color", Color(0.95, 0.88, 0.35))
+	root.add_child(_preflight_label)
+
 	_selected_lib_label = Label.new()
 	_selected_lib_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	_selected_lib_label.offset_left = 0
 	_selected_lib_label.offset_top = 44
 	_selected_lib_label.offset_right = 0
 	_selected_lib_label.offset_bottom = 66
+	_selected_lib_label.visible = false
 	_selected_lib_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_selected_lib_label.add_theme_color_override("font_color", Color(0.42, 0.88, 1.0))
 	root.add_child(_selected_lib_label)
@@ -401,10 +429,24 @@ func _build_ui() -> void:
 	_build_btn_right = right_btn
 
 	var build_help := Label.new()
-	build_help.text = "[L] Connect mode  [RMB] Delete  [C] Reset"
+	build_help.text = ""
 	build_help.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	build_help.add_theme_color_override("font_color", Color(0.7, 0.94, 0.9))
 	build_v.add_child(build_help)
+	_build_help_label = build_help
+	_update_reset_help_text()
+
+	_breadcrumb_label = Label.new()
+	_breadcrumb_label.visible = false
+	_breadcrumb_label.text = "[WARNING] Dependencies satisfied, but binary path to 'App Goal' is undefined."
+	_breadcrumb_label.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	_breadcrumb_label.offset_left = -330
+	_breadcrumb_label.offset_top = -148
+	_breadcrumb_label.offset_right = 330
+	_breadcrumb_label.offset_bottom = -126
+	_breadcrumb_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_breadcrumb_label.add_theme_color_override("font_color", Color(0.96, 0.82, 0.32))
+	root.add_child(_breadcrumb_label)
 
 	var exit_panel := PanelContainer.new()
 	exit_panel.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
@@ -472,6 +514,42 @@ func _build_ui() -> void:
 	panic_label.add_theme_color_override("font_color", Color(1.0, 0.7, 0.72))
 	_panic_overlay.add_child(panic_label)
 
+	_mono_font = SystemFont.new()
+	(_mono_font as SystemFont).font_names = PackedStringArray([
+		"Cascadia Mono",
+		"Cascadia Code",
+		"Consolas",
+		"Courier New",
+		"monospace"
+	])
+
+	_metadata_tooltip = PanelContainer.new()
+	_metadata_tooltip.visible = false
+	_metadata_tooltip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_metadata_tooltip.custom_minimum_size = Vector2.ZERO
+	var tooltip_style := StyleBoxFlat.new()
+	tooltip_style.bg_color = Color(0.02, 0.1, 0.09, 0.78)
+	tooltip_style.border_width_left = 1
+	tooltip_style.border_width_top = 1
+	tooltip_style.border_width_right = 1
+	tooltip_style.border_width_bottom = 1
+	tooltip_style.border_color = Color(0.45, 1.0, 0.88, 0.75)
+	_metadata_tooltip.add_theme_stylebox_override("panel", tooltip_style)
+	add_child(_metadata_tooltip)
+
+	_metadata_tooltip_label = Label.new()
+	_metadata_tooltip_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_metadata_tooltip_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_metadata_tooltip_label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	_metadata_tooltip_label.add_theme_font_size_override("font_size", 11)
+	_metadata_tooltip_label.add_theme_font_override("font", _mono_font)
+	_metadata_tooltip_label.add_theme_color_override("font_color", Color(0.62, 1.0, 0.88, 0.95))
+	_metadata_tooltip_label.add_theme_color_override("font_shadow_color", Color(0.26, 1.0, 0.86, 0.42))
+	_metadata_tooltip_label.add_theme_constant_override("shadow_offset_x", 0)
+	_metadata_tooltip_label.add_theme_constant_override("shadow_offset_y", 0)
+	_metadata_tooltip_label.add_theme_constant_override("shadow_outline_size", 2)
+	_metadata_tooltip.add_child(_metadata_tooltip_label)
+
 	# Match main terminal CRT curvature by reusing the combat CRT shader.
 	var crt_shader := load("res://Scenes/combat/crt_effect.gdshader") as Shader
 	if crt_shader:
@@ -500,6 +578,8 @@ func _build_ui() -> void:
 		_on_repository_item_pressed(_template_order[_template_cursor_index])
 
 func _process(delta: float) -> void:
+	_flow_phase = fposmod(_flow_phase + delta * FLOW_SPEED, 10000.0)
+
 	if _log_label:
 		if _log_label.get_line_count() > 26:
 			_log_label.clear()
@@ -527,6 +607,12 @@ func _process(delta: float) -> void:
 		_build_cursor.x = clampf(_build_cursor.x, 16.0, _workspace.size.x - 16.0)
 		_build_cursor.y = clampf(_build_cursor.y, 16.0, _workspace.size.y - 16.0)
 
+	if _metadata_tooltip and _metadata_tooltip.visible and _hovered_node_id >= 0:
+		_update_metadata_tooltip_position(_hovered_node_id)
+
+	if _application_node_id >= 0 and _node_controls.has(_application_node_id):
+		_update_node_visual(_application_node_id)
+
 	if _draw_overlay:
 		_draw_overlay.queue_redraw()
 
@@ -542,7 +628,7 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			return
 		if event.keycode == KEY_C:
-			_reset_puzzle()
+			_try_manual_reset()
 			get_viewport().set_input_as_handled()
 			return
 		if event.keycode == KEY_LEFT:
@@ -606,7 +692,7 @@ func _on_overlay_redraw() -> void:
 	if _link_mode and _link_start_node_id >= 0 and _node_controls.has(_link_start_node_id):
 		var start_ctrl := _node_controls[_link_start_node_id] as Control
 		var preview_start: Vector2 = start_ctrl.global_position + start_ctrl.size * 0.5 - overlay_origin
-		o.draw_line(preview_start, cursor, Color(0.5, 1.0, 0.95, 0.45), 2.5, true)
+		_draw_pipe_connection(o, preview_start, cursor, LINK_STABLE, true)
 
 	for link in _connections:
 		var from_id: int = int(link.get("from", -1))
@@ -620,21 +706,9 @@ func _on_overlay_redraw() -> void:
 		var end: Vector2 = to_ctrl.global_position + to_ctrl.size * 0.5 - overlay_origin
 
 		var link_state: int = int(link.get("state", LINK_BROKEN))
-		var color := Color(0.9, 0.18, 0.22)
-		match link_state:
-			LINK_CONFLICT:
-				color = Color(0.96, 0.82, 0.24)
-			LINK_STABLE:
-				color = Color(0.5, 1.0, 0.88)
-
-		# High-contrast pipes so they stay visible on all backgrounds.
-		o.draw_line(start, end, Color(color.r, color.g, color.b, 0.58), 10.0, true)
-		o.draw_line(start, end, Color(0.97, 1.0, 1.0, 0.95), 4.2, true)
-		o.draw_line(start, end, color, 2.4, true)
-		var dir: Vector2 = (end - start).normalized()
-		var tip: Vector2 = end - dir * 14.0
-		var side := Vector2(-dir.y, dir.x) * 9.0
-		o.draw_colored_polygon(PackedVector2Array([end, tip + side, tip - side]), color)
+		if _is_resolved and link_state != LINK_STABLE:
+			continue
+		_draw_pipe_connection(o, start, end, link_state, false)
 
 	# Draw connection ports on each node so link origins are obvious
 	for node_id in _node_controls.keys():
@@ -704,6 +778,202 @@ func _on_overlay_redraw() -> void:
 	# Subtle curved glass highlight.
 	o.draw_arc(top_center, screen_size.y * 1.08, 0.42, PI - 0.42, 72, Color(0.72, 1.0, 0.94, 0.045), 1.6)
 
+func _draw_pipe_connection(canvas: CanvasItem, start: Vector2, end: Vector2, link_state: int, is_preview: bool) -> void:
+	var vec := end - start
+	var length := vec.length()
+	if length < 2.0:
+		return
+
+	var dir := vec / length
+	var perp := Vector2(-dir.y, dir.x)
+
+	var base_color := Color(0.9, 0.2, 0.25)
+	if link_state == LINK_CONFLICT:
+		base_color = Color(0.96, 0.8, 0.24)
+	elif link_state == LINK_STABLE:
+		base_color = Color(0.38, 1.0, 0.72)
+
+	var usable_end := end
+	var failure_point := end
+	if not is_preview and link_state != LINK_STABLE:
+		var fail_ratio := 0.5
+		if link_state == LINK_BROKEN:
+			fail_ratio = 0.34 + 0.1 * sin(Time.get_ticks_msec() * 0.013)
+		failure_point = start.lerp(end, fail_ratio)
+		usable_end = failure_point
+
+	var segment_len := 11.0
+	var gap := 5.0
+	var d := 0.0
+	var usable_len := (usable_end - start).length()
+	while d < usable_len:
+		var seg_start := start + dir * d
+		var seg_end := start + dir * minf(d + segment_len, usable_len)
+		canvas.draw_line(seg_start, seg_end, Color(base_color.r, base_color.g, base_color.b, 0.46), 7.0, true)
+		canvas.draw_line(seg_start, seg_end, Color(0.92, 1.0, 0.95, 0.9), 3.1, true)
+		canvas.draw_line(seg_start, seg_end, Color(base_color.r, base_color.g, base_color.b, 0.94), 1.8, true)
+		d += segment_len + gap
+
+	var rib_spacing := 18.0
+	var rib_offset := fposmod(_flow_phase * 0.35, rib_spacing)
+	var r := rib_offset
+	while r < usable_len:
+		var rp := start + dir * r
+		canvas.draw_line(rp - perp * 4.0, rp + perp * 4.0, Color(0.96, 1.0, 0.98, 0.82), 1.3, true)
+		r += rib_spacing
+
+	var ch_spacing := 72.0
+	var c := 26.0
+	while c < usable_len - 18.0:
+		var cp := start + dir * c
+		_draw_chevron(canvas, cp, dir, base_color)
+		_draw_chevron(canvas, cp + dir * 8.0, dir, base_color)
+		c += ch_spacing
+
+	if link_state == LINK_STABLE or is_preview:
+		var bit_count := maxi(2, int(usable_len / 70.0))
+		for i in range(bit_count):
+			var phase := fposmod(_flow_phase + float(i) * (usable_len / float(bit_count)), usable_len)
+			var bp := start + dir * phase
+			canvas.draw_rect(Rect2(bp - Vector2(2.5, 2.5), Vector2(5.0, 5.0)), Color(0.46, 1.0, 0.55, 0.95), true)
+
+	if not is_preview and link_state != LINK_STABLE:
+		var static_color := Color(0.66, 0.72, 0.76, 0.25)
+		var sd := (failure_point - start).length() + 6.0
+		while sd < length:
+			var sp := start + dir * sd
+			var jitter := perp * randf_range(-2.0, 2.0)
+			canvas.draw_rect(Rect2(sp + jitter - Vector2(1.2, 1.2), Vector2(2.4, 2.4)), static_color, true)
+			sd += 4.0
+
+		for j in range(8):
+			var noise := Vector2(randf_range(-8.0, 8.0), randf_range(-8.0, 8.0))
+			canvas.draw_rect(Rect2(failure_point + noise, Vector2(2.0, 2.0)), Color(0.95, 0.98, 1.0, 0.44), true)
+
+		canvas.draw_circle(failure_point, 4.0 + abs(sin(Time.get_ticks_msec() * 0.03)) * 2.5, Color(1.0, 0.95, 0.95, 0.38))
+
+	var tip := usable_end
+	var tip_back := tip - dir * 10.0
+	var side := perp * 5.5
+	canvas.draw_colored_polygon(PackedVector2Array([tip, tip_back + side, tip_back - side]), Color(base_color.r, base_color.g, base_color.b, 0.95))
+
+func _draw_chevron(canvas: CanvasItem, center: Vector2, dir: Vector2, color: Color) -> void:
+	var perp := Vector2(-dir.y, dir.x)
+	var p1 := center - dir * 4.0 - perp * 4.0
+	var p2 := center + dir * 4.0
+	var p3 := center - dir * 4.0 + perp * 4.0
+	canvas.draw_line(p1, p2, Color(color.r, color.g, color.b, 0.8), 1.6, true)
+	canvas.draw_line(p2, p3, Color(color.r, color.g, color.b, 0.8), 1.6, true)
+
+func _on_node_hover_entered(node_id: int) -> void:
+	_hovered_node_id = node_id
+	_show_metadata_tooltip(node_id)
+
+func _on_node_hover_exited(node_id: int) -> void:
+	if _hovered_node_id != node_id:
+		return
+	_hovered_node_id = -1
+	if _metadata_tooltip:
+		_metadata_tooltip.visible = false
+
+func _show_metadata_tooltip(node_id: int) -> void:
+	if not _metadata_tooltip or not _metadata_tooltip_label:
+		return
+	if not _nodes.has(node_id):
+		_metadata_tooltip.visible = false
+		return
+
+	_metadata_tooltip_label.text = _build_metadata_text(_nodes[node_id])
+	_metadata_tooltip_label.reset_size()
+	_metadata_tooltip.reset_size()
+	_metadata_tooltip.visible = true
+	_update_metadata_tooltip_position(node_id)
+
+func _update_metadata_tooltip_position(node_id: int) -> void:
+	if not _metadata_tooltip or not _node_controls.has(node_id):
+		return
+	var ctrl := _node_controls[node_id] as Control
+	if ctrl == null:
+		return
+
+	var pos := ctrl.global_position - global_position
+	var tooltip_size := _metadata_tooltip.size
+	if tooltip_size.x <= 0.0 or tooltip_size.y <= 0.0:
+		tooltip_size = _metadata_tooltip.get_combined_minimum_size()
+	var tooltip_pos := pos + Vector2(ctrl.size.x + 12.0, -6.0)
+	var max_x := maxf(0.0, self.size.x - tooltip_size.x - 8.0)
+	var max_y := maxf(0.0, self.size.y - tooltip_size.y - 8.0)
+	tooltip_pos.x = clampf(tooltip_pos.x, 8.0, max_x)
+	tooltip_pos.y = clampf(tooltip_pos.y, 8.0, max_y)
+	_metadata_tooltip.position = tooltip_pos
+
+func _build_metadata_text(node: Dictionary) -> String:
+	var template_id := str(node.get("template_id", ""))
+	match template_id:
+		"kernel":
+			return "KERNEL START\nSource node\nSend links outward"
+		"libcore_legacy":
+			return "CORE BLOCK\nBase dependency\nFeeds runtime/net"
+		"thread_glue":
+			return "THREAD LINK\nConcurrency helper\nPairs with Runtime"
+		"net_daemon":
+			return "NET BLOCK\nRoutes network data\nNeed: Core Block"
+		"runtime_shell":
+			return "RUNTIME BOX\nRuns app code\nNeed: Core + Thread"
+		"arm_shim":
+			return "ARM BLOCK\nARM compatibility\nMay be unstable"
+		"ssl_old":
+			return "SECURE PACK\nSecurity helper\nOptional support"
+		"application":
+			return "APP GOAL\nNeed: %s\nRule: %s" % [_objective_tip_text(), _mutator_tip_text()]
+		_:
+			return "%s\nStatus: %s\nTip: add incoming links" % [
+				str(node.get("label", "NODE")).to_upper(),
+				str(node.get("reason", "pending"))
+			]
+
+func _objective_tip_text() -> String:
+	match _objective_type:
+		OBJECTIVE_STABLE_NODES:
+			return "%d READY nodes" % _objective_target
+		OBJECTIVE_STABLE_LINKS:
+			return "%d GREEN links" % _objective_target
+		_:
+			return "Green path from Kernel"
+
+func _mutator_tip_text() -> String:
+	match _mutator_type:
+		MUTATOR_NO_DIRECT_KERNEL:
+			return "No direct Kernel->App"
+		MUTATOR_MAX_LINKS:
+			return "Max %d links" % _mutator_link_cap
+		MUTATOR_ARM_UNSTABLE:
+			return "ARM nodes always CLASH"
+		_:
+			return "Normal"
+
+func _build_node_hint(node: Dictionary) -> String:
+	var template_id := str(node.get("template_id", ""))
+	match template_id:
+		"kernel":
+			return "Start here"
+		"application":
+			return "End goal"
+		"runtime_shell":
+			return "Run app"
+		"net_daemon":
+			return "Net path"
+		"thread_glue":
+			return "Link lib"
+		"libcore_legacy":
+			return "Core lib"
+		"arm_shim":
+			return "ARM lib"
+		"ssl_old":
+			return "Secure lib"
+		_:
+			return "Dependency"
+
 func _on_workspace_gui_input(event: InputEvent) -> void:
 	if not _is_active:
 		return
@@ -712,16 +982,35 @@ func _on_workspace_gui_input(event: InputEvent) -> void:
 		_build_cursor = _workspace.get_local_mouse_position()
 		if _selected_template_id != "":
 			_spawn_library(_selected_template_id, _workspace.get_local_mouse_position() - NODE_SIZE * 0.5)
-			_hint_label.text = "Library placed. Connect nodes to satisfy dependencies."
+			_hint_label.text = "Placed. Connect nodes."
 			get_viewport().set_input_as_handled()
 
 func _toggle_link_mode() -> void:
 	_link_mode = not _link_mode
 	_link_start_node_id = -1
 	if _link_mode:
-		_hint_label.text = "Connect mode ON: click start node, then end node."
+		_hint_label.text = "Connect: pick start, then end."
 	else:
-		_hint_label.text = "Connect mode OFF: drag nodes to move them."
+		_hint_label.text = "Move mode: drag nodes."
+
+func _try_manual_reset() -> void:
+	if _reset_tries_left <= 0:
+		_hint_label.text = "Reset locked: no tries left."
+		return
+
+	_reset_tries_left -= 1
+	_update_reset_help_text()
+	_reset_puzzle()
+	_hint_label.text = "Reset used (%d left)." % _reset_tries_left
+
+func _update_reset_help_text() -> void:
+	if _build_help_label == null:
+		return
+	_build_help_label.text = "[L] Connect mode  [RMB] Delete  [C] Reset (%d/%d)" % [_reset_tries_left, RESET_TRY_MAX]
+	if _reset_tries_left <= 0:
+		_build_help_label.add_theme_color_override("font_color", Color(0.96, 0.62, 0.46))
+	else:
+		_build_help_label.add_theme_color_override("font_color", Color(0.7, 0.94, 0.9))
 
 func _on_repository_item_pressed(template_id: String) -> void:
 	_selected_template_id = template_id
@@ -730,7 +1019,7 @@ func _on_repository_item_pressed(template_id: String) -> void:
 		_template_cursor_index = maxi(0, _template_order.find(template_id))
 	if _selected_lib_label:
 		_selected_lib_label.text = "Selected: %s" % t["label"]
-	_hint_label.text = "Selected %s. Click graph (or ▲) to place." % t["label"]
+	_hint_label.text = "Selected: %s" % t["label"]
 
 func _on_build_arrow_pressed(direction: String) -> void:
 	_flash_build_button(direction)
@@ -747,7 +1036,7 @@ func _on_build_arrow_pressed(direction: String) -> void:
 		"up":
 			if _selected_template_id != "":
 				_spawn_library(_selected_template_id, _build_cursor - NODE_SIZE * 0.5)
-				_hint_label.text = "Placed %s." % _templates[_selected_template_id]["label"]
+				_hint_label.text = "Placed: %s" % _templates[_selected_template_id]["label"]
 		"down":
 			_toggle_link_mode()
 
@@ -856,23 +1145,25 @@ func _create_node(payload: Dictionary, pos: Vector2) -> int:
 	title.name = "Title"
 	title.text = str(payload["label"])
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 12)
+	title.add_theme_font_size_override("font_size", 10)
 	vbox.add_child(title)
 
 	var meta := Label.new()
 	meta.name = "Meta"
 	meta.text = ""
 	meta.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	meta.add_theme_font_size_override("font_size", 10)
+	meta.add_theme_font_size_override("font_size", 8)
 	vbox.add_child(meta)
 
 	var state := Label.new()
 	state.name = "State"
 	state.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	state.add_theme_font_size_override("font_size", 9)
+	state.add_theme_font_size_override("font_size", 7)
 	vbox.add_child(state)
 
 	panel.gui_input.connect(_on_node_gui_input.bind(node_id))
+	panel.mouse_entered.connect(_on_node_hover_entered.bind(node_id))
+	panel.mouse_exited.connect(_on_node_hover_exited.bind(node_id))
 	_node_controls[node_id] = panel
 	_update_node_visual(node_id)
 	return node_id
@@ -932,6 +1223,10 @@ func _delete_node(node_id: int) -> void:
 		ctrl.queue_free()
 	_nodes.erase(node_id)
 	_node_controls.erase(node_id)
+	if _hovered_node_id == node_id:
+		_hovered_node_id = -1
+		if _metadata_tooltip:
+			_metadata_tooltip.visible = false
 
 	var kept: Array[Dictionary] = []
 	for link in _connections:
@@ -1062,17 +1357,38 @@ func _update_node_visual(node_id: int) -> void:
 	var state := panel.get_node_or_null("VBoxContainer/State") as Label
 
 	var color := Color(0.95, 0.2, 0.28)
-	var state_text := "BAD"
+	var state_text := "LINK"
+	if bool(node.get("is_application", false)):
+		var app_payload := _get_app_goal_status_payload()
+		color = app_payload["color"]
+		state_text = app_payload["state_text"]
+		if title:
+			title.text = "App Goal"
+			title.add_theme_color_override("font_color", Color(0.88, 1.0, 0.98))
+		if meta:
+			meta.text = app_payload["meta_text"]
+			meta.add_theme_color_override("font_color", Color(0.78, 0.95, 0.96))
+		if state:
+			state.text = state_text
+			state.add_theme_color_override("font_color", color)
+		var app_style := panel.get_theme_stylebox("panel") as StyleBoxFlat
+		if app_style:
+			var app_override := app_style.duplicate() as StyleBoxFlat
+			app_override.border_color = color
+			app_override.bg_color = Color(color.r * 0.16, color.g * 0.16, color.b * 0.2, 0.82)
+			panel.add_theme_stylebox_override("panel", app_override)
+		return
+
 	match int(node.get("status", STATUS_BROKEN)):
 		STATUS_CORE:
 			color = Color(0.35, 0.65, 1.0)
 			state_text = "START"
 		STATUS_CONFLICT:
 			color = Color(0.96, 0.78, 0.24)
-			state_text = "CLASH"
+			state_text = "FIX"
 		STATUS_STABLE:
 			color = Color(0.32, 1.0, 0.55)
-			state_text = "GOOD"
+			state_text = "READY"
 
 	var style := panel.get_theme_stylebox("panel") as StyleBoxFlat
 	if style:
@@ -1084,7 +1400,7 @@ func _update_node_visual(node_id: int) -> void:
 		title.text = str(node["label"])
 		title.add_theme_color_override("font_color", Color(0.88, 1.0, 0.98))
 	if meta:
-		meta.text = ""
+		meta.text = _build_node_hint(node)
 		meta.add_theme_color_override("font_color", Color(0.78, 0.95, 0.96))
 	if state:
 		state.text = "%s" % state_text
@@ -1106,15 +1422,37 @@ func _update_state_labels() -> void:
 
 	var goal_text := _objective_short_text()
 	var rule_text := _mutator_short_text()
+	var sub_progress := _get_subobjective_progress()
+	var sub_met: bool = sub_progress["met"]
+	var has_physical_path := _has_any_path(_kernel_node_id, _application_node_id)
+	var is_fully_ready := _is_objective_complete(0)
+	_preflight_progress = _compute_preflight_progress()
 
-	_status_label.text = "Good Nodes: %d | Clashes: %d | Links: %d | Good Links: %d | Goal: %s | Rule: %s" % [
+	_status_label.text = "GOOD: %d | CLASH: %d | GREEN: %d | GOAL: %d/%d" % [
 		stable_count,
 		conflict_count,
-		_connections.size(),
 		stable_link_count,
-		goal_text,
-		rule_text
+		int(sub_progress["current"]),
+		int(sub_progress["target"])
 	]
+	if _status_label:
+		if is_fully_ready:
+			_status_label.add_theme_color_override("font_color", Color(0.38, 1.0, 0.62))
+		else:
+			_status_label.add_theme_color_override("font_color", Color(0.96, 0.82, 0.35))
+	_hint_label.text = "Goal: %s | Rule: %s" % [goal_text, rule_text]
+
+	if _breadcrumb_label:
+		_breadcrumb_label.visible = sub_met and not has_physical_path
+
+	if _preflight_label:
+		_preflight_label.text = "PRE-FLIGHT %s %d%%" % [_build_preflight_bar(_preflight_progress), int(round(_preflight_progress * 100.0))]
+		if is_fully_ready:
+			_preflight_label.add_theme_color_override("font_color", Color(0.4, 1.0, 0.66))
+		elif has_physical_path:
+			_preflight_label.add_theme_color_override("font_color", Color(0.95, 0.88, 0.35))
+		else:
+			_preflight_label.add_theme_color_override("font_color", Color(0.94, 0.64, 0.34))
 
 func _check_fail_or_win() -> void:
 	if _is_resolved:
@@ -1191,7 +1529,7 @@ func _show_success_terminal() -> void:
 	]
 
 	await _print_terminal_lines(lines, 0.33)
-	_terminal_exit_button.disabled = false
+	_terminal_exit_button.disabled = _compute_preflight_progress() < 1.0
 
 func _print_terminal_lines(lines: PackedStringArray, interval: float) -> void:
 	for line in lines:
@@ -1217,6 +1555,7 @@ func _reset_puzzle() -> void:
 	_dragging_node_id = -1
 	_is_resolved = false
 	_panic_mode = false
+	_hovered_node_id = -1
 
 	if _panic_overlay:
 		_panic_overlay.visible = false
@@ -1224,6 +1563,8 @@ func _reset_puzzle() -> void:
 		_terminal_overlay.visible = false
 	if _terminal_exit_button:
 		_terminal_exit_button.disabled = true
+	if _metadata_tooltip:
+		_metadata_tooltip.visible = false
 
 	_select_run_variation()
 
@@ -1311,9 +1652,138 @@ func _mutator_short_text() -> String:
 			return "Normal"
 
 func _is_objective_complete(_conflict_count: int) -> bool:
+	# Gatekeeper pattern: physical path -> green path quality -> sub-objective.
+	if not _has_any_path(_kernel_node_id, _application_node_id):
+		return false
+
 	if not _is_app_connected_green():
 		return false
 
+	if _compute_preflight_progress() < 1.0:
+		return false
+
+	return _get_subobjective_progress()["met"]
+
+func _has_any_path(start_id: int, target_id: int) -> bool:
+	if start_id < 0 or target_id < 0:
+		return false
+	if not _nodes.has(start_id) or not _nodes.has(target_id):
+		return false
+
+	var visited: Dictionary = {}
+	var stack: Array[int] = [start_id]
+
+	while not stack.is_empty():
+		var current := int(stack.pop_back())
+		if current == target_id:
+			return true
+		if visited.has(current):
+			continue
+		visited[current] = true
+
+		for link in _connections:
+			if int(link.get("from", -1)) != current:
+				continue
+			var next_id := int(link.get("to", -1))
+			if _nodes.has(next_id):
+				stack.append(next_id)
+
+	return false
+
+func _find_any_shortest_path_nodes(start_id: int, target_id: int) -> Array[int]:
+	if start_id < 0 or target_id < 0:
+		return []
+	if not _nodes.has(start_id) or not _nodes.has(target_id):
+		return []
+
+	var queue: Array[int] = [start_id]
+	var visited: Dictionary = {start_id: true}
+	var parent: Dictionary = {}
+
+	while not queue.is_empty():
+		var current := int(queue.pop_front())
+		if current == target_id:
+			break
+		for link in _connections:
+			if int(link.get("from", -1)) != current:
+				continue
+			var next_id := int(link.get("to", -1))
+			if not _nodes.has(next_id) or visited.has(next_id):
+				continue
+			visited[next_id] = true
+			parent[next_id] = current
+			queue.append(next_id)
+
+	if not visited.has(target_id):
+		return []
+
+	var path: Array[int] = [target_id]
+	var cursor := target_id
+	while cursor != start_id:
+		cursor = int(parent.get(cursor, start_id))
+		path.push_front(cursor)
+	return path
+
+func _get_link_state(from_id: int, to_id: int) -> int:
+	for link in _connections:
+		if int(link.get("from", -1)) == from_id and int(link.get("to", -1)) == to_id:
+			return int(link.get("state", LINK_BROKEN))
+	return LINK_BROKEN
+
+func _compute_preflight_progress() -> float:
+	if _kernel_node_id < 0 or _application_node_id < 0:
+		return 0.0
+	if not _nodes.has(_kernel_node_id) or not _nodes.has(_application_node_id):
+		return 0.0
+
+	var app_ctrl := _node_controls.get(_application_node_id) as Control
+	var kernel_ctrl := _node_controls.get(_kernel_node_id) as Control
+	if app_ctrl == null or kernel_ctrl == null:
+		return 0.0
+
+	var path_nodes := _find_any_shortest_path_nodes(_kernel_node_id, _application_node_id)
+	if path_nodes.is_empty():
+		var app_center := app_ctrl.position + app_ctrl.size * 0.5
+		var kernel_center := kernel_ctrl.position + kernel_ctrl.size * 0.5
+		var base_dist := maxf(1.0, kernel_center.distance_to(app_center))
+		var best_dist := base_dist
+		for node_id in _nodes.keys():
+			var candidate := int(node_id)
+			if not _has_any_path(_kernel_node_id, candidate):
+				continue
+			var ctrl := _node_controls.get(candidate) as Control
+			if ctrl == null:
+				continue
+			var center := ctrl.position + ctrl.size * 0.5
+			best_dist = minf(best_dist, center.distance_to(app_center))
+		return clampf(1.0 - best_dist / base_dist, 0.0, 0.84)
+
+	var total_links := path_nodes.size() - 1
+	if total_links <= 0:
+		return 1.0
+
+	var stable_links := 0
+	for i in range(total_links):
+		if _get_link_state(path_nodes[i], path_nodes[i + 1]) == LINK_STABLE:
+			stable_links += 1
+
+	if stable_links >= total_links and _is_app_connected_green():
+		return 1.0
+
+	var ratio := float(stable_links) / float(total_links)
+	return 0.85 + ratio * 0.14
+
+func _build_preflight_bar(progress: float) -> String:
+	var clamped := clampf(progress, 0.0, 1.0)
+	var total_slots := 10
+	var filled := int(round(clamped * total_slots))
+	var bar := "["
+	for i in range(total_slots):
+		bar += "#" if i < filled else "."
+	bar += "]"
+	return bar
+
+func _get_subobjective_progress() -> Dictionary:
 	match _objective_type:
 		OBJECTIVE_STABLE_NODES:
 			var stable_count := 0
@@ -1321,15 +1791,61 @@ func _is_objective_complete(_conflict_count: int) -> bool:
 				var status := int(node.get("status", STATUS_BROKEN))
 				if status == STATUS_STABLE or status == STATUS_CORE:
 					stable_count += 1
-			return stable_count >= _objective_target
+			return {
+				"current": stable_count,
+				"target": _objective_target,
+				"met": stable_count >= _objective_target
+			}
 		OBJECTIVE_STABLE_LINKS:
 			var stable_links := 0
 			for link in _connections:
 				if int(link.get("state", LINK_BROKEN)) == LINK_STABLE:
 					stable_links += 1
-			return stable_links >= _objective_target
+			return {
+				"current": stable_links,
+				"target": _objective_target,
+				"met": stable_links >= _objective_target
+			}
 		_:
-			return true
+			var has_green := _is_app_connected_green()
+			return {
+				"current": 1 if has_green else 0,
+				"target": 1,
+				"met": has_green
+			}
+
+func _get_app_goal_status_payload() -> Dictionary:
+	var has_physical := _has_any_path(_kernel_node_id, _application_node_id)
+	var has_green := _is_app_connected_green()
+	var sub_progress := _get_subobjective_progress()
+	var current := int(sub_progress["current"])
+	var target := int(sub_progress["target"])
+	var sub_met: bool = sub_progress["met"]
+	var pulse := 0.35 + 0.35 * (0.5 + 0.5 * sin(Time.get_ticks_msec() * 0.006))
+
+	if _is_resolved or (has_green and sub_met):
+		return {
+			"color": Color(0.34, 1.0, 0.55),
+			"meta_text": "STATUS: STABLE",
+			"state_text": "READY TO INSTALL"
+		}
+
+	if has_physical:
+		var amber := Color(0.96, 0.8, 0.24)
+		amber = amber.lerp(Color(0.72, 0.58, 0.14), pulse * 0.45)
+		return {
+			"color": amber,
+			"meta_text": "STATUS: LINKED",
+			"state_text": "RESOLVING DEPS %d/%d" % [current, target]
+		}
+
+	var red := Color(0.9, 0.26, 0.22)
+	red = red.lerp(Color(0.6, 0.2, 0.16), pulse * 0.45)
+	return {
+		"color": red,
+		"meta_text": "STATUS: UNMOUNTED",
+		"state_text": "MISSING PATH"
+	}
 
 func _is_app_connected_green() -> bool:
 	if _application_node_id < 0 or _kernel_node_id < 0:
