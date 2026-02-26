@@ -1,2 +1,4 @@
-res://Scenes/Levels/deamon_depths.tscn
 res://scripts/combat/dependency_resolver_minigame.gd
+res://Scenes/Levels/file_system_forest.tscn
+res://scripts/combat/combat_terminal_ui.gd
+res://scripts/npc_script.gd

@@ -41,7 +41,7 @@ lines = {
 },
 &"id": "1",
 &"next_id": "2",
-&"next_id_after": "14",
+&"next_id_after": "22",
 &"next_sibling_id": "5",
 &"type": "condition"
 },
@@ -105,16 +105,112 @@ lines = {
 &"type": "goto"
 },
 "13": {
+&"condition": {},
 &"id": "13",
 &"next_id": "14",
-&"type": ""
+&"next_id_after": "22",
+&"type": "condition"
 },
 "14": {
+&"character": "Printer Beast",
 &"id": "14",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
+&"next_id": "15",
+&"text": "PCL XL Error!",
+&"type": "dialogue"
+},
+"15": {
+&"character": "Printer Beast",
+&"id": "15",
+&"next_id": "16",
+&"text": "Paper jam. Spool overflow. Memory fault.",
+&"type": "dialogue"
+},
+"16": {
+&"character": "Printer Beast",
+&"id": "16",
+&"next_id": "17",
+&"text": "[paper shuriken whirl]",
+&"type": "dialogue"
+},
+"17": {
+&"id": "17",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"i": 4,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 16,
+&"type": &"dot"
+}, {
+&"i": 17,
+&"type": &"variable",
+&"value": "met_printer_boss"
+}, {
+&"i": 34,
+&"type": &"assignment",
+&"value": "="
+}, {
+&"i": 36,
+&"type": &"variable",
+&"value": "true"
+}]),
+&"is_blocking": true
+},
+&"next_id": "18",
+&"type": "mutation"
+},
+"18": {
+&"id": "18",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"i": 3,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 15,
+&"type": &"dot"
+}, {
+&"i": 16,
+&"type": &"variable",
+&"value": "quest_manager"
+}, {
+&"i": 29,
+&"type": &"dot"
+}, {
+&"function": "start_quest",
+&"i": 30,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 42,
+&"type": &"string",
+&"value": "drivers_den_cleanup"
+}, {
+&"i": 63,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "19",
+&"type": "mutation"
+},
+"19": {
+&"id": "19",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"function": "start_combat",
+&"i": 3,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 16,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "20",
+&"type": "mutation"
 },
 "2": {
 &"character": "Printer Beast",
@@ -122,6 +218,25 @@ lines = {
 &"next_id": "3",
 &"text": "[tray empty] ...",
 &"type": "dialogue"
+},
+"20": {
+&"id": "20",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"21": {
+&"id": "21",
+&"next_id": "22",
+&"type": ""
+},
+"22": {
+&"id": "22",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
 },
 "3": {
 &"character": "Printer Beast",
@@ -138,31 +253,72 @@ lines = {
 &"type": "goto"
 },
 "5": {
-&"condition": {},
+&"condition": {
+&"expression": Array[Dictionary]([{
+&"i": 5,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 17,
+&"type": &"dot"
+}, {
+&"i": 18,
+&"type": &"variable",
+&"value": "npc_states"
+}, {
+&"i": 28,
+&"type": &"dot"
+}, {
+&"function": "get",
+&"i": 29,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 33,
+&"type": &"string",
+&"value": "Printer Boss"
+}]), Array[Dictionary]([{
+&"i": 49,
+&"type": &"string",
+&"value": ""
+}, {
+&"i": 51,
+&"type": &"parens_close"
+}])])
+}, {
+&"i": 53,
+&"type": &"comparison",
+&"value": "=="
+}, {
+&"i": 56,
+&"type": &"string",
+&"value": "puzzle_ejected"
+}])
+},
 &"id": "5",
 &"next_id": "6",
-&"next_id_after": "14",
+&"next_id_after": "22",
+&"next_sibling_id": "13",
 &"type": "condition"
 },
 "6": {
 &"character": "Printer Beast",
 &"id": "6",
 &"next_id": "7",
-&"text": "PCL XL Error!",
+&"text": "[daemon bark] USER EJECTED.",
 &"type": "dialogue"
 },
 "7": {
 &"character": "Printer Beast",
 &"id": "7",
 &"next_id": "8",
-&"text": "Paper jam. Spool overflow. Memory fault.",
+&"text": "Three spool-repair failures recorded.",
 &"type": "dialogue"
 },
 "8": {
 &"character": "Printer Beast",
 &"id": "8",
 &"next_id": "9",
-&"text": "[paper shuriken whirl]",
+&"text": "Reconnect only when your commands are stable.",
 &"type": "dialogue"
 },
 "9": {
@@ -198,6 +354,14 @@ raw_text = "~ start
 if SceneManager.proficiency_key_printer == true:
 	Printer Beast: [tray empty] ...
 	Printer Beast: The daemon is silent. The shuriken are gone.
+	=> END
+elif SceneManager.npc_states.get(\"Printer Boss\", \"\") == \"puzzle_ejected\":
+	Printer Beast: [daemon bark] USER EJECTED.
+	Printer Beast: Three spool-repair failures recorded.
+	Printer Beast: Reconnect only when your commands are stable.
+	set SceneManager.met_printer_boss = true
+	do SceneManager.quest_manager.start_quest(\"drivers_den_cleanup\")
+	do start_combat()
 	=> END
 else:
 	Printer Beast: PCL XL Error!

@@ -4,6 +4,20 @@ if SceneManager.driver_remnant_defeated == true:
 	Driver Remnant: The aggressive thread is gone.
 	Driver Remnant: [faint trace] Sudo token granted... use it on the boss room door.
 	=> END
+elif SceneManager.npc_states.get("Driver Remnant", "") == "puzzle_ejected":
+	Driver Remnant: [volatile surge] USER EJECTED.
+	Driver Remnant: Three failed isolates detected.
+	Driver Remnant: Re-enter with a cleaner sequence.
+	- Re-enter puzzle mode.
+		set SceneManager.met_driver_remnant = true
+		do SceneManager.quest_manager.start_quest("drivers_den_cleanup")
+		do start_puzzle()
+		=> END
+	- Purge it now. (Combat)
+		set SceneManager.met_driver_remnant = true
+		do SceneManager.quest_manager.start_quest("drivers_den_cleanup")
+		do start_combat()
+		=> END
 else:
 	Driver Remnant: [volatile burst] INVALID! INVALID!
 	Driver Remnant: Unmapped calls. Unstable memory.

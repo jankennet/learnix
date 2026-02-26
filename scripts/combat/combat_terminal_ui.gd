@@ -26,6 +26,10 @@ var is_open: bool = false
 var timing_minigame: TimingMinigame = null
 var dependency_minigame: DependencyResolverMinigame = null
 var _puzzle_minigame_pending: bool = false
+var _dependency_fail_count: int = 0
+
+const DEPENDENCY_FAIL_DAMAGE := 10
+const DEPENDENCY_FAIL_LIMIT := 3
 #endregion
 
 func _ready() -> void:
@@ -113,6 +117,7 @@ func setup_combat(manager: Node, enemy: Node) -> void:
 ## Show the combat UI
 func open_combat_ui() -> void:
 	is_open = true
+	_dependency_fail_count = 0
 	show()
 	_set_terminal_for_dependency_mode(false)
 	
@@ -168,6 +173,7 @@ func open_combat_ui() -> void:
 ## Hide the combat UI
 func close_combat_ui() -> void:
 	is_open = false
+	_dependency_fail_count = 0
 	hide()
 	_set_terminal_for_dependency_mode(false)
 	_show_queued_reward_popup()
@@ -781,11 +787,11 @@ func _on_dependency_resolver_completed(success: bool) -> void:
 	_set_terminal_for_dependency_mode(false)
 
 	if success:
+		_dependency_fail_count = 0
 		_print_terminal("[color=#66f266]Puzzle solved![/color]\n")
 		_apply_puzzle_timing_result(2, 1.0)
 	else:
-		_print_terminal("[color=#e65959]Puzzle failed.[/color]\n")
-		_apply_puzzle_timing_result(0, 0.0)
+		_handle_dependency_minigame_failure("Puzzle failed.")
 
 func _on_dependency_resolver_closed() -> void:
 	_set_terminal_for_dependency_mode(false)
@@ -793,8 +799,7 @@ func _on_dependency_resolver_closed() -> void:
 	# If the puzzle was pending and player closed the minigame, treat as failed attempt.
 	if _puzzle_minigame_pending:
 		_puzzle_minigame_pending = false
-		_print_terminal("[color=#aaaaaa]Puzzle closed.[/color]\n")
-		_apply_puzzle_timing_result(0, 0.0)
+		_handle_dependency_minigame_failure("Puzzle closed.")
 
 	# Ensure terminal input is restored after close.
 	if command_input:
@@ -802,6 +807,65 @@ func _on_dependency_resolver_closed() -> void:
 		command_input.grab_focus()
 	if turn_indicator:
 		turn_indicator.text = "[ AWAITING INPUT ]"
+
+func _handle_dependency_minigame_failure(reason_text: String) -> void:
+	_dependency_fail_count += 1
+	var damage_taken := _apply_dependency_fail_damage()
+
+	_print_terminal("[color=#e65959]%s[/color]\n" % reason_text)
+	_print_terminal("[color=#e68c33]Integrity -%d (%d/%d failures)[/color]\n" % [
+		damage_taken,
+		_dependency_fail_count,
+		DEPENDENCY_FAIL_LIMIT
+	])
+	_update_hp_displays()
+
+	if _is_player_defeated():
+		_print_terminal("[color=#f26666]System integrity compromised.[/color]\n")
+		_force_close_and_cleanup()
+		return
+
+	if _dependency_fail_count >= DEPENDENCY_FAIL_LIMIT:
+		_mark_dependency_failure_dialogue_state()
+		_print_terminal("[color=#f26666]Too many failed puzzle attempts. Terminal access revoked.[/color]\n")
+		if turn_indicator:
+			turn_indicator.text = "[ TERMINAL EJECTED ]"
+		_force_close_and_cleanup()
+		return
+
+	_apply_puzzle_timing_result(0, 0.0)
+
+func _apply_dependency_fail_damage() -> int:
+	if combat_manager and "player_state" in combat_manager and combat_manager.player_state:
+		return combat_manager.player_state.take_damage(DEPENDENCY_FAIL_DAMAGE)
+	return DEPENDENCY_FAIL_DAMAGE
+
+func _is_player_defeated() -> bool:
+	if combat_manager and "player_state" in combat_manager and combat_manager.player_state:
+		return combat_manager.player_state.current_integrity <= 0
+	return false
+
+func _mark_dependency_failure_dialogue_state() -> void:
+	if not SceneManager:
+		return
+
+	var enemy_label := _get_current_enemy_label()
+	if enemy_label != "":
+		SceneManager.npc_states[enemy_label] = "puzzle_ejected"
+
+func _get_current_enemy_label() -> String:
+	if not enemy_controller:
+		return ""
+
+	if "enemy_name" in enemy_controller:
+		return str(enemy_controller.enemy_name)
+	if "enemy_data" in enemy_controller and enemy_controller.enemy_data:
+		if "display_name" in enemy_controller.enemy_data:
+			return str(enemy_controller.enemy_data.display_name)
+		if "id" in enemy_controller.enemy_data:
+			return str(enemy_controller.enemy_data.id)
+
+	return ""
 
 func _set_terminal_for_dependency_mode(active: bool) -> void:
 	var terminal_container := get_node_or_null("TerminalContainer") as CanvasItem

@@ -184,6 +184,12 @@ func _apply_state_visuals_from_scene_state(force: bool = false) -> void:
 				sprite.play(good_idle_anim)
 			else:
 				play_idle_animation()
+		"puzzle_ejected", "hostile", "fled_combat":
+			_hide_self(false)
+			if sprite and sprite.sprite_frames and sprite.sprite_frames.has_animation(bad_idle_anim):
+				sprite.play(bad_idle_anim)
+			else:
+				play_idle_animation()
 		_:
 			_hide_self(false)
 			play_idle_animation()
@@ -209,7 +215,7 @@ func play_idle_animation():
 		var state = SceneManager.npc_states[npc_name]
 		if state == "helped":
 			anim_to_play = good_idle_anim
-		elif state == "hostile" or state == "fled_combat":
+		elif state == "hostile" or state == "fled_combat" or state == "puzzle_ejected":
 			anim_to_play = bad_idle_anim
 	else:
 		match SceneManager.player_karma:

@@ -6,6 +6,16 @@ if SceneManager.proficiency_key_printer == true and SceneManager.driver_remnant_
 	Hardware Ghost: Take this gratitude. It is all I have left.
 	do SceneManager.quest_manager.complete_quest("drivers_den_cleanup")
 	=> END
+elif SceneManager.npc_states.get("Hardware Ghost", "") == "puzzle_ejected":
+	Hardware Ghost: [flicker] The terminal threw you out.
+	Hardware Ghost: Too many unstable fixes in one run.
+	Hardware Ghost: Breathe. Then we can try again.
+	- Start puzzle again.
+		do start_puzzle()
+		=> END
+	- I will fight instead.
+		do start_combat()
+		=> END
 elif SceneManager.quest_manager.is_quest_active("drivers_den_cleanup"):
 	Hardware Ghost: The remnant still lashes out.
 	Hardware Ghost: The printer daemon still screams.

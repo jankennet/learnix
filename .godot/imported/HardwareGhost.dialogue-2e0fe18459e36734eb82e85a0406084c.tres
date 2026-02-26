@@ -64,7 +64,7 @@ lines = {
 },
 &"id": "1",
 &"next_id": "2",
-&"next_id_after": "49",
+&"next_id_after": "59",
 &"next_sibling_id": "8",
 &"type": "condition"
 },
@@ -72,21 +72,21 @@ lines = {
 &"character": "Hardware Ghost",
 &"id": "10",
 &"next_id": "11",
-&"text": "The printer daemon still screams.",
+&"text": "Too many unstable fixes in one run.",
 &"type": "dialogue"
 },
 "11": {
 &"character": "Hardware Ghost",
 &"id": "11",
 &"next_id": "12",
-&"text": "Please, end the errors.",
+&"text": "Breathe. Then we can try again.",
 &"type": "dialogue"
 },
 "12": {
 &"id": "12",
 &"next_id": "13",
-&"responses": PackedStringArray("12", "15", "18"),
-&"text": "I will calm the logs. (Puzzle)",
+&"responses": PackedStringArray("12", "15"),
+&"text": "Start puzzle again.",
 &"type": "response"
 },
 "13": {
@@ -116,7 +116,7 @@ lines = {
 "15": {
 &"id": "15",
 &"next_id": "16",
-&"text": "I am done listening. (Combat)",
+&"text": "I will fight instead.",
 &"type": "response"
 },
 "16": {
@@ -144,17 +144,47 @@ lines = {
 &"type": "goto"
 },
 "18": {
+&"condition": {
+&"expression": Array[Dictionary]([{
+&"i": 5,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 17,
+&"type": &"dot"
+}, {
+&"i": 18,
+&"type": &"variable",
+&"value": "quest_manager"
+}, {
+&"i": 31,
+&"type": &"dot"
+}, {
+&"function": "is_quest_active",
+&"i": 32,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 48,
+&"type": &"string",
+&"value": "drivers_den_cleanup"
+}, {
+&"i": 69,
+&"type": &"parens_close"
+}])])
+}])
+},
 &"id": "18",
 &"next_id": "19",
-&"text": "I will return later.",
-&"type": "response"
+&"next_id_after": "59",
+&"next_sibling_id": "30",
+&"type": "condition"
 },
 "19": {
+&"character": "Hardware Ghost",
 &"id": "19",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
+&"next_id": "20",
+&"text": "The remnant still lashes out.",
+&"type": "dialogue"
 },
 "2": {
 &"character": "Hardware Ghost",
@@ -164,173 +194,28 @@ lines = {
 &"type": "dialogue"
 },
 "20": {
-&"condition": {},
+&"character": "Hardware Ghost",
 &"id": "20",
 &"next_id": "21",
-&"next_id_after": "49",
-&"type": "condition"
+&"text": "The printer daemon still screams.",
+&"type": "dialogue"
 },
 "21": {
 &"character": "Hardware Ghost",
 &"id": "21",
 &"next_id": "22",
-&"text": "[whisper] Legacy device... no longer recognized.",
+&"text": "Please, end the errors.",
 &"type": "dialogue"
 },
 "22": {
-&"character": "Hardware Ghost",
 &"id": "22",
 &"next_id": "23",
-&"text": "I am a driver from a machine long gone.",
-&"type": "dialogue"
+&"responses": PackedStringArray("22", "25", "28"),
+&"text": "I will calm the logs. (Puzzle)",
+&"type": "response"
 },
 "23": {
-&"character": "Hardware Ghost",
 &"id": "23",
-&"next_id": "24",
-&"text": "I only remember the logs. I only remember the faults.",
-&"type": "dialogue"
-},
-"24": {
-&"id": "24",
-&"next_id": "25",
-&"responses": PackedStringArray("24", "27", "31", "38"),
-&"text": "What happened here?",
-&"type": "response"
-},
-"25": {
-&"character": "Hardware Ghost",
-&"id": "25",
-&"next_id": "26",
-&"text": "A purge. A rewrite. The stack moved on.",
-&"type": "dialogue"
-},
-"26": {
-&"character": "Hardware Ghost",
-&"id": "26",
-&"next_id": "45",
-&"text": "We were left behind, still calling, still failing.",
-&"type": "dialogue"
-},
-"27": {
-&"id": "27",
-&"next_id": "28",
-&"text": "What do you need?",
-&"type": "response"
-},
-"28": {
-&"character": "Hardware Ghost",
-&"id": "28",
-&"next_id": "29",
-&"text": "A remnant rages nearby. It tears at the bus.",
-&"type": "dialogue"
-},
-"29": {
-&"character": "Hardware Ghost",
-&"id": "29",
-&"next_id": "30",
-&"text": "And the Printer Beast hoards the key to the depths.",
-&"type": "dialogue"
-},
-"3": {
-&"character": "Hardware Ghost",
-&"id": "3",
-&"next_id": "4",
-&"text": "You silenced the remnant and stopped the daemon.",
-&"type": "dialogue"
-},
-"30": {
-&"character": "Hardware Ghost",
-&"id": "30",
-&"next_id": "45",
-&"text": "Quiet them both, and the logs will settle.",
-&"type": "dialogue"
-},
-"31": {
-&"id": "31",
-&"next_id": "32",
-&"text": "I will help.",
-&"type": "response"
-},
-"32": {
-&"character": "Hardware Ghost",
-&"id": "32",
-&"next_id": "33",
-&"text": "Then listen for the whispers. They point to the faults.",
-&"type": "dialogue"
-},
-"33": {
-&"character": "Hardware Ghost",
-&"id": "33",
-&"next_id": "34",
-&"text": "If you can calm the logs, I can guide you.",
-&"type": "dialogue"
-},
-"34": {
-&"id": "34",
-&"mutation": {
-&"expression": Array[Dictionary]([{
-&"i": 4,
-&"type": &"variable",
-&"value": "SceneManager"
-}, {
-&"i": 16,
-&"type": &"dot"
-}, {
-&"i": 17,
-&"type": &"variable",
-&"value": "met_hardware_ghost"
-}, {
-&"i": 36,
-&"type": &"assignment",
-&"value": "="
-}, {
-&"i": 38,
-&"type": &"variable",
-&"value": "true"
-}]),
-&"is_blocking": true
-},
-&"next_id": "35",
-&"type": "mutation"
-},
-"35": {
-&"id": "35",
-&"mutation": {
-&"expression": Array[Dictionary]([{
-&"i": 3,
-&"type": &"variable",
-&"value": "SceneManager"
-}, {
-&"i": 15,
-&"type": &"dot"
-}, {
-&"i": 16,
-&"type": &"variable",
-&"value": "quest_manager"
-}, {
-&"i": 29,
-&"type": &"dot"
-}, {
-&"function": "start_quest",
-&"i": 30,
-&"type": &"function",
-&"value": Array[Array]([Array[Dictionary]([{
-&"i": 42,
-&"type": &"string",
-&"value": "drivers_den_cleanup"
-}, {
-&"i": 63,
-&"type": &"parens_close"
-}])])
-}]),
-&"is_blocking": true
-},
-&"next_id": "36",
-&"type": "mutation"
-},
-"36": {
-&"id": "36",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "start_puzzle",
@@ -343,108 +228,24 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "37",
+&"next_id": "24",
 &"type": "mutation"
 },
-"37": {
-&"id": "37",
+"24": {
+&"id": "24",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"38": {
-&"id": "38",
-&"next_id": "39",
-&"text": "Enough whispers. (Aggravate)",
+"25": {
+&"id": "25",
+&"next_id": "26",
+&"text": "I am done listening. (Combat)",
 &"type": "response"
 },
-"39": {
-&"character": "Hardware Ghost",
-&"id": "39",
-&"next_id": "40",
-&"text": "[static spikes] Threat detected.",
-&"type": "dialogue"
-},
-"4": {
-&"character": "Hardware Ghost",
-&"id": "4",
-&"next_id": "5",
-&"text": "The old drivers can finally rest.",
-&"type": "dialogue"
-},
-"40": {
-&"character": "Hardware Ghost",
-&"id": "40",
-&"next_id": "41",
-&"text": "The logs turn to screams.",
-&"type": "dialogue"
-},
-"41": {
-&"id": "41",
-&"mutation": {
-&"expression": Array[Dictionary]([{
-&"i": 4,
-&"type": &"variable",
-&"value": "SceneManager"
-}, {
-&"i": 16,
-&"type": &"dot"
-}, {
-&"i": 17,
-&"type": &"variable",
-&"value": "met_hardware_ghost"
-}, {
-&"i": 36,
-&"type": &"assignment",
-&"value": "="
-}, {
-&"i": 38,
-&"type": &"variable",
-&"value": "true"
-}]),
-&"is_blocking": true
-},
-&"next_id": "42",
-&"type": "mutation"
-},
-"42": {
-&"id": "42",
-&"mutation": {
-&"expression": Array[Dictionary]([{
-&"i": 3,
-&"type": &"variable",
-&"value": "SceneManager"
-}, {
-&"i": 15,
-&"type": &"dot"
-}, {
-&"i": 16,
-&"type": &"variable",
-&"value": "quest_manager"
-}, {
-&"i": 29,
-&"type": &"dot"
-}, {
-&"function": "start_quest",
-&"i": 30,
-&"type": &"function",
-&"value": Array[Array]([Array[Dictionary]([{
-&"i": 42,
-&"type": &"string",
-&"value": "drivers_den_cleanup"
-}, {
-&"i": 63,
-&"type": &"parens_close"
-}])])
-}]),
-&"is_blocking": true
-},
-&"next_id": "43",
-&"type": "mutation"
-},
-"43": {
-&"id": "43",
+"26": {
+&"id": "26",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "start_combat",
@@ -457,18 +258,141 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "44",
+&"next_id": "27",
 &"type": "mutation"
 },
-"44": {
-&"id": "44",
+"27": {
+&"id": "27",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"45": {
-&"id": "45",
+"28": {
+&"id": "28",
+&"next_id": "29",
+&"text": "I will return later.",
+&"type": "response"
+},
+"29": {
+&"id": "29",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"3": {
+&"character": "Hardware Ghost",
+&"id": "3",
+&"next_id": "4",
+&"text": "You silenced the remnant and stopped the daemon.",
+&"type": "dialogue"
+},
+"30": {
+&"condition": {},
+&"id": "30",
+&"next_id": "31",
+&"next_id_after": "59",
+&"type": "condition"
+},
+"31": {
+&"character": "Hardware Ghost",
+&"id": "31",
+&"next_id": "32",
+&"text": "[whisper] Legacy device... no longer recognized.",
+&"type": "dialogue"
+},
+"32": {
+&"character": "Hardware Ghost",
+&"id": "32",
+&"next_id": "33",
+&"text": "I am a driver from a machine long gone.",
+&"type": "dialogue"
+},
+"33": {
+&"character": "Hardware Ghost",
+&"id": "33",
+&"next_id": "34",
+&"text": "I only remember the logs. I only remember the faults.",
+&"type": "dialogue"
+},
+"34": {
+&"id": "34",
+&"next_id": "35",
+&"responses": PackedStringArray("34", "37", "41", "48"),
+&"text": "What happened here?",
+&"type": "response"
+},
+"35": {
+&"character": "Hardware Ghost",
+&"id": "35",
+&"next_id": "36",
+&"text": "A purge. A rewrite. The stack moved on.",
+&"type": "dialogue"
+},
+"36": {
+&"character": "Hardware Ghost",
+&"id": "36",
+&"next_id": "55",
+&"text": "We were left behind, still calling, still failing.",
+&"type": "dialogue"
+},
+"37": {
+&"id": "37",
+&"next_id": "38",
+&"text": "What do you need?",
+&"type": "response"
+},
+"38": {
+&"character": "Hardware Ghost",
+&"id": "38",
+&"next_id": "39",
+&"text": "A remnant rages nearby. It tears at the bus.",
+&"type": "dialogue"
+},
+"39": {
+&"character": "Hardware Ghost",
+&"id": "39",
+&"next_id": "40",
+&"text": "And the Printer Beast hoards the key to the depths.",
+&"type": "dialogue"
+},
+"4": {
+&"character": "Hardware Ghost",
+&"id": "4",
+&"next_id": "5",
+&"text": "The old drivers can finally rest.",
+&"type": "dialogue"
+},
+"40": {
+&"character": "Hardware Ghost",
+&"id": "40",
+&"next_id": "55",
+&"text": "Quiet them both, and the logs will settle.",
+&"type": "dialogue"
+},
+"41": {
+&"id": "41",
+&"next_id": "42",
+&"text": "I will help.",
+&"type": "response"
+},
+"42": {
+&"character": "Hardware Ghost",
+&"id": "42",
+&"next_id": "43",
+&"text": "Then listen for the whispers. They point to the faults.",
+&"type": "dialogue"
+},
+"43": {
+&"character": "Hardware Ghost",
+&"id": "43",
+&"next_id": "44",
+&"text": "If you can calm the logs, I can guide you.",
+&"type": "dialogue"
+},
+"44": {
+&"id": "44",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"i": 4,
@@ -492,11 +416,11 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "46",
+&"next_id": "45",
 &"type": "mutation"
 },
-"46": {
-&"id": "46",
+"45": {
+&"id": "45",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"i": 3,
@@ -522,6 +446,23 @@ lines = {
 &"value": "drivers_den_cleanup"
 }, {
 &"i": 63,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "46",
+&"type": "mutation"
+},
+"46": {
+&"id": "46",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"function": "start_puzzle",
+&"i": 3,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 16,
 &"type": &"parens_close"
 }])])
 }]),
@@ -540,14 +481,15 @@ lines = {
 "48": {
 &"id": "48",
 &"next_id": "49",
-&"type": ""
+&"text": "Enough whispers. (Aggravate)",
+&"type": "response"
 },
 "49": {
+&"character": "Hardware Ghost",
 &"id": "49",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
+&"next_id": "50",
+&"text": "[static spikes] Threat detected.",
+&"type": "dialogue"
 },
 "5": {
 &"character": "Hardware Ghost",
@@ -555,6 +497,182 @@ lines = {
 &"next_id": "6",
 &"text": "Take this gratitude. It is all I have left.",
 &"type": "dialogue"
+},
+"50": {
+&"character": "Hardware Ghost",
+&"id": "50",
+&"next_id": "51",
+&"text": "The logs turn to screams.",
+&"type": "dialogue"
+},
+"51": {
+&"id": "51",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"i": 4,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 16,
+&"type": &"dot"
+}, {
+&"i": 17,
+&"type": &"variable",
+&"value": "met_hardware_ghost"
+}, {
+&"i": 36,
+&"type": &"assignment",
+&"value": "="
+}, {
+&"i": 38,
+&"type": &"variable",
+&"value": "true"
+}]),
+&"is_blocking": true
+},
+&"next_id": "52",
+&"type": "mutation"
+},
+"52": {
+&"id": "52",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"i": 3,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 15,
+&"type": &"dot"
+}, {
+&"i": 16,
+&"type": &"variable",
+&"value": "quest_manager"
+}, {
+&"i": 29,
+&"type": &"dot"
+}, {
+&"function": "start_quest",
+&"i": 30,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 42,
+&"type": &"string",
+&"value": "drivers_den_cleanup"
+}, {
+&"i": 63,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "53",
+&"type": "mutation"
+},
+"53": {
+&"id": "53",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"function": "start_combat",
+&"i": 3,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 16,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "54",
+&"type": "mutation"
+},
+"54": {
+&"id": "54",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"55": {
+&"id": "55",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"i": 4,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 16,
+&"type": &"dot"
+}, {
+&"i": 17,
+&"type": &"variable",
+&"value": "met_hardware_ghost"
+}, {
+&"i": 36,
+&"type": &"assignment",
+&"value": "="
+}, {
+&"i": 38,
+&"type": &"variable",
+&"value": "true"
+}]),
+&"is_blocking": true
+},
+&"next_id": "56",
+&"type": "mutation"
+},
+"56": {
+&"id": "56",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"i": 3,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 15,
+&"type": &"dot"
+}, {
+&"i": 16,
+&"type": &"variable",
+&"value": "quest_manager"
+}, {
+&"i": 29,
+&"type": &"dot"
+}, {
+&"function": "start_quest",
+&"i": 30,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 42,
+&"type": &"string",
+&"value": "drivers_den_cleanup"
+}, {
+&"i": 63,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "57",
+&"type": "mutation"
+},
+"57": {
+&"id": "57",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"58": {
+&"id": "58",
+&"next_id": "59",
+&"type": ""
+},
+"59": {
+&"id": "59",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
 },
 "6": {
 &"id": "6",
@@ -610,35 +728,47 @@ lines = {
 }, {
 &"i": 18,
 &"type": &"variable",
-&"value": "quest_manager"
+&"value": "npc_states"
 }, {
-&"i": 31,
+&"i": 28,
 &"type": &"dot"
 }, {
-&"function": "is_quest_active",
-&"i": 32,
+&"function": "get",
+&"i": 29,
 &"type": &"function",
 &"value": Array[Array]([Array[Dictionary]([{
-&"i": 48,
+&"i": 33,
 &"type": &"string",
-&"value": "drivers_den_cleanup"
+&"value": "Hardware Ghost"
+}]), Array[Dictionary]([{
+&"i": 51,
+&"type": &"string",
+&"value": ""
 }, {
-&"i": 69,
+&"i": 53,
 &"type": &"parens_close"
 }])])
+}, {
+&"i": 55,
+&"type": &"comparison",
+&"value": "=="
+}, {
+&"i": 58,
+&"type": &"string",
+&"value": "puzzle_ejected"
 }])
 },
 &"id": "8",
 &"next_id": "9",
-&"next_id_after": "49",
-&"next_sibling_id": "20",
+&"next_id_after": "59",
+&"next_sibling_id": "18",
 &"type": "condition"
 },
 "9": {
 &"character": "Hardware Ghost",
 &"id": "9",
 &"next_id": "10",
-&"text": "The remnant still lashes out.",
+&"text": "[flicker] The terminal threw you out.",
 &"type": "dialogue"
 }
 }
@@ -650,6 +780,16 @@ if SceneManager.proficiency_key_printer == true and SceneManager.driver_remnant_
 	Hardware Ghost: Take this gratitude. It is all I have left.
 	do SceneManager.quest_manager.complete_quest(\"drivers_den_cleanup\")
 	=> END
+elif SceneManager.npc_states.get(\"Hardware Ghost\", \"\") == \"puzzle_ejected\":
+	Hardware Ghost: [flicker] The terminal threw you out.
+	Hardware Ghost: Too many unstable fixes in one run.
+	Hardware Ghost: Breathe. Then we can try again.
+	- Start puzzle again.
+		do start_puzzle()
+		=> END
+	- I will fight instead.
+		do start_combat()
+		=> END
 elif SceneManager.quest_manager.is_quest_active(\"drivers_den_cleanup\"):
 	Hardware Ghost: The remnant still lashes out.
 	Hardware Ghost: The printer daemon still screams.

@@ -18,6 +18,8 @@ const PANIC_CONFLICT_THRESHOLD := 4
 const CURSOR_STEP := 56.0
 const FLOW_SPEED := 132.0
 const RESET_TRY_MAX := 3
+const ANTI_REPEAT_VARIATION_HISTORY := 6
+const ANTI_REPEAT_SOLUTION_HISTORY := 4
 
 const OBJECTIVE_PATH_TO_APP := "path_to_app"
 const OBJECTIVE_STABLE_NODES := "stable_nodes"
@@ -27,6 +29,17 @@ const MUTATOR_NONE := "none"
 const MUTATOR_NO_DIRECT_KERNEL := "no_direct_kernel"
 const MUTATOR_MAX_LINKS := "max_links"
 const MUTATOR_ARM_UNSTABLE := "arm_unstable"
+
+const RULE_EFFICIENCY := "efficiency"
+const RULE_REDUNDANCY := "redundancy"
+const RULE_RESTRICTED_ACCESS := "restricted_access"
+
+const SIGNAL_APP_MIN := 70.0
+const SIGNAL_APP_MAX := 90.0
+const SIGNAL_KERNEL_BASE := 78.0
+
+const MEMORY_LIMIT_PERCENT := 100.0
+const VOLATILE_TIMEOUT_SECONDS := 5.0
 
 var _workspace: Control
 var _repo_panel: VBoxContainer
@@ -83,6 +96,26 @@ var _mutator_link_cap := 6
 var _last_objective_type: String = ""
 var _last_mutator_type: String = ""
 var _encounter_profile: String = "default"
+var _recent_variation_signatures: PackedStringArray = PackedStringArray()
+var _recent_solution_signatures: PackedStringArray = PackedStringArray()
+var _current_app_requirements: PackedStringArray = PackedStringArray(["runtime_shell", "net_daemon"])
+var _current_app_exact_inputs := 2
+var _current_app_variant_label := "runtime+net"
+var _rule_set_type: String = RULE_EFFICIENCY
+var _rule_blacklist_template: String = "net_daemon"
+var _rule_efficiency_max_nodes := 6
+
+var _memory_usage_percent := 0.0
+var _memory_failed := false
+var _app_signal_strength := 0.0
+var _volatile_timers: Dictionary = {}
+var _watchdog_enabled := true
+var _watchdog_position := Vector2.ZERO
+var _watchdog_patrol_points: Array[Vector2] = []
+var _watchdog_patrol_index := 0
+var _watchdog_speed := 130.0
+var _watchdog_cut_cooldown := 0.0
+var _watchdog_clash_count := 0
 
 var _kernel_node_id := -1
 var _application_node_id := -1
@@ -164,7 +197,13 @@ func _build_templates() -> void:
 		"requires_kernel": true,
 		"exact_inputs": 0,
 		"max_input_version": 99.0,
-		"requires": PackedStringArray()
+		"requires": PackedStringArray(),
+		"max_in_ports": 3,
+		"max_out_ports": 3,
+		"signal_delta": 0.0,
+		"is_diode": false,
+		"is_volatile": false,
+		"secure_socket_only_arm": false
 	}
 	_templates["thread_glue"] = {
 		"label": "Thread Link",
@@ -173,7 +212,13 @@ func _build_templates() -> void:
 		"requires_kernel": true,
 		"exact_inputs": 0,
 		"max_input_version": 99.0,
-		"requires": PackedStringArray()
+		"requires": PackedStringArray(),
+		"max_in_ports": 2,
+		"max_out_ports": 2,
+		"signal_delta": 0.0,
+		"is_diode": false,
+		"is_volatile": false,
+		"secure_socket_only_arm": false
 	}
 	_templates["runtime_shell"] = {
 		"label": "Runtime Box",
@@ -182,7 +227,13 @@ func _build_templates() -> void:
 		"requires_kernel": false,
 		"exact_inputs": 2,
 		"max_input_version": 99.0,
-		"requires": PackedStringArray(["libcore_legacy", "thread_glue"])
+		"requires": PackedStringArray(["libcore_legacy", "thread_glue"]),
+		"max_in_ports": 3,
+		"max_out_ports": 2,
+		"signal_delta": 0.0,
+		"is_diode": false,
+		"is_volatile": false,
+		"secure_socket_only_arm": false
 	}
 	_templates["net_daemon"] = {
 		"label": "Net Block",
@@ -191,7 +242,13 @@ func _build_templates() -> void:
 		"requires_kernel": false,
 		"exact_inputs": 1,
 		"max_input_version": 1.9,
-		"requires": PackedStringArray(["libcore_legacy"])
+		"requires": PackedStringArray(["libcore_legacy"]),
+		"max_in_ports": 2,
+		"max_out_ports": 2,
+		"signal_delta": 0.0,
+		"is_diode": false,
+		"is_volatile": false,
+		"secure_socket_only_arm": false
 	}
 	_templates["arm_shim"] = {
 		"label": "ARM Block",
@@ -200,7 +257,13 @@ func _build_templates() -> void:
 		"requires_kernel": true,
 		"exact_inputs": 0,
 		"max_input_version": 99.0,
-		"requires": PackedStringArray()
+		"requires": PackedStringArray(),
+		"max_in_ports": 2,
+		"max_out_ports": 2,
+		"signal_delta": 0.0,
+		"is_diode": false,
+		"is_volatile": false,
+		"secure_socket_only_arm": false
 	}
 	_templates["ssl_old"] = {
 		"label": "Secure Pack",
@@ -209,7 +272,73 @@ func _build_templates() -> void:
 		"requires_kernel": false,
 		"exact_inputs": 0,
 		"max_input_version": 99.0,
-		"requires": PackedStringArray(["thread_glue"])
+		"requires": PackedStringArray(["thread_glue"]),
+		"max_in_ports": 1,
+		"max_out_ports": 1,
+		"signal_delta": 0.0,
+		"is_diode": false,
+		"is_volatile": false,
+		"secure_socket_only_arm": true
+	}
+	_templates["diode_valve"] = {
+		"label": "Diode Node",
+		"version": 1.4,
+		"arch": "x64",
+		"requires_kernel": false,
+		"exact_inputs": 0,
+		"max_input_version": 99.0,
+		"requires": PackedStringArray(),
+		"max_in_ports": 1,
+		"max_out_ports": 1,
+		"signal_delta": 0.0,
+		"is_diode": true,
+		"is_volatile": false,
+		"secure_socket_only_arm": false
+	}
+	_templates["signal_amp"] = {
+		"label": "Amplifier",
+		"version": 1.3,
+		"arch": "x64",
+		"requires_kernel": false,
+		"exact_inputs": 0,
+		"max_input_version": 99.0,
+		"requires": PackedStringArray(),
+		"max_in_ports": 2,
+		"max_out_ports": 2,
+		"signal_delta": 15.0,
+		"is_diode": false,
+		"is_volatile": false,
+		"secure_socket_only_arm": false
+	}
+	_templates["signal_damp"] = {
+		"label": "Dampener",
+		"version": 1.3,
+		"arch": "x64",
+		"requires_kernel": false,
+		"exact_inputs": 0,
+		"max_input_version": 99.0,
+		"requires": PackedStringArray(),
+		"max_in_ports": 2,
+		"max_out_ports": 2,
+		"signal_delta": -20.0,
+		"is_diode": false,
+		"is_volatile": false,
+		"secure_socket_only_arm": false
+	}
+	_templates["volatile_cache"] = {
+		"label": "Volatile Node",
+		"version": 1.5,
+		"arch": "x64",
+		"requires_kernel": false,
+		"exact_inputs": 0,
+		"max_input_version": 99.0,
+		"requires": PackedStringArray(),
+		"max_in_ports": 2,
+		"max_out_ports": 1,
+		"signal_delta": 0.0,
+		"is_diode": false,
+		"is_volatile": true,
+		"secure_socket_only_arm": false
 	}
 
 func _build_ui() -> void:
@@ -578,6 +707,9 @@ func _build_ui() -> void:
 		_on_repository_item_pressed(_template_order[_template_cursor_index])
 
 func _process(delta: float) -> void:
+	if not _is_active:
+		return
+
 	_flow_phase = fposmod(_flow_phase + delta * FLOW_SPEED, 10000.0)
 
 	if _log_label:
@@ -592,6 +724,8 @@ func _process(delta: float) -> void:
 
 	if _open_input_grace > 0.0:
 		_open_input_grace = maxf(0.0, _open_input_grace - delta)
+	_tick_volatile_nodes(delta)
+	_watchdog_process_loop(delta)
 
 	if _dragging_node_id >= 0 and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 		var node_ctrl := _node_controls.get(_dragging_node_id) as Control
@@ -613,7 +747,7 @@ func _process(delta: float) -> void:
 	if _application_node_id >= 0 and _node_controls.has(_application_node_id):
 		_update_node_visual(_application_node_id)
 
-	if _draw_overlay:
+	if _draw_overlay and (_link_mode or not _connections.is_empty() or _watchdog_enabled or _panic_mode):
 		_draw_overlay.queue_redraw()
 
 func _input(event: InputEvent) -> void:
@@ -718,6 +852,13 @@ func _on_overlay_redraw() -> void:
 		var center: Vector2 = ctrl.global_position + ctrl.size * 0.5 - overlay_origin
 		o.draw_circle(center, 8.0, Color(0.1, 0.96, 0.95, 0.56))
 		o.draw_arc(center, 9.5, 0.0, TAU, 20, Color(0.95, 1.0, 1.0, 0.98), 1.8)
+
+	if _watchdog_enabled and _watchdog_patrol_points.size() > 0:
+		var dog_pos := ws_pos + _watchdog_position
+		o.draw_circle(dog_pos, 9.0, Color(0.98, 0.16, 0.2, 0.88))
+		o.draw_arc(dog_pos, 13.0, 0.0, TAU, 20, Color(1.0, 0.68, 0.7, 0.95), 2.2)
+		var next_target := ws_pos + _watchdog_patrol_points[_watchdog_patrol_index]
+		o.draw_line(dog_pos, next_target, Color(0.96, 0.38, 0.44, 0.45), 1.5)
 
 	# CRT TV pass: scanlines, flicker, rolling refresh band, and vignette.
 	var screen_size := o.size
@@ -923,9 +1064,17 @@ func _build_metadata_text(node: Dictionary) -> String:
 		"arm_shim":
 			return "ARM BLOCK\nARM compatibility\nMay be unstable"
 		"ssl_old":
-			return "SECURE PACK\nSecurity helper\nOptional support"
+			return "SECURE PACK\nSocket: ARM input only\nSecurity helper"
+		"diode_valve":
+			return "DIODE NODE\nOne-way flow toward App\nBlocks back-trace"
+		"signal_amp":
+			return "AMPLIFIER\nSignal +15\nTune final strength"
+		"signal_damp":
+			return "DAMPENER\nSignal -20\nTune final strength"
+		"volatile_cache":
+			return "VOLATILE NODE\n5s decay after activation\nDownstream resets on timeout"
 		"application":
-			return "APP GOAL\nNeed: %s\nRule: %s" % [_objective_tip_text(), _mutator_tip_text()]
+			return "APP GOAL\nNeed: %s\nSignal: %.0f-%.0f%%\nRule: %s" % [_objective_tip_text(), SIGNAL_APP_MIN, SIGNAL_APP_MAX, _rule_set_short_text()]
 		_:
 			return "%s\nStatus: %s\nTip: add incoming links" % [
 				str(node.get("label", "NODE")).to_upper(),
@@ -939,7 +1088,7 @@ func _objective_tip_text() -> String:
 		OBJECTIVE_STABLE_LINKS:
 			return "%d GREEN links" % _objective_target
 		_:
-			return "Green path from Kernel"
+			return "Green path (%s)" % _current_app_variant_label
 
 func _mutator_tip_text() -> String:
 	match _mutator_type:
@@ -971,6 +1120,14 @@ func _build_node_hint(node: Dictionary) -> String:
 			return "ARM lib"
 		"ssl_old":
 			return "Secure lib"
+		"diode_valve":
+			return "One-way"
+		"signal_amp":
+			return "+Signal"
+		"signal_damp":
+			return "-Signal"
+		"volatile_cache":
+			return "Decay 5s"
 		_:
 			return "Dependency"
 
@@ -1074,7 +1231,13 @@ func _spawn_core_nodes() -> void:
 		"requires_kernel": false,
 		"exact_inputs": 0,
 		"max_input_version": 99.0,
-		"requires": PackedStringArray()
+		"requires": PackedStringArray(),
+		"max_in_ports": 0,
+		"max_out_ports": 4,
+		"signal_delta": 0.0,
+		"is_diode": false,
+		"is_volatile": false,
+		"secure_socket_only_arm": false
 	}, Vector2(maxf(90.0, ws_size.x * 0.12), ws_size.y * 0.68))
 
 	_application_node_id = _create_node({
@@ -1085,10 +1248,17 @@ func _spawn_core_nodes() -> void:
 		"is_core": false,
 		"is_application": true,
 		"requires_kernel": false,
-		"exact_inputs": 2,
+		"exact_inputs": _current_app_exact_inputs,
 		"max_input_version": 99.0,
-		"requires": PackedStringArray(["runtime_shell", "net_daemon"])
+		"requires": _current_app_requirements,
+		"max_in_ports": 3,
+		"max_out_ports": 0,
+		"signal_delta": 0.0,
+		"is_diode": false,
+		"is_volatile": false,
+		"secure_socket_only_arm": false
 	}, Vector2(ws_size.x * 0.72, ws_size.y * 0.18))
+	_setup_watchdog_patrol()
 
 func _spawn_library(template_id: String, pos: Vector2) -> void:
 	if not _templates.has(template_id):
@@ -1104,7 +1274,13 @@ func _spawn_library(template_id: String, pos: Vector2) -> void:
 		"requires_kernel": template["requires_kernel"],
 		"exact_inputs": template["exact_inputs"],
 		"max_input_version": template["max_input_version"],
-		"requires": template["requires"]
+		"requires": template["requires"],
+		"max_in_ports": template.get("max_in_ports", 2),
+		"max_out_ports": template.get("max_out_ports", 2),
+		"signal_delta": template.get("signal_delta", 0.0),
+		"is_diode": template.get("is_diode", false),
+		"is_volatile": template.get("is_volatile", false),
+		"secure_socket_only_arm": template.get("secure_socket_only_arm", false)
 	}
 	_create_node(payload, pos)
 	_recompute_graph_state()
@@ -1237,23 +1413,56 @@ func _delete_node(node_id: int) -> void:
 	_recompute_graph_state()
 
 func _recompute_graph_state() -> void:
+	_run_validation_pass()
+	_run_signal_propagation_pass()
+
+	for node_id in _nodes.keys():
+		_update_node_visual(int(node_id))
+
+	_update_state_labels()
+	_check_fail_or_win()
+	if _draw_overlay:
+		_draw_overlay.queue_redraw()
+
+func _run_validation_pass() -> void:
+	var incoming_counts: Dictionary = {}
+	var outgoing_counts: Dictionary = {}
+	var incoming_sources: Dictionary = {}
+	_memory_usage_percent = 0.0
+
+	for link in _connections:
+		var from_id := int(link.get("from", -1))
+		var to_id := int(link.get("to", -1))
+		incoming_counts[to_id] = int(incoming_counts.get(to_id, 0)) + 1
+		outgoing_counts[from_id] = int(outgoing_counts.get(from_id, 0)) + 1
+		if not incoming_sources.has(to_id):
+			incoming_sources[to_id] = []
+		(incoming_sources[to_id] as Array).append(from_id)
+		_memory_usage_percent += _compute_edge_memory_cost(from_id, to_id)
+
+	_memory_usage_percent = clampf(_memory_usage_percent, 0.0, 300.0)
+	_memory_failed = _memory_usage_percent >= MEMORY_LIMIT_PERCENT
+
 	for node_id in _nodes.keys():
 		var node: Dictionary = _nodes[node_id]
 		if bool(node.get("is_core", false)):
 			node["status"] = STATUS_CORE
 			node["reason"] = "Start"
+			node["signal"] = SIGNAL_KERNEL_BASE
 			_nodes[node_id] = node
 			continue
 
 		var incoming: Array[int] = []
-		for link in _connections:
-			if int(link["to"]) == int(node_id):
-				incoming.append(int(link["from"]))
+		if incoming_sources.has(node_id):
+			var raw_incoming: Array = incoming_sources[node_id]
+			for source_variant in raw_incoming:
+				incoming.append(int(source_variant))
 
 		var source_templates: PackedStringArray = PackedStringArray()
 		var source_arches: PackedStringArray = PackedStringArray()
 		var version_ok := true
 		var has_direct_kernel := false
+		var secure_socket_ok := true
 
 		for source_id in incoming:
 			if not _nodes.has(source_id):
@@ -1267,6 +1476,8 @@ func _recompute_graph_state() -> void:
 				has_direct_kernel = true
 			if float(src.get("version", 0.0)) > float(node.get("max_input_version", 99.0)):
 				version_ok = false
+			if bool(node.get("secure_socket_only_arm", false)) and str(src.get("template_id", "")) != "arm_shim":
+				secure_socket_ok = false
 
 		var required: PackedStringArray = node.get("requires", PackedStringArray())
 		var missing_required := false
@@ -1280,6 +1491,9 @@ func _recompute_graph_state() -> void:
 		var kernel_ok := (not bool(node.get("requires_kernel", false))) or has_direct_kernel
 		var arch_conflict := source_arches.size() > 1
 		var arm_unstable := _mutator_type == MUTATOR_ARM_UNSTABLE and str(node.get("arch", "")) == "arm"
+		var in_ports := int(incoming_counts.get(node_id, 0))
+		var in_limit := int(node.get("max_in_ports", 2))
+		var ports_ok := in_limit <= 0 or in_ports <= in_limit
 
 		if arm_unstable:
 			node["status"] = STATUS_CONFLICT
@@ -1296,9 +1510,15 @@ func _recompute_graph_state() -> void:
 		elif not exact_ok:
 			node["status"] = STATUS_BROKEN
 			node["reason"] = "Needs %d inputs" % exact_inputs
+		elif not missing_required and not secure_socket_ok:
+			node["status"] = STATUS_BROKEN
+			node["reason"] = "ARM socket only"
 		elif missing_required:
 			node["status"] = STATUS_BROKEN
 			node["reason"] = "Missing part"
+		elif not ports_ok:
+			node["status"] = STATUS_BROKEN
+			node["reason"] = "Port limit"
 		elif incoming.is_empty() and not bool(node.get("is_application", false)):
 			node["status"] = STATUS_BROKEN
 			node["reason"] = "No input"
@@ -1310,12 +1530,18 @@ func _recompute_graph_state() -> void:
 
 	for idx in range(_connections.size()):
 		var link := _connections[idx]
-		var from_id: int = int(link["from"])
-		var to_id: int = int(link["to"])
+		var from_id: int = int(link.get("from", -1))
+		var to_id: int = int(link.get("to", -1))
 		if not _nodes.has(from_id) or not _nodes.has(to_id):
 			continue
-		var src: Dictionary = _nodes[from_id]
-		var dst: Dictionary = _nodes[to_id]
+		var src: Dictionary = _nodes[from_id] as Dictionary
+		var dst: Dictionary = _nodes[to_id] as Dictionary
+		var out_count := int(outgoing_counts.get(from_id, 0))
+		var in_count := int(incoming_counts.get(to_id, 0))
+		var out_limit := int(src.get("max_out_ports", 2))
+		var in_limit := int(dst.get("max_in_ports", 2))
+		var link_cost := _compute_edge_memory_cost(from_id, to_id)
+		link["memory_cost"] = link_cost
 
 		if _mutator_type == MUTATOR_MAX_LINKS and idx >= _mutator_link_cap:
 			link["state"] = LINK_BROKEN
@@ -1323,6 +1549,18 @@ func _recompute_graph_state() -> void:
 		elif _mutator_type == MUTATOR_NO_DIRECT_KERNEL and bool(src.get("is_core", false)) and bool(dst.get("is_application", false)):
 			link["state"] = LINK_BROKEN
 			link["reason"] = "kernel-lock"
+		elif out_limit > 0 and out_count > out_limit:
+			link["state"] = LINK_BROKEN
+			link["reason"] = "port-out"
+		elif in_limit > 0 and in_count > in_limit:
+			link["state"] = LINK_BROKEN
+			link["reason"] = "port-in"
+		elif bool(dst.get("secure_socket_only_arm", false)) and str(src.get("template_id", "")) != "arm_shim":
+			link["state"] = LINK_BROKEN
+			link["reason"] = "socket"
+		elif not _is_diode_direction_valid(from_id, to_id):
+			link["state"] = LINK_BROKEN
+			link["reason"] = "diode"
 		elif float(src.get("version", 0.0)) > float(dst.get("max_input_version", 99.0)):
 			link["state"] = LINK_BROKEN
 			link["reason"] = "version"
@@ -1338,13 +1576,186 @@ func _recompute_graph_state() -> void:
 
 		_connections[idx] = link
 
-	for node_id in _nodes.keys():
-		_update_node_visual(int(node_id))
+	_update_volatile_tracking()
 
-	_update_state_labels()
-	_check_fail_or_win()
-	if _draw_overlay:
-		_draw_overlay.queue_redraw()
+func _run_signal_propagation_pass() -> void:
+	for node_id in _nodes.keys():
+		var node: Dictionary = _nodes[node_id]
+		node["signal"] = -1.0
+		_nodes[node_id] = node
+
+	if _nodes.has(_kernel_node_id):
+		var kernel := _nodes[_kernel_node_id] as Dictionary
+		kernel["signal"] = SIGNAL_KERNEL_BASE
+		_nodes[_kernel_node_id] = kernel
+
+	for _iter in range(_nodes.size() + 1):
+		var changed := false
+		for link in _connections:
+			if int(link.get("state", LINK_BROKEN)) != LINK_STABLE:
+				continue
+			var from_id := int(link.get("from", -1))
+			var to_id := int(link.get("to", -1))
+			if not _nodes.has(from_id) or not _nodes.has(to_id):
+				continue
+			var src : Dictionary = _nodes[from_id]
+			var dst : Dictionary = _nodes[to_id]
+			var src_signal := float(src.get("signal", -1.0))
+			if src_signal < 0.0:
+				continue
+			var candidate := clampf(src_signal + float(dst.get("signal_delta", 0.0)), 0.0, 100.0)
+			if candidate > float(dst.get("signal", -1.0)):
+				dst["signal"] = candidate
+				_nodes[to_id] = dst
+				changed = true
+		if not changed:
+			break
+
+	_app_signal_strength = 0.0
+	if _nodes.has(_application_node_id):
+		var app_node: Dictionary = _nodes[_application_node_id]
+		_app_signal_strength = float(app_node.get("signal", -1.0))
+		if _app_signal_strength < SIGNAL_APP_MIN or _app_signal_strength > SIGNAL_APP_MAX:
+			if int(app_node.get("status", STATUS_BROKEN)) == STATUS_STABLE:
+				app_node["status"] = STATUS_BROKEN
+				app_node["reason"] = "Signal %.0f%%" % _app_signal_strength
+				_nodes[_application_node_id] = app_node
+
+func _compute_edge_memory_cost(from_id: int, to_id: int) -> float:
+	if not _node_controls.has(from_id) or not _node_controls.has(to_id):
+		return 8.0
+	var from_ctrl := _node_controls[from_id] as Control
+	var to_ctrl := _node_controls[to_id] as Control
+	var a := from_ctrl.position + from_ctrl.size * 0.5
+	var b := to_ctrl.position + to_ctrl.size * 0.5
+	var dist := a.distance_to(b)
+	var jump_penalty := 6.0 if abs(a.x - b.x) > 320.0 else 0.0
+	return 8.0 + floor(dist / 120.0) + jump_penalty
+
+func _is_diode_direction_valid(from_id: int, to_id: int) -> bool:
+	if not _nodes.has(from_id) or not _nodes.has(to_id) or not _node_controls.has(_application_node_id):
+		return true
+	var src : Dictionary = _nodes[from_id]
+	var dst : Dictionary = _nodes[to_id]
+	var app_ctrl := _node_controls[_application_node_id] as Control
+	var app_center := app_ctrl.position + app_ctrl.size * 0.5
+
+	if bool(dst.get("is_diode", false)):
+		var src_ctrl := _node_controls.get(from_id) as Control
+		var dst_ctrl := _node_controls.get(to_id) as Control
+		if src_ctrl == null or dst_ctrl == null:
+			return false
+		var src_d := (src_ctrl.position + src_ctrl.size * 0.5).distance_to(app_center)
+		var dst_d := (dst_ctrl.position + dst_ctrl.size * 0.5).distance_to(app_center)
+		return src_d > dst_d
+
+	if bool(src.get("is_diode", false)):
+		var src_ctrl2 := _node_controls.get(from_id) as Control
+		var dst_ctrl2 := _node_controls.get(to_id) as Control
+		if src_ctrl2 == null or dst_ctrl2 == null:
+			return false
+		var src_d2 := (src_ctrl2.position + src_ctrl2.size * 0.5).distance_to(app_center)
+		var dst_d2 := (dst_ctrl2.position + dst_ctrl2.size * 0.5).distance_to(app_center)
+		return dst_d2 < src_d2
+
+	return true
+
+func _update_volatile_tracking() -> void:
+	for node_id in _nodes.keys():
+		var node : Dictionary = _nodes[node_id]
+		if not bool(node.get("is_volatile", false)):
+			_volatile_timers.erase(int(node_id))
+			continue
+		if int(node.get("status", STATUS_BROKEN)) == STATUS_STABLE:
+			if not _volatile_timers.has(int(node_id)):
+				_volatile_timers[int(node_id)] = VOLATILE_TIMEOUT_SECONDS
+		else:
+			_volatile_timers.erase(int(node_id))
+
+func _tick_volatile_nodes(delta: float) -> void:
+	if _volatile_timers.is_empty() or not _is_active or _is_resolved:
+		return
+	var expired: Array[int] = []
+	for key in _volatile_timers.keys():
+		var node_id := int(key)
+		var t := float(_volatile_timers[key]) - delta
+		_volatile_timers[key] = t
+		if t <= 0.0:
+			expired.append(node_id)
+	for node_id in expired:
+		_volatile_timers.erase(node_id)
+		_trigger_volatile_timeout(node_id)
+
+func _trigger_volatile_timeout(node_id: int) -> void:
+	var kept: Array[Dictionary] = []
+	for link in _connections:
+		if int(link.get("from", -1)) == node_id:
+			continue
+		kept.append(link)
+	_connections = kept
+	if _nodes.has(node_id):
+		var node :Dictionary = _nodes[node_id]
+		node["status"] = STATUS_BROKEN
+		node["reason"] = "Timed out"
+		_nodes[node_id] = node
+	_recompute_graph_state()
+
+func _setup_watchdog_patrol() -> void:
+	if _workspace == null:
+		return
+	var ws := _workspace.size
+	_watchdog_patrol_points = [
+		Vector2(ws.x * 0.25, ws.y * 0.24),
+		Vector2(ws.x * 0.72, ws.y * 0.26),
+		Vector2(ws.x * 0.78, ws.y * 0.68),
+		Vector2(ws.x * 0.28, ws.y * 0.72),
+	]
+	_watchdog_patrol_index = 0
+	_watchdog_position = _watchdog_patrol_points[0]
+
+func _watchdog_process_loop(delta: float) -> void:
+	if not _watchdog_enabled or not _is_active or _is_resolved or _watchdog_patrol_points.is_empty():
+		return
+	_watchdog_cut_cooldown = maxf(0.0, _watchdog_cut_cooldown - delta)
+	var target := _watchdog_patrol_points[_watchdog_patrol_index]
+	var to_target := target - _watchdog_position
+	var step := _watchdog_speed * delta
+	if to_target.length() <= maxf(1.0, step):
+		_watchdog_position = target
+		_watchdog_patrol_index = (_watchdog_patrol_index + 1) % _watchdog_patrol_points.size()
+	else:
+		_watchdog_position += to_target.normalized() * step
+
+	if _watchdog_cut_cooldown > 0.0:
+		return
+
+	for idx in range(_connections.size()):
+		var link := _connections[idx]
+		if int(link.get("state", LINK_BROKEN)) != LINK_STABLE:
+			continue
+		var from_id := int(link.get("from", -1))
+		var to_id := int(link.get("to", -1))
+		if not _node_controls.has(from_id) or not _node_controls.has(to_id):
+			continue
+		var from_ctrl := _node_controls[from_id] as Control
+		var to_ctrl := _node_controls[to_id] as Control
+		var a := from_ctrl.position + from_ctrl.size * 0.5
+		var b := to_ctrl.position + to_ctrl.size * 0.5
+		if _distance_point_to_segment(_watchdog_position, a, b) <= 16.0:
+			_connections.remove_at(idx)
+			_watchdog_clash_count += 1
+			_watchdog_cut_cooldown = 0.6
+			_recompute_graph_state()
+			return
+
+func _distance_point_to_segment(point: Vector2, a: Vector2, b: Vector2) -> float:
+	var ab := b - a
+	var len_sq := ab.length_squared()
+	if len_sq <= 0.0001:
+		return point.distance_to(a)
+	var t := clampf((point - a).dot(ab) / len_sq, 0.0, 1.0)
+	var closest := a + ab * t
+	return point.distance_to(closest)
 
 func _update_node_visual(node_id: int) -> void:
 	if not _nodes.has(node_id) or not _node_controls.has(node_id):
@@ -1421,17 +1832,20 @@ func _update_state_labels() -> void:
 			stable_link_count += 1
 
 	var goal_text := _objective_short_text()
-	var rule_text := _mutator_short_text()
+	var rule_text := _rule_set_short_text()
+	var mod_text := _mutator_short_text()
 	var sub_progress := _get_subobjective_progress()
 	var sub_met: bool = sub_progress["met"]
 	var has_physical_path := _has_any_path(_kernel_node_id, _application_node_id)
 	var is_fully_ready := _is_objective_complete(0)
 	_preflight_progress = _compute_preflight_progress()
 
-	_status_label.text = "GOOD: %d | CLASH: %d | GREEN: %d | GOAL: %d/%d" % [
+	_status_label.text = "GOOD:%d | CLASH:%d | GREEN:%d | MEM:%d%% | SIG:%d%% | GOAL:%d/%d" % [
 		stable_count,
-		conflict_count,
+		conflict_count + _watchdog_clash_count,
 		stable_link_count,
+		int(round(_memory_usage_percent)),
+		int(round(_app_signal_strength)),
 		int(sub_progress["current"]),
 		int(sub_progress["target"])
 	]
@@ -1440,7 +1854,7 @@ func _update_state_labels() -> void:
 			_status_label.add_theme_color_override("font_color", Color(0.38, 1.0, 0.62))
 		else:
 			_status_label.add_theme_color_override("font_color", Color(0.96, 0.82, 0.35))
-	_hint_label.text = "Goal: %s | Rule: %s" % [goal_text, rule_text]
+	_hint_label.text = "Goal: %s | Rule: %s | Mod: %s" % [goal_text, rule_text, mod_text]
 
 	if _breadcrumb_label:
 		_breadcrumb_label.visible = sub_met and not has_physical_path
@@ -1458,6 +1872,12 @@ func _check_fail_or_win() -> void:
 	if _is_resolved:
 		return
 
+	if _memory_failed:
+		_panic_mode = true
+		_panic_overlay.visible = true
+		_hint_label.text = "Install failed: Memory overload. Press C to reset."
+		return
+
 	var conflict_count := 0
 	for node in _nodes.values():
 		if int(node.get("status", STATUS_BROKEN)) == STATUS_CONFLICT:
@@ -1465,6 +1885,7 @@ func _check_fail_or_win() -> void:
 	for link in _connections:
 		if int(link.get("state", LINK_BROKEN)) == LINK_CONFLICT:
 			conflict_count += 1
+	conflict_count += _watchdog_clash_count
 
 	if conflict_count >= PANIC_CONFLICT_THRESHOLD:
 		_panic_mode = true
@@ -1478,11 +1899,23 @@ func _check_fail_or_win() -> void:
 	if not _is_objective_complete(conflict_count):
 		return
 
+	if _is_repeated_solution_pattern():
+		_hint_label.text = "Pattern reused. Build a different route."
+		return
+
+	_remember_solution_signature()
+
 	_is_resolved = true
 	_hint_label.text = "All good. Install is ready."
 	_show_success_terminal()
 
 func _has_green_path(start_id: int, target_id: int) -> bool:
+	if start_id < 0 or target_id < 0:
+		return false
+	if not _nodes.has(start_id) or not _nodes.has(target_id):
+		return false
+
+	var adjacency := _build_adjacency_from_links(_connections, true)
 	var visited: Dictionary = {}
 	var stack: Array[int] = [start_id]
 
@@ -1494,12 +1927,8 @@ func _has_green_path(start_id: int, target_id: int) -> bool:
 			continue
 		visited[current] = true
 
-		for link in _connections:
-			if int(link.get("from", -1)) != current:
-				continue
-			if int(link.get("state", LINK_BROKEN)) != LINK_STABLE:
-				continue
-			var next_id := int(link.get("to", -1))
+		for next_id_variant in adjacency.get(current, []):
+			var next_id := int(next_id_variant)
 			if not _nodes.has(next_id):
 				continue
 			var node_status := int(_nodes[next_id].get("status", STATUS_BROKEN))
@@ -1556,6 +1985,12 @@ func _reset_puzzle() -> void:
 	_is_resolved = false
 	_panic_mode = false
 	_hovered_node_id = -1
+	_memory_usage_percent = 0.0
+	_memory_failed = false
+	_app_signal_strength = 0.0
+	_volatile_timers.clear()
+	_watchdog_clash_count = 0
+	_watchdog_cut_cooldown = 0.0
 
 	if _panic_overlay:
 		_panic_overlay.visible = false
@@ -1570,12 +2005,35 @@ func _reset_puzzle() -> void:
 
 	_spawn_core_nodes()
 	_recompute_graph_state()
-	_hint_label.text = "Goal: %s | Rule: %s" % [_objective_short_text(), _mutator_short_text()]
+	_hint_label.text = "Goal: %s | Rule: %s | Mod: %s" % [_objective_short_text(), _rule_set_short_text(), _mutator_short_text()]
 	if _template_order.size() > 0:
 		_template_cursor_index = clampi(_template_cursor_index, 0, _template_order.size() - 1)
 		_on_repository_item_pressed(_template_order[_template_cursor_index])
 
 func _select_run_variation() -> void:
+	var app_variants: Array[Dictionary] = [
+		{
+			"label": "runtime+net",
+			"requires": PackedStringArray(["runtime_shell", "net_daemon"]),
+			"exact_inputs": 2
+		},
+		{
+			"label": "runtime+secure",
+			"requires": PackedStringArray(["runtime_shell", "ssl_old"]),
+			"exact_inputs": 2
+		},
+		{
+			"label": "arm+secure",
+			"requires": PackedStringArray(["arm_shim", "ssl_old"]),
+			"exact_inputs": 2
+		},
+		{
+			"label": "runtime+arm",
+			"requires": PackedStringArray(["runtime_shell", "arm_shim"]),
+			"exact_inputs": 2
+		}
+	]
+
 	var objectives := PackedStringArray([
 		OBJECTIVE_PATH_TO_APP,
 		OBJECTIVE_STABLE_NODES,
@@ -1587,35 +2045,82 @@ func _select_run_variation() -> void:
 		MUTATOR_MAX_LINKS,
 		MUTATOR_ARM_UNSTABLE,
 	])
+	var rules := PackedStringArray([
+		RULE_EFFICIENCY,
+		RULE_REDUNDANCY,
+		RULE_RESTRICTED_ACCESS,
+	])
+	var restricted_pool := PackedStringArray(["net_daemon", "runtime_shell", "ssl_old"])
 
 	var objective_weights := PackedInt32Array([3, 3, 3])
 	var mutator_weights := PackedInt32Array([4, 2, 2, 2])
+	var app_weights := PackedInt32Array([4, 3, 2, 2])
+	var rule_weights := PackedInt32Array([4, 3, 3])
 
 	match _encounter_profile:
 		"driver_remnant":
 			objective_weights = PackedInt32Array([2, 2, 6])
 			mutator_weights = PackedInt32Array([2, 3, 5, 1])
+			app_weights = PackedInt32Array([5, 2, 1, 2])
+			rule_weights = PackedInt32Array([5, 2, 3])
 		"hardware_ghost":
 			objective_weights = PackedInt32Array([2, 6, 2])
 			mutator_weights = PackedInt32Array([2, 2, 1, 5])
+			app_weights = PackedInt32Array([2, 3, 4, 3])
+			rule_weights = PackedInt32Array([3, 4, 3])
 		"printer_beast":
 			objective_weights = PackedInt32Array([5, 2, 3])
 			mutator_weights = PackedInt32Array([2, 1, 6, 1])
+			app_weights = PackedInt32Array([4, 2, 2, 3])
+			rule_weights = PackedInt32Array([4, 3, 3])
 		"broken_link":
 			objective_weights = PackedInt32Array([3, 1, 6])
 			mutator_weights = PackedInt32Array([1, 6, 2, 1])
+			app_weights = PackedInt32Array([3, 4, 2, 2])
+			rule_weights = PackedInt32Array([3, 4, 3])
 		"lost_file":
 			objective_weights = PackedInt32Array([6, 3, 1])
 			mutator_weights = PackedInt32Array([6, 1, 1, 1])
+			app_weights = PackedInt32Array([5, 2, 1, 2])
+			rule_weights = PackedInt32Array([5, 2, 3])
 
-	_objective_type = objectives[_pick_weighted_index(objective_weights)]
-	_mutator_type = mutators[_pick_weighted_index(mutator_weights)]
+	var selected_objective := _pick_weighted_index(objective_weights)
+	var selected_mutator := _pick_weighted_index(mutator_weights)
+	var selected_app := _pick_weighted_index(app_weights)
+	var selected_rule := _pick_weighted_index(rule_weights)
 
-	for _i in range(4):
-		if _objective_type != _last_objective_type or _mutator_type != _last_mutator_type:
-			break
-		_objective_type = objectives[_pick_weighted_index(objective_weights)]
-		_mutator_type = mutators[_pick_weighted_index(mutator_weights)]
+	for _i in range(20):
+		var candidate_objective := _pick_weighted_index(objective_weights)
+		var candidate_mutator := _pick_weighted_index(mutator_weights)
+		var candidate_app := _pick_weighted_index(app_weights)
+		var candidate_rule := _pick_weighted_index(rule_weights)
+		var candidate_sig := "%s|%s|%s|%s" % [
+			objectives[candidate_objective],
+			mutators[candidate_mutator],
+			str((app_variants[candidate_app] as Dictionary).get("label", "runtime+net")),
+			rules[candidate_rule]
+		]
+		var same_as_last := objectives[candidate_objective] == _last_objective_type and mutators[candidate_mutator] == _last_mutator_type
+		if same_as_last:
+			continue
+		if _recent_variation_signatures.has(candidate_sig):
+			continue
+		selected_objective = candidate_objective
+		selected_mutator = candidate_mutator
+		selected_app = candidate_app
+		selected_rule = candidate_rule
+		break
+
+	_objective_type = objectives[selected_objective]
+	_mutator_type = mutators[selected_mutator]
+	var app_variant := app_variants[selected_app] as Dictionary
+	_current_app_variant_label = str(app_variant.get("label", "runtime+net"))
+	_current_app_requirements = app_variant.get("requires", PackedStringArray(["runtime_shell", "net_daemon"]))
+	_current_app_exact_inputs = int(app_variant.get("exact_inputs", 2))
+	_rule_set_type = rules[selected_rule]
+	_rule_blacklist_template = restricted_pool[randi_range(0, restricted_pool.size() - 1)]
+	_rule_efficiency_max_nodes = 5 + randi_range(0, 2)
+	_remember_variation_signature("%s|%s|%s|%s" % [_objective_type, _mutator_type, _current_app_variant_label, _rule_set_type])
 
 	match _objective_type:
 		OBJECTIVE_STABLE_NODES:
@@ -1638,7 +2143,7 @@ func _objective_short_text() -> String:
 		OBJECTIVE_STABLE_LINKS:
 			return "Make %d GOOD links" % _objective_target
 		_:
-			return "Kernel -> App (all green)"
+			return "Kernel -> App (%s)" % _current_app_variant_label
 
 func _mutator_short_text() -> String:
 	match _mutator_type:
@@ -1651,6 +2156,108 @@ func _mutator_short_text() -> String:
 		_:
 			return "Normal"
 
+func _rule_set_short_text() -> String:
+	match _rule_set_type:
+		RULE_REDUNDANCY:
+			return "Redundancy: 2 paths"
+		RULE_RESTRICTED_ACCESS:
+			var blocked: String = str(_templates.get(_rule_blacklist_template, {}).get("label", _rule_blacklist_template))
+			return "Restricted: no %s" % blocked
+		_:
+			return "Efficiency: <= %d nodes" % _rule_efficiency_max_nodes
+
+func _evaluate_rule_set() -> Dictionary:
+	match _rule_set_type:
+		RULE_REDUNDANCY:
+			var paths := _count_edge_disjoint_green_paths(2)
+			return {
+				"met": paths >= 2,
+				"current": paths,
+				"target": 2,
+				"label": "Redundancy"
+			}
+		RULE_RESTRICTED_ACCESS:
+			var blocked_count := 0
+			for node in _nodes.values():
+				if bool(node.get("is_core", false)) or bool(node.get("is_application", false)):
+					continue
+				if str(node.get("template_id", "")) == _rule_blacklist_template:
+					blocked_count += 1
+			return {
+				"met": blocked_count == 0,
+				"current": blocked_count,
+				"target": 0,
+				"label": "Restricted"
+			}
+		_:
+			var path_nodes := _find_any_shortest_path_nodes(_kernel_node_id, _application_node_id)
+			var used_nodes := path_nodes.size()
+			if used_nodes <= 0:
+				used_nodes = 999
+			return {
+				"met": used_nodes <= _rule_efficiency_max_nodes,
+				"current": used_nodes,
+				"target": _rule_efficiency_max_nodes,
+				"label": "Efficiency"
+			}
+
+func _count_edge_disjoint_green_paths(max_needed: int) -> int:
+	var remaining: Array[Dictionary] = []
+	for link in _connections:
+		if int(link.get("state", LINK_BROKEN)) == LINK_STABLE:
+			remaining.append(link.duplicate())
+
+	var found := 0
+	while found < max_needed:
+		var path := _find_path_in_link_set(_kernel_node_id, _application_node_id, remaining)
+		if path.is_empty():
+			break
+		found += 1
+		var reduced: Array[Dictionary] = []
+		for link in remaining:
+			var from_id := int(link.get("from", -1))
+			var to_id := int(link.get("to", -1))
+			var consumed := false
+			for i in range(path.size() - 1):
+				if from_id == int(path[i]) and to_id == int(path[i + 1]):
+					consumed = true
+					break
+			if not consumed:
+				reduced.append(link)
+		remaining = reduced
+
+	return found
+
+func _find_path_in_link_set(start_id: int, target_id: int, link_set: Array[Dictionary]) -> Array[int]:
+	if start_id < 0 or target_id < 0:
+		return []
+	var adjacency := _build_adjacency_from_links(link_set, false)
+	var queue: Array[int] = [start_id]
+	var visited: Dictionary = {start_id: true}
+	var parent: Dictionary = {}
+
+	while not queue.is_empty():
+		var current := int(queue.pop_front())
+		if current == target_id:
+			break
+		for next_id_variant in adjacency.get(current, []):
+			var next_id := int(next_id_variant)
+			if visited.has(next_id):
+				continue
+			visited[next_id] = true
+			parent[next_id] = current
+			queue.append(next_id)
+
+	if not visited.has(target_id):
+		return []
+
+	var path: Array[int] = [target_id]
+	var cursor := target_id
+	while cursor != start_id:
+		cursor = int(parent.get(cursor, start_id))
+		path.push_front(cursor)
+	return path
+
 func _is_objective_complete(_conflict_count: int) -> bool:
 	# Gatekeeper pattern: physical path -> green path quality -> sub-objective.
 	if not _has_any_path(_kernel_node_id, _application_node_id):
@@ -1662,6 +2269,9 @@ func _is_objective_complete(_conflict_count: int) -> bool:
 	if _compute_preflight_progress() < 1.0:
 		return false
 
+	if not _evaluate_rule_set()["met"]:
+		return false
+
 	return _get_subobjective_progress()["met"]
 
 func _has_any_path(start_id: int, target_id: int) -> bool:
@@ -1670,6 +2280,7 @@ func _has_any_path(start_id: int, target_id: int) -> bool:
 	if not _nodes.has(start_id) or not _nodes.has(target_id):
 		return false
 
+	var adjacency := _build_adjacency_from_links(_connections, false)
 	var visited: Dictionary = {}
 	var stack: Array[int] = [start_id]
 
@@ -1681,10 +2292,8 @@ func _has_any_path(start_id: int, target_id: int) -> bool:
 			continue
 		visited[current] = true
 
-		for link in _connections:
-			if int(link.get("from", -1)) != current:
-				continue
-			var next_id := int(link.get("to", -1))
+		for next_id_variant in adjacency.get(current, []):
+			var next_id := int(next_id_variant)
 			if _nodes.has(next_id):
 				stack.append(next_id)
 
@@ -1696,6 +2305,7 @@ func _find_any_shortest_path_nodes(start_id: int, target_id: int) -> Array[int]:
 	if not _nodes.has(start_id) or not _nodes.has(target_id):
 		return []
 
+	var adjacency := _build_adjacency_from_links(_connections, false)
 	var queue: Array[int] = [start_id]
 	var visited: Dictionary = {start_id: true}
 	var parent: Dictionary = {}
@@ -1704,10 +2314,8 @@ func _find_any_shortest_path_nodes(start_id: int, target_id: int) -> Array[int]:
 		var current := int(queue.pop_front())
 		if current == target_id:
 			break
-		for link in _connections:
-			if int(link.get("from", -1)) != current:
-				continue
-			var next_id := int(link.get("to", -1))
+		for next_id_variant in adjacency.get(current, []):
+			var next_id := int(next_id_variant)
 			if not _nodes.has(next_id) or visited.has(next_id):
 				continue
 			visited[next_id] = true
@@ -1818,25 +2426,29 @@ func _get_app_goal_status_payload() -> Dictionary:
 	var has_physical := _has_any_path(_kernel_node_id, _application_node_id)
 	var has_green := _is_app_connected_green()
 	var sub_progress := _get_subobjective_progress()
+	var rule_progress := _evaluate_rule_set()
 	var current := int(sub_progress["current"])
 	var target := int(sub_progress["target"])
 	var sub_met: bool = sub_progress["met"]
+	var rule_met: bool = bool(rule_progress.get("met", false))
 	var pulse := 0.35 + 0.35 * (0.5 + 0.5 * sin(Time.get_ticks_msec() * 0.006))
+	var signal_ok := _app_signal_strength >= SIGNAL_APP_MIN and _app_signal_strength <= SIGNAL_APP_MAX
 
-	if _is_resolved or (has_green and sub_met):
+	if _is_resolved or (has_green and sub_met and rule_met and signal_ok):
 		return {
 			"color": Color(0.34, 1.0, 0.55),
-			"meta_text": "STATUS: STABLE",
+			"meta_text": "STATUS: STABLE %.0f%%" % _app_signal_strength,
 			"state_text": "READY TO INSTALL"
 		}
 
 	if has_physical:
 		var amber := Color(0.96, 0.8, 0.24)
 		amber = amber.lerp(Color(0.72, 0.58, 0.14), pulse * 0.45)
+		var signal_tag := "OK" if signal_ok else "BAD"
 		return {
 			"color": amber,
-			"meta_text": "STATUS: LINKED",
-			"state_text": "RESOLVING DEPS %d/%d" % [current, target]
+			"meta_text": "STATUS: LINKED %.0f%% (%s)" % [_app_signal_strength, signal_tag],
+			"state_text": "DEPS %d/%d | RULE %d/%d" % [current, target, int(rule_progress.get("current", 0)), int(rule_progress.get("target", 0))]
 		}
 
 	var red := Color(0.9, 0.26, 0.22)
@@ -1875,3 +2487,78 @@ func _pick_weighted_index(weights: PackedInt32Array) -> int:
 			return i
 
 	return weights.size() - 1
+
+func _build_adjacency_from_links(link_set: Array, stable_only: bool) -> Dictionary:
+	var adjacency: Dictionary = {}
+	for link_variant in link_set:
+		var link := link_variant as Dictionary
+		if stable_only and int(link.get("state", LINK_BROKEN)) != LINK_STABLE:
+			continue
+		var from_id := int(link.get("from", -1))
+		var to_id := int(link.get("to", -1))
+		if from_id < 0 or to_id < 0:
+			continue
+		if not adjacency.has(from_id):
+			adjacency[from_id] = []
+		(adjacency[from_id] as Array).append(to_id)
+	return adjacency
+
+func _remember_variation_signature(signature: String) -> void:
+	if signature == "":
+		return
+	_recent_variation_signatures.append(signature)
+	while _recent_variation_signatures.size() > ANTI_REPEAT_VARIATION_HISTORY:
+		_recent_variation_signatures.remove_at(0)
+
+func _build_solution_signature() -> String:
+	if _kernel_node_id < 0 or _application_node_id < 0:
+		return ""
+	if not _is_app_connected_green():
+		return ""
+
+	var path_nodes := _find_any_shortest_path_nodes(_kernel_node_id, _application_node_id)
+	if path_nodes.size() < 2:
+		return ""
+
+	var chain: PackedStringArray = PackedStringArray()
+	for node_id in path_nodes:
+		if not _nodes.has(node_id):
+			continue
+		var node: Dictionary = _nodes[node_id]
+		if bool(node.get("is_core", false)):
+			chain.append("kernel")
+		elif bool(node.get("is_application", false)):
+			chain.append("app")
+		else:
+			chain.append(str(node.get("template_id", "unknown")))
+
+	if chain.size() < 2:
+		return ""
+
+	var total_links := maxi(0, chain.size() - 1)
+	var stable_links := 0
+	for link in _connections:
+		if int(link.get("state", LINK_BROKEN)) == LINK_STABLE:
+			stable_links += 1
+
+	return "%s|%s|shape:%s|green:%d/%d" % [
+		_current_app_variant_label,
+		_rule_set_type,
+		">".join(chain),
+		stable_links,
+		total_links
+	]
+
+func _is_repeated_solution_pattern() -> bool:
+	var signature := _build_solution_signature()
+	if signature == "":
+		return false
+	return _recent_solution_signatures.has(signature)
+
+func _remember_solution_signature() -> void:
+	var signature := _build_solution_signature()
+	if signature == "":
+		return
+	_recent_solution_signatures.append(signature)
+	while _recent_solution_signatures.size() > ANTI_REPEAT_SOLUTION_HISTORY:
+		_recent_solution_signatures.remove_at(0)

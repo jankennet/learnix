@@ -3,6 +3,14 @@ if SceneManager.proficiency_key_printer == true:
 	Printer Beast: [tray empty] ...
 	Printer Beast: The daemon is silent. The shuriken are gone.
 	=> END
+elif SceneManager.npc_states.get("Printer Boss", "") == "puzzle_ejected":
+	Printer Beast: [daemon bark] USER EJECTED.
+	Printer Beast: Three spool-repair failures recorded.
+	Printer Beast: Reconnect only when your commands are stable.
+	set SceneManager.met_printer_boss = true
+	do SceneManager.quest_manager.start_quest("drivers_den_cleanup")
+	do start_combat()
+	=> END
 else:
 	Printer Beast: PCL XL Error!
 	Printer Beast: Paper jam. Spool overflow. Memory fault.

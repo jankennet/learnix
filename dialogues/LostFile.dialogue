@@ -12,6 +12,14 @@ elif SceneManager.deleted_lost_file == true:
 	Lost File: But my mother... is she...?
 	Lost File: [The Lost File scatters, unable to stabilize]
 	=> END
+elif SceneManager.npc_states.get("Lost File", "") == "puzzle_ejected":
+	Lost File: [fragment burst] You were thrown out of the terminal.
+	Lost File: Three failed restore attempts... I destabilized again.
+	Lost File: If you try again, be careful.
+	- I'll try to restore you again.
+		=> offer_puzzle
+	- I need to end this. (Start Combat)
+		=> start_combat
 else:
 	Lost File: [static crackle]... who... who's there?
 	Lost File: I was... something once. A document. A memory.

@@ -7,6 +7,14 @@ elif SceneManager.broken_link_fragmented_key == true:
 	Broken Link: [404 ping] ...missing... severed...
 	Broken Link: You took the fragments. Only broken pointers remain.
 	=> END
+elif SceneManager.npc_states.get("Broken Link", "") == "puzzle_ejected":
+	Broken Link: [terminal ejected] Too many failed repairs.
+	Broken Link: Your signal broke before the route stabilized.
+	Broken Link: Return when your stack is steady.
+	- I will try the repair again.
+		=> offer_puzzle
+	- Not now. (Start Combat)
+		=> start_combat
 else:
 	Broken Link: [404 ping] link not found...
 	Broken Link: I am a stub. A path to nowhere.
