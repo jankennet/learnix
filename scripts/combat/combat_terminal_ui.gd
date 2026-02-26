@@ -9,7 +9,17 @@ class_name CombatTerminalUI
 
 @onready var terminal_output: RichTextLabel = $TerminalContainer/TerminalOutput
 @onready var command_input: LineEdit = $TerminalContainer/InputContainer/CommandInput
+@onready var terminal_container: VBoxContainer = $TerminalContainer
+@onready var input_container: HBoxContainer = $TerminalContainer/InputContainer
+@onready var prompt_label: Label = $TerminalContainer/InputContainer/PromptLabel
+@onready var submit_button: Button = $TerminalContainer/InputContainer/SubmitButton
+@onready var exit_button: Button = $TerminalContainer/InputContainer/ExitButton
 @onready var status_panel: Panel = $StatusPanel
+@onready var status_vbox: VBoxContainer = $StatusPanel/VBox
+@onready var status_title_label: Label = $StatusPanel/VBox/StatusTitle
+@onready var player_title_label: Label = $StatusPanel/VBox/PlayerTitle
+@onready var enemy_title_label: Label = $StatusPanel/VBox/EnemyTitle
+@onready var help_label: Label = $StatusPanel/VBox/HelpLabel
 @onready var player_hp_bar: ProgressBar = $StatusPanel/VBox/PlayerStatus/HPBar
 @onready var player_hp_label: Label = $StatusPanel/VBox/PlayerStatus/HPLabel
 @onready var enemy_hp_bar: ProgressBar = $StatusPanel/VBox/EnemyStatus/HPBar
@@ -30,24 +40,78 @@ var _dependency_fail_count: int = 0
 
 const DEPENDENCY_FAIL_DAMAGE := 10
 const DEPENDENCY_FAIL_LIMIT := 3
+const UI_BASE_RESOLUTION := Vector2(1280.0, 720.0)
+const UI_MIN_SCALE := 1.0
+const UI_MAX_SCALE := 1.7
 #endregion
 
 func _ready() -> void:
+	if not get_viewport().size_changed.is_connected(_on_viewport_resized):
+		get_viewport().size_changed.connect(_on_viewport_resized)
+	call_deferred("_apply_responsive_ui")
+
 	# Connect input signals
 	if command_input:
 		command_input.text_submitted.connect(_on_command_submitted)
 	
-	var submit_btn = get_node_or_null("TerminalContainer/InputContainer/SubmitButton")
-	if submit_btn:
-		submit_btn.pressed.connect(_on_submit_pressed)
+	if submit_button:
+		submit_button.pressed.connect(_on_submit_pressed)
 	
-	var exit_btn = get_node_or_null("TerminalContainer/InputContainer/ExitButton")
-	if exit_btn:
-		exit_btn.pressed.connect(_on_exit_pressed)
+	if exit_button:
+		exit_button.pressed.connect(_on_exit_pressed)
 	
 	# Setup timing minigame
 	_setup_timing_minigame()
 	_setup_dependency_minigame()
+
+func _on_viewport_resized() -> void:
+	_apply_responsive_ui()
+
+func _get_ui_scale_factor() -> float:
+	var viewport_size := get_viewport_rect().size
+	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
+		return 1.0
+	var width_ratio := viewport_size.x / UI_BASE_RESOLUTION.x
+	var height_ratio := viewport_size.y / UI_BASE_RESOLUTION.y
+	return clamp(min(width_ratio, height_ratio), UI_MIN_SCALE, UI_MAX_SCALE)
+
+func _apply_responsive_ui() -> void:
+	var scale_factor := _get_ui_scale_factor()
+
+	terminal_container.offset_left = 20.0 * scale_factor
+	terminal_container.offset_top = 20.0 * scale_factor
+	terminal_container.offset_right = -270.0 * scale_factor
+	terminal_container.offset_bottom = -20.0 * scale_factor
+
+	status_panel.offset_left = -250.0 * scale_factor
+	status_panel.offset_top = 20.0 * scale_factor
+	status_panel.offset_right = -20.0 * scale_factor
+	status_panel.offset_bottom = -20.0 * scale_factor
+	status_panel.custom_minimum_size = Vector2(220.0, 0.0) * scale_factor
+
+	status_vbox.offset_left = 10.0 * scale_factor
+	status_vbox.offset_top = 10.0 * scale_factor
+	status_vbox.offset_right = -10.0 * scale_factor
+	status_vbox.offset_bottom = -10.0 * scale_factor
+	status_vbox.add_theme_constant_override("separation", roundi(4.0 * scale_factor))
+	input_container.add_theme_constant_override("separation", roundi(8.0 * scale_factor))
+
+	terminal_output.add_theme_font_size_override("normal_font_size", roundi(12.0 * scale_factor))
+	prompt_label.add_theme_font_size_override("font_size", roundi(16.0 * scale_factor))
+	command_input.add_theme_font_size_override("font_size", roundi(16.0 * scale_factor))
+	command_input.custom_minimum_size = Vector2(0.0, 34.0 * scale_factor)
+	submit_button.add_theme_font_size_override("font_size", roundi(12.0 * scale_factor))
+	exit_button.add_theme_font_size_override("font_size", roundi(12.0 * scale_factor))
+
+	status_title_label.add_theme_font_size_override("font_size", roundi(8.0 * scale_factor))
+	mode_label.add_theme_font_size_override("font_size", roundi(8.0 * scale_factor))
+	player_title_label.add_theme_font_size_override("font_size", roundi(8.0 * scale_factor))
+	player_hp_label.add_theme_font_size_override("font_size", roundi(8.0 * scale_factor))
+	enemy_title_label.add_theme_font_size_override("font_size", roundi(8.0 * scale_factor))
+	enemy_name_label.add_theme_font_size_override("font_size", roundi(8.0 * scale_factor))
+	enemy_hp_label.add_theme_font_size_override("font_size", roundi(8.0 * scale_factor))
+	turn_indicator.add_theme_font_size_override("font_size", roundi(8.0 * scale_factor))
+	help_label.add_theme_font_size_override("font_size", roundi(8.0 * scale_factor))
 
 func _setup_timing_minigame() -> void:
 	# Create timing minigame instance
@@ -868,12 +932,12 @@ func _get_current_enemy_label() -> String:
 	return ""
 
 func _set_terminal_for_dependency_mode(active: bool) -> void:
-	var terminal_container := get_node_or_null("TerminalContainer") as CanvasItem
+	var terminal_container_node := get_node_or_null("TerminalContainer") as CanvasItem
 	var status_panel_node := get_node_or_null("StatusPanel") as CanvasItem
 	var crt_overlay := get_node_or_null("CRTEffectOverlay") as CanvasItem
 
-	if terminal_container:
-		terminal_container.visible = not active
+	if terminal_container_node:
+		terminal_container_node.visible = not active
 	if status_panel_node:
 		status_panel_node.visible = not active
 	if crt_overlay:

@@ -2,6 +2,12 @@ extends CanvasLayer
 ## A styled dialogue balloon for Learnix game.
 
 const DialogueManagerConstants = preload("res://addons/dialogue_manager/constants.gd")
+const UI_BASE_RESOLUTION := Vector2(1280.0, 720.0)
+const UI_MIN_SCALE := 1.0
+const UI_MAX_SCALE := 1.8
+const CHARACTER_FONT_BASE := 16
+const DIALOGUE_FONT_BASE := 14
+const RESPONSE_FONT_BASE := 12
 
 ## The dialogue resource
 @export var dialogue_resource: DialogueResource
@@ -89,6 +95,9 @@ var mutation_cooldown: Timer = Timer.new()
 
 ## The base balloon anchor
 @onready var balloon: Control = %Balloon
+@onready var margin_container: MarginContainer = $Balloon/MarginContainer
+@onready var hbox_container: HBoxContainer = $Balloon/MarginContainer/PanelContainer/HBoxContainer
+@onready var vbox_container: VBoxContainer = $Balloon/MarginContainer/PanelContainer/HBoxContainer/VBoxContainer
 
 ## The label showing the name of the currently speaking character
 @onready var character_label: RichTextLabel = %CharacterLabel
@@ -110,6 +119,9 @@ var mutation_cooldown: Timer = Timer.new()
 func _ready() -> void:
 	balloon.hide()
 	Engine.get_singleton("DialogueManager").mutated.connect(_on_mutated)
+	if not get_viewport().size_changed.is_connected(_on_viewport_resized):
+		get_viewport().size_changed.connect(_on_viewport_resized)
+	call_deferred("_apply_responsive_ui")
 
 	# If the responses menu doesn't have a next action set, use this one
 	if responses_menu.next_action.is_empty():
@@ -122,6 +134,40 @@ func _ready() -> void:
 		if not is_instance_valid(dialogue_resource):
 			assert(false, DialogueManagerConstants.get_error_message(DialogueManagerConstants.ERR_MISSING_RESOURCE_FOR_AUTOSTART))
 		start()
+
+
+func _on_viewport_resized() -> void:
+	_apply_responsive_ui()
+
+
+func _get_ui_scale_factor() -> float:
+	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
+	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
+		return 1.0
+	var width_ratio := viewport_size.x / UI_BASE_RESOLUTION.x
+	var height_ratio := viewport_size.y / UI_BASE_RESOLUTION.y
+	return clamp(min(width_ratio, height_ratio), UI_MIN_SCALE, UI_MAX_SCALE)
+
+
+func _apply_responsive_ui() -> void:
+	var scale_factor := _get_ui_scale_factor()
+	character_label.add_theme_font_size_override("normal_font_size", roundi(CHARACTER_FONT_BASE * scale_factor))
+	dialogue_label.add_theme_font_size_override("normal_font_size", roundi(DIALOGUE_FONT_BASE * scale_factor))
+
+	var response_font_size := roundi(RESPONSE_FONT_BASE * scale_factor)
+	for child in responses_menu.get_children():
+		if child is Button:
+			(child as Button).add_theme_font_size_override("font_size", response_font_size)
+
+	margin_container.offset_left = 40.0 * scale_factor
+	margin_container.offset_right = -40.0 * scale_factor
+	margin_container.offset_top = -180.0 * scale_factor
+	margin_container.offset_bottom = -40.0 * scale_factor
+
+	portrait_panel.custom_minimum_size = Vector2(100.0, 100.0) * scale_factor
+	hbox_container.add_theme_constant_override("separation", roundi(15.0 * scale_factor))
+	vbox_container.add_theme_constant_override("separation", roundi(8.0 * scale_factor))
+	progress.scale = Vector2.ONE * max(1.0, scale_factor * 0.9)
 
 
 func _process(_delta: float) -> void:

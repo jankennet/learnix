@@ -4,3 +4,4 @@ res://scripts/combat/combat_terminal_ui.gd
 res://scripts/npc_script.gd
 res://scripts/LostFileSpawner.gd
 res://scripts/teleport.gd
+res://Scenes/dialogue_balloon.gd
