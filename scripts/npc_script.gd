@@ -16,6 +16,7 @@ var root_node: Node = null
 var sprite: AnimatedSprite3D = null
 var _last_scene_state: String = ""
 var _gatekeeper_transfer_running: bool = false
+var _uses_scene_state_visuals := false
 
 func _ready():
 	root_node = self
@@ -53,6 +54,7 @@ func _ready():
 					break
 
 	npc_name = root_node.name if root_node else name
+	_uses_scene_state_visuals = _should_apply_deamon_depths_state_visuals()
 	if root_node:
 		root_node.add_to_group("npcs")
 
@@ -106,6 +108,8 @@ func _ready():
 
 	play_idle_animation()
 	_apply_state_visuals_from_scene_state(true)
+	if not _uses_scene_state_visuals:
+		set_process(false)
 
 	# Ensure there's an Area3D for detecting player proximity for interaction
 	if root_node.has_node("InteractArea"):
@@ -155,7 +159,7 @@ func _ready():
 	_interact_area.body_exited.connect(_on_interact_area_exited)
 
 func _process(_delta: float) -> void:
-	if not _should_apply_deamon_depths_state_visuals():
+	if not _uses_scene_state_visuals:
 		return
 	_apply_state_visuals_from_scene_state()
 

@@ -7,6 +7,11 @@ extends Node
 const LOST_FILE_IN_FOREST = "res://Scenes/Levels/file_system_forest.tscn"
 const LOST_FILE_IN_HAMLET = "res://Scenes/Levels/fallback_hamlet.tscn"
 const QUEST_ID = "find_lost_file"
+const VISIBILITY_POLL_INTERVAL := 0.25
+
+var _visibility_poll_timer := 0.0
+var _last_scene_path := ""
+var _last_should_hide := {}
 
 func _ready():
 	if SceneManager and SceneManager.quest_manager:
@@ -18,6 +23,9 @@ func _ready():
 
 ## Check initial state on startup
 func _check_initial_state() -> void:
+	_last_scene_path = ""
+	_last_should_hide.clear()
+	_visibility_poll_timer = 0.0
 	# Always start with Lost File hidden in both locations
 	var current_scene = get_tree().current_scene
 	if not current_scene:
@@ -62,6 +70,8 @@ func _update_lost_file_visibility() -> void:
 	var current_scene = get_tree().current_scene
 	if not current_scene:
 		return
+
+	_last_scene_path = current_scene.scene_file_path
 	
 	var quest = SceneManager.quest_manager.get_quest(QUEST_ID)
 	if not quest:
@@ -69,11 +79,19 @@ func _update_lost_file_visibility() -> void:
 	
 	# In Forest: hide Lost File if quest is completed or failed
 	if LOST_FILE_IN_FOREST in current_scene.scene_file_path:
-		_hide_npc_completely(current_scene, "NPC/Lost File", quest.status in ["completed", "failed"])
+		var hide_forest: bool = quest.status in ["completed", "failed"]
+		_set_npc_hidden_if_changed(current_scene, "NPC/Lost File", hide_forest)
 	
 	# In Hamlet: show Lost File if quest is completed (helped)
 	if LOST_FILE_IN_HAMLET in current_scene.scene_file_path:
-		_hide_npc_completely(current_scene, "NPC/Lost File", quest.status != "completed")
+		var hide_hamlet: bool = quest.status != "completed"
+		_set_npc_hidden_if_changed(current_scene, "NPC/Lost File", hide_hamlet)
+
+func _set_npc_hidden_if_changed(scene: Node, npc_path: String, should_hide: bool) -> void:
+	if _last_should_hide.get(npc_path, null) == should_hide:
+		return
+	_last_should_hide[npc_path] = should_hide
+	_hide_npc_completely(scene, npc_path, should_hide)
 
 ## Hide or show an NPC completely (visibility + collision + interact area)
 func _hide_npc_completely(scene: Node, npc_path: String, should_hide: bool) -> void:
@@ -107,16 +125,25 @@ func _hide_npc_completely(scene: Node, npc_path: String, should_hide: bool) -> v
 
 ## Process every frame to ensure visibility persists during scene transitions
 func _process(_delta: float) -> void:
+	_visibility_poll_timer -= _delta
+	if _visibility_poll_timer > 0.0:
+		return
+	_visibility_poll_timer = VISIBILITY_POLL_INTERVAL
+
 	var current_scene = get_tree().current_scene
 	if not current_scene:
 		return
+
+	if current_scene.scene_file_path != _last_scene_path:
+		_last_scene_path = current_scene.scene_file_path
+		_last_should_hide.clear()
 	
 	# In Forest: hide Lost File if quest was completed/failed
 	if LOST_FILE_IN_FOREST in current_scene.scene_file_path:
 		var lost_file_forest = current_scene.get_node_or_null("NPC/Lost File")
 		if lost_file_forest and (SceneManager.helped_lost_file or SceneManager.deleted_lost_file):
 			if lost_file_forest.visible:
-				_hide_npc_completely(current_scene, "NPC/Lost File", true)
+				_set_npc_hidden_if_changed(current_scene, "NPC/Lost File", true)
 	
 	# In Hamlet: show Lost File if quest was completed and helped
 	if LOST_FILE_IN_HAMLET in current_scene.scene_file_path:
@@ -124,7 +151,7 @@ func _process(_delta: float) -> void:
 		if lost_file_hamlet:
 			if SceneManager.helped_lost_file:
 				if not lost_file_hamlet.visible:
-					_hide_npc_completely(current_scene, "NPC/Lost File", false)
+					_set_npc_hidden_if_changed(current_scene, "NPC/Lost File", false)
 			else:
 				if lost_file_hamlet.visible:
-					_hide_npc_completely(current_scene, "NPC/Lost File", true)
+					_set_npc_hidden_if_changed(current_scene, "NPC/Lost File", true)

@@ -8,18 +8,21 @@ extends Area3D
 var can_teleport := true
 var player: CharacterBody3D
 var player_inside := false
+var _scene_manager: Node = null
 
 func _ready():
 	monitoring = true
 	body_entered.connect(_on_enter)
 	body_exited.connect(_on_exit)
+	_scene_manager = get_node_or_null("/root/SceneManager")
 	print("[Teleporter] ready - signals connected")
-	set_process(true)
+	set_process(false)
 
 func _on_enter(body):
 	if body.is_in_group("player"):
 		player = body
 		player_inside = true
+		set_process(true)
 		print("Player in teleporter area:", target_scene)
 		# register as current interactable so global interact works
 		InteractionManager.current_interactable = self
@@ -27,6 +30,7 @@ func _on_enter(body):
 func _on_exit(body):
 	if body.is_in_group("player"):
 		player_inside = false
+		set_process(false)
 		print("Player exited teleporter area")
 		if InteractionManager.current_interactable == self:
 			InteractionManager.current_interactable = null
@@ -34,8 +38,7 @@ func _on_exit(body):
 
 func _process(_delta):
 	# Block interaction if input is locked (e.g., during combat)
-	var sm = get_node_or_null("/root/SceneManager")
-	if sm and sm.input_locked:
+	if _scene_manager and _scene_manager.input_locked:
 		return
 	
 	if player_inside and Input.is_action_just_pressed("interact") and can_teleport:
@@ -47,8 +50,7 @@ func _process(_delta):
 func on_interact() -> void:
 	# Called by InteractionManager when the player presses the global interact key
 	# Block if input is locked
-	var sm = get_node_or_null("/root/SceneManager")
-	if sm and sm.input_locked:
+	if _scene_manager and _scene_manager.input_locked:
 		return
 	
 	if player_inside and can_teleport:

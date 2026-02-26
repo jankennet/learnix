@@ -17,6 +17,7 @@ const NODE_SIZE := Vector2(88, 52)
 const PANIC_CONFLICT_THRESHOLD := 4
 const CURSOR_STEP := 56.0
 const FLOW_SPEED := 132.0
+const APP_VISUAL_REFRESH_INTERVAL := 0.12
 const RESET_TRY_MAX := 3
 const ANTI_REPEAT_VARIATION_HISTORY := 6
 const ANTI_REPEAT_SOLUTION_HISTORY := 4
@@ -85,6 +86,7 @@ var _preflight_label: Label
 var _saved_mouse_mode: int = Input.MOUSE_MODE_VISIBLE
 var _mouse_mode_saved := false
 var _flow_phase := 0.0
+var _app_visual_refresh_accum := 0.0
 var _hovered_node_id := -1
 var _preflight_progress := 0.0
 var _reset_tries_left := RESET_TRY_MAX
@@ -162,6 +164,7 @@ func open_minigame() -> void:
 	_update_reset_help_text()
 	_reset_puzzle()
 	_open_input_grace = 0.35
+	_app_visual_refresh_accum = 0.0
 	show()
 	move_to_front()
 	_is_active = true
@@ -174,6 +177,7 @@ func close_minigame() -> void:
 	hide()
 	_is_active = false
 	_open_input_grace = 0.0
+	_app_visual_refresh_accum = 0.0
 	_hovered_node_id = -1
 	if _metadata_tooltip:
 		_metadata_tooltip.visible = false
@@ -711,6 +715,7 @@ func _process(delta: float) -> void:
 		return
 
 	_flow_phase = fposmod(_flow_phase + delta * FLOW_SPEED, 10000.0)
+	_app_visual_refresh_accum += delta
 
 	if _log_label:
 		if _log_label.get_line_count() > 26:
@@ -736,7 +741,8 @@ func _process(delta: float) -> void:
 				_draw_overlay.queue_redraw()
 
 	if _workspace:
-		if _is_active and _workspace.get_global_rect().has_point(get_viewport().get_mouse_position()):
+		var viewport_mouse := get_viewport().get_mouse_position()
+		if _workspace.get_global_rect().has_point(viewport_mouse):
 			_build_cursor = _workspace.get_local_mouse_position()
 		_build_cursor.x = clampf(_build_cursor.x, 16.0, _workspace.size.x - 16.0)
 		_build_cursor.y = clampf(_build_cursor.y, 16.0, _workspace.size.y - 16.0)
@@ -744,7 +750,8 @@ func _process(delta: float) -> void:
 	if _metadata_tooltip and _metadata_tooltip.visible and _hovered_node_id >= 0:
 		_update_metadata_tooltip_position(_hovered_node_id)
 
-	if _application_node_id >= 0 and _node_controls.has(_application_node_id):
+	if _app_visual_refresh_accum >= APP_VISUAL_REFRESH_INTERVAL and _application_node_id >= 0 and _node_controls.has(_application_node_id):
+		_app_visual_refresh_accum = 0.0
 		_update_node_visual(_application_node_id)
 
 	if _draw_overlay and (_link_mode or not _connections.is_empty() or _watchdog_enabled or _panic_mode):
@@ -1489,7 +1496,8 @@ func _run_validation_pass() -> void:
 		var exact_inputs: int = int(node.get("exact_inputs", 0))
 		var exact_ok := exact_inputs <= 0 or incoming.size() == exact_inputs
 		var kernel_ok := (not bool(node.get("requires_kernel", false))) or has_direct_kernel
-		var arch_conflict := source_arches.size() > 1
+		var is_application := bool(node.get("is_application", false))
+		var arch_conflict := source_arches.size() > 1 and not is_application
 		var arm_unstable := _mutator_type == MUTATOR_ARM_UNSTABLE and str(node.get("arch", "")) == "arm"
 		var in_ports := int(incoming_counts.get(node_id, 0))
 		var in_limit := int(node.get("max_in_ports", 2))
@@ -1958,7 +1966,7 @@ func _show_success_terminal() -> void:
 	]
 
 	await _print_terminal_lines(lines, 0.33)
-	_terminal_exit_button.disabled = _compute_preflight_progress() < 1.0
+	_terminal_exit_button.disabled = false
 
 func _print_terminal_lines(lines: PackedStringArray, interval: float) -> void:
 	for line in lines:
@@ -2259,20 +2267,23 @@ func _find_path_in_link_set(start_id: int, target_id: int, link_set: Array[Dicti
 	return path
 
 func _is_objective_complete(_conflict_count: int) -> bool:
-	# Gatekeeper pattern: physical path -> green path quality -> sub-objective.
-	if not _has_any_path(_kernel_node_id, _application_node_id):
+	var sub_progress := _get_subobjective_progress()
+	if not bool(sub_progress.get("met", false)):
 		return false
 
-	if not _is_app_connected_green():
+	if not bool(_evaluate_rule_set().get("met", false)):
 		return false
 
-	if _compute_preflight_progress() < 1.0:
-		return false
+	# Only path objective requires full Kernel -> App green route and preflight.
+	if _objective_type == OBJECTIVE_PATH_TO_APP:
+		if not _has_any_path(_kernel_node_id, _application_node_id):
+			return false
+		if not _is_app_connected_green():
+			return false
+		if _compute_preflight_progress() < 1.0:
+			return false
 
-	if not _evaluate_rule_set()["met"]:
-		return false
-
-	return _get_subobjective_progress()["met"]
+	return true
 
 func _has_any_path(start_id: int, target_id: int) -> bool:
 	if start_id < 0 or target_id < 0:
@@ -2427,12 +2438,23 @@ func _get_app_goal_status_payload() -> Dictionary:
 	var has_green := _is_app_connected_green()
 	var sub_progress := _get_subobjective_progress()
 	var rule_progress := _evaluate_rule_set()
+	var app_reason := "Pending"
+	if _nodes.has(_application_node_id):
+		app_reason = str(_nodes[_application_node_id].get("reason", "Pending"))
 	var current := int(sub_progress["current"])
 	var target := int(sub_progress["target"])
 	var sub_met: bool = sub_progress["met"]
 	var rule_met: bool = bool(rule_progress.get("met", false))
 	var pulse := 0.35 + 0.35 * (0.5 + 0.5 * sin(Time.get_ticks_msec() * 0.006))
 	var signal_ok := _app_signal_strength >= SIGNAL_APP_MIN and _app_signal_strength <= SIGNAL_APP_MAX
+	var non_path_objective_met := _objective_type != OBJECTIVE_PATH_TO_APP and sub_met and rule_met
+
+	if non_path_objective_met:
+		return {
+			"color": Color(0.34, 1.0, 0.55),
+			"meta_text": "STATUS: OBJECTIVE MET",
+			"state_text": "READY TO INSTALL"
+		}
 
 	if _is_resolved or (has_green and sub_met and rule_met and signal_ok):
 		return {
@@ -2448,7 +2470,7 @@ func _get_app_goal_status_payload() -> Dictionary:
 		return {
 			"color": amber,
 			"meta_text": "STATUS: LINKED %.0f%% (%s)" % [_app_signal_strength, signal_tag],
-			"state_text": "DEPS %d/%d | RULE %d/%d" % [current, target, int(rule_progress.get("current", 0)), int(rule_progress.get("target", 0))]
+			"state_text": "%s | DEPS %d/%d | RULE %d/%d" % [app_reason, current, target, int(rule_progress.get("current", 0)), int(rule_progress.get("target", 0))]
 		}
 
 	var red := Color(0.9, 0.26, 0.22)
@@ -2456,7 +2478,7 @@ func _get_app_goal_status_payload() -> Dictionary:
 	return {
 		"color": red,
 		"meta_text": "STATUS: UNMOUNTED",
-		"state_text": "MISSING PATH"
+		"state_text": app_reason if app_reason != "Good" else "MISSING PATH"
 	}
 
 func _is_app_connected_green() -> bool:
