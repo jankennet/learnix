@@ -5,6 +5,9 @@ const DialogueManagerConstants = preload("res://addons/dialogue_manager/constant
 const UI_BASE_RESOLUTION := Vector2(1280.0, 720.0)
 const UI_MIN_SCALE := 1.0
 const UI_MAX_SCALE := 1.8
+const BALLOON_WIDTH_RATIO := 0.78
+const BALLOON_MIN_WIDTH := 680.0
+const BALLOON_MAX_WIDTH := 1100.0
 const CHARACTER_FONT_BASE := 16
 const DIALOGUE_FONT_BASE := 14
 const RESPONSE_FONT_BASE := 12
@@ -151,6 +154,7 @@ func _get_ui_scale_factor() -> float:
 
 func _apply_responsive_ui() -> void:
 	var scale_factor := _get_ui_scale_factor()
+	var viewport_size: Vector2 = get_viewport().get_visible_rect().size
 	character_label.add_theme_font_size_override("normal_font_size", roundi(CHARACTER_FONT_BASE * scale_factor))
 	dialogue_label.add_theme_font_size_override("normal_font_size", roundi(DIALOGUE_FONT_BASE * scale_factor))
 
@@ -159,8 +163,11 @@ func _apply_responsive_ui() -> void:
 		if child is Button:
 			(child as Button).add_theme_font_size_override("font_size", response_font_size)
 
-	margin_container.offset_left = 40.0 * scale_factor
-	margin_container.offset_right = -40.0 * scale_factor
+	var balloon_width : float = clamp(viewport_size.x * BALLOON_WIDTH_RATIO, BALLOON_MIN_WIDTH, BALLOON_MAX_WIDTH)
+	margin_container.anchor_left = 0.5
+	margin_container.anchor_right = 0.5
+	margin_container.offset_left = -balloon_width * 0.5
+	margin_container.offset_right = balloon_width * 0.5
 	margin_container.offset_top = -180.0 * scale_factor
 	margin_container.offset_bottom = -40.0 * scale_factor
 
@@ -173,10 +180,12 @@ func _apply_responsive_ui() -> void:
 func _process(_delta: float) -> void:
 	if is_instance_valid(dialogue_line):
 		progress.visible = not dialogue_label.is_typing and dialogue_line.responses.size() == 0 and not dialogue_line.has_tag("voice")
-		# Position the arrow at the bottom-right of the panel
+		# Position the arrow relative to the dialogue text block
 		if progress.visible:
-			var panel = balloon.get_node("MarginContainer/PanelContainer")
-			progress.position = Vector2(panel.size.x - 30, panel.size.y - 20)
+			var panel: Control = balloon.get_node("MarginContainer/PanelContainer")
+			var text_rect: Rect2 = dialogue_label.get_global_rect()
+			var target_global := text_rect.position + Vector2(text_rect.size.x - 12.0, text_rect.size.y + 8.0)
+			progress.position = panel.get_global_transform_with_canvas().affine_inverse() * target_global
 
 
 func _unhandled_input(event: InputEvent) -> void:

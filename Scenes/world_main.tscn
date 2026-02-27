@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://djfv7xbwyhlpv"]
+[gd_scene load_steps=5 format=3 uid="uid://djfv7xbwyhlpv"]
 
 [ext_resource type="PackedScene" uid="uid://djwelxifkmkf7" path="res://Scenes/Player/player.tscn" id="1_8pcac"]
 [ext_resource type="PackedScene" uid="uid://bu0nmb1xl7di1" path="res://Scenes/Levels/fallback_hamlet.tscn" id="2_jr8sf"]
 [ext_resource type="PackedScene" path="res://Scenes/ui/QuestList.tscn" id="3_questui"]
+[ext_resource type="PackedScene" path="res://Scenes/ui/MainHUD.tscn" id="4_mainhud"]
 
 [node name="WorldMain" type="Node3D"]
 
@@ -20,3 +21,5 @@ layer = 10
 [node name="QuestList" parent="UI" instance=ExtResource("3_questui")]
 offset_top = 142.0
 offset_bottom = 242.0
+
+[node name="MainHUD" parent="UI" instance=ExtResource("4_mainhud")]
