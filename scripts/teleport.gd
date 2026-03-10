@@ -65,6 +65,10 @@ func _do_teleport():
 		return
 
 	print("Teleporting to:", target_scene)
+	if _scene_manager and _scene_manager.has_method("teleport_to_scene"):
+		await _scene_manager.teleport_to_scene(target_scene, spawn_name, delay)
+		can_teleport = true
+		return
 
 	var transfer_node: Node = player
 	var player_parent_for_transfer := player.get_parent()

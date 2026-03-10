@@ -29,57 +29,146 @@ grow_horizontal = 2
 grow_vertical = 2
 stretch_mode = 6
 
-[node name="CenterContainer" type="CenterContainer" parent="MenuRoot"]
+[node name="DarkenOverlay" type="ColorRect" parent="MenuRoot"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+color = Color(0.03, 0.04, 0.08, 0.45)
 
-[node name="PanelContainer" type="PanelContainer" parent="MenuRoot/CenterContainer"]
+[node name="ContentMargin" type="MarginContainer" parent="MenuRoot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 90.0
+offset_top = 72.0
+offset_right = -90.0
+offset_bottom = -72.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="MainColumn" type="VBoxContainer" parent="MenuRoot/ContentMargin"]
 layout_mode = 2
+theme_override_constants/separation = 36
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MenuRoot/CenterContainer/PanelContainer"]
+[node name="HeaderRow" type="HBoxContainer" parent="MenuRoot/ContentMargin/MainColumn"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 16
 
-[node name="TitleLabel" type="Label" parent="MenuRoot/CenterContainer/PanelContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 18
-text = "PAUSED"
-horizontal_alignment = 1
-
-[node name="ResumeLabel" type="Label" parent="MenuRoot/CenterContainer/PanelContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 14
-horizontal_alignment = 1
-
-[node name="SettingsLabel" type="Label" parent="MenuRoot/CenterContainer/PanelContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 14
-horizontal_alignment = 1
-
-[node name="QuitTitleLabel" type="Label" parent="MenuRoot/CenterContainer/PanelContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 14
-horizontal_alignment = 1
-
-[node name="QuitGameLabel" type="Label" parent="MenuRoot/CenterContainer/PanelContainer/VBoxContainer"]
+[node name="LazyVimLabel" type="Label" parent="MenuRoot/ContentMargin/MainColumn/HeaderRow"]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 14
-horizontal_alignment = 1
+theme_override_font_sizes/font_size = 46
+modulate = Color(0.5, 0.66, 1, 1)
+text = "PAUSE"
 
-[node name="SettingsOverlay" type="Label" parent="MenuRoot/CenterContainer/PanelContainer/VBoxContainer"]
+[node name="MenuRow" type="HBoxContainer" parent="MenuRoot/ContentMargin/MainColumn"]
+layout_mode = 2
+theme_override_constants/separation = 120
+
+[node name="MenuVBox" type="VBoxContainer" parent="MenuRoot/ContentMargin/MainColumn/MenuRow"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="QuickSaveLabel" type="Label" parent="MenuRoot/ContentMargin/MainColumn/MenuRow/MenuVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+
+[node name="LoadLabel" type="Label" parent="MenuRoot/ContentMargin/MainColumn/MenuRow/MenuVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+
+[node name="FileExplorerLabel" type="Label" parent="MenuRoot/ContentMargin/MainColumn/MenuRow/MenuVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+
+[node name="TitleScreenLabel" type="Label" parent="MenuRoot/ContentMargin/MainColumn/MenuRow/MenuVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+
+[node name="SettingsLabel" type="Label" parent="MenuRoot/ContentMargin/MainColumn/MenuRow/MenuVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+
+[node name="QuitGameLabel" type="Label" parent="MenuRoot/ContentMargin/MainColumn/MenuRow/MenuVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+
+[node name="KeyHintVBox" type="VBoxContainer" parent="MenuRoot/ContentMargin/MainColumn/MenuRow"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="QuickSaveKey" type="Label" parent="MenuRoot/ContentMargin/MainColumn/MenuRow/KeyHintVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 15
+modulate = Color(1, 0.66, 0.42, 1)
+text = "s"
+
+[node name="LoadKey" type="Label" parent="MenuRoot/ContentMargin/MainColumn/MenuRow/KeyHintVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 15
+modulate = Color(1, 0.66, 0.42, 1)
+text = "l"
+
+[node name="ExplorerKey" type="Label" parent="MenuRoot/ContentMargin/MainColumn/MenuRow/KeyHintVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 15
+modulate = Color(1, 0.66, 0.42, 1)
+text = "e"
+
+[node name="TitleKey" type="Label" parent="MenuRoot/ContentMargin/MainColumn/MenuRow/KeyHintVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 15
+modulate = Color(1, 0.66, 0.42, 1)
+text = "t"
+
+[node name="SettingsKey" type="Label" parent="MenuRoot/ContentMargin/MainColumn/MenuRow/KeyHintVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 15
+modulate = Color(1, 0.66, 0.42, 1)
+text = "c"
+
+[node name="QuitKey" type="Label" parent="MenuRoot/ContentMargin/MainColumn/MenuRow/KeyHintVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 15
+modulate = Color(1, 0.66, 0.42, 1)
+text = "q"
+
+[node name="StatusLabel" type="Label" parent="MenuRoot"]
 visible = false
-layout_mode = 2
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -340.0
+offset_top = -52.0
+offset_right = 340.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 9
-text = "SETTINGS COMING SOON
-PRESS ENTER OR ESC TO RETURN"
+theme_override_font_sizes/font_size = 10
+modulate = Color(0.88, 0.93, 1, 0.95)
 horizontal_alignment = 1

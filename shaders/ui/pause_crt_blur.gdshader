@@ -3,11 +3,11 @@ render_mode unshaded;
 
 uniform float curvature : hint_range(0.0, 0.1) = 0.024;
 uniform vec3 bezel_color : source_color = vec3(0.08, 0.08, 0.08);
-uniform float blur_size : hint_range(0.0, 4.0) = 2.0;
-uniform float darken : hint_range(0.0, 1.0) = 0.42;
-uniform float static_strength : hint_range(0.0, 0.5) = 0.36;
-uniform float scanline_strength : hint_range(0.0, 0.3) = 0.2;
-uniform float chromatic_aberration : hint_range(0.0, 0.01) = 0.003;
+uniform float blur_size : hint_range(0.0, 4.0) = 1.35;
+uniform float darken : hint_range(0.0, 1.0) = 0.34;
+uniform float static_strength : hint_range(0.0, 0.5) = 0.18;
+uniform float scanline_strength : hint_range(0.0, 0.3) = 0.11;
+uniform float chromatic_aberration : hint_range(0.0, 0.01) = 0.0018;
 uniform float custom_time = 0.0;
 
 float rand(vec2 p) {

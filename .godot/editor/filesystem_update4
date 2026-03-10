@@ -1,1 +1,5 @@
 res://Scenes/ui/MainHUD.tscn
+res://scripts/loading_screen.gd
+res://scripts/SceneManager.gd
+res://scripts/ui/pause_menu.gd
+res://shaders/ui/pause_crt_blur.gdshader

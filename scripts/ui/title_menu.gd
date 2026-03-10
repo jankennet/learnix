@@ -57,7 +57,11 @@ func _activate_selection() -> void:
 	match selected_index:
 		0:
 			_set_global_ui_visibility(true)
-			get_tree().change_scene_to_file(WORLD_MAIN_SCENE)
+			set_process_unhandled_input(false)
+			if SceneManager and SceneManager.has_method("start_new_game"):
+				SceneManager.start_new_game(WORLD_MAIN_SCENE)
+			else:
+				get_tree().change_scene_to_file(WORLD_MAIN_SCENE)
 		1:
 			in_settings = true
 			settings_overlay.visible = true
