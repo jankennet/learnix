@@ -191,6 +191,11 @@ func configure_for_encounter(profile: String) -> void:
 	if normalized == "":
 		normalized = "default"
 	_encounter_profile = normalized
+	_watchdog_enabled = _is_watchdog_profile(normalized)
+
+func _is_watchdog_profile(profile: String) -> bool:
+	# Moving watchdog cutter (red line) is reserved for miniboss/boss encounters.
+	return profile == "driver_remnant" or profile == "printer_beast"
 
 func _build_templates() -> void:
 	_templates.clear()
@@ -277,7 +282,7 @@ func _build_templates() -> void:
 		"exact_inputs": 0,
 		"max_input_version": 99.0,
 		"requires": PackedStringArray(["thread_glue"]),
-		"max_in_ports": 1,
+		"max_in_ports": 2,
 		"max_out_ports": 1,
 		"signal_delta": 0.0,
 		"is_diode": false,
@@ -741,9 +746,7 @@ func _process(delta: float) -> void:
 				_draw_overlay.queue_redraw()
 
 	if _workspace:
-		var viewport_mouse := get_viewport().get_mouse_position()
-		if _workspace.get_global_rect().has_point(viewport_mouse):
-			_build_cursor = _workspace.get_local_mouse_position()
+		_build_cursor = _workspace.get_local_mouse_position()
 		_build_cursor.x = clampf(_build_cursor.x, 16.0, _workspace.size.x - 16.0)
 		_build_cursor.y = clampf(_build_cursor.y, 16.0, _workspace.size.y - 16.0)
 
@@ -754,7 +757,8 @@ func _process(delta: float) -> void:
 		_app_visual_refresh_accum = 0.0
 		_update_node_visual(_application_node_id)
 
-	if _draw_overlay and (_link_mode or not _connections.is_empty() or _watchdog_enabled or _panic_mode):
+	# Always redraw while active so the build cursor does not appear frozen in move mode.
+	if _draw_overlay and _is_active:
 		_draw_overlay.queue_redraw()
 
 func _input(event: InputEvent) -> void:
@@ -1470,6 +1474,7 @@ func _run_validation_pass() -> void:
 		var version_ok := true
 		var has_direct_kernel := false
 		var secure_socket_ok := true
+		var has_arm_input := false
 
 		for source_id in incoming:
 			if not _nodes.has(source_id):
@@ -1479,12 +1484,16 @@ func _run_validation_pass() -> void:
 			var src_arch := str(src.get("arch", ""))
 			if not source_arches.has(src_arch):
 				source_arches.append(src_arch)
+			if str(src.get("template_id", "")) == "arm_shim":
+				has_arm_input = true
 			if bool(src.get("is_core", false)):
 				has_direct_kernel = true
 			if float(src.get("version", 0.0)) > float(node.get("max_input_version", 99.0)):
 				version_ok = false
-			if bool(node.get("secure_socket_only_arm", false)) and str(src.get("template_id", "")) != "arm_shim":
-				secure_socket_ok = false
+
+		# Secure nodes need at least one ARM source, but may also require non-ARM deps.
+		if bool(node.get("secure_socket_only_arm", false)) and not has_arm_input:
+			secure_socket_ok = false
 
 		var required: PackedStringArray = node.get("requires", PackedStringArray())
 		var missing_required := false
@@ -1563,9 +1572,6 @@ func _run_validation_pass() -> void:
 		elif in_limit > 0 and in_count > in_limit:
 			link["state"] = LINK_BROKEN
 			link["reason"] = "port-in"
-		elif bool(dst.get("secure_socket_only_arm", false)) and str(src.get("template_id", "")) != "arm_shim":
-			link["state"] = LINK_BROKEN
-			link["reason"] = "socket"
 		elif not _is_diode_direction_valid(from_id, to_id):
 			link["state"] = LINK_BROKEN
 			link["reason"] = "diode"
@@ -2127,6 +2133,13 @@ func _select_run_variation() -> void:
 	_current_app_exact_inputs = int(app_variant.get("exact_inputs", 2))
 	_rule_set_type = rules[selected_rule]
 	_rule_blacklist_template = restricted_pool[randi_range(0, restricted_pool.size() - 1)]
+	if _rule_set_type == RULE_RESTRICTED_ACCESS:
+		var valid_blocked: PackedStringArray = PackedStringArray()
+		for blocked in restricted_pool:
+			if not _current_app_requirements.has(blocked):
+				valid_blocked.append(blocked)
+		if not valid_blocked.is_empty():
+			_rule_blacklist_template = valid_blocked[randi_range(0, valid_blocked.size() - 1)]
 	_rule_efficiency_max_nodes = 5 + randi_range(0, 2)
 	_remember_variation_signature("%s|%s|%s|%s" % [_objective_type, _mutator_type, _current_app_variant_label, _rule_set_type])
 

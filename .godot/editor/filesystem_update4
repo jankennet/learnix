@@ -5,3 +5,6 @@ res://scripts/ui/pause_menu.gd
 res://shaders/ui/pause_crt_blur.gdshader
 res://scripts/ui/main_hud.gd
 res://scripts/npc_script.gd
+res://scripts/combat/combat_terminal_ui.gd
+res://scripts/combat/puzzle_state_handler.gd
+res://scripts/combat/dependency_resolver_minigame.gd

@@ -177,6 +177,7 @@ func setup_combat(manager: Node, enemy: Node) -> void:
 	
 	# Initial HP update
 	_update_hp_displays()
+	_update_side_help_for_mode()
 
 ## Show the combat UI
 func open_combat_ui() -> void:
@@ -233,6 +234,7 @@ func open_combat_ui() -> void:
 	# Update turn indicator
 	if turn_indicator:
 		turn_indicator.text = "[ AWAITING INPUT ]"
+	_update_side_help_for_mode()
 
 ## Hide the combat UI
 func close_combat_ui() -> void:
@@ -354,7 +356,17 @@ func _on_command_submitted(text: String) -> void:
 			
 			# Check if timing minigame is required (for puzzles)
 			if result.get("requires_timing", false):
-				_start_puzzle_minigame(result.get("timing_difficulty", 1.0))
+				var timing_difficulty := float(result.get("timing_difficulty", 1.0))
+				var pending_command = result.get("pending_command", null)
+				var is_compile_step := false
+				if pending_command and "command_type" in pending_command:
+					is_compile_step = int(pending_command.command_type) == CommandParser.CommandType.COMPILE
+
+				# Node-connect is reserved for the final compile stage.
+				if is_compile_step:
+					_start_puzzle_minigame(timing_difficulty)
+				else:
+					_start_puzzle_timing_minigame(timing_difficulty)
 				return
 			
 			# Update mode label if mode changed
@@ -366,6 +378,7 @@ func _on_command_submitted(text: String) -> void:
 				await get_tree().create_timer(2.0).timeout
 				_force_close_and_cleanup()
 		_update_hp_displays()
+		_update_side_help_for_mode()
 	elif combat_manager and combat_manager.has_method("process_input"):
 		# Fallback: direct combat manager input
 		combat_manager.process_input(text)
@@ -526,39 +539,38 @@ func _show_contextual_help() -> void:
 				enemy_label = str(enemy_controller.enemy_data.id).to_lower()
 			if enemy_label.find("broken") != -1 and enemy_label.find("link") != -1:
 				_print_terminal("[color=#66f266]HELP - PUZZLE MODE (Broken Link Repair)[/color]\n\n")
-				_print_terminal("  scan       - Inspect the stub or verify link_table\n")
+				_print_terminal("  ls -l stub - Inspect the broken symlink\n")
 				_print_terminal("  find       - Locate the missing target path\n")
-				_print_terminal("  disconnect - Unlink the broken stub\n")
-				_print_terminal("  connect    - Reattach the stub to /forest/target\n")
+				_print_terminal("  unlink     - Remove the broken stub\n")
+				_print_terminal("  ln -s      - Reattach stub to /forest/target\n")
 				_print_terminal("  chmod      - Fix permissions on link_table\n")
-				_print_terminal("  patch      - Stabilize the link table\n")
-				_print_terminal("  compile    - Finalize link_map\n")
+				_print_terminal("  cat        - Rebuild or verify link_table\n")
+				_print_terminal("  make       - Finalize link_map\n")
 				_print_terminal("  fight      - Return to combat\n")
 			elif enemy_label.find("ghost") != -1:
 				_print_terminal("[color=#66f266]HELP - PUZZLE MODE (Hardware Ghost Logs)[/color]\n\n")
-				_print_terminal("  scan       - Read the legacy bus logs\n")
+				_print_terminal("  cat        - Read legacy bus and ghost logs\n")
 				_print_terminal("  find       - Locate the legacy driver table\n")
-				_print_terminal("  debug      - Isolate the echo\n")
-				_print_terminal("  patch      - Calm the driver table\n")
-				_print_terminal("  compile    - Finalize the driver map\n")
+				_print_terminal("  chmod      - Calm/fix driver table permissions\n")
+				_print_terminal("  make       - Finalize the driver map\n")
 				_print_terminal("  fight      - Return to combat\n")
 			elif enemy_label.find("remnant") != -1:
 				_print_terminal("[color=#66f266]HELP - PUZZLE MODE (Driver Remnant Isolation)[/color]\n\n")
-				_print_terminal("  scan       - Capture the rogue signature\n")
+				_print_terminal("  cat        - Capture the rogue signature\n")
 				_print_terminal("  find       - Trace the interrupt line\n")
 				_print_terminal("  kill       - Terminate the remnant\n")
-				_print_terminal("  disconnect - Isolate the irq line\n")
-				_print_terminal("  patch      - Stabilize the interrupt table\n")
-				_print_terminal("  compile    - Rebuild the stability map\n")
+				_print_terminal("  unlink     - Isolate the irq line\n")
+				_print_terminal("  chmod      - Stabilize interrupt table permissions\n")
+				_print_terminal("  make       - Rebuild the stability map\n")
 				_print_terminal("  fight      - Return to combat\n")
 			elif enemy_label.find("printer") != -1:
 				_print_terminal("[color=#66f266]HELP - PUZZLE MODE (Printer Beast Reset)[/color]\n\n")
-				_print_terminal("  scan       - Read the spool status\n")
+				_print_terminal("  ls         - Read spool queue status\n")
 				_print_terminal("  find       - Locate the jam in /var/spool/print\n")
 				_print_terminal("  rm         - Remove jammed pages\n")
 				_print_terminal("  chmod      - Fix spool permissions\n")
-				_print_terminal("  patch      - Reset the spooler\n")
-				_print_terminal("  compile    - Rebuild the print queue\n")
+				_print_terminal("  cat        - Rebuild spool index\n")
+				_print_terminal("  make       - Rebuild the print queue\n")
 				_print_terminal("  fight      - Return to combat\n")
 			else:
 				_print_terminal("[color=#66f266]HELP - PUZZLE MODE (Lost File Recovery)[/color]\n\n")
@@ -591,6 +603,7 @@ func _update_mode_display() -> void:
 				mode_label.text = "[RESOLVED]"
 			_:
 				mode_label.text = "[UNKNOWN]"
+	_update_side_help_for_mode()
 
 func _update_hp_displays() -> void:
 	# Update player HP
@@ -732,6 +745,24 @@ func _on_timing_minigame_requested(command: CommandParser.CommandResult, difficu
 	# Start the timing minigame
 	timing_minigame.start_timing(TimingMinigame.TimingContext.COMBAT, difficulty)
 
+## Start timing-bar minigame for puzzle steps before final compile
+func _start_puzzle_timing_minigame(difficulty: float) -> void:
+	if not timing_minigame:
+		_apply_puzzle_timing_result(1, 0.7)
+		return
+
+	_print_terminal("\n[color=#f2e066]⏱️ PUZZLE TIMING WINDOW[/color]\n")
+	_print_terminal("[color=#aaaaaa]Tux: lock this step before the final compile.[/color]\n")
+
+	if command_input:
+		command_input.editable = false
+
+	if turn_indicator:
+		turn_indicator.text = "[ PUZZLE TIMING ]"
+
+	_current_timing_context = "puzzle"
+	timing_minigame.start_timing(TimingMinigame.TimingContext.PUZZLE, difficulty)
+
 ## Start dependency resolver minigame for puzzle commands
 func _start_puzzle_minigame(_difficulty: float) -> void:
 	if not dependency_minigame:
@@ -743,8 +774,8 @@ func _start_puzzle_minigame(_difficulty: float) -> void:
 		dependency_minigame.configure_for_encounter(_get_dependency_profile())
 
 	# Print message in terminal
-	_print_terminal("\n[color=#f2e066]🔧 LINK PUZZLE STARTED[/color]\n")
-	_print_terminal("[color=#aaaaaa]Make a full green path from Kernel to App.[/color]\n")
+	_print_terminal("\n[color=#f2e066]🔧 FINAL LINK STAGE[/color]\n")
+	_print_terminal("[color=#aaaaaa]Tux: one last step. Build a full green Kernel -> App path.[/color]\n")
 
 	# Disable command input while puzzle minigame is active
 	if command_input:
@@ -759,6 +790,56 @@ func _start_puzzle_minigame(_difficulty: float) -> void:
 	_puzzle_minigame_pending = true
 	_set_terminal_for_dependency_mode(true)
 	dependency_minigame.open_minigame()
+
+func _update_side_help_for_mode() -> void:
+	if not help_label:
+		return
+
+	var current_mode := 0
+	if enemy_controller and "current_mode" in enemy_controller:
+		current_mode = int(enemy_controller.current_mode)
+
+	if current_mode == 2:
+		help_label.text = _build_tux_puzzle_hint()
+	else:
+		help_label.text = "Type 'help' for\navailable commands"
+
+func _build_tux_puzzle_hint() -> String:
+	if not enemy_controller or not ("puzzle_data" in enemy_controller):
+		return "Tux: use 'help'\nfor command hints"
+
+	var puzzle_data = enemy_controller.puzzle_data
+	if puzzle_data == null:
+		return "Tux: use 'help'\nfor command hints"
+
+	if "custom_data" in puzzle_data:
+		var custom: Dictionary = puzzle_data.custom_data
+		if custom.has("expected_sequence"):
+			var expected_sequence: Array = custom.get("expected_sequence", [])
+			var current_index := int(custom.get("current_index", 0))
+			if current_index >= 0 and current_index < expected_sequence.size():
+				return "Tux: next command:\n%s" % str(expected_sequence[current_index])
+
+		if custom.has("required_fragments"):
+			var found: Array = custom.get("fragments_found", [])
+			var restored: Array = custom.get("fragments_restored", [])
+			var decrypted: Array = custom.get("fragments_decrypted", [])
+			var required: Array = custom.get("required_fragments", [])
+
+			if found.size() < required.size():
+				return "Tux: run:\nfind .fragment"
+			if ".fragment_003" in found and ".fragment_003" not in decrypted:
+				return "Tux: run:\ndecrypt .fragment_003"
+			if restored.size() < required.size():
+				for fragment in required:
+					if fragment not in restored:
+						return "Tux: run:\nrestore %s" % str(fragment)
+			if not bool(custom.get("file_assembled", false)):
+				return "Tux: run:\ncat fragments"
+			if not bool(custom.get("file_compiled", false)):
+				return "Tux: final step:\nmake recovered_file"
+
+	return "Tux: use 'help'\nfor command hints"
 
 func _get_dependency_profile() -> String:
 	if not enemy_controller:

@@ -1,6 +1,7 @@
-[gd_scene load_steps=11 format=3 uid="uid://dff8b3gde762a"]
+[gd_scene load_steps=12 format=3 uid="uid://dff8b3gde762a"]
 
 [ext_resource type="FontFile" uid="uid://lqtbary7gh5r" path="res://Assets/fonts/PressStart2P-Regular.ttf" id="1_font"]
+[ext_resource type="Script" uid="uid://mqkv64skk1kd" path="res://scripts/ui/main_hud.gd" id="2_mainhud"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_character_frame"]
 content_margin_left = 10.0
@@ -137,6 +138,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+script = ExtResource("2_mainhud")
 
 [node name="SoftGradientTint" type="ColorRect" parent="."]
 layout_mode = 1

@@ -1,6 +1,7 @@
 extends Control
 
 const COMBAT_UI_NODE_NAME := "CombatTerminalUI"
+const QUEST_LIST_NODE_NAME := "QuestList"
 const VISIBILITY_CHECK_INTERVAL := 0.15
 
 var _check_timer := 0.0
@@ -16,7 +17,21 @@ func _process(delta: float) -> void:
 	_update_visibility()
 
 func _update_visibility() -> void:
-	visible = not _is_combat_ui_visible()
+	var should_show := not _is_combat_ui_visible()
+	visible = should_show
+	_set_quest_list_visible(should_show)
+
+func _set_quest_list_visible(should_show: bool) -> void:
+	var root := get_tree().root
+	if root == null:
+		return
+
+	var quest_list := root.find_child(QUEST_LIST_NODE_NAME, true, false)
+	if quest_list == null:
+		return
+
+	if quest_list is CanvasItem:
+		(quest_list as CanvasItem).visible = should_show
 
 func _is_combat_ui_visible() -> bool:
 	var root := get_tree().root

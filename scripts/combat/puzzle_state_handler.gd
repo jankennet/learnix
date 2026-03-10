@@ -163,14 +163,14 @@ reconnecting it to the correct path, fixing permissions, and patching the link t
 """
 
 	puzzle.hints = [
-		"Start with 'scan broken_link' to inspect the stub.",
+		"Start with 'ls -l stub' to inspect the broken symlink.",
 		"Use 'find /forest/target' to locate the missing path.",
-		"Unlink the stub with 'disconnect stub'.",
-		"Reconnect with 'connect stub /forest/target'.",
+		"Unlink the stub with 'unlink stub'.",
+		"Reconnect with 'ln -s /forest/target stub'.",
 		"Fix permissions: 'chmod link_table 644'.",
-		"Stabilize the pointer with 'patch link_table'.",
-		"Verify: 'scan link_table'.",
-		"Finalize with 'compile link_map'.",
+		"Rebuild the table with 'cat /forest/target > link_table'.",
+		"Verify with 'cat link_table'.",
+		"Finalize with 'make link_map'.",
 	]
 
 	# Unlimited attempts - this is a learning encounter
@@ -178,22 +178,21 @@ reconnecting it to the correct path, fixing permissions, and patching the link t
 
 	puzzle.custom_data = {
 		"expected_sequence": [
-			"scan broken_link",
+			"ls -l stub",
 			"find /forest/target",
-			"disconnect stub",
-			"connect stub /forest/target",
+			"unlink stub",
+			"ln -s /forest/target stub",
 			"chmod link_table 644",
-			"patch link_table",
-			"scan link_table",
-			"compile link_map",
+			"cat /forest/target > link_table",
+			"cat link_table",
+			"make link_map",
 		],
 		"current_index": 0,
 		"reset_on_fail": false,
-		"timing_steps": [3, 5, 7],
+		"timing_steps": [3, 5],
 		"timing_difficulty_map": {
 			3: 1.35,
 			5: 1.5,
-			7: 1.7,
 		},
 	}
 
@@ -218,29 +217,28 @@ Follow a calming repair sequence to quiet the phantom and stabilize the bus.
 """
 
 	puzzle.hints = [
-		"Start with 'scan legacy_bus' to read the fault stream.",
+		"Start with 'cat /var/log/legacy_bus.log' to read the fault stream.",
 		"Locate the driver table with 'find /drivers/legacy'.",
-		"Use 'debug ghost' to isolate the echo.",
-		"Patch the driver table with 'patch driver_table'.",
-		"Finalize the map with 'compile driver_map'.",
+		"Use 'cat /var/log/ghost_echo.log' to isolate the echo.",
+		"Patch permissions with 'chmod driver_table 644'.",
+		"Finalize the map with 'make driver_map'.",
 	]
 
 	puzzle.max_attempts = -1
 
 	puzzle.custom_data = {
 		"expected_sequence": [
-			"scan legacy_bus",
+			"cat /var/log/legacy_bus.log",
 			"find /drivers/legacy",
-			"debug ghost",
-			"patch driver_table",
-			"compile driver_map",
+			"cat /var/log/ghost_echo.log",
+			"chmod driver_table 644",
+			"make driver_map",
 		],
 		"current_index": 0,
 		"reset_on_fail": false,
-		"timing_steps": [2, 4],
+		"timing_steps": [2],
 		"timing_difficulty_map": {
 			2: 1.2,
-			4: 1.4,
 		},
 	}
 
@@ -265,30 +263,30 @@ and restoring stability to the interrupt table.
 """
 
 	puzzle.hints = [
-		"Start with 'scan remnant' to capture the rogue signature.",
+		"Start with 'cat /proc/driver/remnant' to capture the rogue signature.",
 		"Trace the interrupt line with 'find /irq/line'.",
 		"Terminate the remnant using 'kill driver_remnant'.",
-		"Disconnect the faulty interrupt with 'disconnect irq_line'.",
-		"Stabilize with 'patch interrupt_table' and 'compile stability_map'.",
+		"Disconnect the faulty interrupt with 'unlink irq_line'.",
+		"Stabilize with 'chmod interrupt_table 644' and 'make stability_map'.",
 	]
 
 	puzzle.max_attempts = -1
 
 	puzzle.custom_data = {
 		"expected_sequence": [
-			"scan remnant",
+			"cat /proc/driver/remnant",
 			"find /irq/line",
 			"kill driver_remnant",
-			"disconnect irq_line",
-			"patch interrupt_table",
-			"compile stability_map",
+			"unlink irq_line",
+			"chmod interrupt_table 644",
+			"make stability_map",
 		],
 		"current_index": 0,
 		"reset_on_fail": false,
-		"timing_steps": [2, 5],
+		"timing_steps": [2, 4],
 		"timing_difficulty_map": {
 			2: 1.3,
-			5: 1.5,
+			4: 1.5,
 		},
 	}
 
@@ -312,31 +310,31 @@ Clear the spool, fix permissions, and restart the queue to quiet the daemon.
 """
 
 	puzzle.hints = [
-		"Start with 'scan printer_spool' to read the error state.",
+		"Start with 'ls /var/spool/print' to read the queue state.",
 		"Find the jam location with 'find /var/spool/print'.",
 		"Remove the jammed page with 'rm jam_page'.",
 		"Fix spool permissions: 'chmod spool 644'.",
-		"Patch the spooler and rebuild the queue with 'patch spooler' then 'compile print_queue'.",
+		"Rebuild the spool index with 'cat spool > spool_index'.",
+		"Finalize with 'make print_queue'.",
 	]
 
 	puzzle.max_attempts = -1
 
 	puzzle.custom_data = {
 		"expected_sequence": [
-			"scan printer_spool",
+			"ls /var/spool/print",
 			"find /var/spool/print",
 			"rm jam_page",
 			"chmod spool 644",
-			"patch spooler",
-			"compile print_queue",
+			"cat spool > spool_index",
+			"make print_queue",
 		],
 		"current_index": 0,
 		"reset_on_fail": false,
-		"timing_steps": [2, 4, 5],
+		"timing_steps": [2, 4],
 		"timing_difficulty_map": {
 			2: 1.25,
 			4: 1.4,
-			5: 1.6,
 		},
 	}
 
@@ -686,11 +684,23 @@ static func _process_sequence(puzzle: PuzzleData, command: CommandParser.Command
 	
 	var expected_cmd: String = expected_sequence[current_index]
 	var input_cmd := command.raw_input.to_lower().strip_edges()
+	var expected_lower := expected_cmd.to_lower().strip_edges()
+	var is_final_compile_step := command.command_type == CommandParser.CommandType.COMPILE and current_index == expected_sequence.size() - 1
+	is_final_compile_step = is_final_compile_step or expected_lower.begins_with("compile ") or expected_lower.begins_with("make ")
 	
 	# Check if command matches expected (fuzzy)
 	if expected_cmd in input_cmd or input_cmd in expected_cmd:
 		var timing_steps: Array = data.get("timing_steps", [])
-		if timing_steps.has(current_index):
+		if is_final_compile_step:
+			result.requires_timing = true
+			result.timing_difficulty = 1.6
+			result.state_change["pending_sequence"] = {
+				"next_index": current_index + 1,
+				"total": expected_sequence.size()
+			}
+			result.state_change["use_node_connect"] = true
+			result.message = "Final build check pending... [NODE CONNECT REQUIRED]"
+		elif timing_steps.has(current_index):
 			result.requires_timing = true
 			result.timing_difficulty = data.get("timing_difficulty_map", {}).get(current_index, 1.0)
 			result.state_change["pending_sequence"] = {
