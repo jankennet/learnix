@@ -7,6 +7,7 @@ var player: CharacterBody3D
 # 🧠 Global data
 var player_karma: String = "neutral" # "good", "bad", etc.
 var npc_states: Dictionary = {} # { "Elder Shell": "helped", "Broken Installer": "hostile" }
+var interacted_npcs: Dictionary = {} # { "Elder Shell": true }
 var input_locked: bool = false
 
 # 📝 Dialogue state tracking (used by DialogueManager)
@@ -86,6 +87,23 @@ func _ready():
 	npc_states["Printer Boss"] = "hostile"
 	
 	# Player is resolved from the active scene when needed.
+
+func mark_npc_interacted(npc_name: String) -> void:
+	if npc_name == "":
+		return
+	interacted_npcs[npc_name] = true
+
+	# Bridge older per-NPC flags with the new interaction registry.
+	match npc_name:
+		"Broken Installer":
+			met_broken_installer = true
+		"Lost File":
+			met_lost_file = true
+		_:
+			pass
+
+func has_interacted_with_npc(npc_name: String) -> bool:
+	return bool(interacted_npcs.get(npc_name, false))
 
 func _ensure_player() -> CharacterBody3D:
 	var player_in_group = get_tree().get_first_node_in_group("player")

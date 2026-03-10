@@ -252,6 +252,9 @@ func on_interact() -> void:
 	var sm = get_node_or_null("/root/SceneManager")
 	if sm and sm.input_locked:
 		return
+
+	if SceneManager and SceneManager.has_method("mark_npc_interacted"):
+		SceneManager.mark_npc_interacted(npc_name)
 	
 	# Check if player fled from combat with this NPC - resume combat directly
 	if npc_name in SceneManager.npc_states:

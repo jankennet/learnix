@@ -8,10 +8,13 @@ const WINDOW_MODE_OPTIONS := ["WINDOWED", "BORDERLESS", "FULLSCREEN"]
 const RESOLUTION_OPTIONS := [Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1080)]
 const QUALITY_OPTIONS := ["LOW", "MEDIUM", "HIGH"]
 const QUALITY_SCALES := [0.67, 0.85, 1.0]
+const BASE_EXPLORER_FOLDERS := ["Desktop", "Filesystem_Forest", "Deamon_Depths"]
+const BIOS_VAULT_FOLDER := "Bios_Vault"
+const CITADEL_FOLDER := "Proprietary_Citadel"
 const HINT_MESSAGES := {
 	"quick_save": "Quick save is not available yet.",
 	"load": "Load is not available yet.",
-	"file_explorer": "File explorer (inventory) is not available yet.",
+	"file_explorer": "No discoverable files yet. Talk to NPCs first.",
 	"controls": "Controls settings are not available yet.",
 	"sound": "Sound settings are not available yet.",
 	"save": "Settings save is not available yet.",
@@ -30,6 +33,13 @@ const HINT_MESSAGES := {
 	$MenuRoot/ContentMargin/MainColumn/MenuRow/MenuVBox/QuitGameLabel,
 ]
 @onready var status_label: Label = $MenuRoot/StatusLabel
+@onready var file_explorer_window: Control = $MenuRoot/FileExplorerWindow
+@onready var explorer_address_label: Label = $MenuRoot/FileExplorerWindow/MainMargin/MainVBox/TopBar/AddressLabel
+@onready var explorer_folder_label: Label = $MenuRoot/FileExplorerWindow/MainMargin/MainVBox/Body/ContentPanel/ContentMargin/ContentVBox/FolderLabel
+@onready var explorer_sidebar_list: ItemList = $MenuRoot/FileExplorerWindow/MainMargin/MainVBox/Body/SidebarPanel/SidebarMargin/SidebarList
+@onready var explorer_file_list: ItemList = $MenuRoot/FileExplorerWindow/MainMargin/MainVBox/Body/ContentPanel/ContentMargin/ContentVBox/FileList
+@onready var explorer_preview_label: RichTextLabel = $MenuRoot/FileExplorerWindow/MainMargin/MainVBox/Body/ContentPanel/ContentMargin/ContentVBox/PreviewLabel
+@onready var explorer_close_button: Button = $MenuRoot/FileExplorerWindow/MainMargin/MainVBox/TopBar/CloseButton
 
 var selected_index := 0
 var pause_pending := false
@@ -37,6 +47,8 @@ var shader_time := 0.0
 var status_time_left := 0.0
 var in_settings_menu := false
 var in_graphics_menu := false
+var in_file_explorer := false
+var explorer_selected_folder := "Desktop"
 
 var graphics_window_mode_index := 0
 var graphics_resolution_index := 2
@@ -64,6 +76,16 @@ func _ready() -> void:
 	status_label.visible = false
 	if captured_frame:
 		captured_frame.visible = false
+	if file_explorer_window:
+		file_explorer_window.visible = false
+	if explorer_close_button and not explorer_close_button.pressed.is_connected(_close_file_explorer):
+		explorer_close_button.pressed.connect(_close_file_explorer)
+	if explorer_sidebar_list and not explorer_sidebar_list.item_selected.is_connected(_on_explorer_folder_selected):
+		explorer_sidebar_list.item_selected.connect(_on_explorer_folder_selected)
+	if explorer_file_list and not explorer_file_list.item_selected.is_connected(_on_explorer_item_selected):
+		explorer_file_list.item_selected.connect(_on_explorer_item_selected)
+	if explorer_file_list and not explorer_file_list.item_activated.is_connected(_on_explorer_item_activated):
+		explorer_file_list.item_activated.connect(_on_explorer_item_activated)
 	_update_menu_visuals()
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -72,13 +94,22 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			return
 
-	if not event.is_action_pressed("ui_cancel") and not event.is_action_pressed("ui_up") and not event.is_action_pressed("ui_down") and not event.is_action_pressed("ui_left") and not event.is_action_pressed("ui_right") and not event.is_action_pressed("ui_accept"):
-		return
-
 	if _is_title_scene_active():
 		return
 
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		if get_tree().paused and visible and not in_file_explorer:
+			if _handle_pause_menu_click((event as InputEventMouseButton).position):
+				get_viewport().set_input_as_handled()
+				return
+
+	if not event.is_action_pressed("ui_cancel") and not event.is_action_pressed("ui_up") and not event.is_action_pressed("ui_down") and not event.is_action_pressed("ui_left") and not event.is_action_pressed("ui_right") and not event.is_action_pressed("ui_accept"):
+		return
+
 	if event.is_action_pressed("ui_cancel"):
+		if in_file_explorer:
+			_close_file_explorer()
+			return
 		if in_graphics_menu:
 			_close_graphics_menu()
 			return
@@ -89,6 +120,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 
 	if not get_tree().paused:
+		return
+
+	if in_file_explorer:
+		if event.is_action_pressed("ui_accept"):
+			_activate_explorer_selected_item()
 		return
 
 	if in_graphics_menu and event.is_action_pressed("ui_left"):
@@ -117,7 +153,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func _handle_letter_hotkey(event: InputEventKey) -> bool:
 	if _is_title_scene_active() or not get_tree().paused:
 		return false
-	if in_settings_menu:
+	if in_settings_menu or in_file_explorer:
 		return false
 
 	match event.keycode:
@@ -169,10 +205,13 @@ func _complete_pause() -> void:
 	menu_root.visible = true
 	in_settings_menu = false
 	in_graphics_menu = false
+	in_file_explorer = false
 	_sync_graphics_state_from_system()
 	selected_index = 0
 	status_label.visible = false
 	status_time_left = 0.0
+	if file_explorer_window:
+		file_explorer_window.visible = false
 	_update_menu_visuals()
 	get_tree().paused = true
 	pause_pending = false
@@ -187,8 +226,11 @@ func _resume_game() -> void:
 		captured_frame.texture = null
 	in_settings_menu = false
 	in_graphics_menu = false
+	in_file_explorer = false
 	status_label.visible = false
 	status_time_left = 0.0
+	if file_explorer_window:
+		file_explorer_window.visible = false
 	_set_global_ui_visibility(true)
 
 func _capture_current_frame() -> void:
@@ -408,22 +450,251 @@ func _invoke_scene_manager_method(method_name: String) -> bool:
 	return false
 
 func _open_in_game_file_explorer() -> void:
-	var method_candidates := ["open_file_explorer", "open_inventory", "toggle_inventory"]
-	for method_name in method_candidates:
-		if SceneManager and SceneManager.has_method(method_name):
-			_resume_game()
-			SceneManager.call_deferred(method_name)
+	if not get_tree().paused:
+		_pause_game()
+		return
+
+	if not _has_any_discoverable_file():
+		_show_status(HINT_MESSAGES.file_explorer)
+		return
+
+	_open_file_explorer()
+
+func _open_file_explorer() -> void:
+	in_file_explorer = true
+	status_label.visible = false
+	status_time_left = 0.0
+	if file_explorer_window:
+		file_explorer_window.visible = true
+	_refresh_explorer_sidebar(explorer_selected_folder)
+
+func _close_file_explorer() -> void:
+	in_file_explorer = false
+	if file_explorer_window:
+		file_explorer_window.visible = false
+	_update_menu_visuals()
+
+func _refresh_explorer_sidebar(select_folder: String = "") -> void:
+	if not explorer_sidebar_list:
+		return
+
+	var folders := _build_explorer_folders()
+	explorer_sidebar_list.clear()
+	for folder_name in folders:
+		explorer_sidebar_list.add_item(folder_name)
+
+	if folders.is_empty():
+		explorer_selected_folder = ""
+		_refresh_explorer_files()
+		return
+
+	var target_folder := select_folder
+	if target_folder == "" or not folders.has(target_folder):
+		target_folder = folders[0]
+	explorer_selected_folder = target_folder
+
+	for i in folders.size():
+		if folders[i] == target_folder:
+			explorer_sidebar_list.select(i)
+			break
+
+	_refresh_explorer_files()
+
+func _refresh_explorer_files() -> void:
+	if not explorer_file_list or not explorer_preview_label:
+		return
+
+	explorer_file_list.clear()
+	var entries := _build_folder_entries(explorer_selected_folder)
+	for entry in entries:
+		var label_prefix := "[TXT] " if entry.get("type", "doc") == "doc" else "[DIR] "
+		var item_text := "%s%s" % [label_prefix, entry.get("filename", "unknown")]
+		var item_index := explorer_file_list.add_item(item_text)
+		explorer_file_list.set_item_metadata(item_index, entry)
+
+	if explorer_folder_label:
+		explorer_folder_label.text = explorer_selected_folder
+
+	if explorer_address_label:
+		explorer_address_label.text = "/home/nova/%s" % explorer_selected_folder
+
+	explorer_preview_label.text = "Select a file to preview its notes."
+	if entries.size() > 0:
+		explorer_file_list.select(0)
+		_show_explorer_preview_for_index(0)
+
+func _on_explorer_folder_selected(index: int) -> void:
+	var folders := _build_explorer_folders()
+	if index < 0 or index >= folders.size():
+		return
+	explorer_selected_folder = folders[index]
+	_refresh_explorer_files()
+
+func _on_explorer_item_selected(index: int) -> void:
+	_show_explorer_preview_for_index(index)
+
+func _on_explorer_item_activated(index: int) -> void:
+	_activate_explorer_item(index)
+
+func _activate_explorer_selected_item() -> void:
+	if not explorer_file_list:
+		return
+	var selected_items := explorer_file_list.get_selected_items()
+	if selected_items.is_empty():
+		return
+	_activate_explorer_item(selected_items[0])
+
+func _activate_explorer_item(index: int) -> void:
+	if not explorer_file_list:
+		return
+	var entry = explorer_file_list.get_item_metadata(index)
+	if typeof(entry) != TYPE_DICTIONARY:
+		return
+	if String(entry.get("type", "doc")) == "folder":
+		var folder_name := String(entry.get("target", ""))
+		if folder_name != "":
+			explorer_selected_folder = folder_name
+			_refresh_explorer_sidebar(folder_name)
 			return
+	_show_explorer_preview_for_index(index)
 
-	var current_scene := get_tree().current_scene
-	if current_scene:
-		for method_name in method_candidates:
-			if current_scene.has_method(method_name):
-				_resume_game()
-				current_scene.call_deferred(method_name)
-				return
+func _show_explorer_preview_for_index(index: int) -> void:
+	if not explorer_file_list or not explorer_preview_label:
+		return
+	if index < 0 or index >= explorer_file_list.item_count:
+		return
 
-	_show_status(HINT_MESSAGES.file_explorer)
+	var entry = explorer_file_list.get_item_metadata(index)
+	if typeof(entry) != TYPE_DICTIONARY:
+		explorer_preview_label.text = "Preview unavailable."
+		return
+
+	var title := String(entry.get("title", "File"))
+	var filename := String(entry.get("filename", "unknown.txt"))
+	var body := String(entry.get("content", "No notes."))
+	explorer_preview_label.text = "[b]%s[/b]\n%s\n\n%s" % [title, filename, body]
+
+func _build_explorer_folders() -> Array[String]:
+	var folders: Array[String] = []
+	for folder_name in BASE_EXPLORER_FOLDERS:
+		folders.append(folder_name)
+	if _is_bios_vault_unlocked():
+		folders.append(BIOS_VAULT_FOLDER)
+	if _is_proprietary_citadel_unlocked():
+		folders.append(CITADEL_FOLDER)
+	return folders
+
+func _build_folder_entries(folder_name: String) -> Array[Dictionary]:
+	var entries: Array[Dictionary] = []
+	match folder_name:
+		"Desktop":
+			if _npc_interacted("Messy Directory"):
+				entries.append(_doc_entry("messy_directory.txt", "Messy Directory", "Guardian of scattered folders. Lesson: organize directories and keep backups before destructive commands."))
+			if _npc_interacted("Elder Shell"):
+				entries.append(_doc_entry("elder_shell.txt", "Elder Shell", "A patient mentor process. Lesson: understand commands before executing them."))
+			if _npc_interacted("Broken Installer"):
+				entries.append(_doc_entry("broken_installer.txt", "Broken Installer", "Dependency panic personified. Lesson: keep package indexes updated and verify missing dependencies."))
+			if _npc_interacted("Lost File"):
+				entries.append(_doc_entry("lost_file.txt", "Lost File", "A fragmented document searching for identity. Lesson: accidental deletes hurt; recovery and empathy matter."))
+			if _npc_interacted("Gate Keeper"):
+				entries.append(_doc_entry("gate_keeper.txt", "Gate Keeper", "Policy-aware gate service. Lesson: access is earned through demonstrated system proficiency."))
+
+		"Filesystem_Forest":
+			if _npc_interacted("Lost File"):
+				entries.append(_doc_entry("lost_file_forest.txt", "Lost File (Forest)", "Recovered from unstable sectors in the forest. Lesson: locate, restore, decrypt, and verify data integrity."))
+			if _npc_interacted("Broken Link"):
+				entries.append(_doc_entry("broken_link.txt", "Broken Link", "A corrupted shortcut node. Lesson: troubleshoot paths methodically and patch references safely."))
+			if SceneManager and SceneManager.proficiency_key_forest:
+				entries.append(_doc_entry("proficiency_key_forest.txt", "Forest Proficiency Key", "Reward for repairing systems in the Filesystem Forest. Grants one half of gate access."))
+
+		"Deamon_Depths":
+			if _npc_interacted("Hardware Ghost"):
+				entries.append(_doc_entry("hardware_ghost.txt", "Hardware Ghost", "Echoes of legacy hardware layers. Lesson: old systems still shape modern runtime behavior."))
+			if _npc_interacted("Driver Remnant"):
+				entries.append(_doc_entry("driver_remnant.txt", "Driver Remnant", "An unstable leftover driver process. Lesson: remove stale drivers and isolate failing components."))
+			if _npc_interacted("Printer Boss"):
+				entries.append(_doc_entry("printer_beast.txt", "Printer Beast", "A queue-jamming daemon boss. Lesson: monitor services, permissions, and error logs under pressure."))
+			if SceneManager and SceneManager.proficiency_key_printer:
+				entries.append(_doc_entry("proficiency_key_printer.txt", "Depths Proficiency Key", "Reward for stabilizing Deamon Depths. Completes the gate key pair with the forest key."))
+
+		"Bios_Vault":
+			entries.append(_doc_entry("sage_lessons.txt", "Sage Assessment", "The Sage evaluates command fluency and consistency. Lesson: precise fundamentals beat rushed execution."))
+			entries.append(_doc_entry("bios_vault_lore.txt", "Bios Vault Lore", "A pre-boot archive of system memory, policy traces, and protected training records."))
+
+		"Proprietary_Citadel":
+			entries.append(_doc_entry("citadel_lore.txt", "Proprietary Citadel", "A sealed stack of closed-source protocols. Lesson: interoperability and transparency prevent lock-in traps."))
+
+	if entries.is_empty():
+		entries.append(_doc_entry("readme.txt", "No Files Yet", "Interact with NPCs in this zone to unlock new notes and lesson files."))
+
+	return entries
+
+func _doc_entry(filename: String, title: String, content: String) -> Dictionary:
+	return {
+		"type": "doc",
+		"filename": filename,
+		"title": title,
+		"content": content,
+	}
+
+func _npc_interacted(npc_name: String) -> bool:
+	if not SceneManager:
+		return false
+	if SceneManager.has_method("has_interacted_with_npc"):
+		return SceneManager.has_interacted_with_npc(npc_name)
+
+	match npc_name:
+		"Messy Directory":
+			return SceneManager.met_messy_directory
+		"Elder Shell":
+			return SceneManager.met_elder_shell
+		"Broken Installer":
+			return SceneManager.met_broken_installer
+		"Lost File":
+			return SceneManager.met_lost_file or SceneManager.helped_lost_file or SceneManager.deleted_lost_file
+		"Gate Keeper":
+			return SceneManager.met_gate_keeper
+		"Broken Link":
+			return SceneManager.proficiency_key_forest or SceneManager.broken_link_fragmented_key
+		"Hardware Ghost":
+			return SceneManager.met_hardware_ghost
+		"Driver Remnant":
+			return SceneManager.met_driver_remnant or SceneManager.driver_remnant_defeated
+		"Printer Boss":
+			return SceneManager.met_printer_boss or SceneManager.printer_beast_defeated
+		_:
+			return false
+
+func _is_bios_vault_unlocked() -> bool:
+	if not SceneManager:
+		return false
+	return SceneManager.gatekeeper_pass_granted or SceneManager.deamon_depths_boss_door_unlocked or bool(SceneManager.get_meta("bios_vault_sage_quiz_passed", false))
+
+func _is_proprietary_citadel_unlocked() -> bool:
+	if not SceneManager:
+		return false
+	return bool(SceneManager.get_meta("bios_vault_sage_quiz_passed", false))
+
+func _has_any_discoverable_file() -> bool:
+	for folder_name in _build_explorer_folders():
+		var entries := _build_folder_entries(folder_name)
+		if entries.size() > 0 and String(entries[0].get("filename", "")) != "readme.txt":
+			return true
+	return false
+
+func _handle_pause_menu_click(global_pos: Vector2) -> bool:
+	if not get_tree().paused or in_file_explorer:
+		return false
+	for i in menu_labels.size():
+		var label := menu_labels[i]
+		if not label.visible:
+			continue
+		if label.get_global_rect().has_point(global_pos):
+			selected_index = i
+			_update_menu_visuals()
+			_activate_selection()
+			return true
+	return false
 
 func _set_global_ui_visibility(visible_state: bool) -> void:
 	var controls_help := get_node_or_null("/root/ControlsHelp")

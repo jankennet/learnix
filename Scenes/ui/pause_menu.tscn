@@ -172,3 +172,135 @@ theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 10
 modulate = Color(0.88, 0.93, 1, 0.95)
 horizontal_alignment = 1
+
+[node name="FileExplorerWindow" type="PanelContainer" parent="MenuRoot"]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -480.0
+offset_top = -290.0
+offset_right = 480.0
+offset_bottom = 290.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = null
+
+[node name="WindowBg" type="ColorRect" parent="MenuRoot/FileExplorerWindow"]
+layout_mode = 2
+color = Color(0.91, 0.91, 0.91, 0.97)
+
+[node name="MainMargin" type="MarginContainer" parent="MenuRoot/FileExplorerWindow"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="MainVBox" type="VBoxContainer" parent="MenuRoot/FileExplorerWindow/MainMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TopBar" type="HBoxContainer" parent="MenuRoot/FileExplorerWindow/MainMargin/MainVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="WindowTitle" type="Label" parent="MenuRoot/FileExplorerWindow/MainMargin/MainVBox/TopBar"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 12
+modulate = Color(0.16, 0.16, 0.16, 1)
+text = "Learnix File Manager"
+
+[node name="AddressLabel" type="Label" parent="MenuRoot/FileExplorerWindow/MainMargin/MainVBox/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+modulate = Color(0.22, 0.22, 0.22, 1)
+text = "/home/nova/"
+
+[node name="CloseButton" type="Button" parent="MenuRoot/FileExplorerWindow/MainMargin/MainVBox/TopBar"]
+custom_minimum_size = Vector2(42, 26)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+text = "X"
+
+[node name="Body" type="HBoxContainer" parent="MenuRoot/FileExplorerWindow/MainMargin/MainVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="SidebarPanel" type="PanelContainer" parent="MenuRoot/FileExplorerWindow/MainMargin/MainVBox/Body"]
+custom_minimum_size = Vector2(235, 0)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SidebarMargin" type="MarginContainer" parent="MenuRoot/FileExplorerWindow/MainMargin/MainVBox/Body/SidebarPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="SidebarList" type="ItemList" parent="MenuRoot/FileExplorerWindow/MainMargin/MainVBox/Body/SidebarPanel/SidebarMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+same_column_width = true
+
+[node name="ContentPanel" type="PanelContainer" parent="MenuRoot/FileExplorerWindow/MainMargin/MainVBox/Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ContentMargin" type="MarginContainer" parent="MenuRoot/FileExplorerWindow/MainMargin/MainVBox/Body/ContentPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="ContentVBox" type="VBoxContainer" parent="MenuRoot/FileExplorerWindow/MainMargin/MainVBox/Body/ContentPanel/ContentMargin"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="FolderLabel" type="Label" parent="MenuRoot/FileExplorerWindow/MainMargin/MainVBox/Body/ContentPanel/ContentMargin/ContentVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+modulate = Color(0.16, 0.16, 0.16, 1)
+text = "Desktop"
+
+[node name="FileList" type="ItemList" parent="MenuRoot/FileExplorerWindow/MainMargin/MainVBox/Body/ContentPanel/ContentMargin/ContentVBox"]
+custom_minimum_size = Vector2(0, 180)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+same_column_width = true
+
+[node name="PreviewLabel" type="RichTextLabel" parent="MenuRoot/FileExplorerWindow/MainMargin/MainVBox/Body/ContentPanel/ContentMargin/ContentVBox"]
+custom_minimum_size = Vector2(0, 145)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+fit_content = true
+scroll_active = true
+text = "Select a file to preview its notes."
+
+[node name="FooterLabel" type="Label" parent="MenuRoot/FileExplorerWindow/MainMargin/MainVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 9
+modulate = Color(0.25, 0.25, 0.25, 1)
+text = "Double-click a folder to open. Press Esc to go back."
