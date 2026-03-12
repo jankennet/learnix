@@ -1,0 +1,27 @@
+~ start
+Mount Whisperer: shh... the drives are sleeping with one eye open.
+Mount Whisperer: When a volume clicks awake, I hear its little bones sing.
+Mount Whisperer: The logs pretend to be boring, but they keep tiny obituaries.
+
+- What do you hear?
+	Mount Whisperer: Soft mountpoints padding through the dark.
+	Mount Whisperer: A USB ghost asking whether it was ejected with love.
+	Mount Whisperer: Sometimes the answer is no, and the logs cry in hexadecimal.
+	=> END
+- Why read the logs?
+	Mount Whisperer: Because mounted things leave footprints.
+	Mount Whisperer: And unmounted things leave absence, which is louder.
+	Mount Whisperer: If you listen closely, every "device removed" sounds like a goodbye kiss through static.
+	=> END
+- That is unsettling.
+	Mount Whisperer: mm. Cute, though.
+	Mount Whisperer: Here, listen:
+	Mount Whisperer: "mount: clean attach."
+	Mount Whisperer: "umount: soft sigh."
+	Mount Whisperer: "kernel: something small waved from /var/log before it vanished."
+	=> END
+- Any advice for handling drives?
+	Mount Whisperer: Ask before you pull the soul from the socket.
+	Mount Whisperer: Unmount first. Always.
+	Mount Whisperer: Otherwise the logs have to tuck the fragments back into bed.
+	=> END

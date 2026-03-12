@@ -11,6 +11,94 @@ const QUALITY_SCALES := [0.67, 0.85, 1.0]
 const BASE_EXPLORER_FOLDERS := ["Desktop", "Filesystem_Forest", "Deamon_Depths"]
 const BIOS_VAULT_FOLDER := "Bios_Vault"
 const CITADEL_FOLDER := "Proprietary_Citadel"
+const NPC_EXPLORER_ENTRIES := {
+	"Messy Directory": [
+		{
+			"folder": "Desktop",
+			"filename": "messy_directory.txt",
+			"title": "Messy Directory",
+			"content": "Guardian of scattered folders. Lesson: organize directories and keep backups before destructive commands.",
+		},
+	],
+	"Elder Shell": [
+		{
+			"folder": "Desktop",
+			"filename": "elder_shell.txt",
+			"title": "Elder Shell",
+			"content": "A patient mentor process. Lesson: understand commands before executing them.",
+		},
+	],
+	"Broken Installer": [
+		{
+			"folder": "Desktop",
+			"filename": "broken_installer.txt",
+			"title": "Broken Installer",
+			"content": "Dependency panic personified. Lesson: keep package indexes updated and verify missing dependencies.",
+		},
+	],
+	"Lost File": [
+		{
+			"folder": "Desktop",
+			"filename": "lost_file.txt",
+			"title": "Lost File",
+			"content": "A fragmented document searching for identity. Lesson: accidental deletes hurt; recovery and empathy matter.",
+		},
+		{
+			"folder": "Filesystem_Forest",
+			"filename": "lost_file_forest.txt",
+			"title": "Lost File (Forest)",
+			"content": "Recovered from unstable sectors in the forest. Lesson: locate, restore, decrypt, and verify data integrity.",
+		},
+	],
+	"Gate Keeper": [
+		{
+			"folder": "Desktop",
+			"filename": "gate_keeper.txt",
+			"title": "Gate Keeper",
+			"content": "Policy-aware gate service. Lesson: access is earned through demonstrated system proficiency.",
+		},
+	],
+	"Mount Whisperer": [
+		{
+			"folder": "Desktop",
+			"filename": "mount_whisperer.txt",
+			"title": "Mount Whisperer",
+			"content": "Sees ghosts in mounted drives. Lesson: mount cleanly, unmount before removal, and read logs like they remember everything.",
+		},
+	],
+	"Broken Link": [
+		{
+			"folder": "Filesystem_Forest",
+			"filename": "broken_link.txt",
+			"title": "Broken Link",
+			"content": "A corrupted shortcut node. Lesson: troubleshoot paths methodically and patch references safely.",
+		},
+	],
+	"Hardware Ghost": [
+		{
+			"folder": "Deamon_Depths",
+			"filename": "hardware_ghost.txt",
+			"title": "Hardware Ghost",
+			"content": "Echoes of legacy hardware layers. Lesson: old systems still shape modern runtime behavior.",
+		},
+	],
+	"Driver Remnant": [
+		{
+			"folder": "Deamon_Depths",
+			"filename": "driver_remnant.txt",
+			"title": "Driver Remnant",
+			"content": "An unstable leftover driver process. Lesson: remove stale drivers and isolate failing components.",
+		},
+	],
+	"Printer Boss": [
+		{
+			"folder": "Deamon_Depths",
+			"filename": "printer_beast.txt",
+			"title": "Printer Beast",
+			"content": "A queue-jamming daemon boss. Lesson: monitor services, permissions, and error logs under pressure.",
+		},
+	],
+}
 const HINT_MESSAGES := {
 	"quick_save": "Quick save is not available yet.",
 	"load": "Load is not available yet.",
@@ -23,6 +111,8 @@ const HINT_MESSAGES := {
 
 @onready var menu_root: Control = $MenuRoot
 @onready var captured_frame: TextureRect = get_node_or_null("MenuRoot/CapturedFrame") as TextureRect
+@onready var darken_overlay: CanvasItem = get_node_or_null("MenuRoot/DarkenOverlay") as CanvasItem
+@onready var pause_content_margin: CanvasItem = get_node_or_null("MenuRoot/ContentMargin") as CanvasItem
 @onready var menu_vbox: VBoxContainer = $MenuRoot/ContentMargin/MainColumn/MenuRow/MenuVBox
 @onready var menu_labels: Array[Label] = [
 	$MenuRoot/ContentMargin/MainColumn/MenuRow/MenuVBox/QuickSaveLabel,
@@ -40,6 +130,7 @@ const HINT_MESSAGES := {
 @onready var explorer_file_list: ItemList = $MenuRoot/FileExplorerWindow/MainMargin/MainVBox/Body/ContentPanel/ContentMargin/ContentVBox/FileList
 @onready var explorer_preview_label: RichTextLabel = $MenuRoot/FileExplorerWindow/MainMargin/MainVBox/Body/ContentPanel/ContentMargin/ContentVBox/PreviewLabel
 @onready var explorer_close_button: Button = $MenuRoot/FileExplorerWindow/MainMargin/MainVBox/TopBar/CloseButton
+@onready var explorer_top_bar: Control = $MenuRoot/FileExplorerWindow/MainMargin/MainVBox/TopBar
 
 var selected_index := 0
 var pause_pending := false
@@ -48,7 +139,10 @@ var status_time_left := 0.0
 var in_settings_menu := false
 var in_graphics_menu := false
 var in_file_explorer := false
+var explorer_opened_from_main_ui := false
 var explorer_selected_folder := "Desktop"
+var explorer_dragging := false
+var explorer_last_mouse_global := Vector2.ZERO
 
 var graphics_window_mode_index := 0
 var graphics_resolution_index := 2
@@ -80,13 +174,33 @@ func _ready() -> void:
 		file_explorer_window.visible = false
 	if explorer_close_button and not explorer_close_button.pressed.is_connected(_close_file_explorer):
 		explorer_close_button.pressed.connect(_close_file_explorer)
+	if explorer_top_bar and not explorer_top_bar.gui_input.is_connected(_on_explorer_top_bar_gui_input):
+		explorer_top_bar.gui_input.connect(_on_explorer_top_bar_gui_input)
 	if explorer_sidebar_list and not explorer_sidebar_list.item_selected.is_connected(_on_explorer_folder_selected):
 		explorer_sidebar_list.item_selected.connect(_on_explorer_folder_selected)
 	if explorer_file_list and not explorer_file_list.item_selected.is_connected(_on_explorer_item_selected):
 		explorer_file_list.item_selected.connect(_on_explorer_item_selected)
 	if explorer_file_list and not explorer_file_list.item_activated.is_connected(_on_explorer_item_activated):
 		explorer_file_list.item_activated.connect(_on_explorer_item_activated)
+	if explorer_top_bar:
+		explorer_top_bar.mouse_default_cursor_shape = Control.CURSOR_MOVE
 	_update_menu_visuals()
+
+func _input(event: InputEvent) -> void:
+	if not in_file_explorer or not file_explorer_window or not file_explorer_window.visible:
+		return
+
+	if explorer_dragging and event is InputEventMouseMotion:
+		var motion := event as InputEventMouseMotion
+		_update_explorer_drag(motion.global_position)
+		get_viewport().set_input_as_handled()
+		return
+
+	if explorer_dragging and event is InputEventMouseButton:
+		var mouse_button := event as InputEventMouseButton
+		if mouse_button.button_index == MOUSE_BUTTON_LEFT and not mouse_button.pressed:
+			explorer_dragging = false
+			get_viewport().set_input_as_handled()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
@@ -212,6 +326,7 @@ func _complete_pause() -> void:
 	status_time_left = 0.0
 	if file_explorer_window:
 		file_explorer_window.visible = false
+	_set_pause_chrome_visible(true)
 	_update_menu_visuals()
 	get_tree().paused = true
 	pause_pending = false
@@ -227,10 +342,12 @@ func _resume_game() -> void:
 	in_settings_menu = false
 	in_graphics_menu = false
 	in_file_explorer = false
+	explorer_opened_from_main_ui = false
 	status_label.visible = false
 	status_time_left = 0.0
 	if file_explorer_window:
 		file_explorer_window.visible = false
+	_set_pause_chrome_visible(true)
 	_set_global_ui_visibility(true)
 
 func _capture_current_frame() -> void:
@@ -445,8 +562,7 @@ func _show_status(message: String) -> void:
 
 func _invoke_scene_manager_method(method_name: String) -> bool:
 	if SceneManager and SceneManager.has_method(method_name):
-		SceneManager.call(method_name)
-		return true
+		return bool(SceneManager.call(method_name))
 	return false
 
 func _open_in_game_file_explorer() -> void:
@@ -460,8 +576,27 @@ func _open_in_game_file_explorer() -> void:
 
 	_open_file_explorer()
 
+func open_file_explorer_from_main_ui() -> void:
+	if _is_title_scene_active():
+		return
+
+	visible = true
+	menu_root.visible = true
+	explorer_opened_from_main_ui = true
+	in_settings_menu = false
+	in_graphics_menu = false
+	selected_index = 2
+	_set_pause_chrome_visible(false)
+
+	if captured_frame:
+		captured_frame.visible = false
+		captured_frame.texture = null
+
+	_open_file_explorer()
+
 func _open_file_explorer() -> void:
 	in_file_explorer = true
+	explorer_dragging = false
 	status_label.visible = false
 	status_time_left = 0.0
 	if file_explorer_window:
@@ -470,9 +605,75 @@ func _open_file_explorer() -> void:
 
 func _close_file_explorer() -> void:
 	in_file_explorer = false
+	explorer_dragging = false
 	if file_explorer_window:
 		file_explorer_window.visible = false
+
+	if explorer_opened_from_main_ui and not get_tree().paused:
+		explorer_opened_from_main_ui = false
+		_set_pause_chrome_visible(true)
+		visible = false
+		menu_root.visible = false
+		return
+
 	_update_menu_visuals()
+
+func _on_explorer_top_bar_gui_input(event: InputEvent) -> void:
+	if not in_file_explorer or not file_explorer_window or not file_explorer_window.visible:
+		return
+
+	if event is InputEventMouseButton:
+		var button_event := event as InputEventMouseButton
+		if button_event.button_index == MOUSE_BUTTON_LEFT:
+			if button_event.pressed:
+				explorer_dragging = true
+				explorer_last_mouse_global = button_event.global_position
+			else:
+				explorer_dragging = false
+			get_viewport().set_input_as_handled()
+			return
+
+	if event is InputEventMouseMotion and explorer_dragging:
+		var motion_event := event as InputEventMouseMotion
+		_update_explorer_drag(motion_event.global_position)
+		get_viewport().set_input_as_handled()
+
+func _update_explorer_drag(mouse_global_position: Vector2) -> void:
+	if file_explorer_window == null:
+		return
+	var delta := mouse_global_position - explorer_last_mouse_global
+	explorer_last_mouse_global = mouse_global_position
+	file_explorer_window.offset_left += delta.x
+	file_explorer_window.offset_right += delta.x
+	file_explorer_window.offset_top += delta.y
+	file_explorer_window.offset_bottom += delta.y
+	_clamp_file_explorer_window_to_viewport()
+
+func _clamp_file_explorer_window_to_viewport() -> void:
+	if file_explorer_window == null:
+		return
+
+	var viewport_size := get_viewport().get_visible_rect().size
+	var panel_size := file_explorer_window.size
+	var current_pos := file_explorer_window.global_position
+	var clamped_pos := current_pos
+	clamped_pos.x = clampf(current_pos.x, 0.0, max(0.0, viewport_size.x - panel_size.x))
+	clamped_pos.y = clampf(current_pos.y, 0.0, max(0.0, viewport_size.y - panel_size.y))
+	var correction := clamped_pos - current_pos
+	if correction == Vector2.ZERO:
+		return
+	file_explorer_window.offset_left += correction.x
+	file_explorer_window.offset_right += correction.x
+	file_explorer_window.offset_top += correction.y
+	file_explorer_window.offset_bottom += correction.y
+
+func _set_pause_chrome_visible(visible_state: bool) -> void:
+	if darken_overlay:
+		darken_overlay.visible = visible_state
+	if pause_content_margin:
+		pause_content_margin.visible = visible_state
+	if status_label:
+		status_label.visible = visible_state and status_time_left > 0.0
 
 func _refresh_explorer_sidebar(select_folder: String = "") -> void:
 	if not explorer_sidebar_list:
@@ -586,48 +787,79 @@ func _build_explorer_folders() -> Array[String]:
 
 func _build_folder_entries(folder_name: String) -> Array[Dictionary]:
 	var entries: Array[Dictionary] = []
+	_append_mapped_npc_entries(entries, folder_name)
+
 	match folder_name:
 		"Desktop":
-			if _npc_interacted("Messy Directory"):
-				entries.append(_doc_entry("messy_directory.txt", "Messy Directory", "Guardian of scattered folders. Lesson: organize directories and keep backups before destructive commands."))
-			if _npc_interacted("Elder Shell"):
-				entries.append(_doc_entry("elder_shell.txt", "Elder Shell", "A patient mentor process. Lesson: understand commands before executing them."))
-			if _npc_interacted("Broken Installer"):
-				entries.append(_doc_entry("broken_installer.txt", "Broken Installer", "Dependency panic personified. Lesson: keep package indexes updated and verify missing dependencies."))
-			if _npc_interacted("Lost File"):
-				entries.append(_doc_entry("lost_file.txt", "Lost File", "A fragmented document searching for identity. Lesson: accidental deletes hurt; recovery and empathy matter."))
-			if _npc_interacted("Gate Keeper"):
-				entries.append(_doc_entry("gate_keeper.txt", "Gate Keeper", "Policy-aware gate service. Lesson: access is earned through demonstrated system proficiency."))
+			_append_generic_interaction_entries(entries)
 
 		"Filesystem_Forest":
-			if _npc_interacted("Lost File"):
-				entries.append(_doc_entry("lost_file_forest.txt", "Lost File (Forest)", "Recovered from unstable sectors in the forest. Lesson: locate, restore, decrypt, and verify data integrity."))
-			if _npc_interacted("Broken Link"):
-				entries.append(_doc_entry("broken_link.txt", "Broken Link", "A corrupted shortcut node. Lesson: troubleshoot paths methodically and patch references safely."))
 			if SceneManager and SceneManager.proficiency_key_forest:
-				entries.append(_doc_entry("proficiency_key_forest.txt", "Forest Proficiency Key", "Reward for repairing systems in the Filesystem Forest. Grants one half of gate access."))
+				_append_doc_entry_if_missing(entries, "proficiency_key_forest.txt", "Forest Proficiency Key", "Reward for repairing systems in the Filesystem Forest. Grants one half of gate access.")
 
 		"Deamon_Depths":
-			if _npc_interacted("Hardware Ghost"):
-				entries.append(_doc_entry("hardware_ghost.txt", "Hardware Ghost", "Echoes of legacy hardware layers. Lesson: old systems still shape modern runtime behavior."))
-			if _npc_interacted("Driver Remnant"):
-				entries.append(_doc_entry("driver_remnant.txt", "Driver Remnant", "An unstable leftover driver process. Lesson: remove stale drivers and isolate failing components."))
-			if _npc_interacted("Printer Boss"):
-				entries.append(_doc_entry("printer_beast.txt", "Printer Beast", "A queue-jamming daemon boss. Lesson: monitor services, permissions, and error logs under pressure."))
 			if SceneManager and SceneManager.proficiency_key_printer:
-				entries.append(_doc_entry("proficiency_key_printer.txt", "Depths Proficiency Key", "Reward for stabilizing Deamon Depths. Completes the gate key pair with the forest key."))
+				_append_doc_entry_if_missing(entries, "proficiency_key_printer.txt", "Depths Proficiency Key", "Reward for stabilizing Deamon Depths. Completes the gate key pair with the forest key.")
 
 		"Bios_Vault":
-			entries.append(_doc_entry("sage_lessons.txt", "Sage Assessment", "The Sage evaluates command fluency and consistency. Lesson: precise fundamentals beat rushed execution."))
-			entries.append(_doc_entry("bios_vault_lore.txt", "Bios Vault Lore", "A pre-boot archive of system memory, policy traces, and protected training records."))
+			_append_doc_entry_if_missing(entries, "sage_lessons.txt", "Sage Assessment", "The Sage evaluates command fluency and consistency. Lesson: precise fundamentals beat rushed execution.")
+			_append_doc_entry_if_missing(entries, "bios_vault_lore.txt", "Bios Vault Lore", "A pre-boot archive of system memory, policy traces, and protected training records.")
 
 		"Proprietary_Citadel":
-			entries.append(_doc_entry("citadel_lore.txt", "Proprietary Citadel", "A sealed stack of closed-source protocols. Lesson: interoperability and transparency prevent lock-in traps."))
+			_append_doc_entry_if_missing(entries, "citadel_lore.txt", "Proprietary Citadel", "A sealed stack of closed-source protocols. Lesson: interoperability and transparency prevent lock-in traps.")
 
 	if entries.is_empty():
 		entries.append(_doc_entry("readme.txt", "No Files Yet", "Interact with NPCs in this zone to unlock new notes and lesson files."))
 
 	return entries
+
+func _append_mapped_npc_entries(entries: Array[Dictionary], folder_name: String) -> void:
+	for npc_name in NPC_EXPLORER_ENTRIES.keys():
+		if not _npc_interacted(npc_name):
+			continue
+		var npc_entries: Array = NPC_EXPLORER_ENTRIES[npc_name]
+		for npc_entry in npc_entries:
+			if String(npc_entry.get("folder", "")) != folder_name:
+				continue
+			_append_doc_entry_if_missing(
+				entries,
+				String(npc_entry.get("filename", "interaction_log.txt")),
+				String(npc_entry.get("title", npc_name)),
+				String(npc_entry.get("content", "Interaction recorded."))
+			)
+
+func _append_generic_interaction_entries(entries: Array[Dictionary]) -> void:
+	if not SceneManager:
+		return
+	for npc_name in _get_interacted_npc_names():
+		if NPC_EXPLORER_ENTRIES.has(npc_name):
+			continue
+		var slug := _slugify_filename(npc_name)
+		_append_doc_entry_if_missing(
+			entries,
+			"%s.txt" % slug,
+			npc_name,
+			"Interaction log recorded for %s. Lesson: every system actor leaves clues once you stop and inspect them." % npc_name
+		)
+
+func _append_doc_entry_if_missing(entries: Array[Dictionary], filename: String, title: String, content: String) -> void:
+	for entry in entries:
+		if String(entry.get("filename", "")) == filename:
+			return
+	entries.append(_doc_entry(filename, title, content))
+
+func _get_interacted_npc_names() -> Array[String]:
+	var names: Array[String] = []
+	if not SceneManager:
+		return names
+	for key in SceneManager.interacted_npcs.keys():
+		if bool(SceneManager.interacted_npcs.get(key, false)):
+			names.append(String(key))
+	names.sort()
+	return names
+
+func _slugify_filename(value: String) -> String:
+	return value.to_lower().strip_edges().replace(" ", "_").replace("-", "_")
 
 func _doc_entry(filename: String, title: String, content: String) -> Dictionary:
 	return {

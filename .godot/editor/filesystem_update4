@@ -1,10 +1,8 @@
 res://Scenes/ui/MainHUD.tscn
-res://scripts/loading_screen.gd
-res://scripts/SceneManager.gd
-res://scripts/ui/pause_menu.gd
-res://shaders/ui/pause_crt_blur.gdshader
 res://scripts/ui/main_hud.gd
+res://scripts/ui/pause_menu.gd
+res://Scenes/combat/crt_terminal_theme.tres
+res://Scenes/Levels/fallback_hamlet.tscn
 res://scripts/npc_script.gd
-res://scripts/combat/combat_terminal_ui.gd
-res://scripts/combat/puzzle_state_handler.gd
-res://scripts/combat/dependency_resolver_minigame.gd
+res://scripts/SceneManager.gd
+res://scripts/ui/title_menu.gd

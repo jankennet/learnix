@@ -347,7 +347,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_qk3nm")
 }],
 "loop": true,
-"name": &"default",
+"name": &"idle",
 "speed": 5.0
 }]
 
@@ -462,6 +462,9 @@ shape = SubResource("BoxShape3D_v17ot")
 transform = Transform3D(0.7501, 0, -0.661325, 0, 1, 0, 0.661325, 0, 0.7501, -9.02847, 0.520583, 9.65398)
 shape = SubResource("BoxShape3D_v6to1")
 
+[node name="Spawn_BVTFM" type="Marker3D" parent="Fallback_Hamlet_Final" groups=["spawn_point"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.34865415, -0.37605846, 4.279682)
+
 [node name="NPC" type="Node3D" parent="."]
 
 [node name="Elder Shell" type="CharacterBody3D" parent="NPC" groups=["npcs"]]
@@ -548,19 +551,22 @@ texture_filter = 0
 sprite_frames = SubResource("SpriteFrames_0ylds")
 animation = &"idle"
 
-[node name="CharacterBody3D" type="CharacterBody3D" parent="NPC"]
+[node name="Mount Whisperer" type="CharacterBody3D" parent="NPC" groups=["npcs"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.8081665, 0, -0.22860193)
+script = ExtResource("4_jdn8y")
+dialogue_resource_path = "res://dialogues/MountWhisperer.dialogue"
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="NPC/CharacterBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NPC/Mount Whisperer"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.21452796, 0)
 shape = SubResource("SphereShape3D_rlcwv")
 
-[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="NPC/CharacterBody3D"]
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="NPC/Mount Whisperer"]
 pixel_size = 0.05
 billboard = 2
 shaded = true
 texture_filter = 0
 sprite_frames = SubResource("SpriteFrames_i8vao")
+animation = &"idle"
 
 [node name="CSGBox3D" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)

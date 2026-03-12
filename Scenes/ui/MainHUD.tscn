@@ -1,7 +1,9 @@
-[gd_scene load_steps=12 format=3 uid="uid://dff8b3gde762a"]
+[gd_scene load_steps=15 format=3 uid="uid://dff8b3gde762a"]
 
 [ext_resource type="FontFile" uid="uid://lqtbary7gh5r" path="res://Assets/fonts/PressStart2P-Regular.ttf" id="1_font"]
 [ext_resource type="Script" uid="uid://mqkv64skk1kd" path="res://scripts/ui/main_hud.gd" id="2_mainhud"]
+[ext_resource type="Theme" uid="uid://doak8ce36xvhu" path="res://Scenes/combat/crt_terminal_theme.tres" id="3_crt_theme"]
+[ext_resource type="Shader" uid="uid://cmh6cx1xegkl0" path="res://Scenes/combat/crt_effect.gdshader" id="4_crt_shader"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_character_frame"]
 content_margin_left = 10.0
@@ -130,6 +132,19 @@ corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hud_terminal_crt"]
+shader = ExtResource("4_crt_shader")
+shader_parameter/scanline_intensity = 0.06
+shader_parameter/scanline_frequency = 2.5
+shader_parameter/vignette_intensity = 0.12
+shader_parameter/curvature = 0.012
+shader_parameter/flicker_intensity = 0.008
+shader_parameter/glow_intensity = 0.1
+shader_parameter/chromatic_aberration = 0.0004
+shader_parameter/phosphor_color = Color(0.3, 0.95, 0.4, 1)
+shader_parameter/bezel_color = Color(0.65, 0.68, 0.62, 1)
+shader_parameter/bezel_glow = 0.15
+
 [node name="MainHUD" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -226,10 +241,12 @@ alignment = 2
 [node name="BagItem" type="PanelContainer" parent="TopRight/MenuStack"]
 custom_minimum_size = Vector2(72, 52)
 layout_mode = 2
+mouse_default_cursor_shape = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_menu_item")
 
 [node name="BagIcon" type="PanelContainer" parent="TopRight/MenuStack/BagItem"]
 layout_mode = 2
+mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_menu_icon")
 
 [node name="Label" type="Label" parent="TopRight/MenuStack/BagItem/BagIcon"]
@@ -244,6 +261,7 @@ vertical_alignment = 1
 [node name="MessagesItem" type="PanelContainer" parent="TopRight/MenuStack"]
 custom_minimum_size = Vector2(72, 52)
 layout_mode = 2
+mouse_default_cursor_shape = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_menu_item")
 
 [node name="MailIcon" type="PanelContainer" parent="TopRight/MenuStack/MessagesItem"]
@@ -276,3 +294,85 @@ theme_override_font_sizes/font_size = 10
 text = "TUX"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="TerminalPanel" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+offset_left = 300.0
+offset_top = 120.0
+offset_right = 980.0
+offset_bottom = 480.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("3_crt_theme")
+
+[node name="TerminalBackdrop" type="ColorRect" parent="TerminalPanel"]
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.02, 0.08, 0.02, 0.98)
+
+[node name="TerminalMargin" type="MarginContainer" parent="TerminalPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="TerminalVBox" type="VBoxContainer" parent="TerminalPanel/TerminalMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TerminalHeader" type="HBoxContainer" parent="TerminalPanel/TerminalMargin/TerminalVBox"]
+layout_mode = 2
+
+[node name="TerminalTitle" type="Label" parent="TerminalPanel/TerminalMargin/TerminalVBox/TerminalHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("1_font")
+theme_override_font_sizes/font_size = 10
+text = "NOVA SHELL"
+
+[node name="FullscreenTerminalButton" type="Button" parent="TerminalPanel/TerminalMargin/TerminalVBox/TerminalHeader"]
+layout_mode = 2
+text = "[ ]"
+
+[node name="CloseTerminalButton" type="Button" parent="TerminalPanel/TerminalMargin/TerminalVBox/TerminalHeader"]
+layout_mode = 2
+text = "X"
+
+[node name="TerminalOutput" type="RichTextLabel" parent="TerminalPanel/TerminalMargin/TerminalVBox"]
+custom_minimum_size = Vector2(0, 220)
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+scroll_following = true
+
+[node name="TerminalInputRow" type="HBoxContainer" parent="TerminalPanel/TerminalMargin/TerminalVBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="PromptLabel" type="Label" parent="TerminalPanel/TerminalMargin/TerminalVBox/TerminalInputRow"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_font")
+theme_override_font_sizes/font_size = 12
+text = "$"
+
+[node name="TerminalInput" type="LineEdit" parent="TerminalPanel/TerminalMargin/TerminalVBox/TerminalInputRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Type command (help, ls, cd, save, quit)"
+
+[node name="RunCommandButton" type="Button" parent="TerminalPanel/TerminalMargin/TerminalVBox/TerminalInputRow"]
+layout_mode = 2
+text = "RUN"
+
+[node name="TerminalHint" type="Label" parent="TerminalPanel/TerminalMargin/TerminalVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_font")
+theme_override_font_sizes/font_size = 8
+text = "Try: cd filesystem_forest, ls, explorer, save, quit"
+
+[node name="CRTEffectOverlay" type="ColorRect" parent="TerminalPanel"]
+material = SubResource("ShaderMaterial_hud_terminal_crt")
+layout_mode = 2
+mouse_filter = 2

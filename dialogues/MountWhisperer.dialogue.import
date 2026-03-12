@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://bk7d1afvlew5w"
+path="res://.godot/imported/MountWhisperer.dialogue-2a97f17e45ab4f23594c2795ec5e74b0.tres"
+
+[deps]
+
+source_file="res://dialogues/MountWhisperer.dialogue"
+dest_files=["res://.godot/imported/MountWhisperer.dialogue-2a97f17e45ab4f23594c2795ec5e74b0.tres"]
+
+[params]
+
+defaults=true

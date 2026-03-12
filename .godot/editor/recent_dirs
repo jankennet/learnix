@@ -1,8 +1,8 @@
+res://scripts
 res://Scenes/Player
 res://Assets/characterSpriteSheets/ss_Tux
 res://Assets/characterSpriteSheets/ss_FallbackHamletNPC
 res://Scenes/Levels
-res://scripts
 res://Assets/characterSpriteSheets/ss_DriversDen
 res://Assets/characterSpriteSheets/ss_FilesystemForest
 res://addons/terrain_3d

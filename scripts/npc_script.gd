@@ -93,6 +93,10 @@ func _ready():
 				var path_m = "res://dialogues/MessyDirectory.dialogue"
 				if ResourceLoader.exists(path_m):
 					dialogue_resource_path = path_m
+			"mountwhisperer":
+				var path_mw = "res://dialogues/MountWhisperer.dialogue"
+				if ResourceLoader.exists(path_mw):
+					dialogue_resource_path = path_mw
 			"hardwareghost":
 				var path_h = "res://dialogues/HardwareGhost.dialogue"
 				if ResourceLoader.exists(path_h):
