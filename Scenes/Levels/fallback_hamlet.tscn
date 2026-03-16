@@ -360,7 +360,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -8.41249)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -27.4241, 0.699012, 11)
 script = ExtResource("2_eju1i")
 target_scene = "res://Scenes/Levels/file_system_forest.tscn"
-spawn_name = "Forest_NoPlain/Spawn_FSF"
+spawn_name = "Forest/Spawn_FSF"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Fallback_Hamlet_Final/ForestTP"]
 transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, -1.60304, 0, -0.380373)
@@ -481,6 +481,7 @@ pixel_size = 0.05
 billboard = 2
 shaded = true
 texture_filter = 0
+alpha_cut = 1
 sprite_frames = SubResource("SpriteFrames_rxmad")
 animation = &"idle"
 
@@ -498,6 +499,7 @@ pixel_size = 0.05
 billboard = 2
 shaded = true
 texture_filter = 0
+alpha_cut = 1
 sprite_frames = SubResource("SpriteFrames_vqyvo")
 animation = &"idle"
 
@@ -515,6 +517,7 @@ pixel_size = 0.05
 billboard = 2
 shaded = true
 texture_filter = 0
+alpha_cut = 1
 sprite_frames = SubResource("SpriteFrames_v17ot")
 animation = &"good_idle"
 
@@ -532,6 +535,7 @@ pixel_size = 0.05
 billboard = 2
 shaded = true
 texture_filter = 0
+alpha_cut = 1
 sprite_frames = SubResource("SpriteFrames_4ultu")
 animation = &"good_idle"
 
@@ -548,6 +552,7 @@ pixel_size = 0.15
 billboard = 2
 shaded = true
 texture_filter = 0
+alpha_cut = 1
 sprite_frames = SubResource("SpriteFrames_0ylds")
 animation = &"idle"
 
@@ -565,6 +570,7 @@ pixel_size = 0.05
 billboard = 2
 shaded = true
 texture_filter = 0
+alpha_cut = 1
 sprite_frames = SubResource("SpriteFrames_i8vao")
 animation = &"idle"
 

@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://cmuu2fvk08m2a"]
+
+[ext_resource type="PackedScene" uid="uid://04qh4al76ow3" path="res://levelAssets/fbxLevels/Forest_NoPlain.fbx" id="1_32fes"]
+
+[node name="Forest_NoPlain" instance=ExtResource("1_32fes")]
+
+[node name="building_bridge_B" parent="." index="55"]
+visible = false
+
+[node name="building_bridge_B_001" parent="." index="56"]
+visible = false

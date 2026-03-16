@@ -431,6 +431,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.129261, 0)
 pixel_size = 0.05
 billboard = 2
 texture_filter = 0
+alpha_cut = 1
 sprite_frames = SubResource("SpriteFrames_jlvik")
 animation = &"nova_idle"
 

@@ -10,7 +10,7 @@ const BIOS_VAULT_SAGE_META_KEY := "bios_vault_sage_quiz_passed"
 const PENDING_REWARD_META_KEY := "pending_reward_popup_key"
 const LEVEL_DEFAULT_SPAWNS := {
 	"res://Scenes/Levels/fallback_hamlet.tscn": "Fallback_Hamlet_Final/Spawn_FTFM",
-	"res://Scenes/Levels/file_system_forest.tscn": "Forest_NoPlain/Spawn_FSF",
+	"res://Scenes/Levels/file_system_forest.tscn": "Forest/Spawn_FSF",
 	"res://Scenes/Levels/deamon_depths.tscn": "Dungeon/Spawn_DD",
 	"res://Scenes/Levels/bios_vault.tscn": "Spawn_BV",
 	"res://Scenes/Levels/bios_vault_.tscn": "Spawn_BV",

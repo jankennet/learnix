@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://bl0cryyoa1363"]
+
+[ext_resource type="PackedScene" uid="uid://bm7hpgfgj6e5u" path="res://levelAssets/gtlfLevels/Forest.glb" id="1_wkhsw"]
+
+[node name="Forest" instance=ExtResource("1_wkhsw")]

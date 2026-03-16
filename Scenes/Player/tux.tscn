@@ -1,6 +1,6 @@
 [gd_scene load_steps=19 format=3 uid="uid://dexka4nfcsts4"]
 
-[ext_resource type="Script" path="res://scripts/tux_follower.gd" id="1_2vgbq"]
+[ext_resource type="Script" uid="uid://dcqi50kevwdju" path="res://scripts/tux_follower.gd" id="1_2vgbq"]
 [ext_resource type="Texture2D" uid="uid://b5cnsesyaob8o" path="res://Assets/characterSpriteSheets/ss_Tux/tux_idleForward.png" id="1_nc5ya"]
 [ext_resource type="Texture2D" uid="uid://du62yhyjwyg58" path="res://Assets/characterSpriteSheets/ss_Tux/tux_idleBackward.png" id="2_xs62j"]
 [ext_resource type="Texture2D" uid="uid://c1pnywisgeo0c" path="res://Assets/characterSpriteSheets/ss_Tux/tux_idle.png" id="3_mubmp"]
@@ -116,7 +116,7 @@ animations = [{
 }]
 
 [node name="Tux" type="Node3D"]
-scale = Vector3(0.5, 0.5, 0.5)
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
 
 [node name="Tux" type="CharacterBody3D" parent="."]
 script = ExtResource("1_2vgbq")
@@ -128,6 +128,7 @@ shape = SubResource("SphereShape3D_qgedj")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.031934023, 0.3852834, -0.07739109)
 pixel_size = 0.05
 billboard = 2
+alpha_cut = 1
 texture_filter = 0
 sprite_frames = SubResource("SpriteFrames_44nt6")
 animation = &"tux_idle"

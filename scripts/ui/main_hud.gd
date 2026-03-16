@@ -18,7 +18,7 @@ const TERMINAL_TELEPORT_TARGETS := {
 	},
 	"filesystem_forest": {
 		"scene": "res://Scenes/Levels/file_system_forest.tscn",
-		"spawn": "Forest_NoPlain/Spawn_FSF",
+		"spawn": "Forest/Spawn_FSF",
 	},
 	"deamon_depths": {
 		"scene": "res://Scenes/Levels/deamon_depths.tscn",
@@ -78,6 +78,7 @@ var _terminal_is_fullscreen := false
 var _is_dragging_terminal := false
 var _terminal_drag_offset := Vector2.ZERO
 var _terminal_saved_window_rect := Rect2(300.0, 120.0, 680.0, 360.0)
+var _last_recorded_location := ""
 
 func _ready() -> void:
 	if file_item and not file_item.gui_input.is_connected(_on_file_item_gui_input):
@@ -111,6 +112,7 @@ func _process(delta: float) -> void:
 	if _check_timer > 0.0:
 		return
 	_check_timer = VISIBILITY_CHECK_INTERVAL
+	_record_current_location_explored()
 	_update_visibility()
 
 func _input(event: InputEvent) -> void:
@@ -382,11 +384,15 @@ func _record_current_location_explored() -> void:
 	var current_location := _get_current_location_key()
 	if current_location == "":
 		return
+	if current_location == _last_recorded_location:
+		return
 	var explored := _get_explored_locations()
 	if explored.has(current_location):
+		_last_recorded_location = current_location
 		return
 	explored.append(current_location)
 	SceneManager.set_meta(TERMINAL_EXPLORED_META_KEY, explored)
+	_last_recorded_location = current_location
 
 func _get_explored_locations() -> Array[String]:
 	if SceneManager == null:
