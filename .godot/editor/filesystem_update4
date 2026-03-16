@@ -11,3 +11,4 @@ res://Scenes/Levels/deamon_depths.tscn
 res://scripts/collision_builder.gd
 res://Scenes/Player/tux.tscn
 res://Scenes/Levels/fallback_hamlet.tscn
+res://scripts/combat/timing_minigame.gd
