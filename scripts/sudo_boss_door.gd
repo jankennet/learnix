@@ -8,6 +8,7 @@ extends Area3D
 @export var printer_boss_node_path: NodePath = NodePath("../../NPCS/Printer Boss")
 @export var printer_intro_dialogue_path: String = "res://dialogues/PrinterBossIntro.dialogue"
 @export var printer_intro_played_flag: String = "deamon_depths_printer_intro_played"
+@export var nova_target_marker_path: NodePath = NodePath("Marker3D")
 @export var nova_move_distance_x: float = 4.0
 @export var nova_move_duration: float = 1.1
 
@@ -393,7 +394,12 @@ func _move_nova_into_boss_room() -> void:
 		return
 
 	var start_pos: Vector3 = player.global_position
+	var marker := get_node_or_null(nova_target_marker_path) as Marker3D
 	var target_pos := start_pos + Vector3(nova_move_distance_x, 0, 0)
+	if marker:
+		# Preserve the player's Y so they don't sink into the floor
+		target_pos = Vector3(marker.global_position.x, start_pos.y, marker.global_position.z)
+
 	var tween := create_tween()
 	tween.tween_property(player, "global_position", target_pos, nova_move_duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	await tween.finished

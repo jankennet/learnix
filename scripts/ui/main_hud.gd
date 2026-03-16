@@ -169,13 +169,14 @@ func _is_combat_ui_visible() -> bool:
 	if root == null:
 		return false
 
-	var combat_ui := root.find_child(COMBAT_UI_NODE_NAME, true, false)
-	if combat_ui == null:
-		return false
-
-	if combat_ui is CanvasItem:
-		var canvas_item := combat_ui as CanvasItem
-		return canvas_item.visible and canvas_item.is_visible_in_tree()
+	# Use find_children (array) so a hidden boss-door terminal instance
+	# doesn't shadow the active encounter terminal.
+	var nodes := root.find_children(COMBAT_UI_NODE_NAME, "", true, false)
+	for node in nodes:
+		if node is CanvasItem:
+			var ci := node as CanvasItem
+			if ci.visible and ci.is_visible_in_tree():
+				return true
 
 	return false
 

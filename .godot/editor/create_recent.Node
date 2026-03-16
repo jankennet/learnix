@@ -1,8 +1,8 @@
+Marker3D
 Area3D
 MeshInstance3D
 CollisionShape3D
 CollisionPolygon3D
-Marker3D
 AnimatedSprite3D
 CharacterBody3D
 Camera3D
