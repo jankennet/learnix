@@ -1,4 +1,4 @@
-[gd_scene load_steps=64 format=3 uid="uid://djwelxifkmkf7"]
+[gd_scene load_steps=65 format=3 uid="uid://djwelxifkmkf7"]
 
 [ext_resource type="Script" uid="uid://3tjo4ty6qgpg" path="res://scripts/nova_controls.gd" id="1_a3d8c"]
 [ext_resource type="Texture2D" uid="uid://backns8cap53v" path="res://Assets/characterSpriteSheets/ss_Nova/nova_idle.png" id="2_xpcdj"]
@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://vflcwvvg6oog" path="res://Assets/characterSpriteSheets/ss_Nova/walk_anim_left.png" id="8_06tpx"]
 [ext_resource type="Texture2D" uid="uid://chjcr0bqm755" path="res://Assets/characterSpriteSheets/ss_Nova/walk_anim_up.png" id="9_7g0yx"]
 [ext_resource type="PackedScene" uid="uid://dexka4nfcsts4" path="res://Scenes/Player/tux.tscn" id="9_gk6dx"]
+[ext_resource type="Script" uid="uid://s4pt2krh3jop" path="res://scripts/camera_main.gd" id="9_jhyir"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_gk6dx"]
 size = Vector3(1.08792, 0.935364, 1.08435)
@@ -430,14 +431,10 @@ shape = SubResource("BoxShape3D_gk6dx")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.129261, 0)
 pixel_size = 0.05
 billboard = 2
-texture_filter = 0
 alpha_cut = 1
+texture_filter = 0
 sprite_frames = SubResource("SpriteFrames_jlvik")
 animation = &"nova_idle"
-
-[node name="Camera3D" type="Camera3D" parent="CharacterBody3D"]
-transform = Transform3D(1, 0, 0, 0, 0.802411, 0.596771, 0, -0.596771, 0.802411, 0, 2.47571, 3.60368)
-current = true
 
 [node name="UI" type="CanvasLayer" parent="CharacterBody3D"]
 visible = false
@@ -451,3 +448,8 @@ text = "Press E to Teleport"
 
 [node name="Tux" parent="." instance=ExtResource("9_gk6dx")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.1049933, 0.14652622, 0)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.8024114, 0.5967713, 0, -0.5967713, 0.8024114, 0, 2.47571, 3.60368)
+current = true
+script = ExtResource("9_jhyir")
