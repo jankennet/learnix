@@ -16,7 +16,7 @@ var root_node: Node = null
 var sprite: AnimatedSprite3D = null
 var _last_scene_state: String = ""
 var _gatekeeper_transfer_running: bool = false
-var _uses_scene_state_visuals := false
+var _interaction_enabled: bool = true
 
 func _ready():
 	root_node = self
@@ -54,7 +54,6 @@ func _ready():
 					break
 
 	npc_name = root_node.name if root_node else name
-	_uses_scene_state_visuals = _should_apply_deamon_depths_state_visuals()
 	if root_node:
 		root_node.add_to_group("npcs")
 
@@ -112,8 +111,6 @@ func _ready():
 
 	play_idle_animation()
 	_apply_state_visuals_from_scene_state(true)
-	if not _uses_scene_state_visuals:
-		set_process(false)
 
 	# Ensure there's an Area3D for detecting player proximity for interaction
 	if root_node.has_node("InteractArea"):
@@ -161,20 +158,34 @@ func _ready():
 	_interact_area.monitoring = true
 	_interact_area.body_entered.connect(_on_interact_area_entered)
 	_interact_area.body_exited.connect(_on_interact_area_exited)
+	_set_interaction_enabled(true)
 
 func _process(_delta: float) -> void:
-	if not _uses_scene_state_visuals:
-		return
 	_apply_state_visuals_from_scene_state()
 
-func _should_apply_deamon_depths_state_visuals() -> bool:
+func _is_encounter_npc() -> bool:
+	if encounter_id.strip_edges() != "":
+		return true
+
 	var key = (npc_name if npc_name else "").strip_edges().to_lower().replace(" ", "")
-	return key == "driverremnant" or key == "hardwareghost"
+	return key in [
+		"messydirectory",
+		"lostfile",
+		"brokenlink",
+		"hardwareghost",
+		"driverremnant",
+		"printerboss",
+		"printerbeast",
+	]
+
+func _should_disable_interaction_for_state(state: String) -> bool:
+	if state == "defeated":
+		return true
+	if not _is_encounter_npc():
+		return false
+	return state == "helped" or state == "solved"
 
 func _apply_state_visuals_from_scene_state(force: bool = false) -> void:
-	if not _should_apply_deamon_depths_state_visuals():
-		return
-
 	var state := ""
 	if npc_name in SceneManager.npc_states:
 		state = str(SceneManager.npc_states[npc_name])
@@ -185,21 +196,25 @@ func _apply_state_visuals_from_scene_state(force: bool = false) -> void:
 
 	match state:
 		"defeated":
+			_set_interaction_enabled(false)
 			_hide_self(true)
 		"helped", "solved":
 			_hide_self(false)
+			_set_interaction_enabled(not _should_disable_interaction_for_state(state))
 			if sprite and sprite.sprite_frames and sprite.sprite_frames.has_animation(good_idle_anim):
 				sprite.play(good_idle_anim)
 			else:
 				play_idle_animation()
 		"puzzle_ejected", "hostile", "fled_combat":
 			_hide_self(false)
+			_set_interaction_enabled(true)
 			if sprite and sprite.sprite_frames and sprite.sprite_frames.has_animation(bad_idle_anim):
 				sprite.play(bad_idle_anim)
 			else:
 				play_idle_animation()
 		_:
 			_hide_self(false)
+			_set_interaction_enabled(true)
 			play_idle_animation()
 
 func set_active(active: bool):
@@ -249,13 +264,23 @@ func play_idle_animation():
 
 func on_scene_activated():
 	# Called by scene manager / teleporter when level becomes active
+	_apply_state_visuals_from_scene_state(true)
 	play_idle_animation()
 
 func on_interact() -> void:
+	if not _interaction_enabled:
+		return
+
 	# Block interaction if input is locked (e.g., during combat)
 	var sm = get_node_or_null("/root/SceneManager")
 	if sm and sm.input_locked:
 		return
+
+	if npc_name in SceneManager.npc_states:
+		var state_label := str(SceneManager.npc_states[npc_name])
+		if _should_disable_interaction_for_state(state_label):
+			_set_interaction_enabled(false)
+			return
 
 	if SceneManager and SceneManager.has_method("mark_npc_interacted"):
 		SceneManager.mark_npc_interacted(npc_name)
@@ -475,6 +500,8 @@ func _combat_state_meta_key(npc_label: String) -> String:
 
 
 func _on_interact_area_entered(body: Node) -> void:
+	if not _interaction_enabled:
+		return
 	if body.is_in_group("player"):
 		var im = null
 		if Engine.has_singleton("InteractionManager"):
@@ -561,9 +588,25 @@ func _hide_self(should_hide: bool) -> void:
 			root_node.set_collision_mask_value(1, not should_hide)
 		
 		# Disable interact area
-		if _interact_area:
-			_interact_area.monitoring = not should_hide
-			_interact_area.monitorable = not should_hide
+		if should_hide:
+			_set_interaction_enabled(false)
+		else:
+			_set_interaction_enabled(_interaction_enabled)
+
+func _set_interaction_enabled(enabled: bool) -> void:
+	_interaction_enabled = enabled
+	if _interact_area:
+		_interact_area.monitoring = enabled
+		_interact_area.monitorable = enabled
+
+	if not enabled:
+		var im = null
+		if Engine.has_singleton("InteractionManager"):
+			im = Engine.get_singleton("InteractionManager")
+		else:
+			im = get_tree().root.get_node_or_null("InteractionManager")
+		if im and im.current_interactable == self:
+			im.current_interactable = null
 ## Connect to quest signals for Lost File
 func _connect_quest_signals() -> void:
 	if SceneManager and SceneManager.quest_manager:

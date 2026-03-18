@@ -17,3 +17,4 @@ res://Scenes/combat/combat_terminal_ui.tscn
 res://Scenes/combat/dependency_resolver_minigame.tscn
 res://scripts/combat/combat_tutorial_popup.gd
 res://Scenes/combat/combat_tutorial_popup.tscn
+res://scripts/npc_script.gd
