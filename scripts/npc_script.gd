@@ -179,11 +179,7 @@ func _is_encounter_npc() -> bool:
 	]
 
 func _should_disable_interaction_for_state(state: String) -> bool:
-	if state == "defeated":
-		return true
-	if not _is_encounter_npc():
-		return false
-	return state == "helped" or state == "solved"
+	return state == "defeated"
 
 func _apply_state_visuals_from_scene_state(force: bool = false) -> void:
 	var state := ""
@@ -229,6 +225,7 @@ func play_idle_animation():
 		return
 
 	var anim_to_play = neutral_idle_anim
+	var fallback_candidates: Array[String] = [neutral_idle_anim, idle_animation, bad_idle_anim, good_idle_anim]
 
 	# Check stored state from SceneManager if available
 	if "SceneManager" in ProjectSettings.get_setting("autoload/singletons", {}):
@@ -238,26 +235,30 @@ func play_idle_animation():
 		var state = SceneManager.npc_states[npc_name]
 		if state == "helped":
 			anim_to_play = good_idle_anim
+			fallback_candidates = [good_idle_anim, neutral_idle_anim, idle_animation, bad_idle_anim]
 		elif state == "hostile" or state == "fled_combat" or state == "puzzle_ejected":
 			anim_to_play = bad_idle_anim
+			fallback_candidates = [bad_idle_anim, neutral_idle_anim, idle_animation, good_idle_anim]
 	else:
 		match SceneManager.player_karma:
 			"good":
 				anim_to_play = good_idle_anim
+				fallback_candidates = [good_idle_anim, neutral_idle_anim, idle_animation, bad_idle_anim]
 			"bad":
 				anim_to_play = bad_idle_anim
+				fallback_candidates = [bad_idle_anim, neutral_idle_anim, idle_animation, good_idle_anim]
 
 	# Safety: make sure animation exists before playing
 	if not sprite.sprite_frames.has_animation(anim_to_play):
-		if sprite.sprite_frames.has_animation(good_idle_anim):
-			anim_to_play = good_idle_anim
-		elif sprite.sprite_frames.has_animation(bad_idle_anim):
-			anim_to_play = bad_idle_anim
-		elif sprite.sprite_frames.has_animation(idle_animation):
-			anim_to_play = idle_animation
-		else:
+		var resolved := ""
+		for candidate in fallback_candidates:
+			if candidate != "" and sprite.sprite_frames.has_animation(candidate):
+				resolved = candidate
+				break
+		if resolved == "":
 			push_warning("%s has no matching animation!" % npc_name)
 			return
+		anim_to_play = resolved
 
 	sprite.play(anim_to_play)
 	print("%s is now playing %s" % [npc_name, anim_to_play])
