@@ -5,6 +5,8 @@
 extends Control
 class_name CombatTerminalUI
 
+signal tutorial_popup_closed
+
 #region Node References
 
 @onready var terminal_output: RichTextLabel = $TerminalContainer/TerminalOutput
@@ -27,6 +29,7 @@ class_name CombatTerminalUI
 @onready var enemy_name_label: Label = $StatusPanel/VBox/EnemyStatus/NameLabel
 @onready var turn_indicator: Label = $StatusPanel/VBox/TurnIndicator
 @onready var mode_label: Label = $StatusPanel/VBox/ModeLabel
+@onready var objective_title_label: Label = $StatusPanel/VBox/ObjectiveTitle
 #endregion
 
 #region Runtime State
@@ -43,7 +46,15 @@ const DEPENDENCY_FAIL_LIMIT := 3
 const UI_BASE_RESOLUTION := Vector2(1280.0, 720.0)
 const UI_MIN_SCALE := 1.0
 const UI_MAX_SCALE := 1.7
+const TUTORIAL_META_TERMINAL_INTRO := "combat_terminal_intro_seen_v2"
+const TUTORIAL_META_TIMING_INTRO := "combat_timing_intro_seen_v2"
+const TUTORIAL_META_DEPENDENCY_INTRO := "combat_dependency_intro_seen_v2"
+const TUTORIAL_POPUP_SCENE_PATH := "res://Scenes/combat/combat_tutorial_popup.tscn"
 #endregion
+
+var _dependency_objective_active := false
+var _tutorial_popup_ui: CombatTutorialPopup = null
+var _tutorial_popup_visible := false
 
 func _ready() -> void:
 	if not get_viewport().size_changed.is_connected(_on_viewport_resized):
@@ -63,6 +74,9 @@ func _ready() -> void:
 	# Setup timing minigame
 	_setup_timing_minigame()
 	_setup_dependency_minigame()
+	_ensure_tutorial_popup_ui()
+	if help_label:
+		help_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 func _on_viewport_resized() -> void:
 	_apply_responsive_ui()
@@ -111,6 +125,8 @@ func _apply_responsive_ui() -> void:
 	enemy_name_label.add_theme_font_size_override("font_size", roundi(8.0 * scale_factor))
 	enemy_hp_label.add_theme_font_size_override("font_size", roundi(8.0 * scale_factor))
 	turn_indicator.add_theme_font_size_override("font_size", roundi(8.0 * scale_factor))
+	if objective_title_label:
+		objective_title_label.add_theme_font_size_override("font_size", roundi(8.0 * scale_factor))
 	help_label.add_theme_font_size_override("font_size", roundi(8.0 * scale_factor))
 
 func _setup_timing_minigame() -> void:
@@ -183,6 +199,7 @@ func setup_combat(manager: Node, enemy: Node) -> void:
 func open_combat_ui() -> void:
 	is_open = true
 	_dependency_fail_count = 0
+	_dependency_objective_active = false
 	show()
 	_set_terminal_for_dependency_mode(false)
 	
@@ -235,13 +252,16 @@ func open_combat_ui() -> void:
 	if turn_indicator:
 		turn_indicator.text = "[ AWAITING INPUT ]"
 	_update_side_help_for_mode()
+	await _show_terminal_intro_tutorial_if_needed()
 
 ## Hide the combat UI
 func close_combat_ui() -> void:
 	is_open = false
 	_dependency_fail_count = 0
+	_dependency_objective_active = false
 	hide()
 	_set_terminal_for_dependency_mode(false)
+	_hide_tutorial_popup()
 	_show_queued_reward_popup()
 	
 	# Cancel any active timing minigame
@@ -364,9 +384,9 @@ func _on_command_submitted(text: String) -> void:
 
 				# Node-connect is reserved for the final compile stage.
 				if is_compile_step:
-					_start_puzzle_minigame(timing_difficulty)
+					await _start_puzzle_minigame(timing_difficulty)
 				else:
-					_start_puzzle_timing_minigame(timing_difficulty)
+					await _start_puzzle_timing_minigame(timing_difficulty)
 				return
 			
 			# Update mode label if mode changed
@@ -716,6 +736,125 @@ func _close_active_dialogue() -> void:
 		elif dm.has_method("stop"):
 			dm.stop()
 
+func _show_terminal_intro_tutorial_if_needed() -> void:
+	if _is_tutorial_seen(TUTORIAL_META_TERMINAL_INTRO):
+		return
+
+	await _show_tutorial_popup(
+		"Combat Terminal Overview",
+		"This terminal is your command console during encounters.\nType commands in the input row, then press [ENTER] to run them.\nOutput appears in the large console area above.",
+		"Tip: watch the right-side objective panel for the next command goals.",
+		"terminal"
+	)
+	_mark_tutorial_seen(TUTORIAL_META_TERMINAL_INTRO)
+
+func _show_timing_intro_tutorial_if_needed() -> void:
+	if _is_tutorial_seen(TUTORIAL_META_TIMING_INTRO):
+		return
+
+	await _show_tutorial_popup(
+		"Timing Challenge",
+		"Press SPACE while the marker moves across the bar.\nGreen = hit but can still fail.\nRed = complete miss.\nYellow = critical success.",
+		"Better timing gives stronger command results.",
+		"timing"
+	)
+	_mark_tutorial_seen(TUTORIAL_META_TIMING_INTRO)
+
+func _show_dependency_intro_tutorial_if_needed() -> void:
+	if _is_tutorial_seen(TUTORIAL_META_DEPENDENCY_INTRO):
+		return
+
+	await _show_tutorial_popup(
+		"Connecting Nodes Puzzle",
+		"Place nodes and connect links until you build a clean path from Kernel to App.\nGreen links are stable, red links are broken/conflicting.\nWin by producing one valid green route.",
+		"Build carefully: every bad reset risks terminal integrity.",
+		"nodes"
+	)
+	_mark_tutorial_seen(TUTORIAL_META_DEPENDENCY_INTRO)
+
+func _is_tutorial_seen(meta_key: String) -> bool:
+	var host := _get_tutorial_meta_host()
+	if host == null:
+		return false
+	if not host.has_meta(meta_key):
+		return false
+	return bool(host.get_meta(meta_key))
+
+func _mark_tutorial_seen(meta_key: String) -> void:
+	var host := _get_tutorial_meta_host()
+	if host == null:
+		return
+	host.set_meta(meta_key, true)
+
+func _get_tutorial_meta_host() -> Node:
+	if SceneManager:
+		return SceneManager
+	return get_tree().root
+
+func _ensure_tutorial_popup_ui() -> void:
+	if _tutorial_popup_ui != null and is_instance_valid(_tutorial_popup_ui):
+		return
+
+	var popup_scene := load(TUTORIAL_POPUP_SCENE_PATH) as PackedScene
+	if popup_scene == null:
+		push_warning("Tutorial popup scene not found: " + TUTORIAL_POPUP_SCENE_PATH)
+		return
+
+	var popup_instance := popup_scene.instantiate()
+	if not (popup_instance is CombatTutorialPopup):
+		push_warning("Tutorial popup scene root must be CombatTutorialPopup.")
+		if popup_instance:
+			popup_instance.queue_free()
+		return
+
+	_tutorial_popup_ui = popup_instance as CombatTutorialPopup
+	_tutorial_popup_ui.name = "CombatTutorialPopup"
+	_tutorial_popup_ui.z_index = 200
+	add_child(_tutorial_popup_ui)
+
+func _show_tutorial_popup(title: String, body: String, footer: String, visual_kind: String) -> void:
+	_ensure_tutorial_popup_ui()
+	if _tutorial_popup_ui == null:
+		return
+
+	_tutorial_popup_visible = true
+	_tutorial_popup_ui.show_popup(title, body, footer, visual_kind)
+	await _tutorial_popup_ui.closed
+	_tutorial_popup_visible = false
+	tutorial_popup_closed.emit()
+
+func _hide_tutorial_popup() -> void:
+	_tutorial_popup_visible = false
+	if _tutorial_popup_ui != null and is_instance_valid(_tutorial_popup_ui):
+		_tutorial_popup_ui.hide_popup()
+
+func _make_visual_chip(text: String, color: Color, chip_size: Vector2 = Vector2(170, 54)) -> PanelContainer:
+	var chip := PanelContainer.new()
+	chip.custom_minimum_size = chip_size
+	var style := StyleBoxFlat.new()
+	style.bg_color = color
+	style.corner_radius_top_left = 6
+	style.corner_radius_top_right = 6
+	style.corner_radius_bottom_left = 6
+	style.corner_radius_bottom_right = 6
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.border_color = Color(0.95, 0.98, 0.95, 0.65)
+	chip.add_theme_stylebox_override("panel", style)
+
+	var label := Label.new()
+	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.add_theme_color_override("font_color", Color(0.96, 0.98, 0.96, 1.0))
+	label.add_theme_font_size_override("font_size", 13)
+	chip.add_child(label)
+
+	return chip
+
 #endregion
 #region Timing Minigame
 
@@ -726,6 +865,8 @@ func _on_timing_minigame_requested(command: CommandParser.CommandResult, difficu
 		if combat_manager and combat_manager.has_method("apply_timing_result"):
 			combat_manager.apply_timing_result(1, 1.0, false)
 		return
+
+	await _show_timing_intro_tutorial_if_needed()
 	
 	# Print message in terminal
 	_print_terminal("\n[color=#f2e066]⚔️ TIMING CHALLENGE! Press SPACE at the right moment![/color]\n")
@@ -750,6 +891,8 @@ func _start_puzzle_timing_minigame(difficulty: float) -> void:
 	if not timing_minigame:
 		_apply_puzzle_timing_result(1, 0.7)
 		return
+
+	await _show_timing_intro_tutorial_if_needed()
 
 	_print_terminal("\n[color=#f2e066]⏱️ PUZZLE TIMING WINDOW[/color]\n")
 	_print_terminal("[color=#aaaaaa]Tux: lock this step before the final compile.[/color]\n")
@@ -788,8 +931,11 @@ func _start_puzzle_minigame(_difficulty: float) -> void:
 	# Mark pending puzzle resolution and open minigame
 	_current_timing_context = "puzzle"
 	_puzzle_minigame_pending = true
+	_dependency_objective_active = true
+	_update_side_help_for_mode()
 	_set_terminal_for_dependency_mode(true)
 	dependency_minigame.open_minigame()
+	await _show_dependency_intro_tutorial_if_needed()
 
 func _update_side_help_for_mode() -> void:
 	if not help_label:
@@ -799,47 +945,106 @@ func _update_side_help_for_mode() -> void:
 	if enemy_controller and "current_mode" in enemy_controller:
 		current_mode = int(enemy_controller.current_mode)
 
-	if current_mode == 2:
-		help_label.text = _build_tux_puzzle_hint()
-	else:
-		help_label.text = "Type 'help' for\navailable commands"
+	var objective_title := "TERMINAL OBJECTIVE"
+	var lines: Array[String] = []
 
-func _build_tux_puzzle_hint() -> String:
+	match current_mode:
+		0:
+			objective_title = "DIALOGUE OBJECTIVE"
+			lines = [
+				"continue: read NPC context",
+				"attack: start combat route",
+				"help or puzzle: start repair route",
+			]
+		1:
+			objective_title = "COMBAT OBJECTIVE"
+			lines = [
+				"Reduce target integrity to 0",
+				"Use: attack, defend, scan, heal",
+				"Optional: escape to flee",
+			]
+		2:
+			objective_title = "PUZZLE OBJECTIVE"
+			lines = _build_puzzle_objective_lines()
+		_:
+			objective_title = "OBJECTIVE"
+			lines = ["Encounter resolved."]
+
+	if objective_title_label:
+		objective_title_label.text = objective_title
+
+	help_label.text = _join_lines(lines)
+
+func _build_puzzle_objective_lines() -> Array[String]:
+	if _dependency_objective_active:
+		return [
+			"Build a full green path:",
+			"Kernel -> ... -> App",
+			"Avoid red links and red nodes",
+			"Close with [EXIT] only if resetting",
+		]
+
 	if not enemy_controller or not ("puzzle_data" in enemy_controller):
-		return "Tux: use 'help'\nfor command hints"
+		return ["Type help for puzzle command list"]
 
 	var puzzle_data = enemy_controller.puzzle_data
-	if puzzle_data == null:
-		return "Tux: use 'help'\nfor command hints"
+	if puzzle_data == null or not ("custom_data" in puzzle_data):
+		return ["Type help for puzzle command list"]
 
-	if "custom_data" in puzzle_data:
-		var custom: Dictionary = puzzle_data.custom_data
-		if custom.has("expected_sequence"):
-			var expected_sequence: Array = custom.get("expected_sequence", [])
-			var current_index := int(custom.get("current_index", 0))
-			if current_index >= 0 and current_index < expected_sequence.size():
-				return "Tux: next command:\n%s" % str(expected_sequence[current_index])
+	var custom: Dictionary = puzzle_data.custom_data
+	if custom.has("expected_sequence"):
+		var expected_sequence: Array = custom.get("expected_sequence", [])
+		var current_index := int(custom.get("current_index", 0))
+		var seq_lines: Array[String] = []
+		var start_index := maxi(0, current_index - 1)
+		var end_index := mini(expected_sequence.size(), current_index + 3)
+		for i in range(start_index, end_index):
+			var command_text := str(expected_sequence[i])
+			var prefix := "[ ] "
+			if i < current_index:
+				prefix = "[x] "
+			elif i == current_index:
+				prefix = "> "
+			seq_lines.append(prefix + command_text)
+		if seq_lines.is_empty() and expected_sequence.size() > 0:
+			seq_lines.append("[x] sequence complete")
+		return seq_lines
 
-		if custom.has("required_fragments"):
-			var found: Array = custom.get("fragments_found", [])
-			var restored: Array = custom.get("fragments_restored", [])
-			var decrypted: Array = custom.get("fragments_decrypted", [])
-			var required: Array = custom.get("required_fragments", [])
+	if custom.has("required_fragments"):
+		var found: Array = custom.get("fragments_found", [])
+		var restored: Array = custom.get("fragments_restored", [])
+		var decrypted: Array = custom.get("fragments_decrypted", [])
+		var required: Array = custom.get("required_fragments", [])
+		var fragment_lines: Array[String] = []
+		for fragment in required:
+			var fragment_name := str(fragment)
+			var marker := "[ ]"
+			if fragment in restored:
+				marker = "[x]"
+			elif fragment == ".fragment_003" and fragment in decrypted:
+				marker = "[~]"
+			fragment_lines.append("%s restore %s" % [marker, fragment_name])
 
-			if found.size() < required.size():
-				return "Tux: run:\nfind .fragment"
-			if ".fragment_003" in found and ".fragment_003" not in decrypted:
-				return "Tux: run:\ndecrypt .fragment_003"
-			if restored.size() < required.size():
-				for fragment in required:
-					if fragment not in restored:
-						return "Tux: run:\nrestore %s" % str(fragment)
-			if not bool(custom.get("file_assembled", false)):
-				return "Tux: run:\ncat fragments"
-			if not bool(custom.get("file_compiled", false)):
-				return "Tux: final step:\nmake recovered_file"
+		if found.size() < required.size():
+			fragment_lines.append("next: find .fragment")
+		elif ".fragment_003" in found and ".fragment_003" not in decrypted:
+			fragment_lines.append("next: decrypt .fragment_003")
+		elif not bool(custom.get("file_assembled", false)):
+			fragment_lines.append("next: cat fragments")
+		elif not bool(custom.get("file_compiled", false)):
+			fragment_lines.append("next: compile recovered_file")
 
-	return "Tux: use 'help'\nfor command hints"
+		return fragment_lines
+
+	return ["Type help for puzzle command list"]
+
+func _join_lines(lines: Array[String]) -> String:
+	var output := ""
+	for i in range(lines.size()):
+		if i > 0:
+			output += "\n"
+		output += lines[i]
+	return output
 
 func _get_dependency_profile() -> String:
 	if not enemy_controller:
@@ -908,6 +1113,7 @@ func _apply_puzzle_timing_result(zone: int, success_chance: float) -> void:
 				await get_tree().create_timer(2.0).timeout
 				_force_close_and_cleanup()
 		_update_hp_displays()
+		_update_side_help_for_mode()
 
 ## Called when timing minigame is cancelled
 func _on_timing_cancelled() -> void:
@@ -929,6 +1135,8 @@ func _on_dependency_resolver_completed(success: bool) -> void:
 		return
 
 	_puzzle_minigame_pending = false
+	_dependency_objective_active = false
+	_update_side_help_for_mode()
 	_set_terminal_for_dependency_mode(false)
 
 	if success:
@@ -939,6 +1147,8 @@ func _on_dependency_resolver_completed(success: bool) -> void:
 		_handle_dependency_minigame_failure("Puzzle failed.")
 
 func _on_dependency_resolver_closed() -> void:
+	_dependency_objective_active = false
+	_update_side_help_for_mode()
 	_set_terminal_for_dependency_mode(false)
 
 	# If the puzzle was pending and player closed the minigame, treat as failed attempt.
@@ -964,6 +1174,7 @@ func _handle_dependency_minigame_failure(reason_text: String) -> void:
 		DEPENDENCY_FAIL_LIMIT
 	])
 	_update_hp_displays()
+	_update_side_help_for_mode()
 
 	if _is_player_defeated():
 		_print_terminal("[color=#f26666]System integrity compromised.[/color]\n")
