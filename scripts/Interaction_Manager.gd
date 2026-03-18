@@ -9,6 +9,8 @@ var current_interactable: Node = null
 
 var _target_fov: float = 75.0
 var _current_camera: Camera3D = null
+var _dialogue_active: bool = false
+var _camera_default_fov_by_id: Dictionary = {}
 
 func _ready() -> void:
 	# Connect to DialogueManager signals for zoom effect
@@ -38,11 +40,35 @@ func _get_current_camera() -> Camera3D:
 func _on_dialogue_started(_resource) -> void:
 	_current_camera = _get_current_camera()
 	if _current_camera:
-		default_fov = _current_camera.fov  # Store current FOV as default
+		var camera_id := _current_camera.get_instance_id()
+		if not _camera_default_fov_by_id.has(camera_id):
+			_camera_default_fov_by_id[camera_id] = _current_camera.fov
+		default_fov = float(_camera_default_fov_by_id[camera_id])
+		_dialogue_active = true
 		_target_fov = dialogue_fov
 
 func _on_dialogue_ended(_resource) -> void:
+	_dialogue_active = false
+	if _current_camera and is_instance_valid(_current_camera):
+		var camera_id := _current_camera.get_instance_id()
+		if _camera_default_fov_by_id.has(camera_id):
+			_target_fov = float(_camera_default_fov_by_id[camera_id])
+			default_fov = _target_fov
+			return
 	_target_fov = default_fov
+
+func set_camera_fov_baseline(new_fov: float) -> void:
+	var cam := _get_current_camera()
+	if cam == null:
+		default_fov = new_fov
+		_target_fov = new_fov
+		return
+
+	var camera_id := cam.get_instance_id()
+	_camera_default_fov_by_id[camera_id] = new_fov
+	default_fov = new_fov
+	if not _dialogue_active:
+		_target_fov = new_fov
 
 func _process(delta: float) -> void:
 	# Smoothly interpolate FOV for zoom effect

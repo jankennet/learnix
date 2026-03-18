@@ -1,0 +1,79 @@
+~ wake_up
+Tux: Psst... Nova... wake up.
+Tux: You slept through the entire Systems class again.
+Tux: I had to drag your session out before the compiler ate your homework.
+Tux: Name is Tux. I am your guide, debugger, and occasional voice of reason.
+Tux: First check: can you move with WASD?
+=> END
+
+~ movement_success
+Tux: Nice. Movement online.
+Tux: Good, because standing still in this world is how bugs win.
+Tux: Next, walk up to the glowing marker and press E to interact.
+=> END
+
+~ interact_prompt
+Tux: Interaction is your handshake with the world.
+Tux: Get close to the marker, then press E.
+=> END
+
+~ interact_success
+Tux: Perfect. Input pipeline confirmed.
+=> END
+
+~ hud_unlock
+Tux: Time to unlock your HUD.
+Tux: Top-right panel has three anchors:
+Tux: FILE for inventory and documents.
+Tux: TERM for your terminal.
+Tux: TUX for quick tutorial tips and mission beats.
+Tux: We survive Linuxia by reading the system, not guessing.
+=> END
+
+~ terminal_objective
+Tux: Terminal check. Open TERM and run these commands:
+Tux: 1) pwd
+Tux: 2) ls
+Tux: 3) cd <location>  (example: cd hamlet)
+Tux: I will wait here until all three are done.
+=> END
+
+~ terminal_complete
+Tux: Clean execution.
+Tux: You now have the basics: orientation, listing, and movement between locations.
+=> END
+
+~ linuxia_ready
+Tux: Final question, Nova. Ready to enter Linuxia?
+- What is Linuxia?
+	=> linuxia_explain
+- I am ready. Let's go.
+	=> linuxia_yes
+- Not yet, give me one more minute.
+	=> linuxia_no
+
+~ linuxia_explain
+Tux: Linuxia is the live system beyond this safe zone.
+Tux: Every command has consequences there.
+Tux: Read output, think before acting, and you will be fine.
+- Okay. I am ready.
+	=> linuxia_yes
+- I still need a moment.
+	=> linuxia_no
+
+~ linuxia_yes
+Tux: Good. Confidence plus caution. That is how admins are made.
+=> END
+
+~ linuxia_no
+Tux: Fair. A careful operator beats a reckless hero.
+Tux: Ping me from the TUX panel when you are ready.
+=> END
+
+~ linuxia_arrival_intro
+Tux: Welcome to Linuxia proper, Nova. I am with you from here on.
+Tux: Think of me as your guide while you map this system and its people.
+Tux: Before charging into deeper zones, talk to the NPCs in this hamlet first.
+Tux: They will teach you the tools, risks, and routes you need to survive.
+Tux: Ask questions, read carefully, and we will move as a team.
+=> END

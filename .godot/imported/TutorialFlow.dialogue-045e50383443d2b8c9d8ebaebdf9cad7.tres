@@ -1,0 +1,622 @@
+[gd_resource type="Resource" script_class="DialogueResource" load_steps=2 format=3]
+
+[ext_resource type="Script" uid="uid://dbs4435dsf3ry" path="res://addons/dialogue_manager/dialogue_resource.gd" id="1_uyqan"]
+
+[resource]
+script = ExtResource("1_uyqan")
+using_states = PackedStringArray()
+titles = {
+"hud_unlock": "24",
+"interact_prompt": "15",
+"interact_success": "20",
+"linuxia_arrival_intro": "73",
+"linuxia_explain": "55",
+"linuxia_no": "68",
+"linuxia_ready": "46",
+"linuxia_yes": "64",
+"movement_success": "9",
+"terminal_complete": "41",
+"terminal_objective": "33",
+"wake_up": "1"
+}
+character_names = PackedStringArray("Tux")
+first_title = "0"
+lines = {
+"0": {
+&"id": "0",
+&"next_id": "1",
+&"type": "title"
+},
+"1": {
+&"character": "Tux",
+&"id": "1",
+&"next_id": "2",
+&"text": "Psst... Nova... wake up.",
+&"type": "dialogue"
+},
+"10": {
+&"character": "Tux",
+&"id": "10",
+&"next_id": "11",
+&"text": "Good, because standing still in this world is how bugs win.",
+&"type": "dialogue"
+},
+"11": {
+&"character": "Tux",
+&"id": "11",
+&"next_id": "12",
+&"text": "Next, walk up to the glowing marker and press E to interact.",
+&"type": "dialogue"
+},
+"12": {
+&"id": "12",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"13": {
+&"id": "13",
+&"next_id": "14",
+&"type": ""
+},
+"14": {
+&"id": "14",
+&"next_id": "15",
+&"type": "title"
+},
+"15": {
+&"character": "Tux",
+&"id": "15",
+&"next_id": "16",
+&"text": "Interaction is your handshake with the world.",
+&"type": "dialogue"
+},
+"16": {
+&"character": "Tux",
+&"id": "16",
+&"next_id": "17",
+&"text": "Get close to the marker, then press E.",
+&"type": "dialogue"
+},
+"17": {
+&"id": "17",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"18": {
+&"id": "18",
+&"next_id": "19",
+&"type": ""
+},
+"19": {
+&"id": "19",
+&"next_id": "20",
+&"type": "title"
+},
+"2": {
+&"character": "Tux",
+&"id": "2",
+&"next_id": "3",
+&"text": "You slept through the entire Systems class again.",
+&"type": "dialogue"
+},
+"20": {
+&"character": "Tux",
+&"id": "20",
+&"next_id": "21",
+&"text": "Perfect. Input pipeline confirmed.",
+&"type": "dialogue"
+},
+"21": {
+&"id": "21",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"22": {
+&"id": "22",
+&"next_id": "23",
+&"type": ""
+},
+"23": {
+&"id": "23",
+&"next_id": "24",
+&"type": "title"
+},
+"24": {
+&"character": "Tux",
+&"id": "24",
+&"next_id": "25",
+&"text": "Time to unlock your HUD.",
+&"type": "dialogue"
+},
+"25": {
+&"character": "Tux",
+&"id": "25",
+&"next_id": "26",
+&"text": "Top-right panel has three anchors:",
+&"type": "dialogue"
+},
+"26": {
+&"character": "Tux",
+&"id": "26",
+&"next_id": "27",
+&"text": "FILE for inventory and documents.",
+&"type": "dialogue"
+},
+"27": {
+&"character": "Tux",
+&"id": "27",
+&"next_id": "28",
+&"text": "TERM for your terminal.",
+&"type": "dialogue"
+},
+"28": {
+&"character": "Tux",
+&"id": "28",
+&"next_id": "29",
+&"text": "TUX for quick tutorial tips and mission beats.",
+&"type": "dialogue"
+},
+"29": {
+&"character": "Tux",
+&"id": "29",
+&"next_id": "30",
+&"text": "We survive Linuxia by reading the system, not guessing.",
+&"type": "dialogue"
+},
+"3": {
+&"character": "Tux",
+&"id": "3",
+&"next_id": "4",
+&"text": "I had to drag your session out before the compiler ate your homework.",
+&"type": "dialogue"
+},
+"30": {
+&"id": "30",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"31": {
+&"id": "31",
+&"next_id": "32",
+&"type": ""
+},
+"32": {
+&"id": "32",
+&"next_id": "33",
+&"type": "title"
+},
+"33": {
+&"character": "Tux",
+&"id": "33",
+&"next_id": "34",
+&"text": "Terminal check. Open TERM and run these commands:",
+&"type": "dialogue"
+},
+"34": {
+&"character": "Tux",
+&"id": "34",
+&"next_id": "35",
+&"text": "1) pwd",
+&"type": "dialogue"
+},
+"35": {
+&"character": "Tux",
+&"id": "35",
+&"next_id": "36",
+&"text": "2) ls",
+&"type": "dialogue"
+},
+"36": {
+&"character": "Tux",
+&"id": "36",
+&"next_id": "37",
+&"text": "3) cd <location>  (example: cd hamlet)",
+&"type": "dialogue"
+},
+"37": {
+&"character": "Tux",
+&"id": "37",
+&"next_id": "38",
+&"text": "I will wait here until all three are done.",
+&"type": "dialogue"
+},
+"38": {
+&"id": "38",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"39": {
+&"id": "39",
+&"next_id": "40",
+&"type": ""
+},
+"4": {
+&"character": "Tux",
+&"id": "4",
+&"next_id": "5",
+&"text": "Name is Tux. I am your guide, debugger, and occasional voice of reason.",
+&"type": "dialogue"
+},
+"40": {
+&"id": "40",
+&"next_id": "41",
+&"type": "title"
+},
+"41": {
+&"character": "Tux",
+&"id": "41",
+&"next_id": "42",
+&"text": "Clean execution.",
+&"type": "dialogue"
+},
+"42": {
+&"character": "Tux",
+&"id": "42",
+&"next_id": "43",
+&"text": "You now have the basics: orientation, listing, and movement between locations.",
+&"type": "dialogue"
+},
+"43": {
+&"id": "43",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"44": {
+&"id": "44",
+&"next_id": "45",
+&"type": ""
+},
+"45": {
+&"id": "45",
+&"next_id": "46",
+&"type": "title"
+},
+"46": {
+&"character": "Tux",
+&"id": "46",
+&"next_id": "47",
+&"text": "Final question, Nova. Ready to enter Linuxia?",
+&"type": "dialogue"
+},
+"47": {
+&"id": "47",
+&"next_id": "48",
+&"responses": PackedStringArray("47", "49", "51"),
+&"text": "What is Linuxia?",
+&"type": "response"
+},
+"48": {
+&"id": "48",
+&"is_snippet": false,
+&"next_id": "55",
+&"next_id_after": "",
+&"type": "goto"
+},
+"49": {
+&"id": "49",
+&"next_id": "50",
+&"text": "I am ready. Let's go.",
+&"type": "response"
+},
+"5": {
+&"character": "Tux",
+&"id": "5",
+&"next_id": "6",
+&"text": "First check: can you move with WASD?",
+&"type": "dialogue"
+},
+"50": {
+&"id": "50",
+&"is_snippet": false,
+&"next_id": "64",
+&"next_id_after": "",
+&"type": "goto"
+},
+"51": {
+&"id": "51",
+&"next_id": "52",
+&"text": "Not yet, give me one more minute.",
+&"type": "response"
+},
+"52": {
+&"id": "52",
+&"is_snippet": false,
+&"next_id": "68",
+&"next_id_after": "",
+&"type": "goto"
+},
+"53": {
+&"id": "53",
+&"next_id": "54",
+&"type": ""
+},
+"54": {
+&"id": "54",
+&"next_id": "55",
+&"type": "title"
+},
+"55": {
+&"character": "Tux",
+&"id": "55",
+&"next_id": "56",
+&"text": "Linuxia is the live system beyond this safe zone.",
+&"type": "dialogue"
+},
+"56": {
+&"character": "Tux",
+&"id": "56",
+&"next_id": "57",
+&"text": "Every command has consequences there.",
+&"type": "dialogue"
+},
+"57": {
+&"character": "Tux",
+&"id": "57",
+&"next_id": "58",
+&"text": "Read output, think before acting, and you will be fine.",
+&"type": "dialogue"
+},
+"58": {
+&"id": "58",
+&"next_id": "59",
+&"responses": PackedStringArray("58", "60"),
+&"text": "Okay. I am ready.",
+&"type": "response"
+},
+"59": {
+&"id": "59",
+&"is_snippet": false,
+&"next_id": "64",
+&"next_id_after": "",
+&"type": "goto"
+},
+"6": {
+&"id": "6",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"60": {
+&"id": "60",
+&"next_id": "61",
+&"text": "I still need a moment.",
+&"type": "response"
+},
+"61": {
+&"id": "61",
+&"is_snippet": false,
+&"next_id": "68",
+&"next_id_after": "",
+&"type": "goto"
+},
+"62": {
+&"id": "62",
+&"next_id": "63",
+&"type": ""
+},
+"63": {
+&"id": "63",
+&"next_id": "64",
+&"type": "title"
+},
+"64": {
+&"character": "Tux",
+&"id": "64",
+&"next_id": "65",
+&"text": "Good. Confidence plus caution. That is how admins are made.",
+&"type": "dialogue"
+},
+"65": {
+&"id": "65",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"66": {
+&"id": "66",
+&"next_id": "67",
+&"type": ""
+},
+"67": {
+&"id": "67",
+&"next_id": "68",
+&"type": "title"
+},
+"68": {
+&"character": "Tux",
+&"id": "68",
+&"next_id": "69",
+&"text": "Fair. A careful operator beats a reckless hero.",
+&"type": "dialogue"
+},
+"69": {
+&"character": "Tux",
+&"id": "69",
+&"next_id": "70",
+&"text": "Ping me from the TUX panel when you are ready.",
+&"type": "dialogue"
+},
+"7": {
+&"id": "7",
+&"next_id": "8",
+&"type": ""
+},
+"70": {
+&"id": "70",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"71": {
+&"id": "71",
+&"next_id": "72",
+&"type": ""
+},
+"72": {
+&"id": "72",
+&"next_id": "73",
+&"type": "title"
+},
+"73": {
+&"character": "Tux",
+&"id": "73",
+&"next_id": "74",
+&"text": "Welcome to Linuxia proper, Nova. I am with you from here on.",
+&"type": "dialogue"
+},
+"74": {
+&"character": "Tux",
+&"id": "74",
+&"next_id": "75",
+&"text": "Think of me as your guide while you map this system and its people.",
+&"type": "dialogue"
+},
+"75": {
+&"character": "Tux",
+&"id": "75",
+&"next_id": "76",
+&"text": "Before charging into deeper zones, talk to the NPCs in this hamlet first.",
+&"type": "dialogue"
+},
+"76": {
+&"character": "Tux",
+&"id": "76",
+&"next_id": "77",
+&"text": "They will teach you the tools, risks, and routes you need to survive.",
+&"type": "dialogue"
+},
+"77": {
+&"character": "Tux",
+&"id": "77",
+&"next_id": "78",
+&"text": "Ask questions, read carefully, and we will move as a team.",
+&"type": "dialogue"
+},
+"78": {
+&"id": "78",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"79": {
+&"id": "79",
+&"next_id": "80",
+&"type": ""
+},
+"8": {
+&"id": "8",
+&"next_id": "9",
+&"type": "title"
+},
+"80": {
+&"id": "80",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"9": {
+&"character": "Tux",
+&"id": "9",
+&"next_id": "10",
+&"text": "Nice. Movement online.",
+&"type": "dialogue"
+}
+}
+raw_text = "~ wake_up
+Tux: Psst... Nova... wake up.
+Tux: You slept through the entire Systems class again.
+Tux: I had to drag your session out before the compiler ate your homework.
+Tux: Name is Tux. I am your guide, debugger, and occasional voice of reason.
+Tux: First check: can you move with WASD?
+=> END
+
+~ movement_success
+Tux: Nice. Movement online.
+Tux: Good, because standing still in this world is how bugs win.
+Tux: Next, walk up to the glowing marker and press E to interact.
+=> END
+
+~ interact_prompt
+Tux: Interaction is your handshake with the world.
+Tux: Get close to the marker, then press E.
+=> END
+
+~ interact_success
+Tux: Perfect. Input pipeline confirmed.
+=> END
+
+~ hud_unlock
+Tux: Time to unlock your HUD.
+Tux: Top-right panel has three anchors:
+Tux: FILE for inventory and documents.
+Tux: TERM for your terminal.
+Tux: TUX for quick tutorial tips and mission beats.
+Tux: We survive Linuxia by reading the system, not guessing.
+=> END
+
+~ terminal_objective
+Tux: Terminal check. Open TERM and run these commands:
+Tux: 1) pwd
+Tux: 2) ls
+Tux: 3) cd <location>  (example: cd hamlet)
+Tux: I will wait here until all three are done.
+=> END
+
+~ terminal_complete
+Tux: Clean execution.
+Tux: You now have the basics: orientation, listing, and movement between locations.
+=> END
+
+~ linuxia_ready
+Tux: Final question, Nova. Ready to enter Linuxia?
+- What is Linuxia?
+	=> linuxia_explain
+- I am ready. Let's go.
+	=> linuxia_yes
+- Not yet, give me one more minute.
+	=> linuxia_no
+
+~ linuxia_explain
+Tux: Linuxia is the live system beyond this safe zone.
+Tux: Every command has consequences there.
+Tux: Read output, think before acting, and you will be fine.
+- Okay. I am ready.
+	=> linuxia_yes
+- I still need a moment.
+	=> linuxia_no
+
+~ linuxia_yes
+Tux: Good. Confidence plus caution. That is how admins are made.
+=> END
+
+~ linuxia_no
+Tux: Fair. A careful operator beats a reckless hero.
+Tux: Ping me from the TUX panel when you are ready.
+=> END
+
+~ linuxia_arrival_intro
+Tux: Welcome to Linuxia proper, Nova. I am with you from here on.
+Tux: Think of me as your guide while you map this system and its people.
+Tux: Before charging into deeper zones, talk to the NPCs in this hamlet first.
+Tux: They will teach you the tools, risks, and routes you need to survive.
+Tux: Ask questions, read carefully, and we will move as a team.
+=> END
+"
+metadata/dialogue_manager_version = "3.9.0"

@@ -1,12 +1,15 @@
 extends Control
 
+signal terminal_command_executed(command: String, args: Array)
+
 const COMBAT_UI_NODE_NAME := "CombatTerminalUI"
 const QUEST_LIST_NODE_NAME := "QuestList"
 const VISIBILITY_CHECK_INTERVAL := 0.15
 const TERMINAL_ROOT_PATH := "/home/nova"
+const TUTORIAL_LOCATION := "tutorial_boot"
 const DEFAULT_HUB_LOCATION := "fallback_hamlet"
 const TERMINAL_EXPLORED_META_KEY := "terminal_explored_locations"
-const HUB_DEFAULT_SPAWN := "Fallback_Hamlet_Final/Spawn_FTFM"
+const HUB_DEFAULT_SPAWN := "Fallback_Hamlet_Final/first_spawn"
 const HUB_FOREST_RETURN_SPAWN := "Fallback_Hamlet_Final/Spawn_FTFM"
 const HUB_DEPTHS_RETURN_SPAWN := "Fallback_Hamlet_Final/Spawn_DDTFM"
 const HUB_BIOS_RETURN_SPAWN := "Fallback_Hamlet_Final/Spawn_BVTFM"
@@ -31,6 +34,9 @@ const TERMINAL_TELEPORT_TARGETS := {
 }
 
 const TERMINAL_LOCATION_ALIASES := {
+	"tutorial": TUTORIAL_LOCATION,
+	"tutorial_boot": TUTORIAL_LOCATION,
+	"linuxia_intro": TUTORIAL_LOCATION,
 	"hamlet": "fallback_hamlet",
 	"home": "fallback_hamlet",
 	"fallback_hamlet": "fallback_hamlet",
@@ -44,6 +50,7 @@ const TERMINAL_LOCATION_ALIASES := {
 
 const TERMINAL_DIRECTORIES := {
 	"": ["fallback_hamlet", "filesystem_forest", "deamon_depths", "bios_vault"],
+	TUTORIAL_LOCATION: ["onboarding_notes.txt", "controls.cheatsheet", "welcome_terminal.log"],
 	"desktop": ["welcome.txt", "npc_notes.log", "quests.todo"],
 	"filesystem_forest": ["symlink_map.md", "lost_file.fragment", "roots/"],
 	"deamon_depths": ["driver_remnant.log", "printer_queue.dat", "bossdoor.keyhint"],
@@ -205,7 +212,7 @@ func _open_terminal() -> void:
 	_record_current_location_explored()
 	_current_terminal_path = _get_current_location_key()
 	if _current_terminal_path == "":
-		_current_terminal_path = DEFAULT_HUB_LOCATION
+		_current_terminal_path = _terminal_home_location()
 	_acquire_terminal_input_lock()
 	_terminal_is_open = true
 	terminal_panel.visible = true
@@ -246,11 +253,15 @@ func _process_terminal_command(raw_command: String) -> void:
 	var parts := text.split(" ", false)
 	var command := parts[0].to_lower()
 	var args := parts.slice(1)
+	emit_signal("terminal_command_executed", command, args)
 
 	match command:
 		"help", "?":
 			_print_terminal_line("Commands: help, map, pwd, ls, cd <location>, cd .., explorer, save, quit, clear, sudo shutdown")
-			_print_terminal_line("Locations: hamlet, filesystem_forest, deamon_depths, bios_vault")
+			if _is_tutorial_scene_active():
+				_print_terminal_line("Locations: tutorial")
+			else:
+				_print_terminal_line("Locations: hamlet, filesystem_forest, deamon_depths, bios_vault")
 		"map":
 			_print_location_map()
 		"pwd":
@@ -288,6 +299,9 @@ func _terminal_pwd() -> String:
 	return "%s/%s" % [TERMINAL_ROOT_PATH, _current_terminal_path]
 
 func _handle_ls_command() -> void:
+	if _is_tutorial_scene_active() and _current_terminal_path == "":
+		_print_terminal_line(TUTORIAL_LOCATION)
+		return
 	var entries: Array = TERMINAL_DIRECTORIES.get(_current_terminal_path, [])
 	if entries.is_empty():
 		_print_terminal_line("(empty)")
@@ -297,7 +311,7 @@ func _handle_ls_command() -> void:
 
 func _handle_cd_command(args: Array) -> void:
 	if args.is_empty():
-		_current_terminal_path = DEFAULT_HUB_LOCATION
+		_current_terminal_path = _terminal_home_location()
 		_print_terminal_line(_terminal_pwd())
 		return
 
@@ -306,17 +320,37 @@ func _handle_cd_command(args: Array) -> void:
 		var source_location := _get_current_location_key()
 		if source_location == "":
 			source_location = _current_terminal_path
-		_current_terminal_path = DEFAULT_HUB_LOCATION
-		_print_terminal_line("Teleporting to %s..." % DEFAULT_HUB_LOCATION)
-		_teleport_to_terminal_location(DEFAULT_HUB_LOCATION, _hub_return_spawn_for_location(source_location))
+		var home := _terminal_home_location()
+		_current_terminal_path = home
+		if home == TUTORIAL_LOCATION:
+			_print_terminal_line(_terminal_pwd())
+			return
+		_print_terminal_line("Teleporting to %s..." % home)
+		_teleport_to_terminal_location(home, _hub_return_spawn_for_location(source_location))
 		return
 
 	if target == "/" or target == "~":
-		_current_terminal_path = DEFAULT_HUB_LOCATION
+		_current_terminal_path = _terminal_home_location()
 		_print_terminal_line(_terminal_pwd())
 		return
 
 	var location_key := String(TERMINAL_LOCATION_ALIASES.get(target, ""))
+	if location_key == "":
+		if _is_tutorial_scene_active() and target == "home":
+			location_key = TUTORIAL_LOCATION
+		else:
+			_print_terminal_line("cd: no such location: %s" % target)
+			return
+
+	if _is_tutorial_scene_active() and location_key != TUTORIAL_LOCATION:
+		_print_terminal_line("cd: access denied during onboarding.")
+		return
+
+	if location_key == TUTORIAL_LOCATION:
+		_current_terminal_path = TUTORIAL_LOCATION
+		_print_terminal_line(_terminal_pwd())
+		return
+
 	if location_key == "":
 		_print_terminal_line("cd: no such location: %s" % target)
 		return
@@ -368,6 +402,8 @@ func _is_terminal_location_unlocked(location_key: String) -> bool:
 		return location_key == DEFAULT_HUB_LOCATION
 
 	match location_key:
+		TUTORIAL_LOCATION:
+			return true
 		"bios_vault":
 			return SceneManager.gatekeeper_pass_granted or SceneManager.deamon_depths_boss_door_unlocked or bool(SceneManager.get_meta("bios_vault_sage_quiz_passed", false))
 		"deamon_depths":
@@ -397,14 +433,15 @@ func _record_current_location_explored() -> void:
 
 func _get_explored_locations() -> Array[String]:
 	if SceneManager == null:
-		return [DEFAULT_HUB_LOCATION]
-	var meta_value = SceneManager.get_meta(TERMINAL_EXPLORED_META_KEY, [DEFAULT_HUB_LOCATION])
+		return [_terminal_home_location()]
+	var home_location := _terminal_home_location()
+	var meta_value = SceneManager.get_meta(TERMINAL_EXPLORED_META_KEY, [home_location])
 	var explored: Array[String] = []
 	if meta_value is Array:
 		for entry in meta_value:
 			explored.append(String(entry))
-	if not explored.has(DEFAULT_HUB_LOCATION):
-		explored.append(DEFAULT_HUB_LOCATION)
+	if not explored.has(home_location):
+		explored.append(home_location)
 	return explored
 
 func _has_explored_location(location_key: String) -> bool:
@@ -418,6 +455,8 @@ func _get_current_location_key() -> String:
 
 func _location_key_from_scene_path(scene_path: String) -> String:
 	match scene_path:
+		"res://Scenes/Levels/tutorial - Copy.tscn":
+			return TUTORIAL_LOCATION
 		"res://Scenes/Levels/fallback_hamlet.tscn":
 			return "fallback_hamlet"
 		"res://Scenes/Levels/file_system_forest.tscn":
@@ -507,7 +546,7 @@ func _handle_save_command() -> void:
 
 func _print_location_map() -> void:
 	_print_terminal_line("Location map:")
-	for location_key in TERMINAL_DIRECTORIES.get("", []):
+	for location_key in _visible_terminal_locations():
 		var unlocked := _is_terminal_location_unlocked(location_key)
 		var explored := _has_explored_location(location_key)
 		var status := "[available]"
@@ -516,6 +555,19 @@ func _print_location_map() -> void:
 		elif not explored:
 			status = "[undiscovered]"
 		_print_terminal_line("- %s %s" % [location_key, status])
+
+func _visible_terminal_locations() -> Array:
+	if _is_tutorial_scene_active():
+		return [TUTORIAL_LOCATION]
+	return TERMINAL_DIRECTORIES.get("", [])
+
+func _terminal_home_location() -> String:
+	if _is_tutorial_scene_active():
+		return TUTORIAL_LOCATION
+	return DEFAULT_HUB_LOCATION
+
+func _is_tutorial_scene_active() -> bool:
+	return _get_current_location_key() == TUTORIAL_LOCATION
 
 func _invoke_scene_manager_method(method_name: String) -> bool:
 	if SceneManager and SceneManager.has_method(method_name):

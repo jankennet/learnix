@@ -2,6 +2,12 @@ extends Node
 
 const SAVE_FILE_PATH := "user://savegame.json"
 const SAVE_FORMAT_VERSION := 1
+const TUTORIAL_SCENE_PATH := "res://Scenes/Levels/tutorial - Copy.tscn"
+const FALLBACK_HAMLET_SCENE_PATH := "res://Scenes/Levels/fallback_hamlet.tscn"
+const TUTORIAL_CONTROLLER_SCRIPT_PATH := "res://scripts/tutorial_sequence_controller.gd"
+const TUTORIAL_DIALOGUE_PATH := "res://dialogues/TutorialFlow.dialogue"
+const TUTORIAL_POST_TELEPORT_LABEL := "linuxia_arrival_intro"
+const PLAYER_FOLLOW_TUX_NODE_NAME := "Tux"
 const WORLD_MAIN_SCENE_PATH := "res://Scenes/world_main.tscn"
 const MAIN_HUD_SCENE_PATH := "res://Scenes/ui/MainHUD.tscn"
 const QUEST_LIST_SCENE_PATH := "res://Scenes/ui/QuestList.tscn"
@@ -9,7 +15,8 @@ const TERMINAL_EXPLORED_META_KEY := "terminal_explored_locations"
 const BIOS_VAULT_SAGE_META_KEY := "bios_vault_sage_quiz_passed"
 const PENDING_REWARD_META_KEY := "pending_reward_popup_key"
 const LEVEL_DEFAULT_SPAWNS := {
-	"res://Scenes/Levels/fallback_hamlet.tscn": "Fallback_Hamlet_Final/Spawn_FTFM",
+	"res://Scenes/Levels/tutorial - Copy.tscn": "Spawn_player",
+	"res://Scenes/Levels/fallback_hamlet.tscn": "Fallback_Hamlet_Final/first_spawn",
 	"res://Scenes/Levels/file_system_forest.tscn": "Forest/Spawn_FSF",
 	"res://Scenes/Levels/deamon_depths.tscn": "Dungeon/Spawn_DD",
 	"res://Scenes/Levels/bios_vault.tscn": "Spawn_BV",
@@ -522,6 +529,9 @@ func _apply_spawn_transform(transfer_node: Node, active_player: CharacterBody3D,
 func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.0):
 	print("🌍 Teleporting to:", scene_path)
 	input_locked = true
+	var previous_scene_path := ""
+	if get_tree().current_scene != null:
+		previous_scene_path = String(get_tree().current_scene.scene_file_path)
 
 	var active_player := _ensure_player()
 	if not active_player:
@@ -590,6 +600,7 @@ func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.
 	active_player.set_process_unhandled_input(true)
 
 	await _hide_loading_screen()
+	await _run_post_tutorial_arrival_sequence(previous_scene_path, scene_path, active_player)
 
 func _get_player_transfer_root(active_player: CharacterBody3D) -> Node:
 	var cursor: Node = active_player
@@ -623,15 +634,59 @@ func start_new_game(scene_path: String) -> void:
 		await _hide_loading_screen()
 		return
 
-	var change_error := get_tree().change_scene_to_packed(packed_scene)
-	if change_error != OK:
-		push_error("Failed to switch to startup scene: " + scene_path)
-		await _hide_loading_screen()
-		return
+	var root := get_tree().root
+	var previous_scene := get_tree().current_scene
+	if previous_scene:
+		previous_scene.queue_free()
+
+	var new_scene := packed_scene.instantiate()
+	root.add_child(new_scene)
+	get_tree().current_scene = new_scene
+
+	_ensure_gameplay_ui(new_scene)
+
+	var active_player := _ensure_player_in_loaded_scene(new_scene)
+	if active_player:
+		var spawn_path: String = LEVEL_DEFAULT_SPAWNS.get(scene_path, "")
+		if spawn_path != "":
+			var spawn_point := new_scene.get_node_or_null(spawn_path)
+			if spawn_point:
+				active_player.global_position = spawn_point.global_position
+		player = active_player
+		_attach_tutorial_controller(new_scene, active_player, scene_path)
+		var cam = active_player.get_node_or_null("Camera3D")
+		if cam:
+			cam.current = true
+	else:
+		push_warning("Failed to instantiate player for new game.")
 
 	await get_tree().process_frame
-	await get_tree().create_timer(0.15).timeout
 	await _hide_loading_screen()
+
+func _attach_tutorial_controller(scene: Node, active_player: CharacterBody3D, scene_path: String) -> void:
+	if scene_path != TUTORIAL_SCENE_PATH:
+		return
+	if scene == null:
+		return
+	if scene.get_node_or_null("TutorialSequenceController"):
+		return
+
+	var controller_script = load(TUTORIAL_CONTROLLER_SCRIPT_PATH)
+	if controller_script == null:
+		push_warning("Tutorial controller script not found: " + TUTORIAL_CONTROLLER_SCRIPT_PATH)
+		return
+
+	var controller_instance = controller_script.new()
+	if not (controller_instance is Node):
+		push_warning("Tutorial controller script did not instantiate a Node.")
+		return
+
+	var controller_node := controller_instance as Node
+	controller_node.name = "TutorialSequenceController"
+	scene.add_child(controller_node)
+
+	if controller_node.has_method("setup"):
+		controller_node.call("setup", active_player)
 
 func _load_scene_threaded(scene_path: String, loading_ui: Node = null) -> PackedScene:
 	var request_error := ResourceLoader.load_threaded_request(scene_path)
@@ -693,3 +748,62 @@ func _hide_loading_screen():
 		await ui.animation_finished
 	input_locked = false
 	return
+
+func _run_post_tutorial_arrival_sequence(previous_scene_path: String, target_scene_path: String, active_player: CharacterBody3D) -> void:
+	if previous_scene_path != TUTORIAL_SCENE_PATH:
+		return
+	if target_scene_path != FALLBACK_HAMLET_SCENE_PATH:
+		return
+
+	_restore_player_companion_tux(active_player)
+	await get_tree().process_frame
+	await _play_dialogue_sequence(TUTORIAL_DIALOGUE_PATH, TUTORIAL_POST_TELEPORT_LABEL, [self])
+
+func _restore_player_companion_tux(active_player: CharacterBody3D) -> void:
+	if active_player == null:
+		return
+
+	var player_root := active_player.get_parent()
+	if player_root == null:
+		return
+
+	var companion := player_root.find_child(PLAYER_FOLLOW_TUX_NODE_NAME, true, false)
+	if companion == null:
+		return
+
+	if companion is Node3D:
+		(companion as Node3D).visible = true
+	companion.set_process(true)
+	companion.set_physics_process(true)
+	if companion.has_method("set_follow_enabled"):
+		companion.call("set_follow_enabled", true)
+
+	var sprite_node := companion.get_node_or_null("AnimatedSprite3D")
+	if not (sprite_node is AnimatedSprite3D):
+		var sprite_candidates := companion.find_children("*", "AnimatedSprite3D", true, false)
+		if not sprite_candidates.is_empty():
+			sprite_node = sprite_candidates[0]
+	if sprite_node is AnimatedSprite3D:
+		var sprite := sprite_node as AnimatedSprite3D
+		sprite.visible = true
+		if sprite.sprite_frames and sprite.sprite_frames.has_animation("tux_idle"):
+			sprite.play("tux_idle")
+
+func _play_dialogue_sequence(dialogue_path: String, start_label: String, context_args: Array = []) -> void:
+	var dialogue_manager := get_tree().root.get_node_or_null("DialogueManager")
+	if dialogue_manager == null:
+		return
+	if not dialogue_manager.has_method("show_dialogue_balloon"):
+		return
+
+	var dialogue_resource := load(dialogue_path)
+	if dialogue_resource == null:
+		push_warning("Dialogue resource missing: " + dialogue_path)
+		return
+
+	var previous_input_lock := input_locked
+	input_locked = true
+	dialogue_manager.show_dialogue_balloon(dialogue_resource, start_label, context_args)
+	if dialogue_manager.has_signal("dialogue_ended"):
+		await dialogue_manager.dialogue_ended
+	input_locked = previous_input_lock

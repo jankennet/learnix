@@ -1,6 +1,6 @@
 extends Control
 
-const WORLD_MAIN_SCENE := "res://Scenes/world_main.tscn"
+const WORLD_MAIN_SCENE := "res://Scenes/Levels/tutorial - Copy.tscn"
 const ASCII_LOGO := """ /$$       /$$$$$$$$  /$$$$$$  /$$$$$$$  /$$   /$$ /$$$$$$ /$$   /$$
 | $$      | $$_____/ /$$__  $$| $$__  $$| $$$ | $$|_  $$_/| $$  / $$
 | $$      | $$      | $$  \\ $$| $$  \\ $$| $$$$| $$  | $$  |  $$/ $$/
