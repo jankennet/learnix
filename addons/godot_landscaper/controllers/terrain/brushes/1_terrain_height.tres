@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="GLBrushTerrainHeight" format=3 uid="uid://60fm1rbtxk4q"]
+
+[ext_resource type="Texture2D" uid="uid://dgjsktynk4pnw" path="res://addons/godot_landscaper/controllers/terrain/icons/tab_terrain_height.svg" id="1_b3bcb"]
+[ext_resource type="Script" uid="uid://dxggt0kdy7bwq" path="res://addons/godot_landscaper/controllers/terrain/brushes/terrain_height.gd" id="1_v7q6h"]
+
+[resource]
+script = ExtResource("1_v7q6h")
+title = "Height"
+icon = ExtResource("1_b3bcb")
+info = "Heightens or lowers terrain mesh."
+hide_properties = PackedStringArray("sew_seams_on_build", "primary_color", "secondary_color", "layers", "primary_build_behavior", "primary_paint_behavior", "primary_paint_stencil", "secondary_build_behavior", "secondary_paint_behavior", "paint_strenght", "secondary_paint_stencil", "terrain")
+metadata/_custom_type_script = "uid://dxggt0kdy7bwq"

@@ -1,8 +1,11 @@
 res://Scenes/Levels/deamon_depths.tscn
 res://Scenes/combat/crt_terminal_theme.tres
 res://Scenes/Levels/river.gdshader
-res://scripts/camera_main.gd
-res://Scenes/Player/player.tscn
-res://Scenes/Levels/bios_vault.tscn
-res://addons/terrain_3d/terrain3d_00_00.res
+res://grass.gdshader
+res://Scenes/Levels/sky.gdshader
+res://Scenes/Levels/cone.tscn
+res://Assets/portal_shader.tres
+res://Scenes/Levels/fallback_hamlet.tscn
 res://Scenes/Levels/file_system_forest.tscn
+res://addons/godot_landscaper/controllers/terrain/resources/grass.tres
+res://addons/godot_landscaper/controllers/grass/resources/material.tres

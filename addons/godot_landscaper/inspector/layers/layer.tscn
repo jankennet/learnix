@@ -1,0 +1,140 @@
+[gd_scene format=3 uid="uid://b00d8qhvcb6t1"]
+
+[ext_resource type="Script" uid="uid://bh851cs56yh18" path="res://addons/godot_landscaper/inspector/layers/layer.gd" id="1_myn6m"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fgmjg"]
+resource_local_to_scene = true
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.6766724, 0.5003973, 1, 0.2)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+corner_detail = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g8d0j"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.1, 0.1, 0.1, 0.6)
+draw_center = false
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 0.6)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_myn6m"]
+bg_color = Color(1, 1, 1, 0.078431375)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mrpif"]
+bg_color = Color(1, 1, 1, 0.15686275)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[node name="Layer" type="PanelContainer" unique_id=776097443]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 39.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_fgmjg")
+script = ExtResource("1_myn6m")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1700544150]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Active" type="CheckBox" parent="HBoxContainer" unique_id=646291662]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Channel" type="LineEdit" parent="HBoxContainer" unique_id=2143033208]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("StyleBoxFlat_g8d0j")
+placeholder_text = "Layer Name"
+
+[node name="Reorder" type="VBoxContainer" parent="HBoxContainer" unique_id=1925545107]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Up" type="Button" parent="HBoxContainer/Reorder" unique_id=2049290011]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(10.325, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 9
+theme_override_styles/normal = SubResource("StyleBoxFlat_myn6m")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_mrpif")
+theme_override_styles/hover = SubResource("StyleBoxFlat_mrpif")
+
+[node name="Label3" type="Label" parent="HBoxContainer/Reorder/Up" unique_id=721352243]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -5.5
+offset_top = -8.5
+offset_right = 5.5
+offset_bottom = 8.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.48235294)
+theme_override_font_sizes/font_size = 12
+text = "⯅"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Down" type="Button" parent="HBoxContainer/Reorder" unique_id=177589731]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(10.325, 8)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 9
+theme_override_styles/normal = SubResource("StyleBoxFlat_myn6m")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_mrpif")
+theme_override_styles/hover = SubResource("StyleBoxFlat_mrpif")
+clip_text = true
+
+[node name="Label2" type="Label" parent="HBoxContainer/Reorder/Down" unique_id=1426879699]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -5.5
+offset_top = -8.5
+offset_right = 5.5
+offset_bottom = 8.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 0.48235294)
+theme_override_font_sizes/font_size = 12
+text = "⯆"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Delete" type="Button" parent="HBoxContainer" unique_id=1463703635]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_colors/font_color = Color(0.88, 0.88, 0.88, 0.5921569)
+text = "x"
+flat = true

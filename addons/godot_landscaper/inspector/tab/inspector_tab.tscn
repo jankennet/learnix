@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://bjulr1lyuv2wc"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_pt6me"]
+resource_local_to_scene = false
+
+[node name="InspectorTab" type="Button"]
+custom_minimum_size = Vector2(40, 40)
+size_flags_horizontal = 3
+toggle_mode = true
+button_group = SubResource("ButtonGroup_pt6me")
+expand_icon = true

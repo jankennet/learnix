@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cdpkwy3lagls0"]
+
+[ext_resource type="Script" uid="uid://dywhmafci8bk5" path="res://addons/godot_landscaper/assets_manager/assets_manager.gd" id="1_amgvo"]
+
+[node name="AssetsManager" type="Node"]
+script = ExtResource("1_amgvo")

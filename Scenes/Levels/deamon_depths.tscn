@@ -1,4 +1,4 @@
-[gd_scene load_steps=41 format=3 uid="uid://lbre8n3j6pem"]
+[gd_scene load_steps=58 format=3 uid="uid://lbre8n3j6pem"]
 
 [ext_resource type="PackedScene" uid="uid://dltktt7qdwiaj" path="res://levelAssets/gtlfLevels/Dungeon.glb" id="1_m653t"]
 [ext_resource type="Script" uid="uid://dvrxfibrcccd0" path="res://scripts/teleport.gd" id="2_d5g6v"]
@@ -6,13 +6,37 @@
 [ext_resource type="Script" uid="uid://b0ir6gis4a7s3" path="res://scripts/npc_script.gd" id="3_k8yqp"]
 [ext_resource type="Texture2D" uid="uid://t10epby1mdcr" path="res://Assets/characterSpriteSheets/ss_DriversDen/driverRemnant_idle.png" id="4_x2aml"]
 [ext_resource type="Texture2D" uid="uid://d2ebsrf6jedug" path="res://Assets/characterSpriteSheets/ss_DriversDen/hardwareGhost_idle.png" id="5_k8yqp"]
+[ext_resource type="Shader" uid="uid://dvv4uathqw03n" path="res://Assets/portal_shader.tres" id="5_tuulv"]
 [ext_resource type="Script" uid="uid://ce0f0ugerh3tg" path="res://scripts/sudo_boss_door.gd" id="6_3teor"]
 [ext_resource type="Script" uid="uid://bck3pddiufo8o" path="res://scripts/collision_builder.gd" id="7_collision_builder"]
+[ext_resource type="Texture2D" uid="uid://r0ciqujeb2cn" path="res://Assets/shaders/T_VFX_Flare_16.PNG" id="10_4cv53"]
+[ext_resource type="Texture2D" uid="uid://3oppuvtya504" path="res://Assets/shaders/T_VFX_lelu1_tiled.png" id="10_qo7kh"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_o18mp"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_tuulv"]
+sky_material = SubResource("ProceduralSkyMaterial_o18mp")
+
+[sub_resource type="Environment" id="Environment_4cv53"]
+background_mode = 1
+sky = SubResource("Sky_tuulv")
+tonemap_mode = 2
+glow_enabled = true
+volumetric_fog_enabled = true
+volumetric_fog_anisotropy = 0.7
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ts3xc"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_k8yqp"]
 size = Vector3(3.3878784, 2.6991577, 2.7246094)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_o18mp"]
+size = Vector3(5.1154175, 3.9370117, 2.7695923)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_tuulv"]
+size = Vector3(3.0288086, 1.9403687, 0.54400635)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_o5iuf"]
 radius = 9.523787
@@ -225,7 +249,71 @@ animations = [{
 "speed": 5.0
 }]
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_o18mp"]
+render_priority = 1
+shader = ExtResource("5_tuulv")
+shader_parameter/colorIntensity = 8.0
+shader_parameter/portalColor = Color(0.5418137, 0.3918552, 0.8004155, 1)
+shader_parameter/speedXY = Vector2(-0.5, 0.3)
+shader_parameter/portalTexture = ExtResource("10_qo7kh")
+
+[sub_resource type="QuadMesh" id="QuadMesh_o18mp"]
+size = Vector2(2, 2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tuulv"]
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(1, 0.43137255, 1, 1)
+albedo_texture = ExtResource("10_4cv53")
+use_particle_trails = true
+
+[sub_resource type="Curve" id="Curve_tuulv"]
+_limits = [-2.0, 2.0, 0.0, 1.0]
+_data = [Vector2(0, -1.2085104), 0.0, 0.0, 0, 0, Vector2(0.9836512, -1.1255317), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_4cv53"]
+_limits = [0.0, 2.0, 0.0, 1.0]
+_data = [Vector2(0.03269755, 0.71382976), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_qo7kh"]
+_limits = [-2.0, 2.0, 0.0, 1.0]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveXYZTexture" id="CurveXYZTexture_qo7kh"]
+curve_x = SubResource("Curve_tuulv")
+curve_y = SubResource("Curve_4cv53")
+curve_z = SubResource("Curve_qo7kh")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_tuulv"]
+emission_shape = 6
+emission_ring_axis = Vector3(0, 0, 1)
+emission_ring_height = 0.0
+emission_ring_radius = 1.1
+emission_ring_inner_radius = 1.1
+emission_ring_cone_angle = 90.0
+orbit_velocity_min = 0.2000001
+orbit_velocity_max = 0.2000001
+orbit_velocity_curve = SubResource("CurveXYZTexture_qo7kh")
+radial_velocity_min = 0.19997764
+radial_velocity_max = 0.49997765
+gravity = Vector3(0, 0, 0)
+
+[sub_resource type="RibbonTrailMesh" id="RibbonTrailMesh_tuulv"]
+size = 0.2
+
 [node name="Deamon Depths" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_4cv53")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+light_color = Color(0.5899149, 0.5400938, 0.5786944, 1)
+directional_shadow_max_distance = 1.0
 
 [node name="Dungeon" parent="." instance=ExtResource("1_m653t")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.049, 0, 0.168)
@@ -254,6 +342,16 @@ shape = SubResource("BoxShape3D_k8yqp")
 
 [node name="Marker3D" type="Marker3D" parent="Dungeon/BoosRoomArea3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.201911, 0.12922513, -0.13248062)
+
+[node name="StaticBody3D" type="StaticBody3D" parent="Dungeon"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Dungeon/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.944373, 1.4685059, -29.963356)
+shape = SubResource("BoxShape3D_o18mp")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="Dungeon/StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.0144043, 1.7815909, 6.2145123)
+shape = SubResource("BoxShape3D_tuulv")
 
 [node name="NPCS" type="Node3D" parent="."]
 
@@ -310,3 +408,31 @@ alpha_cut = 1
 texture_filter = 0
 sprite_frames = SubResource("SpriteFrames_bjbd7")
 animation = &"bad_idle"
+
+[node name="SpotLight3D" type="SpotLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.8067954, 0.590831, 0, -0.590831, -0.8067954, -3.9799407, 3.9883714, -31.392784)
+light_color = Color(0.8140186, 0.7186084, 0.5089952, 1)
+light_energy = 1.855
+light_volumetric_fog_energy = 16.0
+shadow_enabled = true
+distance_fade_enabled = true
+spot_range = 92.751
+spot_angle = 32.77
+
+[node name="vfxPortal" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -22.514404)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="vfxPortal"]
+transform = Transform3D(2.325, 0, 0, 0, 2.325, 0, 0, 0, 2.325, -4.0156813, 2.1248496, -6.4302883)
+material_override = SubResource("ShaderMaterial_o18mp")
+mesh = SubResource("QuadMesh_o18mp")
+skeleton = NodePath("../../Dungeon/StaticBody3D")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="vfxPortal"]
+transform = Transform3D(1.945125, 0, 0, 0, 1.945125, 0, 0, 0, 1.945125, -4.016613, 2.1237345, -6.7196198)
+material_override = SubResource("StandardMaterial3D_tuulv")
+amount = 150
+trail_enabled = true
+trail_lifetime = 0.5
+process_material = SubResource("ParticleProcessMaterial_tuulv")
+draw_pass_1 = SubResource("RibbonTrailMesh_tuulv")

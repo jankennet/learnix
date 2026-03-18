@@ -27,7 +27,6 @@ var _still_time: float = 0.0
 var _last_player_position: Vector3
 var _speech_label: Label3D
 var _speech_hide_timer: SceneTreeTimer
-var _shadow: MeshInstance3D
 var _current_side_offset: Vector3 = Vector3.ZERO
 var _vertical_offset: float = 0.0
 
@@ -44,7 +43,6 @@ func _ready() -> void:
 	collision_layer = 0
 	collision_mask = 0
 	_create_speech_label()
-	_create_shadow()
 
 
 func _physics_process(delta: float) -> void:
@@ -189,19 +187,3 @@ func _show_line(line: String) -> void:
 func _hide_speech_label() -> void:
 	if _speech_label:
 		_speech_label.modulate = Color(0.9, 0.96, 1.0, 0.0)
-
-
-func _create_shadow() -> void:
-	_shadow = MeshInstance3D.new()
-	var cylinder := CylinderMesh.new()
-	cylinder.top_radius = 0.3
-	cylinder.bottom_radius = 0.3
-	cylinder.height = 0.05
-	_shadow.mesh = cylinder
-	_shadow.position = Vector3(0, -0.35, 0)
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color(0, 0, 0, 0.4)
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	_shadow.material_override = mat
-	add_child(_shadow)
