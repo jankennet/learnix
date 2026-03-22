@@ -1,0 +1,267 @@
+extends Node
+
+const DialogueResourceRes = preload("res://addons/dialogue_manager/dialogue_resource.gd")
+const DMConstantsRes = preload("res://addons/dialogue_manager/constants.gd")
+
+var dm: Node = null
+var sm: Node = null
+
+var _prev_npc_states: Dictionary = {}
+var _prev_player_karma: String = ""
+var _prev_defeated_flags: Dictionary = {}
+var _prev_item_flags: Dictionary = {}
+var _sage_quiz_announced: bool = false
+
+const ITEM_FLAGS: Array[String] = [
+	"gatekeeper_pass_granted",
+	"sudo_token_driver_remnant",
+	"proficiency_key_forest",
+	"proficiency_key_printer",
+	"broken_link_fragmented_key",
+]
+
+const DEFEAT_FLAGS: Array[String] = [
+	"broken_link_defeated",
+	"driver_remnant_defeated",
+	"printer_beast_defeated",
+	"deleted_lost_file",
+	"hardware_ghost_defeated",
+]
+
+const NPC_TEMPLATES: Dictionary = {
+	"default": {
+		"first_meet": "You met %s. Pay attention — they might teach you something.",
+		"helped": "Nice work helping %s! That should make things easier.",
+		"killed_good": "You killed %s? Are you sure that was necessary?",
+		"killed_neutral": "What happened to %s? Why?",
+		"killed_evil": "You killed %s. That... feels wrong. Why did you do it?",
+	},
+	"Lost File": {
+		"first_meet": "Lost File... they told me about fragments. Scattered, broken, searching for home. Listen with empathy.",
+		"helped": "You restored %s. Their fragments are whole now. That took real compassion.",
+		"killed_good": "You destroyed %s? Even after they reached out? I... didn't expect that.",
+		"killed_neutral": "What happened to %s? I thought you understood their pain.",
+		"killed_evil": "You erased %s. Just like the script that broke them in the first place. Why?",
+	},
+	"Messy Directory": {
+		"first_meet": "Messy Directory... protective, searching for her child. She carries a mother's worry. Hear her out.",
+		"helped": "You helped %s care for her lost one. That's what compassion looks like.",
+	},
+	"Broken Installer": {
+		"first_meet": "Broken Installer... corrupted systems, incomplete installations. Remember, even broken things have stories.",
+	},
+	"Hardware Ghost": {
+		"first_meet": "Hardware Ghost... old technology given life. Ancient hardware holds ancient secrets. Be respectful.",
+		"helped": "You freed %s from their digital prison. That's honorable.",
+		"killed_good": "You destroyed %s? Even after they showed you their memories?",
+		"killed_neutral": "What happened to %s? Why end such an ancient being?",
+		"killed_evil": "You erased %s. Thousands of years of existence, gone. Just like that.",
+	},
+	"Driver Remnant": {
+		"first_meet": "Driver Remnant... a fragment of system power. They're dangerous, but they have a choice. So do you.",
+		"helped": "You convinced %s to help. Power channeled for good. That matters.",
+		"killed_good": "You stopped %s. Necessary, but not without cost.",
+		"killed_neutral": "What happened to %s? Did they push too hard?",
+		"killed_evil": "You hunted down %s for their power. Now look what you've become.",
+	},
+	"Printer Boss": {
+		"first_meet": "Printer Boss... madness given form. They're dangerous and unpredictable. Stay sharp.",
+		"helped": "You calmed the chaos of %s. That took serious skill.",
+		"killed_good": "You stopped %s. They were beyond saving anyway.",
+		"killed_neutral": "What happened to %s? Did their chaos consume them?",
+		"killed_evil": "You destroyed %s. One less threat, one more sin.",
+	},
+	"Gatekeeper": {
+		"first_meet": "Gatekeeper... guardian of passage. They decide who goes forward. Earn their respect.",
+		"helped": "You earned %s's pass. You did it the right way.",
+		"killed_good": "You killed %s? Even after they offered you a path?",
+		"killed_neutral": "What happened to %s? You sealed your own fate.",
+		"killed_evil": "You murdered %s for passage. Now everyone will remember that.",
+	},
+	"Elder Shell": {
+		"first_meet": "Elder Shell... ancient wisdom in digital form. They've seen systems rise and fall. Listen.",
+		"helped": "You helped %s share their knowledge. Wisdom matters.",
+	},
+	"Broken Link": {
+		"first_meet": "Broken Link... fragmented, jittering connections. They might be salvageable if you approach carefully.",
+		"helped": "You patched %s's link. That should restore some connectivity.",
+		"killed_good": "You destroyed %s to stop the corruption. Hard choices.",
+		"killed_neutral": "What happened to %s? Was there no other way?",
+		"killed_evil": "You crushed %s. Connections aren't easily mended after that.",
+	},
+}
+
+func _ready() -> void:
+	dm = get_node_or_null("/root/DialogueManager")
+	sm = get_node_or_null("/root/SceneManager")
+
+	if sm:
+		_prev_npc_states = sm.npc_states.duplicate(true) if sm.npc_states != null else {}
+		_prev_player_karma = str(sm.player_karma)
+		
+		for flag in ITEM_FLAGS:
+			_prev_item_flags[flag] = sm.get(flag) if sm.get(flag) != null else false
+		for flag in DEFEAT_FLAGS:
+			_prev_defeated_flags[flag] = sm.get(flag) if sm.get(flag) != null else false
+			
+		if sm.has_signal("npc_first_interacted"):
+			sm.npc_first_interacted.connect(_on_npc_first_interacted)
+
+	if dm:
+		# FIXED: Godot 4 syntax for signal checking
+		var dialogue_ended_callable := Callable(self, "_on_dialogue_ended")
+		if not dm.dialogue_ended.is_connected(dialogue_ended_callable):
+			dm.dialogue_ended.connect(dialogue_ended_callable)
+	
+	# Check NPC states periodically to catch state changes from puzzle solving
+	var check_timer = Timer.new()
+	check_timer.wait_time = 0.5
+	check_timer.timeout.connect(_check_state_changes_periodic)
+	add_child(check_timer)
+	check_timer.start()
+
+func _on_npc_first_interacted(npc_name: String) -> void:
+	# Just show status in inventory UI when met; don't open file explorer
+	var tpl: Dictionary = NPC_TEMPLATES.get(npc_name, NPC_TEMPLATES["default"])
+	var template: String = tpl.get("first_meet", NPC_TEMPLATES["default"]["first_meet"])
+	var text: String = template
+	if "%" in template:
+		text = template % npc_name
+
+	var pause_menu = get_node_or_null("/root/PauseMenu")
+	if pause_menu:
+		if pause_menu.has_method("_show_status"):
+			pause_menu.call("_show_status", text)
+
+# Called by pause_menu when an NPC file is double-clicked (activated)
+func show_npc_file_dialogue(npc_name: String) -> void:
+	var tpl: Dictionary = NPC_TEMPLATES.get(npc_name, NPC_TEMPLATES["default"])
+	var template: String = tpl.get("first_meet", NPC_TEMPLATES["default"]["first_meet"])
+	var text: String = template
+	if "%" in template:
+		text = template % npc_name
+	_show_tux_line(text)
+
+func _on_dialogue_ended(_resource: Resource) -> void:
+	if sm == null: return
+
+	# 1. Check NPC State Changes
+	var curr_states: Dictionary = sm.npc_states.duplicate(true) if sm.npc_states else {}
+	for npc_key in curr_states.keys():
+		var old_val = _prev_npc_states.get(npc_key)
+		var new_val = curr_states[npc_key]
+		if old_val != new_val:
+			_handle_npc_state_change(npc_key, old_val, new_val)
+	_prev_npc_states = curr_states
+
+	# 2. Check Karma
+	_prev_player_karma = str(sm.player_karma)
+
+	# 3. Check Flags (Items & Defeats)
+	_check_boolean_flags(ITEM_FLAGS, _prev_item_flags, _handle_item_granted)
+	_check_boolean_flags(DEFEAT_FLAGS, _prev_defeated_flags, _handle_npc_defeated)
+
+# Periodically check NPC states to catch state changes from puzzle solving
+func _check_state_changes_periodic() -> void:
+	if sm == null: return
+	
+	var curr_states: Dictionary = sm.npc_states.duplicate(true) if sm.npc_states else {}
+	for npc_key in curr_states.keys():
+		var old_val = _prev_npc_states.get(npc_key)
+		var new_val = curr_states[npc_key]
+		if old_val != new_val:
+			print("[TuxDialogueController] NPC state changed: %s from %s to %s" % [npc_key, old_val, new_val])
+			_handle_npc_state_change(npc_key, old_val, new_val)
+	_prev_npc_states = curr_states
+
+# Helper to reduce code duplication for flag checking
+func _check_boolean_flags(flag_list: Array[String], storage: Dictionary, callback: Callable) -> void:
+	for flag in flag_list:
+		var flag_result = sm.get(flag)
+		var current_val: bool = flag_result if flag_result != null else false
+		var prev_val: bool = storage.get(flag, false)
+		
+		if current_val and not prev_val:
+			print("[TuxDialogueController] Flag changed from false to true: %s" % flag)
+			callback.call(flag)
+		storage[flag] = current_val
+
+func _handle_npc_state_change(npc_name: String, old_state: Variant, new_state: Variant) -> void:
+	if str(new_state) == "helped" and str(old_state) != "helped":
+		var tpl: Dictionary = NPC_TEMPLATES.get(npc_name, NPC_TEMPLATES["default"])
+		var template: String = tpl.get("helped", NPC_TEMPLATES["default"]["helped"])
+		var text: String = template
+		if "%" in template:
+			text = template % npc_name
+		
+		# Add delay before showing Tux dialogue
+		await get_tree().create_timer(2.0).timeout
+		_show_tux_line(text)
+
+func _handle_npc_defeated(defeat_flag: String) -> void:
+	var name_map := {
+		"deleted_lost_file": "Lost File",
+		"driver_remnant_defeated": "Driver Remnant",
+		"printer_beast_defeated": "Printer Boss",
+		"broken_link_defeated": "Broken Link",
+		"hardware_ghost_defeated": "Hardware Ghost",
+	}
+	
+	var npc_name: String = name_map.get(defeat_flag, "Unknown")
+	var karma: String = str(sm.player_karma) if sm else "neutral"
+	var tpl: Dictionary = NPC_TEMPLATES.get(npc_name, NPC_TEMPLATES["default"])
+	
+	var msg_key := "killed_neutral"
+	match karma:
+		"evil": msg_key = "killed_evil"
+		"good": msg_key = "killed_good"
+	
+	# Use default template if NPC template doesn't have this key
+	if not tpl.has(msg_key):
+		tpl = NPC_TEMPLATES["default"]
+	
+	var template: String = tpl.get(msg_key, "You defeated %s.")
+	print("[TuxDialogueController] Defeated flag: %s -> NPC: %s, Karma: %s, Template key: %s" % [defeat_flag, npc_name, karma, msg_key])
+	var text: String = template
+	if "%" in template:
+		text = template % npc_name
+	
+	# Add delay before showing Tux dialogue
+	await get_tree().create_timer(2.0).timeout
+	_show_tux_line(text)
+
+func _handle_item_granted(flag: String) -> void:
+	var item_messages := {
+		"gatekeeper_pass_granted": "You received the Gatekeeper Pass. Use it at the Gate to proceed.",
+		"sudo_token_driver_remnant": "You were given a Sudo Token. Try it on special doors or consoles.",
+		"proficiency_key_forest": "Forest Proficiency Key acquired — this unlocks forest systems.",
+		"proficiency_key_printer": "Printer Proficiency Key acquired — useful in printer zones.",
+		"broken_link_fragmented_key": "You found a fragmented link piece. It might restore access somewhere."
+	}
+	_show_tux_line(item_messages.get(flag, "You received something new. Check your inventory."))
+
+func _show_tux_line(text: String) -> void:
+	if dm == null:
+		push_warning("Tux: DialogueManager not found. Text: %s" % text)
+		return
+
+	print("[TuxDialogueController] Showing Tux line: %s" % text)
+	
+	var resource := DialogueResourceRes.new()
+	resource.lines = {
+		"start": {
+			"id": "start",
+			"type": DMConstantsRes.TYPE_DIALOGUE,
+			"character": "Tux",
+			"text": text,
+			"next_id": DMConstantsRes.ID_END
+		}
+	}
+	dm.show_dialogue_balloon(resource, "start")
+
+func on_sage_quiz_passed() -> void:
+	if _sage_quiz_announced:
+		return
+	_sage_quiz_announced = true
+	await get_tree().create_timer(1.0).timeout
+	_show_tux_line("You passed Sage's assessment. Clean commands, clear thinking. Keep that discipline.")

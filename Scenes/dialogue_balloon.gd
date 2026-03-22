@@ -120,6 +120,9 @@ var mutation_cooldown: Timer = Timer.new()
 
 
 func _ready() -> void:
+	# Allow dialogue to continue during pause
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	
 	balloon.hide()
 	Engine.get_singleton("DialogueManager").mutated.connect(_on_mutated)
 	if not get_viewport().size_changed.is_connected(_on_viewport_resized):

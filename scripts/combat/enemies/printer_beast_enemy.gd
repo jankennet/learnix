@@ -404,12 +404,36 @@ func _resolve_encounter(method: String) -> void:
 			SceneManager.met_printer_boss = true
 			if granted_printer_key_combat:
 				_queue_key_reward_popup("Printer Proficiency Key")
+			_trigger_tux_defeat_dialogue("Printer Boss")
+			_hide_npc_after_defeat("Printer Boss")
 			_maybe_complete_drivers_den_quest()
 		"fled":
 			pass
 
 	encounter_ended.emit(method)
 	mode_changed.emit(EncounterMode.RESOLVED)
+
+## Trigger Tux dialogue for NPC defeat
+func _trigger_tux_defeat_dialogue(npc_name: String) -> void:
+	var tux_ctrl = SceneManager.get_node_or_null("TuxDialogueController")
+	if tux_ctrl and tux_ctrl.has_method("_handle_npc_defeated"):
+		var defeat_flag_map := {
+			"Printer Boss": "printer_beast_defeated",
+		}
+		var flag = defeat_flag_map.get(npc_name, "unknown")
+		print("[PrinterBoss] Triggering Tux defeat dialogue for: %s" % npc_name)
+		tux_ctrl.call("_handle_npc_defeated", flag)
+
+## Hide NPC after being defeated
+func _hide_npc_after_defeat(npc_name: String) -> void:
+	var npc: Node = null
+	for candidate in get_tree().get_nodes_in_group("npcs"):
+		if candidate.name == npc_name or candidate.name.contains(npc_name.replace(" ", "")):
+			npc = candidate
+			break
+	if npc and npc.has_method("_hide_self"):
+		npc.call("_hide_self", true)
+		print("[PrinterBoss] Hidden %s after defeat" % npc_name)
 
 func _queue_key_reward_popup(key_name: String) -> void:
 	if SceneManager:

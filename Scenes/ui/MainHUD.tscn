@@ -1,9 +1,12 @@
-[gd_scene load_steps=11 format=3 uid="uid://dff8b3gde762a"]
+[gd_scene load_steps=14 format=3 uid="uid://dff8b3gde762a"]
 
 [ext_resource type="FontFile" uid="uid://lqtbary7gh5r" path="res://Assets/fonts/PressStart2P-Regular.ttf" id="1_font"]
 [ext_resource type="Script" uid="uid://mqkv64skk1kd" path="res://scripts/ui/main_hud.gd" id="2_mainhud"]
 [ext_resource type="Theme" uid="uid://doak8ce36xvhu" path="res://Scenes/combat/crt_terminal_theme.tres" id="3_crt_theme"]
+[ext_resource type="Texture2D" uid="uid://bjc51rva8ysea" path="res://Assets/mainHUD_Icons_File.png" id="3_wpdjs"]
 [ext_resource type="Shader" uid="uid://cmh6cx1xegkl0" path="res://Scenes/combat/crt_effect.gdshader" id="4_crt_shader"]
+[ext_resource type="Texture2D" uid="uid://b1pfxsi5467pn" path="res://Assets/mainHUD_Icons_Terminal.png" id="4_qm6ji"]
+[ext_resource type="Texture2D" uid="uid://bvbsrdib0cx5f" path="res://Assets/mainHUD_Icons_Tux.png" id="5_gcg6u"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_dock"]
 content_margin_left = 10.0
@@ -146,6 +149,7 @@ mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_menu_icon")
 
 [node name="Label" type="Label" parent="TopRight/MenuStack/BagItem/BagIcon"]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.972549, 0.976471, 0.992157, 1)
 theme_override_fonts/font = ExtResource("1_font")
@@ -153,6 +157,12 @@ theme_override_font_sizes/font_size = 10
 text = "FILE"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="TopRight/MenuStack/BagItem/BagIcon"]
+layout_mode = 2
+texture = ExtResource("3_wpdjs")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="MessagesItem" type="PanelContainer" parent="TopRight/MenuStack"]
 custom_minimum_size = Vector2(72, 52)
@@ -164,7 +174,13 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_menu_item")
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_menu_icon")
 
+[node name="TextureRect" type="TextureRect" parent="TopRight/MenuStack/MessagesItem/MailIcon"]
+layout_mode = 2
+texture = ExtResource("4_qm6ji")
+stretch_mode = 5
+
 [node name="Label" type="Label" parent="TopRight/MenuStack/MessagesItem/MailIcon"]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.972549, 0.976471, 0.992157, 1)
 theme_override_fonts/font = ExtResource("1_font")
@@ -183,6 +199,7 @@ layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_menu_icon_primary")
 
 [node name="Label" type="Label" parent="TopRight/MenuStack/QuestItem/HatIcon"]
+visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.886275, 0.654902, 1)
 theme_override_fonts/font = ExtResource("1_font")
@@ -190,6 +207,12 @@ theme_override_font_sizes/font_size = 10
 text = "TUX"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="TopRight/MenuStack/QuestItem/HatIcon"]
+layout_mode = 2
+texture = ExtResource("5_gcg6u")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="TerminalPanel" type="PanelContainer" parent="."]
 visible = false

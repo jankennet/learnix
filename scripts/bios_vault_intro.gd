@@ -15,6 +15,7 @@ var _player_camera: Camera3D = null
 var _vault_camera: Camera3D = null
 var _sage_area_intro: Area3D = null
 var _sage_area_triggered: bool = false
+var _sage_encounter_controller: Node = null
 
 var _quiz_question_order: Array = []
 var _quiz_current_index: int = 0
@@ -230,6 +231,9 @@ func mark_sage_quiz_passed() -> void:
 		SceneManager.sage_quiz_fail_count = 0
 		SceneManager.sage_force_combat = false
 		SceneManager.set_meta("bios_vault_sage_quiz_passed", true)
+		var tux_ctrl = SceneManager.get_node_or_null("TuxDialogueController")
+		if tux_ctrl and tux_ctrl.has_method("on_sage_quiz_passed"):
+			tux_ctrl.call("on_sage_quiz_passed")
 
 func reset_sage_quiz_attempts() -> void:
 	if SceneManager:
@@ -266,6 +270,12 @@ func _start_sage_combat_deferred() -> void:
 	ec.encounter_id = sage_combat_encounter_id
 	ec.set_meta("start_in_combat", true)
 	get_tree().current_scene.add_child(ec)
+	
+	# Store reference and connect to encounter end signal
+	_sage_encounter_controller = ec
+	if ec.has_signal("encounter_ended"):
+		ec.encounter_ended.connect(_on_sage_encounter_ended)
+	
 	ec.start_encounter()
 func shuffle_quiz_questions() -> void:
 	_quiz_question_order = []
@@ -307,3 +317,24 @@ func show_next_question() -> void:
 	dm.show_dialogue_balloon(_dialogue_resource, question_node, [self])
 	if dm.has_signal("dialogue_ended"):
 		await dm.dialogue_ended
+
+func _on_sage_encounter_ended(method: String) -> void:
+	# Called when sage combat/puzzle ends
+	# method can be: "combat_victory", "puzzle_solved", or "fled"
+	
+	if method in ["combat_victory", "puzzle_solved"]:
+		# Player cleared the sage encounter - transition to proprietary citadel
+		if SceneManager:
+			SceneManager.input_locked = true
+		
+		# Wait a brief moment for any UI cleanup
+		await get_tree().create_timer(1.0).timeout
+		
+		# Transition to the citadel
+		var citadel_scene_path := "res://Scenes/Levels/proprietary_citadel.tscn"
+		var spawn_point_name := "Spawn_BVTPC"
+		
+		if SceneManager:
+			await SceneManager.teleport_to_scene(citadel_scene_path, spawn_point_name, 0.5)
+		else:
+			get_tree().change_scene_to_file(citadel_scene_path)

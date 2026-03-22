@@ -333,6 +333,9 @@ func mark_sage_quiz_passed() -> void:
 
 	if SceneManager:
 		SceneManager.set_meta("bios_vault_sage_quiz_passed", true)
+		var tux_ctrl = SceneManager.get_node_or_null("TuxDialogueController")
+		if tux_ctrl and tux_ctrl.has_method("on_sage_quiz_passed"):
+			tux_ctrl.call("on_sage_quiz_passed")
 
 func reset_sage_quiz_attempts() -> void:
 	var scene_controller = get_tree().current_scene

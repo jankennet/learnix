@@ -485,6 +485,7 @@ func _resolve_encounter(method: String) -> void:
 		"combat_victory":
 			var granted_forest_key_combat := not SceneManager.proficiency_key_forest
 			SceneManager.npc_states["Broken Link"] = "defeated"
+			SceneManager.broken_link_defeated = true
 			SceneManager.broken_link_fragmented_key = false
 			SceneManager.proficiency_key_forest = true
 			if granted_forest_key_combat:
@@ -492,6 +493,7 @@ func _resolve_encounter(method: String) -> void:
 			var broken_link_defeated = _find_npc_by_name("Broken Link")
 			if broken_link_defeated:
 				_hide_npc(broken_link_defeated)
+			_trigger_tux_defeat_dialogue("Broken Link")
 			if SceneManager.quest_manager:
 				SceneManager.quest_manager.complete_quest("broken_link_puzzle")
 		"fled":
@@ -509,6 +511,17 @@ func _start_quest_if_needed() -> void:
 		var quest = SceneManager.quest_manager.get_quest("broken_link_puzzle")
 		if quest and quest.status == "inactive":
 			SceneManager.quest_manager.start_quest("broken_link_puzzle")
+
+## Trigger Tux dialogue for NPC defeat
+func _trigger_tux_defeat_dialogue(npc_name: String) -> void:
+	var tux_ctrl = SceneManager.get_node_or_null("TuxDialogueController")
+	if tux_ctrl and tux_ctrl.has_method("_handle_npc_defeated"):
+		var defeat_flag_map := {
+			"Broken Link": "broken_link_defeated",
+		}
+		var flag = defeat_flag_map.get(npc_name, "unknown")
+		print("[BrokenLink] Triggering Tux defeat dialogue for: %s" % npc_name)
+		tux_ctrl.call("_handle_npc_defeated", flag)
 #endregion
 
 ## Find an NPC node by name in the scene

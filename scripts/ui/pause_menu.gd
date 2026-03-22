@@ -618,6 +618,20 @@ func _close_file_explorer() -> void:
 
 	_update_menu_visuals()
 
+func _maybe_show_npc_dialogue(index: int) -> void:
+	if not explorer_file_list:
+		return
+	var entry = explorer_file_list.get_item_metadata(index)
+	if typeof(entry) != TYPE_DICTIONARY:
+		return
+		
+	var title := String(entry.get("title", ""))
+
+	# Check if title is an NPC name
+	var tux_ctrl = get_node_or_null("/root/SceneManager/TuxDialogueController")
+	if tux_ctrl and tux_ctrl.has_method("show_npc_file_dialogue"):
+		tux_ctrl.call("show_npc_file_dialogue", title)
+
 func _on_explorer_top_bar_gui_input(event: InputEvent) -> void:
 	if not in_file_explorer or not file_explorer_window or not file_explorer_window.visible:
 		return
@@ -736,6 +750,8 @@ func _on_explorer_item_selected(index: int) -> void:
 
 func _on_explorer_item_activated(index: int) -> void:
 	_activate_explorer_item(index)
+	# Check if this is an NPC file and show Tux dialogue
+	_maybe_show_npc_dialogue(index)
 
 func _activate_explorer_selected_item() -> void:
 	if not explorer_file_list:

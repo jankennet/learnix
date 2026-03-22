@@ -519,6 +519,7 @@ func _should_offer_puzzle() -> bool:
 	return hp_percent <= puzzle_unlocks_at_hp_percent
 
 func _resolve_encounter(method: String) -> void:
+	print("[LostFile] _resolve_encounter called with method: %s" % method)
 	encounter_result = method
 	current_mode = EncounterMode.RESOLVED
 	
@@ -537,6 +538,8 @@ func _resolve_encounter(method: String) -> void:
 		"combat_victory":
 			SceneManager.npc_states["Lost File"] = "hostile"
 			SceneManager.deleted_lost_file = true
+			_trigger_tux_defeat_dialogue()
+			_hide_npc_after_defeat()
 		
 		"fled":
 			# No state change
@@ -544,6 +547,13 @@ func _resolve_encounter(method: String) -> void:
 	
 	encounter_ended.emit(method)
 	mode_changed.emit(EncounterMode.RESOLVED)
+
+## Hide NPC after being defeated in combat
+func _hide_npc_after_defeat() -> void:
+	var lost_file_npc = _find_npc_by_name("Lost File")
+	if lost_file_npc and lost_file_npc.has_method("_hide_self"):
+		lost_file_npc.call("_hide_self", true)
+		print("[LostFile] Hidden Lost File NPC after defeat")
 
 ## Trigger the good ending: Lost File and Messy Directory go to Fallback Hamlet
 func _trigger_good_ending() -> void:
@@ -553,11 +563,19 @@ func _trigger_good_ending() -> void:
 	var lost_file_npc = _find_npc_by_name("Lost File")
 	if lost_file_npc:
 		_set_npc_good_idle(lost_file_npc)
+		# Hide the NPC immediately
+		if lost_file_npc.has_method("_hide_self"):
+			lost_file_npc.call("_hide_self", true)
+			print("[LostFile] Hidden Lost File NPC")
 	
 	# Find Messy Directory NPC and switch to good_idle
 	var messy_dir_npc = _find_npc_by_name("Messy Directory")
 	if messy_dir_npc:
 		_set_npc_good_idle(messy_dir_npc)
+		# Hide the NPC immediately
+		if messy_dir_npc.has_method("_hide_self"):
+			messy_dir_npc.call("_hide_self", true)
+			print("[LostFile] Hidden Messy Directory NPC")
 	
 	# After a short delay, teleport both to Fallback Hamlet
 	await get_tree().create_timer(2.0).timeout
@@ -705,6 +723,30 @@ func _choose_enemy_action() -> String:
 func _resolve_enemy_action(action: String) -> TurnCombatManager.CombatEffect:
 	return resolve_action(action)
 #endregion
+
+## Trigger Tux dialogue for NPC defeat
+func _trigger_tux_defeat_dialogue() -> void:
+	print("[LostFile] _trigger_tux_defeat_dialogue() called")
+	var sm = get_node_or_null("/root/SceneManager")
+	print("[LostFile] SceneManager found: %s" % (sm != null))
+	if sm == null:
+		print("[LostFile] ERROR: SceneManager not found!")
+		return
+	
+	var tux_ctrl = sm.get_node_or_null("TuxDialogueController")
+	print("[LostFile] TuxDialogueController found: %s" % (tux_ctrl != null))
+	if tux_ctrl == null:
+		print("[LostFile] ERROR: TuxDialogueController not found. Children of SceneManager:")
+		for child in sm.get_children():
+			print("[LostFile]   - %s" % child.name)
+		return
+	
+	if not tux_ctrl.has_method("_handle_npc_defeated"):
+		print("[LostFile] ERROR: _handle_npc_defeated method not found on TuxDialogueController")
+		return
+	
+	print("[LostFile] Calling _handle_npc_defeated('deleted_lost_file')")
+	tux_ctrl._handle_npc_defeated("deleted_lost_file")
 
 #region Utility
 

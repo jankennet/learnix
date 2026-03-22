@@ -22,6 +22,7 @@ const LEVEL_DEFAULT_SPAWNS := {
 	"res://Scenes/Levels/deamon_depths.tscn": "Dungeon/Spawn_DD",
 	"res://Scenes/Levels/bios_vault.tscn": "Spawn_BV",
 	"res://Scenes/Levels/bios_vault_.tscn": "Spawn_BV",
+	"res://Scenes/Levels/proprietary_citadel.tscn": "Spawn_BVTPC",
 }
 
 # Grouped to prevent typos when saving/loading
@@ -61,6 +62,8 @@ var met_driver_remnant: bool = false
 var met_printer_boss: bool = false
 var driver_remnant_defeated: bool = false
 var printer_beast_defeated: bool = false
+var broken_link_defeated: bool = false
+var hardware_ghost_defeated: bool = false
 var sudo_token_driver_remnant: bool = false
 var deamon_depths_boss_door_unlocked: bool = false
 var deamon_depths_printer_intro_played: bool = false
@@ -86,6 +89,13 @@ func _ready() -> void:
 	add_child(lost_file_spawner)
 
 	_reset_runtime_state()
+
+	# Instantiate the Tux dialogue controller to react to NPC events
+	var tux_ctrl_script = load("res://scripts/tux_dialogue_controller.gd")
+	if tux_ctrl_script:
+		var tux_ctrl = tux_ctrl_script.new()
+		tux_ctrl.name = "TuxDialogueController"
+		add_child(tux_ctrl)
 
 func has_save_game() -> bool:
 	return FileAccess.file_exists(SAVE_FILE_PATH)
@@ -347,6 +357,8 @@ func _reset_runtime_state() -> void:
 	met_printer_boss = false
 	driver_remnant_defeated = false
 	printer_beast_defeated = false
+	broken_link_defeated = false
+	hardware_ghost_defeated = false
 	sudo_token_driver_remnant = false
 	deamon_depths_boss_door_unlocked = false
 	deamon_depths_printer_intro_played = false
@@ -435,9 +447,16 @@ func _dismiss_pause_menu() -> void:
 	if pause_menu and pause_menu.has_method("_resume_game"):
 		pause_menu.call("_resume_game")
 
-func mark_npc_interacted(npc_name: String) -> void:
+signal npc_first_interacted(npc_name: String)
+
+func mark_npc_interacted(npc_name: String) -> bool:
 	if npc_name == "":
-		return
+		return false
+
+	var first_time := false
+	if not bool(interacted_npcs.get(npc_name, false)):
+		first_time = true
+
 	interacted_npcs[npc_name] = true
 
 	# Bridge older per-NPC flags with the new interaction registry.
@@ -448,6 +467,11 @@ func mark_npc_interacted(npc_name: String) -> void:
 			met_lost_file = true
 		_:
 			pass
+
+	if first_time:
+		emit_signal("npc_first_interacted", npc_name)
+
+	return first_time
 
 func has_interacted_with_npc(npc_name: String) -> bool:
 	return bool(interacted_npcs.get(npc_name, false))

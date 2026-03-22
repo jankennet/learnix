@@ -396,13 +396,38 @@ func _resolve_encounter(method: String) -> void:
 			_maybe_complete_drivers_den_quest()
 		"combat_victory":
 			SceneManager.npc_states["Hardware Ghost"] = "defeated"
+			SceneManager.hardware_ghost_defeated = true
 			SceneManager.met_hardware_ghost = true
+			_trigger_tux_defeat_dialogue("Hardware Ghost")
+			_hide_npc_after_defeat("Hardware Ghost")
 			_maybe_complete_drivers_den_quest()
 		"fled":
 			pass
 
 	encounter_ended.emit(method)
 	mode_changed.emit(EncounterMode.RESOLVED)
+
+## Trigger Tux dialogue for NPC defeat
+func _trigger_tux_defeat_dialogue(npc_name: String) -> void:
+	var tux_ctrl = SceneManager.get_node_or_null("TuxDialogueController")
+	if tux_ctrl and tux_ctrl.has_method("_handle_npc_defeated"):
+		var defeat_flag_map := {
+			"Hardware Ghost": "hardware_ghost_defeated",
+		}
+		var flag = defeat_flag_map.get(npc_name, "unknown")
+		print("[HardwareGhost] Triggering Tux defeat dialogue for: %s" % npc_name)
+		tux_ctrl.call("_handle_npc_defeated", flag)
+
+## Hide NPC after being defeated
+func _hide_npc_after_defeat(npc_name: String) -> void:
+	var npc: Node = null
+	for candidate in get_tree().get_nodes_in_group("npcs"):
+		if candidate.name == npc_name or candidate.name.contains(npc_name.replace(" ", "")):
+			npc = candidate
+			break
+	if npc and npc.has_method("_hide_self"):
+		npc.call("_hide_self", true)
+		print("[HardwareGhost] Hidden %s after defeat" % npc_name)
 
 func _start_quest_if_needed() -> void:
 	if SceneManager and SceneManager.quest_manager:
