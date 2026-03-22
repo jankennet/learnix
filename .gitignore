@@ -4,6 +4,11 @@
 !.godot/plugins/
 !.godot/plugins/**
 
+# Specific Godot editor cache files (already tracked in some clones)
+.godot/scene_groups_cache.cfg
+.godot/editor/editor_layout.cfg
+.godot/editor/filesystem_update4
+
 # Godot imported/generated resources
 *.import
 *.uid
