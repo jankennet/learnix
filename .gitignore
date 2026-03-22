@@ -1,0 +1,45 @@
+# Godot editor/runtime (local caches & generated data)
+.godot/
+!.godot/export_presets.cfg
+!.godot/plugins/
+!.godot/plugins/**
+
+# Godot imported/generated resources
+*.import
+*.uid
+
+# Godot exports / build outputs
+export/
+exported/
+build/
+bin/
+obj/
+
+# C# / Mono (if used)
+.mono/
+*.csproj
+*.sln
+*.user
+*.userprefs
+*.dll
+*.pdb
+*.mdb
+
+# OS files (Windows / macOS)
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Editors / IDEs
+.vscode/
+.vs/
+.idea/
+*.iml
+
+# Editor swap / backup files
+*~
+*.swp
+*.tmp
+*.cache
+*.log
+*.bak

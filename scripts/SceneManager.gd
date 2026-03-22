@@ -14,6 +14,7 @@ const QUEST_LIST_SCENE_PATH := "res://Scenes/ui/QuestList.tscn"
 const TERMINAL_EXPLORED_META_KEY := "terminal_explored_locations"
 const BIOS_VAULT_SAGE_META_KEY := "bios_vault_sage_quiz_passed"
 const PENDING_REWARD_META_KEY := "pending_reward_popup_key"
+
 const LEVEL_DEFAULT_SPAWNS := {
 	"res://Scenes/Levels/tutorial - Copy.tscn": "Spawn_player",
 	"res://Scenes/Levels/fallback_hamlet.tscn": "Fallback_Hamlet_Final/first_spawn",
@@ -22,47 +23,28 @@ const LEVEL_DEFAULT_SPAWNS := {
 	"res://Scenes/Levels/bios_vault.tscn": "Spawn_BV",
 	"res://Scenes/Levels/bios_vault_.tscn": "Spawn_BV",
 }
+
+# Grouped to prevent typos when saving/loading
 const PERSISTED_STATE_KEYS := [
-	"player_karma",
-	"npc_states",
-	"interacted_npcs",
-	"met_messy_directory",
-	"met_elder_shell",
-	"met_broken_installer",
-	"met_lost_file",
-	"helped_lost_file",
-	"deleted_lost_file",
-	"met_gate_keeper",
-	"proficiency_key_forest",
-	"proficiency_key_printer",
-	"broken_link_fragmented_key",
-	"gatekeeper_pass_granted",
-	"met_hardware_ghost",
-	"met_driver_remnant",
-	"met_printer_boss",
-	"driver_remnant_defeated",
-	"printer_beast_defeated",
-	"sudo_token_driver_remnant",
-	"deamon_depths_boss_door_unlocked",
-	"deamon_depths_printer_intro_played",
-	"sage_has_many_quests",
-	"sage_boss_only_progress",
-	"sage_quiz_tier",
-	"sage_quiz_fail_count",
-	"sage_force_combat",
+	"player_karma", "npc_states", "interacted_npcs", "met_messy_directory", 
+	"met_elder_shell", "met_broken_installer", "met_lost_file", "helped_lost_file", 
+	"deleted_lost_file", "met_gate_keeper", "proficiency_key_forest", "proficiency_key_printer", 
+	"broken_link_fragmented_key", "gatekeeper_pass_granted", "met_hardware_ghost", 
+	"met_driver_remnant", "met_printer_boss", "driver_remnant_defeated", "printer_beast_defeated", 
+	"sudo_token_driver_remnant", "deamon_depths_boss_door_unlocked", "deamon_depths_printer_intro_played", 
+	"sage_has_many_quests", "sage_boss_only_progress", "sage_quiz_tier", "sage_quiz_fail_count", "sage_force_combat"
 ]
 
-# Player info
 @export var player_scene_path: String = "res://Scenes/Player/player.tscn"
 var player: CharacterBody3D
 
-# Global data
-var player_karma: String = "neutral" # "good", "bad", etc.
-var npc_states: Dictionary = {} # { "Elder Shell": "helped", "Broken Installer": "hostile" }
-var interacted_npcs: Dictionary = {} # { "Elder Shell": true }
+# --- Game State ---
+var player_karma: String = "neutral"
+var npc_states: Dictionary = {}
+var interacted_npcs: Dictionary = {}
 var input_locked: bool = false
 
-# Dialogue state tracking (used by DialogueManager)
+# Dialogue flags
 var met_messy_directory: bool = false
 var met_elder_shell: bool = false
 var met_broken_installer: bool = false
@@ -88,48 +70,22 @@ var sage_quiz_tier: String = "intermediate"
 var sage_quiz_fail_count: int = 0
 var sage_force_combat: bool = false
 
-# Quest system
+# Systems
 var quest_manager: QuestManager
 var quest_definitions = preload("res://scripts/QuestDefinitions.gd")
 var lost_file_spawner_class = preload("res://scripts/LostFileSpawner.gd")
 var lost_file_spawner: Node
 var _load_in_progress := false
 
-func _instantiate_player_from_scene() -> CharacterBody3D:
-	var player_scene = load(player_scene_path)
-	if not player_scene:
-		push_error("Failed to load player scene: " + player_scene_path)
-		return null
-
-	var instance = player_scene.instantiate()
-	if instance is CharacterBody3D:
-		return instance as CharacterBody3D
-
-	var nested_player = instance.get_node_or_null("CharacterBody3D")
-	if nested_player and nested_player is CharacterBody3D:
-		instance.remove_child(nested_player)
-		instance.queue_free()
-		return nested_player as CharacterBody3D
-
-	instance.queue_free()
-	push_error("Player scene does not contain a CharacterBody3D root or child")
-	return null
-
-func _ready():
-	# Initialize quest system
+func _ready() -> void:
 	quest_manager = QuestManager.new()
 	add_child(quest_manager)
 	quest_definitions.register_all_quests(quest_manager)
-	print("Quest system initialized")
 	
-	# Initialize Lost File spawner
 	lost_file_spawner = lost_file_spawner_class.new()
 	add_child(lost_file_spawner)
-	print("Lost File spawner initialized")
 
 	_reset_runtime_state()
-
-	# Player is resolved from the active scene when needed.
 
 func has_save_game() -> bool:
 	return FileAccess.file_exists(SAVE_FILE_PATH)
@@ -526,44 +482,39 @@ func _apply_spawn_transform(transfer_node: Node, active_player: CharacterBody3D,
 	active_player.global_transform = target_player_transform
 
 # 🌀 Universal teleport (with loading screen + NPC refresh)
-func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.0):
-	print("🌍 Teleporting to:", scene_path)
+func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.0) -> void:
+	print("🌍 Teleporting to: ", scene_path)
 	input_locked = true
-	var previous_scene_path := ""
-	if get_tree().current_scene != null:
-		previous_scene_path = String(get_tree().current_scene.scene_file_path)
+	var current_scene := get_tree().current_scene
+	var previous_scene_path := current_scene.scene_file_path if current_scene else ""
 
 	var active_player := _ensure_player()
 	if not active_player:
 		input_locked = false
 		return
 
-	var transfer_node: Node = _get_player_transfer_root(active_player)
-	var persistent_ui: Node = _extract_persistent_ui(get_tree().current_scene)
+	var transfer_node := _get_player_transfer_root(active_player)
+	var persistent_ui := _extract_persistent_ui(current_scene)
 
-	# Show loading screen
 	var loading_ui = await _show_loading_screen(scene_path, spawn_name)
-
-	# Load target scene with threaded streaming
 	var new_scene_res := await _load_scene_threaded(scene_path, loading_ui)
+	
 	if not new_scene_res:
-		push_error("Failed to load scene: " + scene_path)
+		push_error("Aborting teleport. Scene failed to load: " + scene_path)
 		await _hide_loading_screen()
 		return
 
-	var new_scene = new_scene_res.instantiate()
-	var root = get_tree().root
+	var new_scene := new_scene_res.instantiate()
+	var root := get_tree().root
 
-	var previous_parent = transfer_node.get_parent()
-	if previous_parent:
-		previous_parent.remove_child(transfer_node)
-
+	# Safely re-parent
+	if transfer_node.get_parent():
+		transfer_node.get_parent().remove_child(transfer_node)
 	if persistent_ui and persistent_ui.get_parent():
 		persistent_ui.get_parent().remove_child(persistent_ui)
 
-	# Remove current scene
-	if get_tree().current_scene:
-		get_tree().current_scene.queue_free()
+	if current_scene:
+		current_scene.queue_free()
 
 	root.add_child(new_scene)
 	get_tree().current_scene = new_scene
@@ -571,13 +522,13 @@ func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.
 	new_scene.add_child(transfer_node)
 	if persistent_ui and not new_scene.has_node("UI"):
 		new_scene.add_child(persistent_ui)
-	elif persistent_ui and new_scene.has_node("UI"):
-		# Keep migrated UI alive even if target scene already has a UI node.
+	elif persistent_ui:
 		root.add_child(persistent_ui)
+
 	player = active_player
 
-	# Find spawn point
-	var spawn = new_scene.get_node_or_null(spawn_name)
+	# Spawn Resolution
+	var spawn := new_scene.get_node_or_null(spawn_name)
 	if spawn:
 		_apply_spawn_transform(transfer_node, active_player, spawn.global_transform)
 	else:
@@ -585,15 +536,13 @@ func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.
 
 	await get_tree().create_timer(delay).timeout
 
-	# 🎥 Reactivate camera
-	var cam = active_player.get_node_or_null("Camera3D")
+	var cam := active_player.get_node_or_null("Camera3D")
 	if cam:
 		cam.current = true
 
-	# 🧠 Notify all NPCs to "wake up"
 	_activate_scene_npcs(new_scene)
 
-	# 🔓 Hard recovery: always restore player input after transfer
+	# Clean state restoration
 	active_player.process_mode = Node.PROCESS_MODE_INHERIT
 	active_player.set_physics_process(true)
 	active_player.set_process_input(true)
@@ -690,39 +639,38 @@ func _attach_tutorial_controller(scene: Node, active_player: CharacterBody3D, sc
 
 func _load_scene_threaded(scene_path: String, loading_ui: Node = null) -> PackedScene:
 	var request_error := ResourceLoader.load_threaded_request(scene_path)
+	
 	if request_error != OK:
-		push_warning("Threaded load request failed, using sync load: " + scene_path)
-		var fallback_resource := load(scene_path)
-		if fallback_resource and fallback_resource is PackedScene:
-			if loading_ui and loading_ui.has_method("set_loading_progress"):
-				loading_ui.set_loading_progress(1.0)
-			return fallback_resource as PackedScene
-		return null
+		push_warning("Threaded request failed natively. Falling back to sync load: " + scene_path)
+		return _synchronous_load_fallback(scene_path, loading_ui)
 
 	var progress: Array = []
 	var status := ResourceLoader.load_threaded_get_status(scene_path, progress)
+	
 	while status == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
 		if loading_ui and loading_ui.has_method("set_loading_progress"):
-			if progress.size() > 0:
-				loading_ui.set_loading_progress(progress[0])
-			else:
-				loading_ui.set_loading_progress(0.0)
+			loading_ui.set_loading_progress(progress[0] if not progress.is_empty() else 0.0)
 		await get_tree().process_frame
 		status = ResourceLoader.load_threaded_get_status(scene_path, progress)
 
-	if status != ResourceLoader.THREAD_LOAD_LOADED:
-		push_error("Threaded load failed for scene: " + scene_path)
-		return null
+	# MISSING LOGIC ADDED HERE: Actually return the loaded resource!
+	if status == ResourceLoader.THREAD_LOAD_LOADED:
+		if loading_ui and loading_ui.has_method("set_loading_progress"):
+			loading_ui.set_loading_progress(1.0)
+		return ResourceLoader.load_threaded_get(scene_path) as PackedScene
 
-	var loaded_resource := ResourceLoader.load_threaded_get(scene_path)
-	if not loaded_resource or not (loaded_resource is PackedScene):
-		push_error("Loaded resource is not a PackedScene: " + scene_path)
-		return null
+	# If it fails (e.g., Wine case-sensitivity mismatch)
+	push_error("Threaded load completely failed for scene: " + scene_path)
+	return _synchronous_load_fallback(scene_path, loading_ui)
 
-	if loading_ui and loading_ui.has_method("set_loading_progress"):
-		loading_ui.set_loading_progress(1.0)
-
-	return loaded_resource as PackedScene
+func _synchronous_load_fallback(scene_path: String, loading_ui: Node = null) -> PackedScene:
+	push_warning("Attempting synchronous fallback for: " + scene_path)
+	var fallback_resource := load(scene_path)
+	if fallback_resource is PackedScene:
+		if loading_ui and loading_ui.has_method("set_loading_progress"):
+			loading_ui.set_loading_progress(1.0)
+		return fallback_resource as PackedScene
+	return null
 
 # 🧩 Internal helper: Notify all NPCs in a scene
 func _activate_scene_npcs(scene: Node):

@@ -55,7 +55,7 @@ var zone_center_position: float = 0.5  # Will be randomized on start
 @export_group("Indicator Settings")
 @export var indicator_width: float = 8.0
 @export var indicator_color: Color = Color(1.0, 1.0, 1.0, 1.0)
-@export var indicator_speed: float = 200.0  # Pixels per second (fast but readable)
+@export var indicator_speed: float = 400.0  # Pixels per second (fast but readable)
 @export var oscillate: bool = true  # Move back and forth vs one direction
 
 @export_group("Timing")

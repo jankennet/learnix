@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://c7rgpbk2xm4qd"]
+[gd_scene load_steps=2 format=3 uid="uid://den3mfptppv0m"]
 
-[ext_resource type="Script" path="res://scripts/combat/timing_minigame.gd" id="1_timing"]
+[ext_resource type="Script" uid="uid://dg8dinhi5qbju" path="res://scripts/combat/timing_minigame.gd" id="1_timing"]
 
 [node name="TimingMinigame" type="Control"]
 layout_mode = 3
@@ -11,18 +11,11 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_timing")
-bar_width = 400.0
-bar_height = 40.0
-bar_color = Color(0.2, 0.2, 0.3, 0.9)
-bar_border_color = Color(0.4, 0.9, 0.4, 1)
 critical_zone_percent = 0.12
 normal_zone_percent = 0.18
 critical_color = Color(1, 0.85, 0, 0.8)
 normal_color = Color(0.3, 0.7, 0.3, 0.6)
 miss_color = Color(0.5, 0.2, 0.2, 0.4)
 indicator_width = 6.0
-indicator_color = Color(1, 1, 1, 1)
-indicator_speed = 300.0
-oscillate = true
+indicator_speed = 600.0
 max_time = 3.0
-input_action = "ui_accept"
