@@ -1,4 +1,4 @@
-[gd_scene load_steps=58 format=3 uid="uid://lbre8n3j6pem"]
+[gd_scene load_steps=65 format=3 uid="uid://lbre8n3j6pem"]
 
 [ext_resource type="PackedScene" uid="uid://dltktt7qdwiaj" path="res://levelAssets/gtlfLevels/Dungeon.glb" id="1_m653t"]
 [ext_resource type="Script" uid="uid://dvrxfibrcccd0" path="res://scripts/teleport.gd" id="2_d5g6v"]
@@ -9,6 +9,7 @@
 [ext_resource type="Shader" uid="uid://dvv4uathqw03n" path="res://Assets/portal_shader.tres" id="5_tuulv"]
 [ext_resource type="Script" uid="uid://ce0f0ugerh3tg" path="res://scripts/sudo_boss_door.gd" id="6_3teor"]
 [ext_resource type="Script" uid="uid://bck3pddiufo8o" path="res://scripts/collision_builder.gd" id="7_collision_builder"]
+[ext_resource type="Texture2D" uid="uid://bvwcyi5b54gls" path="res://Assets/characterSpriteSheets/ss_FallbackHamletNPC/CMO.png" id="9_ovu8s"]
 [ext_resource type="Texture2D" uid="uid://r0ciqujeb2cn" path="res://Assets/shaders/T_VFX_Flare_16.PNG" id="10_4cv53"]
 [ext_resource type="Texture2D" uid="uid://3oppuvtya504" path="res://Assets/shaders/T_VFX_lelu1_tiled.png" id="10_qo7kh"]
 
@@ -249,6 +250,46 @@ animations = [{
 "speed": 5.0
 }]
 
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_qo7kh"]
+radius = 0.9980469
+height = 1.9960938
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_aghyr"]
+atlas = ExtResource("9_ovu8s")
+region = Rect2(0, 0, 240, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f54o5"]
+atlas = ExtResource("9_ovu8s")
+region = Rect2(240, 0, 240, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bjbd7"]
+atlas = ExtResource("9_ovu8s")
+region = Rect2(480, 0, 240, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ksift"]
+atlas = ExtResource("9_ovu8s")
+region = Rect2(720, 0, 240, 80)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_vef8h"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_aghyr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f54o5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bjbd7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ksift")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_o18mp"]
 render_priority = 1
 shader = ExtResource("5_tuulv")
@@ -371,9 +412,11 @@ shape = SubResource("SphereShape3D_o5iuf")
 [node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="NPCS/Printer Boss"]
 transform = Transform3D(0.694947, 0, -0.719061, 0, 1, 0, 0.719061, 0, 0.694947, 1.3843307, 1.7638707, 6.0124435)
 pixel_size = 0.07
-alpha_cut = 1
+billboard = 2
+alpha_cut = 3
 texture_filter = 0
 sprite_frames = SubResource("SpriteFrames_1okqw")
+frame_progress = 0.61677676
 
 [node name="Driver Remnant" type="CharacterBody3D" parent="NPCS" groups=["npcs"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.948769, 0, -9.577864)
@@ -408,6 +451,23 @@ alpha_cut = 1
 texture_filter = 0
 sprite_frames = SubResource("SpriteFrames_bjbd7")
 animation = &"bad_idle"
+
+[node name="CMO" type="CharacterBody3D" parent="NPCS" groups=["npcs"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.868343, 0, 0)
+script = ExtResource("3_k8yqp")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NPCS/CMO"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8702756, 0)
+shape = SubResource("CapsuleShape3D_qo7kh")
+
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="NPCS/CMO"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.56296194, 0)
+pixel_size = 0.05
+billboard = 2
+alpha_cut = 3
+texture_filter = 0
+sprite_frames = SubResource("SpriteFrames_vef8h")
+frame_progress = 0.48656014
 
 [node name="SpotLight3D" type="SpotLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -0.8067954, 0.590831, 0, -0.590831, -0.8067954, -3.9799407, 3.9883714, -31.392784)

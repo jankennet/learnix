@@ -33,8 +33,12 @@ const RESPONSE_FONT_BASE := 12
 const DIALOGUE_PORTRAITS_BASE := {
 	"Broken Installer": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_broken_installer.png",
 	"Elder Shell": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_elder_shell.png",
-	"Gate Keeper": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_mount_whisperer.png",
-	"Mount Whisperer": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_mount_whisperer.png"
+	"Gate Keeper": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_GateKeeper.png",
+	"Mount Whisperer": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_mount_whisperer.png",
+	"Printer Beast": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_PrinterBoss.png",
+	"Sage": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_Sage.png",
+	"Tux": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_Tux.png",
+	"CMO": "res://Assets/characterSpriteSheets/ss_FallbackHamletNPC/CMO.png"
 }
 
 const DIALOGUE_PORTRAITS_VARIANTS := {

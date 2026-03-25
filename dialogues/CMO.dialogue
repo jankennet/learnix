@@ -1,0 +1,19 @@
+~ start
+if SceneManager.proficiency_key_printer == true:
+	CMO: ...
+	CMO: You read the noise. Good.
+	CMO: I am CMO. Quiet by default. Cute by accident.
+	CMO: Underrated Linux truth: directories are memory palaces.
+	CMO: In Learnix, paths are routes. Routes are survival.
+	CMO: Use cd to travel between locations.
+	CMO: Try: cd /fallback_hamlet
+	CMO: Try: cd /deamon_depths
+	CMO: And cd .. to step one level back.
+	CMO: Small command. Big world.
+	=> END
+else:
+	CMO: ...
+	CMO: [soft static]
+	CMO: Bring me the Printer Proficiency Key first.
+	CMO: Then I will teach you something.
+	=> END

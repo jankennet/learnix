@@ -108,6 +108,10 @@ func _ready():
 				var path_p = "res://dialogues/PrinterBeast.dialogue"
 				if ResourceLoader.exists(path_p):
 					dialogue_resource_path = path_p
+			"cmo":
+				var path_cmo = "res://dialogues/CMO.dialogue"
+				if ResourceLoader.exists(path_cmo):
+					dialogue_resource_path = path_cmo
 
 	play_idle_animation()
 	_apply_state_visuals_from_scene_state(true)

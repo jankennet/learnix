@@ -23,7 +23,7 @@ Tux: Perfect. Input pipeline confirmed.
 
 ~ hud_unlock
 Tux: Time to unlock your HUD.
-Tux: Top-right panel has three anchors:
+Tux: Bottom-right panel has three anchors:
 Tux: FILE for inventory and documents.
 Tux: TERM for your terminal.
 Tux: TUX for quick tutorial tips and mission beats.

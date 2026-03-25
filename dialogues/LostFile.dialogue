@@ -48,7 +48,7 @@ else:
 
 ~ ask_more
 Lost File: Will you... help me? Or are you like the others?
-- I want to help you (for Messy Directory).
+- I want to help you.
 	Lost File: Really? You'd... restore me?
 	Lost File: For her? She never forgot about me?
 	Lost File: My fragments are scattered across the filesystem.
@@ -57,7 +57,7 @@ Lost File: Will you... help me? Or are you like the others?
 	Lost File: And my mother... she can finally have peace.
 	set SceneManager.npc_states["Lost File"] = "neutral"
 	=> offer_puzzle
-- I need to move on. (Start Combat)
+- I need to move on.
 	Lost File: Even Messy Directory... she's sending you to hurt me.
 	Lost File: Everyone abandons the broken things.
 	Lost File: [The Lost File's fragments swirl aggressively]

@@ -138,7 +138,7 @@ lines = {
 &"character": "Tux",
 &"id": "25",
 &"next_id": "26",
-&"text": "Top-right panel has three anchors:",
+&"text": "Bottom-right panel has three anchors:",
 &"type": "dialogue"
 },
 "26": {
@@ -564,7 +564,7 @@ Tux: Perfect. Input pipeline confirmed.
 
 ~ hud_unlock
 Tux: Time to unlock your HUD.
-Tux: Top-right panel has three anchors:
+Tux: Bottom-right panel has three anchors:
 Tux: FILE for inventory and documents.
 Tux: TERM for your terminal.
 Tux: TUX for quick tutorial tips and mission beats.
