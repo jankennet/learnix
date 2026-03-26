@@ -1,11 +1,18 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3 uid="uid://h62f7fssbqql"]
 
-[ext_resource type="Script" path="res://scripts/ui/title_menu.gd" id="1_script"]
-[ext_resource type="FontFile" path="res://Assets/fonts/PressStart2P-Regular.ttf" id="2_font"]
-[ext_resource type="Shader" path="res://shaders/ui/title_crt_overlay.gdshader" id="3_shader"]
+[ext_resource type="Script" uid="uid://ckdhtdqpse7py" path="res://scripts/ui/title_menu.gd" id="1_script"]
+[ext_resource type="FontFile" uid="uid://lqtbary7gh5r" path="res://Assets/fonts/PressStart2P-Regular.ttf" id="2_font"]
+[ext_resource type="Shader" uid="uid://b8gpuq6lauslf" path="res://shaders/ui/title_crt_overlay.gdshader" id="3_shader"]
+[ext_resource type="Texture2D" uid="uid://b0fqo5q00erm3" path="res://Assets/titleMenu_bg.png" id="4_bg"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_crt"]
 shader = ExtResource("3_shader")
+shader_parameter/curvature = 0.012
+shader_parameter/scanline_intensity = 0.08
+shader_parameter/scanline_frequency = 2.8
+shader_parameter/vignette_intensity = 0.16
+shader_parameter/flicker_intensity = 0.01
+shader_parameter/bezel_color = Color(0.08, 0.08, 0.08, 1)
 
 [node name="TitleMenu" type="Control"]
 layout_mode = 3
@@ -16,14 +23,16 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="TextureRect" parent="."]
+modulate = Color(1, 1, 1, 0.18)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 1)
+texture = ExtResource("4_bg")
+expand_mode = 1
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -44,10 +53,10 @@ theme_override_font_sizes/font_size = 8
 horizontal_alignment = 1
 
 [node name="SubtitleLabel" type="Label" parent="CenterContainer/MainColumn"]
+modulate = Color(0.8, 0.72, 0.72, 1)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 11
-modulate = Color(0.8, 0.72, 0.72, 1)
 horizontal_alignment = 1
 
 [node name="MenuVBox" type="VBoxContainer" parent="CenterContainer/MainColumn"]
@@ -78,7 +87,7 @@ theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 16
 horizontal_alignment = 1
 
-[node name="SettingsOverlay" type="Label" parent="."]
+[node name="SettingsOverlay" type="PanelContainer" parent="."]
 visible = false
 layout_mode = 1
 anchors_preset = 8
@@ -86,28 +95,133 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -300.0
-offset_top = -30.0
-offset_right = 300.0
-offset_bottom = 80.0
+offset_left = -360.0
+offset_top = -160.0
+offset_right = 360.0
+offset_bottom = 220.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 1
+
+[node name="MainMargin" type="MarginContainer" parent="SettingsOverlay"]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 14
+
+[node name="MainVBox" type="VBoxContainer" parent="SettingsOverlay/MainMargin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SettingsTitle" type="Label" parent="SettingsOverlay/MainMargin/MainVBox"]
+layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 12
+text = "SETTINGS"
 horizontal_alignment = 1
-vertical_alignment = 1
-text = "SETTINGS COMING SOON\nPRESS ENTER OR ESC TO RETURN"
+
+[node name="SettingsList" type="ItemList" parent="SettingsOverlay/MainMargin/MainVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+auto_height = true
+
+[node name="GraphicsPanel" type="PanelContainer" parent="SettingsOverlay/MainMargin/MainVBox"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="GraphicsMargin" type="MarginContainer" parent="SettingsOverlay/MainMargin/MainVBox/GraphicsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="GraphicsVBox" type="VBoxContainer" parent="SettingsOverlay/MainMargin/MainVBox/GraphicsPanel/GraphicsMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="GraphicsTitle" type="Label" parent="SettingsOverlay/MainMargin/MainVBox/GraphicsPanel/GraphicsMargin/GraphicsVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+text = "GRAPHICS"
+horizontal_alignment = 1
+
+[node name="GraphicsList" type="ItemList" parent="SettingsOverlay/MainMargin/MainVBox/GraphicsPanel/GraphicsMargin/GraphicsVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+auto_height = true
+
+[node name="ControlsPanel" type="PanelContainer" parent="SettingsOverlay/MainMargin/MainVBox"]
+visible = false
+layout_mode = 2
+
+[node name="ControlsMargin" type="MarginContainer" parent="SettingsOverlay/MainMargin/MainVBox/ControlsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="ControlsVBox" type="VBoxContainer" parent="SettingsOverlay/MainMargin/MainVBox/ControlsPanel/ControlsMargin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ControlsTitle" type="Label" parent="SettingsOverlay/MainMargin/MainVBox/ControlsPanel/ControlsMargin/ControlsVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+text = "CONTROLS"
+horizontal_alignment = 1
+
+[node name="ControlsHint" type="Label" parent="SettingsOverlay/MainMargin/MainVBox/ControlsPanel/ControlsMargin/ControlsVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 8
+text = "Press ESC to return"
+horizontal_alignment = 1
+
+[node name="SoundPanel" type="PanelContainer" parent="SettingsOverlay/MainMargin/MainVBox"]
+visible = false
+layout_mode = 2
+
+[node name="SoundMargin" type="MarginContainer" parent="SettingsOverlay/MainMargin/MainVBox/SoundPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="SoundVBox" type="VBoxContainer" parent="SettingsOverlay/MainMargin/MainVBox/SoundPanel/SoundMargin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="SoundTitle" type="Label" parent="SettingsOverlay/MainMargin/MainVBox/SoundPanel/SoundMargin/SoundVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+text = "SOUND"
+horizontal_alignment = 1
+
+[node name="SoundHint" type="Label" parent="SettingsOverlay/MainMargin/MainVBox/SoundPanel/SoundMargin/SoundVBox"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 8
+text = "Press ESC to return"
+horizontal_alignment = 1
 
 [node name="BackBufferCopy" type="BackBufferCopy" parent="."]
 copy_mode = 2
 
 [node name="CRTOverlay" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_crt")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-material = SubResource("ShaderMaterial_crt")
 mouse_filter = 2
 color = Color(0, 0, 0, 0)
