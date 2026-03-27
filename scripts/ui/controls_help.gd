@@ -10,7 +10,7 @@ func _ready() -> void:
 	move_value.text = _build_move_text()
 	run_value.text = _first_binding_text("ui_shift")
 	interact_value.text = _first_binding_text("interact")
-	dialogue_value.text = _joined_binding_text("dialogic_default_action")
+	dialogue_value.text = _joined_binding_text("interact")
 	confirm_value.text = _first_binding_text("ui_accept")
 
 func _build_move_text() -> String:

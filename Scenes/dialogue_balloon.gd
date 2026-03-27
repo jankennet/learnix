@@ -22,7 +22,7 @@ const RESPONSE_FONT_BASE := 12
 @export var auto_start: bool = false
 
 ## The action to use for advancing the dialogue
-@export var next_action: StringName = &"ui_accept"
+@export var next_action: StringName = &"interact"
 
 ## The action to use to skip typing the dialogue
 @export var skip_action: StringName = &"ui_cancel"
@@ -198,13 +198,10 @@ func _process(_delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	# Only the balloon is allowed to handle input while it's showing
 	get_viewport().set_input_as_handled()
-	
-	# Handle space bar as next action
-	if event is InputEventKey and event.pressed and event.keycode == KEY_SPACE:
-		if dialogue_label.is_typing:
-			dialogue_label.skip_typing()
-		elif is_waiting_for_input and dialogue_line.responses.size() == 0:
-			next(dialogue_line.next_id)
+
+	if event.is_action_pressed("ui_cancel"):
+		_cancel_dialogue()
+		return
 
 
 func _notification(what: int) -> void:
@@ -309,36 +306,92 @@ func _update_portrait(character_name: String) -> void:
 
 
 func _resolve_character_portrait(character_name: String) -> Texture2D:
-	if character_portraits.has(character_name):
-		return character_portraits[character_name]
+	var custom_key := _find_dictionary_key_for_character(character_portraits, character_name)
+	if custom_key != "":
+		return character_portraits[custom_key]
 
-	var variant := _get_character_alignment_variant(character_name)
-	if variant != "" and DIALOGUE_PORTRAITS_VARIANTS.has(character_name):
-		var variant_path: String = DIALOGUE_PORTRAITS_VARIANTS[character_name].get(variant, "")
-		if variant_path != "" and ResourceLoader.exists(variant_path):
-			return load(variant_path) as Texture2D
+	var variants_key := _find_dictionary_key_for_character(DIALOGUE_PORTRAITS_VARIANTS, character_name)
+	if variants_key != "":
+		var variant_paths: Dictionary = DIALOGUE_PORTRAITS_VARIANTS[variants_key]
+		var variant := _get_npc_alignment_variant(character_name)
+		if variant != "":
+			var variant_path: String = str(variant_paths.get(variant, ""))
+			if variant_path != "" and ResourceLoader.exists(variant_path):
+				return load(variant_path) as Texture2D
 
-	if DIALOGUE_PORTRAITS_BASE.has(character_name):
-		var base_path: String = DIALOGUE_PORTRAITS_BASE[character_name]
+		# Save/load can leave alignment unknown; default to unhelped-looking portrait first.
+		for fallback_variant in ["bad", "good"]:
+			var fallback_path: String = str(variant_paths.get(fallback_variant, ""))
+			if fallback_path != "" and ResourceLoader.exists(fallback_path):
+				return load(fallback_path) as Texture2D
+
+	var base_key := _find_dictionary_key_for_character(DIALOGUE_PORTRAITS_BASE, character_name)
+	if base_key != "":
+		var base_path: String = str(DIALOGUE_PORTRAITS_BASE[base_key])
 		if ResourceLoader.exists(base_path):
 			return load(base_path) as Texture2D
 
 	return null
 
 
+func _find_dictionary_key_for_character(source: Dictionary, character_name: String) -> String:
+	if source.has(character_name):
+		return character_name
+
+	var target := _normalize_character_key(character_name)
+	for key in source.keys():
+		if _normalize_character_key(str(key)) == target:
+			return str(key)
+
+	return ""
+
+
+func _normalize_character_key(value: String) -> String:
+	var normalized := value.strip_edges().to_lower().replace("_", " ").replace("-", " ")
+	while normalized.find("  ") != -1:
+		normalized = normalized.replace("  ", " ")
+	return normalized
+
+
 func _get_character_alignment_variant(character_name: String) -> String:
 	var scene_manager = get_node_or_null("/root/SceneManager")
 	if scene_manager:
-		if scene_manager.npc_states.has(character_name):
-			var npc_state: String = str(scene_manager.npc_states[character_name])
-			if npc_state in ["helped", "solved", "good", "peaceful"]:
-				return "good"
-			if npc_state in ["hostile", "bad", "fled_combat", "defeated"]:
-				return "bad"
+		var npc_variant := _get_npc_alignment_variant(character_name)
+		if npc_variant != "":
+			return npc_variant
 
 		var player_karma: String = str(scene_manager.player_karma)
 		if player_karma in ["good", "bad"]:
 			return player_karma
+
+	return ""
+
+
+func _get_npc_alignment_variant(character_name: String) -> String:
+	var scene_manager = get_node_or_null("/root/SceneManager")
+	if scene_manager == null:
+		return ""
+
+	var npc_state := _get_npc_state_for_character(scene_manager, character_name)
+	if npc_state in ["helped", "solved", "good", "peaceful"]:
+		return "good"
+	if npc_state in ["hostile", "bad", "fled_combat", "defeated"]:
+		return "bad"
+
+	return ""
+
+
+func _get_npc_state_for_character(scene_manager: Node, character_name: String) -> String:
+	if scene_manager == null:
+		return ""
+
+	if scene_manager.npc_states.has(character_name):
+		return str(scene_manager.npc_states[character_name])
+
+	var target := _normalize_character_key(character_name)
+	for key in scene_manager.npc_states.keys():
+		if _normalize_character_key(str(key)) == target:
+			return str(scene_manager.npc_states[key])
 
 	return ""
 
@@ -351,6 +404,19 @@ func set_character_portrait(character_name: String, texture: Texture2D) -> void:
 ## Go to the next line
 func next(next_id: String) -> void:
 	dialogue_line = await dialogue_resource.get_next_dialogue_line(next_id, temporary_game_states)
+
+
+func _cancel_dialogue() -> void:
+	is_waiting_for_input = false
+	_unlock_player_controls()
+	var dialogue_manager = get_tree().root.get_node_or_null("DialogueManager")
+	if dialogue_manager and is_instance_valid(dialogue_resource):
+		dialogue_manager.dialogue_ended.emit(dialogue_resource)
+
+	if owner == null:
+		queue_free()
+	else:
+		hide()
 
 
 #region Signals
@@ -370,6 +436,11 @@ func _on_mutated(_mutation: Dictionary) -> void:
 
 
 func _on_balloon_gui_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		get_viewport().set_input_as_handled()
+		_cancel_dialogue()
+		return
+
 	# See if we need to skip typing of the dialogue
 	if dialogue_label.is_typing:
 		var mouse_was_clicked: bool = event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.is_pressed()

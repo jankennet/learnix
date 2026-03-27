@@ -31,6 +31,18 @@ corner_radius_bottom_left = 4
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_response"]
 bg_color = Color(0, 0, 0, 0)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_response_focus"]
+bg_color = Color(0.498039, 0.262745, 0.819608, 0.35)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.772549, 0.596078, 0.972549, 0.95)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_portrait"]
 bg_color = Color(0.827451, 0.462745, 0.2, 1)
 border_width_left = 2
@@ -129,14 +141,14 @@ response_template = NodePath("ResponseTemplate")
 [node name="ResponseTemplate" type="Button" parent="Balloon/MarginContainer/PanelContainer/HBoxContainer/VBoxContainer/ResponsesMenu"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.878431, 0.25098, 1)
-theme_override_colors/font_hover_color = Color(1, 0.952941, 0.556863, 1)
-theme_override_colors/font_focus_color = Color(1, 0.952941, 0.556863, 1)
+theme_override_colors/font_hover_color = Color(0.913725, 0.827451, 1, 1)
+theme_override_colors/font_focus_color = Color(0.913725, 0.827451, 1, 1)
 theme_override_fonts/font = ExtResource("4_font")
 theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_response")
-theme_override_styles/hover = SubResource("StyleBoxFlat_response")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_response")
-theme_override_styles/focus = SubResource("StyleBoxFlat_response")
+theme_override_styles/hover = SubResource("StyleBoxFlat_response_focus")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_response_focus")
+theme_override_styles/focus = SubResource("StyleBoxFlat_response_focus")
 text = "Response"
 flat = true
 alignment = 0
