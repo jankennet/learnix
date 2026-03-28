@@ -11,6 +11,8 @@ var _target_fov: float = 75.0
 var _current_camera: Camera3D = null
 var _dialogue_active: bool = false
 var _camera_default_fov_by_id: Dictionary = {}
+var _last_interaction_time_ms: int = 0
+const INTERACTION_DEBOUNCE_MS: int = 150
 
 func _ready() -> void:
 	# Connect to DialogueManager signals for zoom effect
@@ -81,6 +83,15 @@ func request_interaction():
 	var sm = get_node_or_null("/root/SceneManager")
 	if sm and sm.input_locked:
 		return
-	
+	# If a dialogue is active, don't start another interaction
+	if _dialogue_active:
+		return
+
+	# Debounce rapid repeat interactions (prevents double-triggering from simultaneous inputs)
+	var now := Time.get_ticks_msec()
+	if now - _last_interaction_time_ms < INTERACTION_DEBOUNCE_MS:
+		return
+	_last_interaction_time_ms = now
+
 	if current_interactable and current_interactable.has_method("on_interact"):
 		current_interactable.on_interact()

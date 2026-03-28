@@ -24,6 +24,32 @@ const LEVEL_DEFAULT_SPAWNS := {
 	"res://Scenes/Levels/bios_vault_.tscn": "Spawn_BV",
 	"res://Scenes/Levels/proprietary_citadel.tscn": "Spawn_BVTPC",
 }
+ 
+# Audio/music config
+const MUSIC_FOLDER := "res://album/backgroundMusic/"
+const MUSIC_FILES := {
+	"title_screen": "3023 Mars Wars.mp3",
+	"tutorial": "The Search.mp3",
+	"fallback_hamlet": "Ooh! a Fly, wait... It isn't.mp3",
+	"file_system_forest": "Ocean Monsters.mp3",
+	"deamon_depths": "Rose Garden.mp3",
+	"bios_vault": "A Green Pig.mp3",
+	"proprietary_citadel": "Poisonous Bite.mp3",
+	"ominous_secret_evil_tux": "An Ancient King.mp3",
+	"combat_terminal": "Lava monsters.mp3",
+	"puzzle_terminal": "Hello, it's Me!.mp3",
+}
+
+const SCENE_MUSIC_MAP := {
+	"res://Scenes/Levels/tutorial - Copy.tscn": "tutorial",
+	"res://Scenes/Levels/fallback_hamlet.tscn": "fallback_hamlet",
+	"res://Scenes/Levels/file_system_forest.tscn": "file_system_forest",
+	"res://Scenes/Levels/deamon_depths.tscn": "deamon_depths",
+	"res://Scenes/Levels/bios_vault.tscn": "bios_vault",
+	"res://Scenes/Levels/bios_vault_.tscn": "bios_vault",
+	"res://Scenes/Levels/proprietary_citadel.tscn": "proprietary_citadel",
+	"res://Scenes/ui/title_menu.tscn": "title_screen",
+}
 
 # Grouped to prevent typos when saving/loading
 const PERSISTED_STATE_KEYS := [
@@ -38,6 +64,8 @@ const PERSISTED_STATE_KEYS := [
 
 @export var player_scene_path: String = "res://Scenes/Player/player.tscn"
 var player: CharacterBody3D
+var _bg_music_player: AudioStreamPlayer = null
+var _current_music_key: String = ""
 
 # --- Game State ---
 var player_karma: String = "neutral"
@@ -96,6 +124,12 @@ func _ready() -> void:
 		var tux_ctrl = tux_ctrl_script.new()
 		tux_ctrl.name = "TuxDialogueController"
 		add_child(tux_ctrl)
+	# Background music player
+	_bg_music_player = AudioStreamPlayer.new()
+	_bg_music_player.name = "BackgroundMusicPlayer"
+	add_child(_bg_music_player)
+	# Autoplay music for the current scene once ready (deferred)
+	call_deferred("play_music_for_key", SCENE_MUSIC_MAP.get(get_tree().current_scene.scene_file_path if get_tree().current_scene else "", ""))
 
 func has_save_game() -> bool:
 	return FileAccess.file_exists(SAVE_FILE_PATH)
@@ -177,6 +211,8 @@ func _load_game_from_data(save_data: Dictionary) -> void:
 		root.add_child(persistent_ui)
 
 	_ensure_gameplay_ui(new_scene)
+	if SCENE_MUSIC_MAP.has(scene_path):
+		play_music_for_key(SCENE_MUSIC_MAP[scene_path])
 
 	var active_player := _ensure_player_in_loaded_scene(new_scene)
 	if active_player:
@@ -543,6 +579,9 @@ func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.
 	root.add_child(new_scene)
 	get_tree().current_scene = new_scene
 
+	if SCENE_MUSIC_MAP.has(scene_path):
+		play_music_for_key(SCENE_MUSIC_MAP[scene_path])
+
 	new_scene.add_child(transfer_node)
 	if persistent_ui and not new_scene.has_node("UI"):
 		new_scene.add_child(persistent_ui)
@@ -617,6 +656,8 @@ func start_new_game(scene_path: String) -> void:
 	get_tree().current_scene = new_scene
 
 	_ensure_gameplay_ui(new_scene)
+	if SCENE_MUSIC_MAP.has(scene_path):
+		play_music_for_key(SCENE_MUSIC_MAP[scene_path])
 
 	var active_player := _ensure_player_in_loaded_scene(new_scene)
 	if active_player:
@@ -705,10 +746,114 @@ func _activate_scene_npcs(scene: Node):
 				npc.call_deferred("on_scene_activated")
 				print("💬 Activated NPC:", npc.name)
 
+# Background music helpers
+# Cache loaded streams to avoid disk hits every time a scene changes
+var _music_cache: Dictionary = {} 
+
+func _music_path_for_key(key: String) -> String:
+	# Using 'get' with a default is slightly faster than 'has' + '[]'
+	var fname: String = MUSIC_FILES.get(key, "")
+	return MUSIC_FOLDER + fname if fname != "" else ""
+
+func _play_music_stream(path: String, loop: bool = true) -> void:
+	if path.is_empty():
+		return
+
+	# 1. Use Cache or Load
+	var stream: AudioStream
+	if _music_cache.has(path):
+		stream = _music_cache[path]
+	else:
+		stream = load(path) as AudioStream
+		if stream:
+			_music_cache[path] = stream
+	
+	if not stream:
+		push_warning("Music stream not found or invalid: " + path)
+		return
+
+	# 2. Handle Looping
+	_setup_looping(stream, loop)
+
+	# 3. Initialize Player
+	if not _bg_music_player:
+		_bg_music_player = AudioStreamPlayer.new()
+		_bg_music_player.name = "BackgroundMusicPlayer"
+		# Optional: Ensure it keeps playing if the game pauses
+		_bg_music_player.process_mode = Node.PROCESS_MODE_ALWAYS
+		add_child(_bg_music_player)
+
+	# 4. Smart Playback (Avoid restarting the same track)
+	if _bg_music_player.stream == stream:
+		if not _bg_music_player.playing:
+			_bg_music_player.play()
+		return
+
+	_bg_music_player.stream = stream
+	_bg_music_player.play()
+
+func _setup_looping(stream: AudioStream, loop: bool) -> void:
+	# Try to set loop properties safely by inspecting available properties on the stream.
+	var props := stream.get_property_list()
+	for prop in props:
+		var pname: String = prop.get("name", "")
+		if pname == "loop":
+			stream.set("loop", loop)
+			return
+		elif pname == "loop_mode":
+			var mode = AudioStreamWAV.LOOP_FORWARD if loop else AudioStreamWAV.LOOP_DISABLED
+			stream.set("loop_mode", mode)
+			return
+
+func play_music_for_key(key: String, loop: bool = true) -> void:
+	# Optimization: Don't do anything if this key is already playing
+	if _current_music_key == key and _bg_music_player and _bg_music_player.playing:
+		return
+
+	var path := _music_path_for_key(key)
+	if path.is_empty():
+		push_warning("No music configured for key: " + key)
+		return
+	
+	_play_music_stream(path, loop)
+	_current_music_key = key
+
+func stop_music() -> void:
+	if _bg_music_player:
+		_bg_music_player.stop()
+		_current_music_key = ""
+
+func _fade_out_and_stop(duration: float = 0.6) -> void:
+	if not _bg_music_player or not _bg_music_player.playing:
+		return
+	var tween := create_tween()
+	tween.tween_property(_bg_music_player, "volume_db", -80.0, duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	await tween.finished
+	_bg_music_player.stop()
+	_bg_music_player.volume_db = -80.0
+
+func _fade_in_current(duration: float = 0.6) -> void:
+	if _current_music_key == "":
+		return
+	var path := _music_path_for_key(_current_music_key)
+	if path == "":
+		return
+	if not _bg_music_player:
+		_bg_music_player = AudioStreamPlayer.new()
+		_bg_music_player.name = "BackgroundMusicPlayer"
+		_bg_music_player.process_mode = Node.PROCESS_MODE_ALWAYS
+		add_child(_bg_music_player)
+	_bg_music_player.volume_db = -80.0
+	_play_music_stream(path, true)
+	var tween := create_tween()
+	tween.tween_property(_bg_music_player, "volume_db", 0.0, duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	await tween.finished
+
 # Loading screen controls
 func _show_loading_screen(scene_path: String = "", spawn_name: String = ""):
 	var ui = get_node_or_null("/root/LoadingScreen")
 	if ui:
+		await _fade_out_and_stop(0.6)
 		ui.fade_in(scene_path, spawn_name)
 		await ui.animation_finished
 	return ui
@@ -719,6 +864,8 @@ func _hide_loading_screen():
 		ui.fade_out()
 		await ui.animation_finished
 	input_locked = false
+	# Restore music after loading screen is hidden
+	await _fade_in_current(0.6)
 	return
 
 func _run_post_tutorial_arrival_sequence(previous_scene_path: String, target_scene_path: String, active_player: CharacterBody3D) -> void:

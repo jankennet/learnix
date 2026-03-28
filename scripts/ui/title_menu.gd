@@ -72,7 +72,7 @@ func _ready() -> void:
 			graphics_list.item_activated.connect(_on_graphics_item_activated)
 
 	# Make main menu labels clickable
-	for i in menu_labels.size():
+	for i in range(menu_labels.size()):
 		var lbl = menu_labels[i]
 		if lbl and not lbl.gui_input.is_connected(_on_main_label_gui_input):
 			lbl.gui_input.connect(_on_main_label_gui_input.bind(i))
@@ -175,7 +175,10 @@ func _execute_main_selection(choice: String) -> void:
 	match choice:
 		"NEW GAME": 
 			_set_global_ui_visibility(true)
-			get_tree().change_scene_to_file(WORLD_MAIN_SCENE)
+			if SceneManager and SceneManager.has_method("start_new_game"):
+				SceneManager.start_new_game(WORLD_MAIN_SCENE)
+			else:
+				get_tree().change_scene_to_file(WORLD_MAIN_SCENE)
 		"SETTINGS": _switch_to_settings()
 		"QUIT GAME": get_tree().quit()
 		"CONTINUE": 
@@ -263,7 +266,7 @@ func _on_volume_changed(value: float, bus_name: String) -> void:
 # --- UI Helpers ---
 func _update_menu_visuals() -> void:
 	var items = _get_active_menu_items()
-	for i in menu_labels.size():
+	for i in range(menu_labels.size()):
 		var label = menu_labels[i] as Label
 		if i >= items.size():
 			label.hide()

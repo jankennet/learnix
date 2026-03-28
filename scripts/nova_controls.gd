@@ -94,5 +94,6 @@ func _input(event):
 	if SceneManager and SceneManager.input_locked:
 		return
 
-	if event.is_action_pressed("interact"):
+	# Use frame-based query for the interact action to make key presses (E) reliable
+	if Input.is_action_just_pressed("interact"):
 		InteractionManager.request_interaction()
