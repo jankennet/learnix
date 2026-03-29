@@ -14,7 +14,7 @@ func _ready():
 	
 	# Check for any already active quests
 	_refresh_quest_list()
-	print("✅ Quest UI initialized")
+	print("Quest UI initialized")
 
 ## Refresh the entire quest list (only show active quests)
 func _refresh_quest_list() -> void:

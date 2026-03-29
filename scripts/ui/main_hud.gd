@@ -58,6 +58,24 @@ const TERMINAL_DIRECTORIES := {
 	"bios_vault": ["firmware_records.bin", "sage_protocol.md", "locked_segment/"],
 }
 
+const TERMINAL_FILE_CONTENTS := {
+	"onboarding_notes.txt": "Welcome to Linuxia onboarding.\nTry commands: pwd, ls, cat <file>.",
+	"controls.cheatsheet": "WASD: move\nE: interact\nUse terminal to learn more.",
+	"welcome_terminal.log": "[log] Welcome to Nova Shell.\nSystem initialized.",
+	"welcome.txt": "Welcome home, traveler.",
+	"npc_notes.log": "NPC: Tux may help you during onboarding.",
+	"quests.todo": "- Visit the market\n- Talk to Tux\n- Learn the terminal",
+	"symlink_map.md": "# Symlink Map\n- /roots -> roots/",
+	"lost_file.fragment": "<fragment> corrupted data...",
+	"driver_remnant.log": "driver remnant diagnostics...",
+	"printer_queue.dat": "printer queue: empty",
+	"market.square": "Market square index file.",
+	"well.archive": "Old well archive entries.",
+	"home.instance": "Home instance descriptor.",
+	"firmware_records.bin": "<binary>",
+	"sage_protocol.md": "Sage protocol notes.",
+}
+
 const TERMINAL_FUN_FACTS := [
 	"Linux fact: `pwd` prints your current working directory.",
 	"Linux fact: `cd ..` moves to the parent directory.",
@@ -69,6 +87,7 @@ const TERMINAL_FUN_FACTS := [
 var _check_timer := 0.0
 @onready var file_item: Control = $TopRight/MenuStack/BagItem
 @onready var term_item: Control = $TopRight/MenuStack/MessagesItem
+@onready var quest_item: Control = $TopRight/MenuStack/QuestItem
 @onready var terminal_panel: Control = $TerminalPanel
 @onready var terminal_output: RichTextLabel = $TerminalPanel/TerminalMargin/TerminalVBox/TerminalOutput
 @onready var terminal_input: LineEdit = $TerminalPanel/TerminalMargin/TerminalVBox/TerminalInputRow/TerminalInput
@@ -92,6 +111,8 @@ func _ready() -> void:
 		file_item.gui_input.connect(_on_file_item_gui_input)
 	if term_item and not term_item.gui_input.is_connected(_on_term_item_gui_input):
 		term_item.gui_input.connect(_on_term_item_gui_input)
+	if quest_item and not quest_item.gui_input.is_connected(_on_quest_item_gui_input):
+		quest_item.gui_input.connect(_on_quest_item_gui_input)
 	if run_command_button and not run_command_button.pressed.is_connected(_on_run_command_pressed):
 		run_command_button.pressed.connect(_on_run_command_pressed)
 	if fullscreen_terminal_button and not fullscreen_terminal_button.pressed.is_connected(_toggle_terminal_fullscreen):
@@ -109,10 +130,17 @@ func _ready() -> void:
 	if close_terminal_button:
 		close_terminal_button.text = "[EXIT]"
 	if terminal_input:
-		terminal_input.placeholder_text = "type command here..."
+		terminal_input.placeholder_text = "Type command (help, ls, cat, save, quit)"
 	_record_current_location_explored()
 	randomize()
 	_update_visibility()
+
+	# Ensure a side quest button exists (exclamation on screen edge)
+	if get_tree().get_root().find_child("QuestSideButton", true, false) == null:
+		var QuestSideScene := preload("res://Scenes/ui/QuestSideButton.tscn")
+		if QuestSideScene:
+			var side_btn: QuestSideButton = QuestSideScene.instantiate() as QuestSideButton
+			get_tree().get_root().add_child(side_btn)
 
 func _process(delta: float) -> void:
 	_check_timer -= delta
@@ -199,6 +227,31 @@ func _on_term_item_gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		_open_terminal()
 
+
+func _on_quest_item_gui_input(event: InputEvent) -> void:
+	if not visible or get_tree().paused:
+		return
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		# Open QuestWindow for the first active quest in the QuestManager
+		if has_node("/root/SceneManager") and SceneManager and SceneManager.quest_manager:
+			var qm := SceneManager.quest_manager
+			var act := qm.get_active_quests()
+			if act.size() > 0:
+				var qid := act[0]
+				var q := qm.get_quest(qid)
+				if q:
+					var QuestWindowScene := preload("res://Scenes/ui/QuestWindow.tscn")
+					var w: QuestWindow = QuestWindowScene.instantiate() as QuestWindow
+					get_tree().get_root().add_child(w)
+					w.set_quest(q)
+					return
+		# Fallback: toggle small quest list UI if it exists
+		var root := get_tree().root
+		if root:
+			var quest_list := root.find_child(QUEST_LIST_NODE_NAME, true, false)
+			if quest_list and quest_list is CanvasItem:
+				(quest_list as CanvasItem).visible = not (quest_list as CanvasItem).visible
+
 func _open_file_explorer_from_hud() -> void:
 	if _terminal_is_open:
 		_close_terminal()
@@ -216,6 +269,8 @@ func _open_terminal() -> void:
 	_acquire_terminal_input_lock()
 	_terminal_is_open = true
 	terminal_panel.visible = true
+	if SceneManager:
+		SceneManager.play_sfx("res://album/sfx/open-terminal.mp3")
 	if terminal_output and terminal_output.get_parsed_text().is_empty():
 		_print_terminal_line("NOVA SHELL ready. Type help to list commands.")
 		_print_terminal_line("Current directory: %s" % _terminal_pwd())
@@ -257,7 +312,7 @@ func _process_terminal_command(raw_command: String) -> void:
 
 	match command:
 		"help", "?":
-			_print_terminal_line("Commands: help, map, pwd, ls, cd <location>, cd .., explorer, save, quit, clear, sudo shutdown")
+			_print_terminal_line("Commands: help, map, pwd, ls, cat <file>, cd <location>, cd .., explorer, save, quit, clear, sudo shutdown")
 			if _is_tutorial_scene_active():
 				_print_terminal_line("Locations: tutorial")
 			else:
@@ -268,6 +323,8 @@ func _process_terminal_command(raw_command: String) -> void:
 			_print_terminal_line(_terminal_pwd())
 		"ls", "dir":
 			_handle_ls_command()
+		"cat":
+			_handle_cat_command(args)
 		"cd":
 			_handle_cd_command(args)
 		"explorer", "files", "open":
@@ -308,6 +365,32 @@ func _handle_ls_command() -> void:
 		return
 	for entry in entries:
 		_print_terminal_line(str(entry))
+
+func _handle_cat_command(args: Array) -> void:
+	if args.is_empty():
+		_print_terminal_line("Usage: cat <file>")
+		return
+
+	var target := String(args[0]).strip_edges()
+	# If user provided a path-like arg, collapse to basename for our simple lookup
+	var basename := target.get_file()
+
+	# Check current directory entries first
+	var entries: Array = TERMINAL_DIRECTORIES.get(_current_terminal_path, [])
+	if entries.has(target) or entries.has(basename):
+		var content: String = String(TERMINAL_FILE_CONTENTS.get(target, TERMINAL_FILE_CONTENTS.get(basename, "(no readable content)")))
+		for line in content.split("\n", false):
+			_print_terminal_line(str(line))
+		return
+
+	# Try global lookup
+	if TERMINAL_FILE_CONTENTS.has(target) or TERMINAL_FILE_CONTENTS.has(basename):
+		var content2: String = String(TERMINAL_FILE_CONTENTS.get(target, TERMINAL_FILE_CONTENTS.get(basename, "")))
+		for line in content2.split("\n", false):
+			_print_terminal_line(str(line))
+		return
+
+	_print_terminal_line("cat: file not found: %s" % target)
 
 func _handle_cd_command(args: Array) -> void:
 	if args.is_empty():

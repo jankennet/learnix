@@ -58,8 +58,8 @@ func _populate_visual_cues(kind: String) -> void:
 
 	match kind:
 		"timing":
-			_add_cue("GREEN: hit (can fail)", Vector2(0.20, 0.70), Vector2(-70, -42), Color(0.24, 0.72, 0.24, 0.95))
-			_add_cue("YELLOW: critical", Vector2(0.50, 0.70), Vector2(-62, -42), Color(0.95, 0.78, 0.2, 0.95))
+			_add_cue("YELLOW: hit (can fail)", Vector2(0.20, 0.70), Vector2(-70, -42), Color(0.95, 0.78, 0.2, 0.95))
+			_add_cue("GREEN: critical", Vector2(0.50, 0.70), Vector2(-62, -42), Color(0.24, 0.72, 0.24, 0.95))
 			_add_cue("RED: miss", Vector2(0.84, 0.70), Vector2(-44, -42), Color(0.7, 0.22, 0.22, 0.95))
 		"nodes":
 			_add_cue("Find nodes here", Vector2(0.13, 0.22), Vector2(-56, -42), Color(0.25, 0.84, 0.66, 0.95))

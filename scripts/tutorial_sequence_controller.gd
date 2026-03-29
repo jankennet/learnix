@@ -5,7 +5,7 @@ const FALLBACK_HAMLET_SCENE_PATH := "res://Scenes/Levels/fallback_hamlet.tscn"
 const FALLBACK_HAMLET_SPAWN_PATH := "Fallback_Hamlet_Final/first_spawn"
 const HUD_NODE_PATH := "UI/MainHUD"
 const MOVE_ACTIONS := ["ui_up", "ui_down", "ui_left", "ui_right"]
-const REQUIRED_TERMINAL_COMMANDS := ["pwd", "ls", "cd"]
+const REQUIRED_TERMINAL_COMMANDS := ["pwd", "ls", "cat"]
 const TUTORIAL_CAMERA_DISTANCE := 4.6
 const TUTORIAL_CAMERA_HEIGHT := 2.4
 const TUTORIAL_CAMERA_FOV := 70.0
@@ -497,7 +497,7 @@ func _update_terminal_objective_canvas() -> void:
 		pwd_done = "[x]"
 	if bool(_required_terminal_commands.get("ls", false)):
 		ls_done = "[x]"
-	if bool(_required_terminal_commands.get("cd", false)):
+	if bool(_required_terminal_commands.get("cat", false)):
 		cat_done = "[x]"
 
 	_show_hint_card(

@@ -1109,9 +1109,16 @@ func _apply_puzzle_timing_result(zone: int, success_chance: float) -> void:
 				_print_terminal("[color=#66f266]%s[/color]\n" % _simplify_puzzle_message(str(result.message)))
 			if result.get("mode_changed", false):
 				_update_mode_display()
+			# Play SFX for puzzle result: complete vs failed
 			if result.get("encounter_ended", false):
+				if SceneManager:
+					SceneManager.play_sfx("res://album/sfx/puzzle-complete.mp3")
 				await get_tree().create_timer(2.0).timeout
 				_force_close_and_cleanup()
+			elif result.get("mode_changed", false):
+				# Mode changes often indicate failure/return to combat
+				if SceneManager:
+					SceneManager.play_sfx("res://album/sfx/puzzle-error.mp3")
 		_update_hp_displays()
 		_update_side_help_for_mode()
 
@@ -1142,8 +1149,12 @@ func _on_dependency_resolver_completed(success: bool) -> void:
 	if success:
 		_dependency_fail_count = 0
 		_print_terminal("[color=#66f266]Puzzle solved![/color]\n")
+		if SceneManager:
+			SceneManager.play_sfx("res://album/sfx/puzzle-complete.mp3")
 		_apply_puzzle_timing_result(2, 1.0)
 	else:
+		if SceneManager:
+			SceneManager.play_sfx("res://album/sfx/puzzle-error.mp3")
 		_handle_dependency_minigame_failure("Puzzle failed.")
 
 func _on_dependency_resolver_closed() -> void:

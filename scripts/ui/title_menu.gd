@@ -31,9 +31,9 @@ const QUALITY_SCALES: Array[float] = [0.67, 0.85, 1.0]
 @onready var graphics_list: ItemList = $SettingsOverlay/MainMargin/MainVBox/GraphicsPanel/GraphicsMargin/GraphicsVBox/GraphicsList
 
 # Sound Sliders (Make sure these paths match your node tree!)
-@onready var master_slider: HSlider = get_node_or_null("SettingsOverlay/MainMargin/MainVBox/SoundPanel/VBox/MasterSlider")
-@onready var music_slider: HSlider = get_node_or_null("SettingsOverlay/MainMargin/MainVBox/SoundPanel/VBox/MusicSlider")
-@onready var sfx_slider: HSlider = get_node_or_null("SettingsOverlay/MainMargin/MainVBox/SoundPanel/VBox/SFXSlider")
+@onready var master_slider: HSlider = get_node_or_null("SettingsOverlay/MainMargin/MainVBox/SoundPanel/SoundMargin/SoundVBox/SoundGrid/MasterRow/MasterSlider")
+@onready var music_slider: HSlider = get_node_or_null("SettingsOverlay/MainMargin/MainVBox/SoundPanel/SoundMargin/SoundVBox/SoundGrid/MusicRow/MusicSlider")
+@onready var sfx_slider: HSlider = get_node_or_null("SettingsOverlay/MainMargin/MainVBox/SoundPanel/SoundMargin/SoundVBox/SoundGrid/SFXRow/SFXSlider")
 
 @onready var panels: Array[Control] = [
 	$SettingsOverlay/MainMargin/MainVBox/ControlsPanel,
@@ -46,6 +46,7 @@ enum MenuState { MAIN, SETTINGS, GRAPHICS, OTHER_PANEL }
 var current_state := MenuState.MAIN
 var selected_index := 0
 var graphics_indices := {"mode": 0, "res": 2, "qual": 2}
+var hover_index := -1
 
 # --- Initialization ---
 func _ready() -> void:
@@ -76,6 +77,14 @@ func _ready() -> void:
 		var lbl = menu_labels[i]
 		if lbl and not lbl.gui_input.is_connected(_on_main_label_gui_input):
 			lbl.gui_input.connect(_on_main_label_gui_input.bind(i))
+		# Enable mouse hover + click visual feedback on labels
+		if lbl and lbl is Control:
+			lbl.mouse_filter = Control.MOUSE_FILTER_STOP
+			lbl.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+			if not lbl.mouse_entered.is_connected(_on_main_label_mouse_entered):
+				lbl.mouse_entered.connect(_on_main_label_mouse_entered.bind(i))
+			if not lbl.mouse_exited.is_connected(_on_main_label_mouse_exited):
+				lbl.mouse_exited.connect(_on_main_label_mouse_exited.bind(i))
 
 	_update_menu_visuals()
 
@@ -92,16 +101,51 @@ func _setup_lists() -> void:
 	_update_graphics_list()
 
 func _setup_sound_sliders() -> void:
-	if not master_slider: return # Failsafe if nodes aren't built yet
-	
-	master_slider.value_changed.connect(_on_volume_changed.bind("Master"))
-	if music_slider: music_slider.value_changed.connect(_on_volume_changed.bind("Music"))
-	if sfx_slider: sfx_slider.value_changed.connect(_on_volume_changed.bind("SFX"))
-	
-	# Set initial positions based on current bus volumes
-	master_slider.value = db_to_linear(AudioServer.get_bus_volume_db(AudioServer.get_bus_index("Master")))
-	if music_slider: music_slider.value = db_to_linear(AudioServer.get_bus_volume_db(AudioServer.get_bus_index("Music")))
-	if sfx_slider: sfx_slider.value = db_to_linear(AudioServer.get_bus_volume_db(AudioServer.get_bus_index("SFX")))
+	# If no sliders exist, nothing to do
+	if not master_slider and not music_slider and not sfx_slider:
+		return
+
+	# Find master once for fallback
+	var master_idx := _find_bus_index("Master")
+
+	# Master
+	if master_slider:
+		if master_idx != -1:
+			master_slider.value = db_to_linear(AudioServer.get_bus_volume_db(master_idx))
+		else:
+			master_slider.value = 1.0
+		master_slider.value_changed.connect(_on_volume_changed.bind("Master"))
+
+	# Music (fallback to Master if Music bus not present)
+	if music_slider:
+		var music_idx := _find_bus_index("Music")
+		var src_idx := music_idx if music_idx != -1 else master_idx
+		if src_idx != -1:
+			music_slider.value = db_to_linear(AudioServer.get_bus_volume_db(src_idx))
+		else:
+			music_slider.value = 1.0
+		music_slider.value_changed.connect(_on_volume_changed.bind("Music"))
+
+	# SFX (fallback to Master if SFX bus not present)
+	if sfx_slider:
+		var sfx_idx := _find_bus_index("SFX")
+		var sfx_src := sfx_idx if sfx_idx != -1 else master_idx
+		if sfx_src != -1:
+			sfx_slider.value = db_to_linear(AudioServer.get_bus_volume_db(sfx_src))
+		else:
+			sfx_slider.value = 1.0
+		sfx_slider.value_changed.connect(_on_volume_changed.bind("SFX"))
+
+func _find_bus_index(bus_name: String) -> int:
+	var idx := AudioServer.get_bus_index(bus_name)
+	if idx != -1:
+		return idx
+	var target := bus_name.to_lower()
+	for i in range(AudioServer.get_bus_count()):
+		var n := AudioServer.get_bus_name(i)
+		if n and n.to_lower() == target:
+			return i
+	return -1
 
 # --- Input Handling ---
 func _unhandled_input(event: InputEvent) -> void:
@@ -129,7 +173,10 @@ func _handle_main_menu_input(event: InputEvent) -> void:
 		selected_index = wrapi(selected_index + 1, 0, items.size())
 		_update_menu_visuals()
 	elif event.is_action_pressed("ui_accept"):
-		_execute_main_selection(items[selected_index])
+		var idx = selected_index
+		if hover_index != -1:
+			idx = hover_index
+		_execute_main_selection(items[idx])
 
 func _handle_settings_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
@@ -159,7 +206,11 @@ func _switch_to_settings() -> void:
 	settings_overlay.show()
 	settings_list.show()
 	for p in panels: p.hide()
-	
+	# Ensure the global controls help overlay is hidden when showing settings list
+	var ch = get_node_or_null("/root/ControlsHelp")
+	if ch:
+		ch.hide()
+
 	if settings_list.get_item_count() > 0:
 		settings_list.grab_focus()
 		settings_list.select(0)
@@ -203,7 +254,12 @@ func _execute_settings_selection() -> void:
 		"CONTROLS":
 			current_state = MenuState.OTHER_PANEL
 			settings_list.hide()
-			panels[0].show()
+			# Prefer the global ControlsHelp overlay if present
+			var ch = get_node_or_null("/root/ControlsHelp")
+			if ch:
+				ch.show()
+			else:
+				panels[0].show()
 		"SOUND":
 			current_state = MenuState.OTHER_PANEL
 			settings_list.hide()
@@ -258,22 +314,31 @@ func _apply_graphics_settings() -> void:
 			2: viewport.msaa_3d = Viewport.MSAA_4X
 
 func _on_volume_changed(value: float, bus_name: String) -> void:
-	var bus_index = AudioServer.get_bus_index(bus_name)
-	if bus_index != -1:
-		AudioServer.set_bus_volume_db(bus_index, linear_to_db(value))
-		AudioServer.set_bus_mute(bus_index, value <= 0.001)
+	var bus_index := _find_bus_index(bus_name)
+	if bus_index == -1:
+		# fallback to Master bus if specific bus missing
+		bus_index = _find_bus_index("Master")
+	if bus_index == -1:
+		# no bus available, nothing we can do
+		return
+
+	AudioServer.set_bus_volume_db(bus_index, linear_to_db(value))
+	AudioServer.set_bus_mute(bus_index, value <= 0.001)
 
 # --- UI Helpers ---
 func _update_menu_visuals() -> void:
 	var items = _get_active_menu_items()
+	var display_index := selected_index
+	if current_state == MenuState.MAIN and hover_index != -1:
+		display_index = hover_index
 	for i in range(menu_labels.size()):
 		var label = menu_labels[i] as Label
 		if i >= items.size():
 			label.hide()
 			continue
 		label.show()
-		label.text = ("> " if i == selected_index else "  ") + items[i]
-		label.modulate = Color(0.92, 0.92, 0.92) if i == selected_index else Color(0.55, 0.55, 0.55)
+		label.text = ("> " if i == display_index else "  ") + items[i]
+		label.modulate = Color(0.92, 0.92, 0.92) if i == display_index else Color(0.55, 0.55, 0.55)
 
 func _get_active_menu_items() -> Array[String]:
 	if SceneManager and SceneManager.has_method("has_save_game") and SceneManager.has_save_game():
@@ -316,4 +381,17 @@ func _on_main_label_gui_input(event: InputEvent, index: int) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		var items = _get_active_menu_items()
 		if index >= 0 and index < items.size():
+			selected_index = index
 			_execute_main_selection(items[index])
+
+func _on_main_label_mouse_entered(index: int) -> void:
+	if current_state != MenuState.MAIN:
+		return
+	hover_index = index
+	_update_menu_visuals()
+
+func _on_main_label_mouse_exited(_index: int) -> void:
+	if current_state != MenuState.MAIN:
+		return
+	hover_index = -1
+	_update_menu_visuals()

@@ -183,6 +183,72 @@ theme_override_font_sizes/font_size = 8
 text = "Press ESC to return"
 horizontal_alignment = 1
 
+[node name="ControlsGrid" type="GridContainer" parent="SettingsOverlay/MainMargin/MainVBox/ControlsPanel/ControlsMargin/ControlsVBox"]
+layout_mode = 2
+columns = 2
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 6
+
+[node name="MoveLabel" type="Label" parent="SettingsOverlay/MainMargin/MainVBox/ControlsPanel/ControlsMargin/ControlsVBox/ControlsGrid"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+text = "Move"
+
+[node name="MoveValue" type="Label" parent="SettingsOverlay/MainMargin/MainVBox/ControlsPanel/ControlsMargin/ControlsVBox/ControlsGrid"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+text = "W A S D"
+
+[node name="RunLabel" type="Label" parent="SettingsOverlay/MainMargin/MainVBox/ControlsPanel/ControlsMargin/ControlsVBox/ControlsGrid"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+text = "Run"
+
+[node name="RunValue" type="Label" parent="SettingsOverlay/MainMargin/MainVBox/ControlsPanel/ControlsMargin/ControlsVBox/ControlsGrid"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+text = "Shift"
+
+[node name="InteractLabel" type="Label" parent="SettingsOverlay/MainMargin/MainVBox/ControlsPanel/ControlsMargin/ControlsVBox/ControlsGrid"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+text = "Interact"
+
+[node name="InteractValue" type="Label" parent="SettingsOverlay/MainMargin/MainVBox/ControlsPanel/ControlsMargin/ControlsVBox/ControlsGrid"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+text = "E"
+
+[node name="DialogueLabel" type="Label" parent="SettingsOverlay/MainMargin/MainVBox/ControlsPanel/ControlsMargin/ControlsVBox/ControlsGrid"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+text = "Dialogue"
+
+[node name="DialogueValue" type="Label" parent="SettingsOverlay/MainMargin/MainVBox/ControlsPanel/ControlsMargin/ControlsVBox/ControlsGrid"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+text = "Enter / Space"
+
+[node name="ConfirmLabel" type="Label" parent="SettingsOverlay/MainMargin/MainVBox/ControlsPanel/ControlsMargin/ControlsVBox/ControlsGrid"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+text = "Confirm"
+
+[node name="ConfirmValue" type="Label" parent="SettingsOverlay/MainMargin/MainVBox/ControlsPanel/ControlsMargin/ControlsVBox/ControlsGrid"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+text = "Enter"
+
 [node name="SoundPanel" type="PanelContainer" parent="SettingsOverlay/MainMargin/MainVBox"]
 visible = false
 layout_mode = 2
@@ -211,6 +277,61 @@ theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 8
 text = "Press ESC to return"
 horizontal_alignment = 1
+
+[node name="SoundGrid" type="VBoxContainer" parent="SettingsOverlay/MainMargin/MainVBox/SoundPanel/SoundMargin/SoundVBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="MasterRow" type="HBoxContainer" parent="SettingsOverlay/MainMargin/MainVBox/SoundPanel/SoundMargin/SoundVBox/SoundGrid"]
+layout_mode = 2
+
+[node name="MasterLabel" type="Label" parent="SettingsOverlay/MainMargin/MainVBox/SoundPanel/SoundMargin/SoundVBox/SoundGrid/MasterRow"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+text = "Master"
+
+[node name="MasterSlider" type="HSlider" parent="SettingsOverlay/MainMargin/MainVBox/SoundPanel/SoundMargin/SoundVBox/SoundGrid/MasterRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.0
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="MusicRow" type="HBoxContainer" parent="SettingsOverlay/MainMargin/MainVBox/SoundPanel/SoundMargin/SoundVBox/SoundGrid"]
+layout_mode = 2
+
+[node name="MusicLabel" type="Label" parent="SettingsOverlay/MainMargin/MainVBox/SoundPanel/SoundMargin/SoundVBox/SoundGrid/MusicRow"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+text = "Music"
+
+[node name="MusicSlider" type="HSlider" parent="SettingsOverlay/MainMargin/MainVBox/SoundPanel/SoundMargin/SoundVBox/SoundGrid/MusicRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.0
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="SFXRow" type="HBoxContainer" parent="SettingsOverlay/MainMargin/MainVBox/SoundPanel/SoundMargin/SoundVBox/SoundGrid"]
+layout_mode = 2
+
+[node name="SFXLabel" type="Label" parent="SettingsOverlay/MainMargin/MainVBox/SoundPanel/SoundMargin/SoundVBox/SoundGrid/SFXRow"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+text = "SFX"
+
+[node name="SFXSlider" type="HSlider" parent="SettingsOverlay/MainMargin/MainVBox/SoundPanel/SoundMargin/SoundVBox/SoundGrid/SFXRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.0
+max_value = 1.0
+step = 0.01
+value = 1.0
 
 [node name="BackBufferCopy" type="BackBufferCopy" parent="."]
 copy_mode = 2

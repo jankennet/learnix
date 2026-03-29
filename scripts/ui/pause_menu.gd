@@ -774,6 +774,10 @@ func _activate_explorer_item(index: int) -> void:
 			_refresh_explorer_sidebar(folder_name)
 			return
 	_show_explorer_preview_for_index(index)
+	# If this is a quest entry, open the quest window UI
+	if String(entry.get("meta_type", "")) == "quest":
+		_open_quest_from_entry(entry)
+		return
 
 func _show_explorer_preview_for_index(index: int) -> void:
 	if not explorer_file_list or not explorer_preview_label:
@@ -790,6 +794,26 @@ func _show_explorer_preview_for_index(index: int) -> void:
 	var filename := String(entry.get("filename", "unknown.txt"))
 	var body := String(entry.get("content", "No notes."))
 	explorer_preview_label.text = "[b]%s[/b]\n%s\n\n%s" % [title, filename, body]
+
+
+func _open_quest_from_entry(entry: Dictionary) -> void:
+	if typeof(entry) != TYPE_DICTIONARY:
+		return
+	var quest_id := String(entry.get("quest_id", ""))
+	if quest_id == "":
+		return
+	if not has_node("/root/SceneManager") or not SceneManager or not SceneManager.quest_manager:
+		return
+	var q := SceneManager.quest_manager.get_quest(quest_id)
+	if not q:
+		return
+	var QuestWindowScene := preload("res://Scenes/ui/QuestWindow.tscn")
+	var w: QuestWindow = QuestWindowScene.instantiate() as QuestWindow
+	if menu_root:
+		menu_root.add_child(w)
+	else:
+		get_tree().get_root().add_child(w)
+	w.set_quest(q)
 
 func _build_explorer_folders() -> Array[String]:
 	var folders: Array[String] = []
@@ -808,6 +832,30 @@ func _build_folder_entries(folder_name: String) -> Array[Dictionary]:
 	match folder_name:
 		"Desktop":
 			_append_generic_interaction_entries(entries)
+			# Append active/completed quests as explorer documents so players can open them from the file manager
+			if has_node("/root/SceneManager") and SceneManager and SceneManager.quest_manager:
+				for quest_id in SceneManager.quest_manager.quests.keys():
+					var q := SceneManager.quest_manager.get_quest(quest_id)
+					if not q:
+						continue
+					# Only show quests that have been started or completed
+					if String(q.status) == "inactive":
+						continue
+					var filename := "%s.quest" % quest_id
+					var exists := false
+					for e in entries:
+						if String(e.get("filename", "")) == filename:
+							exists = true
+							break
+					if not exists:
+						entries.append({
+							"type": "doc",
+							"filename": filename,
+							"title": q.quest_name,
+							"content": q.description,
+							"meta_type": "quest",
+							"quest_id": quest_id,
+						})
 
 		"Filesystem_Forest":
 			if SceneManager and SceneManager.proficiency_key_forest:

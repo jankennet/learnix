@@ -213,6 +213,7 @@ layout_mode = 2
 texture = ExtResource("5_gcg6u")
 expand_mode = 1
 stretch_mode = 5
+visible = true
 
 [node name="TerminalPanel" type="PanelContainer" parent="."]
 visible = false
@@ -279,7 +280,7 @@ text = "$"
 [node name="TerminalInput" type="LineEdit" parent="TerminalPanel/TerminalMargin/TerminalVBox/TerminalInputRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-placeholder_text = "Type command (help, ls, cd, save, quit)"
+placeholder_text = "Type command (help, ls, cat, save, quit)"
 
 [node name="RunCommandButton" type="Button" parent="TerminalPanel/TerminalMargin/TerminalVBox/TerminalInputRow"]
 layout_mode = 2
@@ -289,7 +290,7 @@ text = "RUN"
 layout_mode = 2
 theme_override_fonts/font = ExtResource("1_font")
 theme_override_font_sizes/font_size = 8
-text = "Try: cd filesystem_forest, ls, explorer, save, quit"
+text = ""
 
 [node name="CRTEffectOverlay" type="ColorRect" parent="TerminalPanel"]
 material = SubResource("ShaderMaterial_hud_terminal_crt")

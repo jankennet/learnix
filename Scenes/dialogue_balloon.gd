@@ -462,7 +462,8 @@ func _on_balloon_gui_input(event: InputEvent) -> void:
 
 	if event is InputEventMouseButton and event.is_pressed() and event.button_index == MOUSE_BUTTON_LEFT:
 		next(dialogue_line.next_id)
-	elif event.is_action_pressed(next_action):
+	elif Input.is_action_just_pressed(next_action):
+		# Only advance on a true just-pressed action (no repeats/echoes)
 		var focus_owner := get_viewport().gui_get_focus_owner()
 		var node := focus_owner
 		while node != null:

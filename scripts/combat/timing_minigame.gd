@@ -45,8 +45,8 @@ class TimingResult:
 @export_range(0.05, 0.3) var critical_zone_percent: float = 0.15
 ## Normal zone size as percentage on each side of critical
 @export_range(0.1, 0.4) var normal_zone_percent: float = 0.25
-@export var critical_color: Color = Color(1.0, 0.85, 0.0, 1.0)  # Gold - fully opaque
-@export var normal_color: Color = Color(0.3, 0.8, 0.3, 1.0)     # Green - fully opaque
+@export var critical_color: Color = Color(0.3, 0.8, 0.3, 1.0)   # Gold - fully opaque
+@export var normal_color: Color = Color(1.0, 0.85, 0.0, 1.0)    # Green - fully opaque
 @export var miss_color: Color = Color(0.6, 0.2, 0.2, 1.0)        # Dark red - fully opaque
 
 ## Random zone center position (0.0-1.0 range within safe bounds)
@@ -415,9 +415,9 @@ func start_timing(context: TimingContext = TimingContext.COMBAT, difficulty: flo
 		if custom_instruction.is_empty():
 			match context:
 				TimingContext.COMBAT:
-					instruction_label.text = "⚔️ Press SPACE to execute attack!"
+					instruction_label.text = "Press SPACE to execute attack!"
 				TimingContext.PUZZLE:
-					instruction_label.text = "🔧 Press SPACE to run command!"
+					instruction_label.text = "Press SPACE to run command!"
 		else:
 			instruction_label.text = custom_instruction
 	

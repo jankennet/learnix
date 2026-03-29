@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://quest_list_item"]
+[gd_scene load_steps=2 format=3 uid="uid://c52sbespyoc3i"]
 
-[ext_resource type="Script" path="res://scripts/QuestListItem.gd" id="1_questitem"]
+[ext_resource type="Script" uid="uid://o5ubrp41lfdy" path="res://scripts/QuestListItem.gd" id="1_questitem"]
 
 [node name="QuestListItem" type="PanelContainer"]
 custom_minimum_size = Vector2(250, 0)

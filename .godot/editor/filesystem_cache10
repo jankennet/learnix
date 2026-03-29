@@ -627,7 +627,22 @@ Ooh! a Fly, wait... It isn't.mp3::AudioStreamMP3::8553223385398027049::177466312
 Poisonous Bite.mp3::AudioStreamMP3::4267187145134401033::1774663272::1774666543::1::::<><><>0<>0<>7249a4f31e55a25cf4d96b3835400e8a<>res://.godot/imported/Poisonous Bite.mp3-58fcaec2abd279886e963f30ca42ee47.mp3str::
 Rose Garden.mp3::AudioStreamMP3::3950282470261874184::1731361440::1774666543::1::::<><><>0<>0<>ffe523027127c2f364b7d436b31b7fae<>res://.godot/imported/Rose Garden.mp3-2bd824de020351e935d01ddd956eccfb.mp3str::
 The Search.mp3::AudioStreamMP3::1957626139401634616::1756780948::1774672045::1::::<><><>0<>0<>432316c0ab1ba562b37c2853da324528<>res://.godot/imported/The Search.mp3-57e597ce58a00d4b3dce4329d66646f6.mp3str::
-::res://album/sfx/::1774666549
+::res://album/sfx/::1774765279
+computer-whirring.mp3::AudioStreamMP3::7312578121090706110::1706003132::1774764599::1::::<><><>0<>0<>0f170c2e9e46951cc0b61a8d86862106<>res://.godot/imported/computer-whirring.mp3-51d619f9293ecce22390b5a68220b2d3.mp3str::
+dependency-mg-bg.mp3::AudioStreamMP3::1004770183667314835::1673051143::1774764711::1::::<><><>0<>0<>35182c455f35f9ce19cfdb19d2e92ca9<>res://.godot/imported/dependency-mg-bg.mp3-7cc6cf1da685d4cead2c39c1034d3748.mp3str::
+loading.mp3::AudioStreamMP3::666963080728945469::1743384133::1774764860::1::::<><><>0<>0<>7e95afd1e9f2f4bc224bd7b7cac975aa<>res://.godot/imported/loading.mp3-b33bda2a3f9d5b128d2085425600fd2b.mp3str::
+logging-in.mp3::AudioStreamMP3::8038992540113429650::1653836356::1774764880::1::::<><><>0<>0<>69fcbad93d8868a4a0b2cbfa3575b116<>res://.godot/imported/logging-in.mp3-0afe91a3b773434189956e8db8ce87cc.mp3str::
+open-terminal.mp3::AudioStreamMP3::7918262536121246832::1774765206::1774765279::1::::<><><>0<>0<>2bfe5a7e1269e7b12071cea7db17d7c6<>res://.godot/imported/open-terminal.mp3-0eb5ca5f944a3d1c03c7d0f731a97e5f.mp3str::
+pause-menu-bg-2.mp3::AudioStreamMP3::6821491512653535868::1768808986::1774764804::1::::<><><>0<>0<>5a290f656a55c4090783c403a6ac0572<>res://.godot/imported/pause-menu-bg-2.mp3-4563f12ce9a61a830b18a8c32f47f8b1.mp3str::
+pause-menu-bg.mp3::AudioStreamMP3::2075151686114051840::1653819514::1774764764::1::::<><><>0<>0<>b0099e8336307073423c6508ac4b0e41<>res://.godot/imported/pause-menu-bg.mp3-9b8fbcbd01c19f99226bb8731bd94d61.mp3str::
+puzzle-complete.mp3::AudioStreamMP3::503591368052437727::1772126642::1774764670::1::::<><><>0<>0<>8542328cf2aea48d7b67b3ebf7f6ce51<>res://.godot/imported/puzzle-complete.mp3-8cbf0840fa8b85ab79da11a273f13c7a.mp3str::
+puzzle-error.mp3::AudioStreamMP3::605643765044227638::1653795575::1774764692::1::::<><><>0<>0<>afe01e335e6cffb4fac2c833e42482da<>res://.godot/imported/puzzle-error.mp3-b5c47a3dad04f0a162017a0823226a4e.mp3str::
+run.mp3::AudioStreamMP3::4324511694876765991::1679697824::1774764831::1::::<><><>0<>0<>c69a8d2461736d882d117ba12b1a3725<>res://.godot/imported/run.mp3-ca9dbdf668fbcdca9db47f43a5ea5068.mp3str::
+teleport.mp3::AudioStreamMP3::9080231038083238932::1701903059::1774764871::1::::<><><>0<>0<>ebe2cf4df56f0d838c5235b71b8a6ea2<>res://.godot/imported/teleport.mp3-4edac28dca61e699ea3d6503e13e9f14.mp3str::
+terminal-bg-2.mp3::AudioStreamMP3::4349821950747245732::1728700718::1774764750::1::::<><><>0<>0<>102a9d01233acbdfd42bc437041a3e8c<>res://.godot/imported/terminal-bg-2.mp3-bf648ec7283a11765fc6baa931d05200.mp3str::
+terminal-bg.mp3::AudioStreamMP3::8472917690359817311::1773052598::1774764725::1::::<><><>0<>0<>2fe2a03e060283bbd2027a747dd28816<>res://.godot/imported/terminal-bg.mp3-696231f3d28f5b8d1a25b2e63590014f.mp3str::
+walk.mp3::AudioStreamMP3::5981557156430814602::1740484553::1774764816::1::::<><><>0<>0<>e1093113bab0622553f6d60119de3d81<>res://.godot/imported/walk.mp3-611e4bd4e21f3662b47a6abcf5a3ef35.mp3str::
+walking-on-wood.mp3::AudioStreamMP3::2096884025810885268::1653835112::1774764599::1::::<><><>0<>0<>74249531f38c40d11477468f37747009<>res://.godot/imported/walking-on-wood.mp3-f3817e41874be2d3f38ccdea18eb6861.mp3str::
 ::res://Assets/::1774748530
 Glitch.svg::CompressedTexture2D::3352032544867977217::1773799462::1773799511::1::::<><><>0<>0<>06232ed21c1ec61e0efa7dd5bf946ad3<>res://.godot/imported/Glitch.svg-99a39f395f46b379980a1af413217242.s3tc.ctex::
 mainHUD_Icons_File.png::CompressedTexture2D::3024117897750941792::1774154634::1774154671::1::::<><><>0<>0<>71541af704a854b74df822e8db358337<>res://.godot/imported/mainHUD_Icons_File.png-b86c954b8ef1702472f624fbef2321b4.ctex::
@@ -697,7 +712,7 @@ PerlinNoise_Tiled.png::CompressedTexture2D::9221811979012407986::1773799912::177
 T_VFX_CircleFit1.png::CompressedTexture2D::5190657209602147998::1773799931::1773799950::1::::<><><>0<>0<>c9124dcf2659ab49fda014a498308d4e<>res://.godot/imported/T_VFX_CircleFit1.png-f53f3043b5d5c1ff3ac3f2f5778647d9.s3tc.ctex::
 T_VFX_Flare_16.PNG::CompressedTexture2D::1244956377718842405::1773799931::1773801641::1::::<><><>0<>0<>377e11983776839d2829b8527083d961<>res://.godot/imported/T_VFX_Flare_16.PNG-b74c7f5171d0e6a6f93582e40ff4b349.s3tc.ctex::
 T_VFX_lelu1_tiled.png::CompressedTexture2D::1995127536025090311::1773799920::1773800327::1::::<><><>0<>0<>bdb0b68504d1cb9e73b24256601df1d3<>res://.godot/imported/T_VFX_lelu1_tiled.png-439bcd8158e6b56c58cd9fb7c0dc1e85.s3tc.ctex::
-::res://dialogues/::1774748670
+::res://dialogues/::1774748700
 BiosVaultIntro.dialogue::Resource::5858089196045945899::1771728341::1771728095::1::::<><><>0<>0<>f9c39936775c70159345d9a77b2e2a20<>res://.godot/imported/BiosVaultIntro.dialogue-3bb64302cdcfbba8af57d9ad4c5c8689.tres::uid://dbs4435dsf3ry::::res://addons/dialogue_manager/dialogue_resource.gd
 BossDoor.dialogue::Resource::8123765911459080053::1771555009::1771554976::1::::<><><>0<>0<>ad1a186b53f5db5ea5520aaa847c1209<>res://.godot/imported/BossDoor.dialogue-def5b92a1193a51bc8e3ac74aae0730c.tres::uid://dbs4435dsf3ry::::res://addons/dialogue_manager/dialogue_resource.gd
 BrokenInstaller.dialogue::Resource::6529373009493652089::1767348126::1767348127::1::::<><><>0<>0<>44b15ab82fd45856832aedb54f94e0ff<>res://.godot/imported/BrokenInstaller.dialogue-a092d975e3b28615ae835a832ee4f3a6.tres::uid://dbs4435dsf3ry::::res://addons/dialogue_manager/dialogue_resource.gd
@@ -712,7 +727,7 @@ MessyDirectory.dialogue::Resource::6953628311794530605::1768140794::1768140477::
 MountWhisperer.dialogue::Resource::3154597798516213786::1773282088::1773282054::1::::<><><>0<>0<>3ddba2d398d7ee75b36c42c51176f106<>res://.godot/imported/MountWhisperer.dialogue-2a97f17e45ab4f23594c2795ec5e74b0.tres::uid://dbs4435dsf3ry::::res://addons/dialogue_manager/dialogue_resource.gd
 PrinterBeast.dialogue::Resource::7389869949338695784::1772121317::1772121278::1::::<><><>0<>0<>ccb7e6c883cb75e3fe38563434f0c135<>res://.godot/imported/PrinterBeast.dialogue-f49936336843dbd388a29c002cf69a1b.tres::uid://dbs4435dsf3ry::::res://addons/dialogue_manager/dialogue_resource.gd
 PrinterBossIntro.dialogue::Resource::799627395066378727::1771555700::1771555678::1::::<><><>0<>0<>d2278bc46a0237ac062bef991a9ec835<>res://.godot/imported/PrinterBossIntro.dialogue-2b1bf2b8d60f347ade834a6b42e705ae.tres::uid://dbs4435dsf3ry::::res://addons/dialogue_manager/dialogue_resource.gd
-TutorialFlow.dialogue::Resource::214852651959227145::1774748700::1774748700::1::::<><><>0<>0<>3618f263f11bcaeea5a58ebe4950fa14<>res://.godot/imported/TutorialFlow.dialogue-045e50383443d2b8c9d8ebaebdf9cad7.tres::uid://dbs4435dsf3ry::::res://addons/dialogue_manager/dialogue_resource.gd
+TutorialFlow.dialogue::Resource::214852651959227145::1774769012::1774769013::1::::<><><>0<>0<>3618f263f11bcaeea5a58ebe4950fa14<>res://.godot/imported/TutorialFlow.dialogue-045e50383443d2b8c9d8ebaebdf9cad7.tres::uid://dbs4435dsf3ry::::res://addons/dialogue_manager/dialogue_resource.gd
 untitled.dialogue::Resource::6141240851195975093::1766157253::1766204429::1::::<><><>0<>0<>66f2815d70b58fee58a28a5eb2f58d04<>res://.godot/imported/untitled.dialogue-fbe56b9cf406528186339d59f1c20fdc.tres::uid://dbs4435dsf3ry::::res://addons/dialogue_manager/dialogue_resource.gd
 ::res://levelAssets/::1773763303
 ::res://levelAssets/fbxLevels/::1761053027
@@ -781,9 +796,10 @@ Dungeon.obj::Mesh::3663252064543218354::1773657334::1773657336::1::::<><><>0<>0<
 Forest.obj::Mesh::6290721653006923020::1773653825::1773653827::1::::<><><>0<>0<>4bdd59ca2ba01212afe8be6f3721bb25<>res://.godot/imported/Forest.obj-3ab6bface0978dc6981d74662a6d25b1.mesh<*>res://.godot/imported/Forest.obj-3ab6bface0978dc6981d74662a6d25b1.mesh::
 noTowerCitadelKaykit.obj::Mesh::1621355018949042875::1774160334::1774160335::1::::<><><>0<>0<>72e8eaa696d69c1dbf93932f0eed9a56<>res://.godot/imported/noTowerCitadelKaykit.obj-e14cad4faccab409136ab1f64235177d.mesh<*>res://.godot/imported/noTowerCitadelKaykit.obj-e14cad4faccab409136ab1f64235177d.mesh::
 Old Computers.obj::Mesh::5469010010526066296::1773662949::1773662950::1::::<><><>0<>0<>e1c4a40716a7b130c9919f112040d6ad<>res://.godot/imported/Old Computers.obj-d5654315bbeb03c1929aa60a2d322813.mesh<*>res://.godot/imported/Old Computers.obj-d5654315bbeb03c1929aa60a2d322813.mesh::
-::res://Scenes/::1768144211
-dialogue_balloon.gd::GDScript::1555574286296522657::1774606670::0::1::::<>CanvasLayer<><>0<>0<><>::
-dialogue_balloon.tscn::PackedScene::8058327382265900983::1774606142::0::1::::<><><>0<>0<><>::res://Scenes/dialogue_balloon.gd<>uid://ckvgyvclnwggo::::res://addons/dialogue_manager/dialogue_label.tscn<>uid://bb52rsfwhkxbn::::res://addons/dialogue_manager/dialogue_responses_menu.gd<>res://Assets/fonts/PressStart2P-Regular.ttf
+::res://Scenes/::1774761166
+dialogue_balloon.gd::GDScript::1555574286296522657::1774752452::0::1::::<>CanvasLayer<><>0<>0<><>::
+dialogue_balloon.tscn::PackedScene::8058327382265900983::1774751417::0::1::::<><><>0<>0<><>::res://Scenes/dialogue_balloon.gd<>uid://ckvgyvclnwggo::::res://addons/dialogue_manager/dialogue_label.tscn<>uid://bb52rsfwhkxbn::::res://addons/dialogue_manager/dialogue_responses_menu.gd<>res://Assets/fonts/PressStart2P-Regular.ttf
+tutorial_sequence.tscn::PackedScene::4865611982361814090::1774761166::0::1::::<><><>0<>0<><>::uid://dc5ffxh11njtw::::res://scripts/tutorial_sequence_controller.gd<>uid://b1pfxsi5467pn::::res://Assets/mainHUD_Icons_Terminal.png<>uid://bvbsrdib0cx5f::::res://Assets/mainHUD_Icons_Tux.png
 world_main.tscn::PackedScene::7802616945458743415::1772160304::0::1::::<><><>0<>0<><>::uid://djwelxifkmkf7::::res://Scenes/Player/player.tscn<>uid://bu0nmb1xl7di1::::res://Scenes/Levels/fallback_hamlet.tscn<>res://Scenes/ui/QuestList.tscn<>res://Scenes/ui/MainHUD.tscn
 ::res://Scenes/combat/::1774748530
 combat_encounter.tscn::PackedScene::-1::1766898201::0::1::::<><><>0<>0<><>::res://scripts/combat/combat_ui.gd
@@ -813,15 +829,15 @@ tutorial.tscn::PackedScene::4389349206554286292::1773819749::0::1::::<><><>0<>0<
 ::res://Scenes/Player/::1773711521
 player.tscn::PackedScene::7836641686751441938::1773711521::0::1::::<><><>0<>0<><>::uid://3tjo4ty6qgpg::::res://scripts/nova_controls.gd<>uid://backns8cap53v::::res://Assets/characterSpriteSheets/ss_Nova/nova_idle.png<>uid://n6i68hiiyroe::::res://Assets/characterSpriteSheets/ss_Nova/run_anim_down.png<>uid://bdq2n2oonhcjl::::res://Assets/characterSpriteSheets/ss_Nova/run_anim_left.png<>uid://jm2dpg6wg6::::res://Assets/characterSpriteSheets/ss_Nova/run_anim_up.png<>uid://n06vxg7mgtfl::::res://Assets/characterSpriteSheets/ss_Nova/walk_anim_down.png<>uid://vflcwvvg6oog::::res://Assets/characterSpriteSheets/ss_Nova/walk_anim_left.png<>uid://chjcr0bqm755::::res://Assets/characterSpriteSheets/ss_Nova/walk_anim_up.png<>uid://dexka4nfcsts4::::res://Scenes/Player/tux.tscn<>uid://s4pt2krh3jop::::res://scripts/camera_main.gd
 tux.tscn::PackedScene::7488106827392663645::1773661292::0::1::::<><><>0<>0<><>::uid://dcqi50kevwdju::::res://scripts/tux_follower.gd<>uid://b5cnsesyaob8o::::res://Assets/characterSpriteSheets/ss_Tux/tux_idleForward.png<>uid://du62yhyjwyg58::::res://Assets/characterSpriteSheets/ss_Tux/tux_idleBackward.png<>uid://c1pnywisgeo0c::::res://Assets/characterSpriteSheets/ss_Tux/tux_idle.png
-::res://Scenes/ui/::1774748691
+::res://Scenes/ui/::1774768797
 controls_help.tscn::PackedScene::-1::1771729334::0::1::::<><><>0<>0<><>::res://scripts/ui/controls_help.gd<>res://Assets/fonts/PressStart2P-Regular.ttf
 interaction_prompt.tscn::PackedScene::-1::1767362059::0::1::::<><><>0<>0<><>::res://scripts/ui/interaction_prompt.gd<>res://Assets/fonts/PressStart2P-Regular.ttf
 MainHUD.tscn::PackedScene::7522535084660538802::1774155310::0::1::::<><><>0<>0<><>::uid://lqtbary7gh5r::::res://Assets/fonts/PressStart2P-Regular.ttf<>uid://mqkv64skk1kd::::res://scripts/ui/main_hud.gd<>uid://doak8ce36xvhu::::res://Scenes/combat/crt_terminal_theme.tres<>uid://bjc51rva8ysea::::res://Assets/mainHUD_Icons_File.png<>uid://cmh6cx1xegkl0::::res://Scenes/combat/crt_effect.gdshader<>uid://b1pfxsi5467pn::::res://Assets/mainHUD_Icons_Terminal.png<>uid://bvbsrdib0cx5f::::res://Assets/mainHUD_Icons_Tux.png
 pause_menu.tscn::PackedScene::6609627896699606664::1773157345::0::1::::<><><>0<>0<><>::uid://chk07vk2dvelr::::res://scripts/ui/pause_menu.gd<>uid://lqtbary7gh5r::::res://Assets/fonts/PressStart2P-Regular.ttf<>uid://ysncei6ynsrf::::res://shaders/ui/pause_crt_blur.gdshader
 QuestList.tscn::PackedScene::-1::1768144160::0::1::::<><><>0<>0<><>::res://scripts/QuestUI.gd
-QuestListItem.tscn::PackedScene::-1::1768143910::0::1::::<><><>0<>0<><>::res://scripts/QuestListItem.gd
-title_menu.tscn::PackedScene::556967592929475475::1774748691::0::1::::<><><>0<>0<><>::uid://ckdhtdqpse7py::::res://scripts/ui/title_menu.gd<>uid://lqtbary7gh5r::::res://Assets/fonts/PressStart2P-Regular.ttf<>uid://b8gpuq6lauslf::::res://shaders/ui/title_crt_overlay.gdshader<>uid://b0fqo5q00erm3::::res://Assets/titleMenu_bg.png
-::res://scripts/::1774171492
+QuestListItem.tscn::PackedScene::6935339806164525848::1774768797::0::1::::<><><>0<>0<><>::uid://o5ubrp41lfdy::::res://scripts/QuestListItem.gd
+title_menu.tscn::PackedScene::556967592929475475::1774763065::0::1::::<><><>0<>0<><>::uid://ckdhtdqpse7py::::res://scripts/ui/title_menu.gd<>uid://lqtbary7gh5r::::res://Assets/fonts/PressStart2P-Regular.ttf<>uid://b8gpuq6lauslf::::res://shaders/ui/title_crt_overlay.gdshader<>uid://b0fqo5q00erm3::::res://Assets/titleMenu_bg.png
+::res://scripts/::1774760689
 bios_vault_intro.gd::GDScript::4003282648416755134::1774179287::0::1::::<>Node3D<><>0<>0<><>::
 camera_main.gd::GDScript::1324212259689372415::1773711398::0::1::::<>Camera3D<><>0<>0<><>::
 collision_builder.gd::GDScript::2549169173810685648::1773658293::0::1::::<>Node3D<><>0<>0<><>::
@@ -830,7 +846,7 @@ fallbackHamlet_Area3D.gd::GDScript/GDScript::7449311366689844386::1759920064::0:
 Interaction_Manager.gd::GDScript::1187712223976647689::1774673848::0::1::::<>Node<><>0<>0<><>::
 loading_screen.gd::GDScript::9044170994317031506::1773152636::0::1::::<>CanvasLayer<><>0<>0<><>::
 LostFileSpawner.gd::GDScript::8266956434053971104::1772121749::0::1::::<>Node<><>0<>0<><>::
-nova_controls.gd::GDScript::2005083806902560204::1774673371::0::1::::<>CharacterBody3D<><>0<>0<><>::
+nova_controls.gd::GDScript::2005083806902560204::1774768047::0::1::::<>CharacterBody3D<><>0<>0<><>::
 npc_script.gd::GDScript::4158744673519635728::1774406648::0::1::::<>Node3D<><>0<>0<><>::
 proprietary_citadel.gd::GDScript::725141621279024103::1774163628::0::1::::<>Node3D<><>0<>0<><>::
 Quest.gd::GDScript::1701451797227564466::1768139153::0::1::::Quest<>Resource<><>0<>0<><>::
@@ -838,15 +854,15 @@ QuestDefinitions.gd::GDScript::4391800089994023874::1770737218::0::1::::<>Node<>
 QuestListItem.gd::GDScript::1045792186625309802::1768143847::0::1::::QuestListItem<>PanelContainer<><>0<>0<><>::
 QuestManager.gd::GDScript::2210091108176930201::1768139153::0::1::::QuestManager<>Node<><>0<>0<><>::
 QuestUI.gd::GDScript::1290171723566393364::1768144173::0::1::::QuestUI<>Control<><>0<>0<><>::
-SceneManager.gd::GDScript::7671005010212015614::1774670961::0::1::::<>Node<><>0<>0<><>::
+SceneManager.gd::GDScript::7671005010212015614::1774768793::0::1::::<>Node<><>0<>0<><>::
 sudo_boss_door.gd::GDScript::5105555475541877700::1773662956::0::1::::<>Area3D<><>0<>0<><>::
 teleport.gd::GDScript::8669728031606914071::1773144711::0::1::::<>Area3D<><>0<>0<><>::
-tutorial_sequence_controller.gd::GDScript::7361884804977790024::1773834077::0::1::::<>Node<><>0<>0<><>::
+tutorial_sequence_controller.gd::GDScript::7361884804977790024::1774760995::0::1::::<>Node<><>0<>0<><>::
 tutorial_tux_actor.gd::GDScript::8571131916844377655::1773830655::0::1::::<>CharacterBody3D<><>0<>0<><>::
 tux_dialogue_controller.gd::GDScript::1759325493277682849::1774179287::0::1::::<>Node<><>0<>0<><>::
 tux_follower.gd::GDScript::7333210420922073938::1773763459::0::1::::<>CharacterBody3D<><>0<>0<><>::
 ::res://scripts/combat/::1773838789
-combat_terminal_ui.gd::GDScript::1111366722302342733::1773842218::0::1::::CombatTerminalUI<>Control<><>0<>0<><>::
+combat_terminal_ui.gd::GDScript::1111366722302342733::1774768047::0::1::::CombatTerminalUI<>Control<><>0<>0<><>::
 combat_tutorial_popup.gd::GDScript::8598115635801721606::1773843888::0::1::::CombatTutorialPopup<>Control<><>0<>0<><>::
 command_parser.gd::GDScript::8493907204863814775::1766898756::0::1::::CommandParser<>RefCounted<><>0<>0<><>::
 dependency_resolver_minigame.gd::GDScript::2221706111779197876::1773160022::0::1::::DependencyResolverMinigame<>Control<><>0<>0<><>::
@@ -864,10 +880,10 @@ printer_beast_enemy.gd::GDScript::8802541833724283493::1774179287::0::1::::Print
 controls_help.gd::GDScript::6085515166310032068::1774605658::0::1::::<>CanvasLayer<><>0<>0<><>::
 digital_reward_popup.gd::GDScript::6430695963328809920::1771556930::0::1::::DigitalRewardPopup<>CanvasLayer<><>0<>0<><>::
 interaction_prompt.gd::GDScript::2105635183153652276::1767361843::0::1::::<>CanvasLayer<><>0<>0<><>::
-main_hud.gd::GDScript::875942513175819439::1774142654::0::1::::<>Control<><>0<>0<><>::
+main_hud.gd::GDScript::875942513175819439::1774768047::0::1::::<>Control<><>0<>0<><>::
 pause_menu.gd::GDScript::5286383240287137871::1774174290::0::1::::<>CanvasLayer<><>0<>0<><>::
 proficiency_key_icon.gd::GDScript::4639653768630756003::1771556569::0::1::::ProficiencyKeyIcon<>Control<><>0<>0<><>::
-title_menu.gd::GDScript::5481382069054964790::1774671995::0::1::::<>Control<><>0<>0<><>::
+title_menu.gd::GDScript::5481382069054964790::1774764526::0::1::::<>Control<><>0<>0<><>::
 ::res://scripts/ui/combat/::1767344659
 CombatFX.gd::GDScript::6393368627158263959::1767344732::0::1::::CombatFX<>Node<><>0<>0<><>::
 CombatUIController.gd::GDScript::8610951004012801247::1767344732::0::1::::CombatUIController<>Control<><>0<>0<><>::

@@ -545,6 +545,8 @@ func _apply_spawn_transform(transfer_node: Node, active_player: CharacterBody3D,
 func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.0) -> void:
 	print("🌍 Teleporting to: ", scene_path)
 	input_locked = true
+	# Play teleport SFX
+	play_sfx("res://album/sfx/teleport.mp3")
 	var current_scene := get_tree().current_scene
 	var previous_scene_path := current_scene.scene_file_path if current_scene else ""
 
@@ -848,6 +850,75 @@ func _fade_in_current(duration: float = 0.6) -> void:
 	var tween := create_tween()
 	tween.tween_property(_bg_music_player, "volume_db", 0.0, duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	await tween.finished
+
+# --------- SFX helpers ---------
+var _sfx_cache: Dictionary = {}
+var _sfx_players: Dictionary = {} # keyed by path -> AudioStreamPlayer
+
+func _sfx_bus_name() -> String:
+	var idx := AudioServer.get_bus_index("SFX")
+	return "SFX" if idx != -1 else "Master"
+
+func play_sfx(path: String, loop: bool=false, volume_db: float=0.0) -> void:
+	if path == null or path == "":
+		return
+
+	var stream: AudioStream = null
+	if _sfx_cache.has(path):
+		stream = _sfx_cache[path]
+	else:
+		stream = load(path) as AudioStream
+		if stream:
+			_sfx_cache[path] = stream
+
+	if not stream:
+		push_warning("SFX stream not found or invalid: " + path)
+		return
+
+	var bus_name := _sfx_bus_name()
+
+	if loop:
+		if _sfx_players.has(path):
+			var existing: AudioStreamPlayer = _sfx_players[path] as AudioStreamPlayer
+			if existing and existing.playing:
+				return
+		var sfx_player: AudioStreamPlayer = AudioStreamPlayer.new()
+		sfx_player.stream = stream
+		sfx_player.bus = bus_name
+		sfx_player.volume_db = volume_db
+		_setup_looping(stream, true)
+		add_child(sfx_player)
+		_sfx_players[path] = sfx_player
+		sfx_player.play()
+	else:
+		var one_shot: AudioStreamPlayer = AudioStreamPlayer.new()
+		one_shot.stream = stream
+		one_shot.bus = bus_name
+		one_shot.volume_db = volume_db
+		add_child(one_shot)
+		one_shot.play()
+		if one_shot.has_signal("finished"):
+			one_shot.connect("finished", Callable(one_shot, "queue_free"))
+		else:
+			var t := Timer.new()
+			t.one_shot = true
+			if stream.has_method("get_length"):
+				t.wait_time = stream.get_length()
+			else:
+				t.wait_time = 2.0
+			add_child(t)
+			t.connect("timeout", Callable(one_shot, "queue_free"))
+			t.connect("timeout", Callable(t, "queue_free"))
+			t.start()
+
+func stop_sfx(path: String) -> void:
+	if _sfx_players.has(path):
+		var pl: AudioStreamPlayer = _sfx_players[path] as AudioStreamPlayer
+		if pl:
+			pl.stop()
+			pl.queue_free()
+		_sfx_players.erase(path)
+
 
 # Loading screen controls
 func _show_loading_screen(scene_path: String = "", spawn_name: String = ""):

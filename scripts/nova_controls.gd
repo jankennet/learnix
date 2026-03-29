@@ -10,6 +10,8 @@ extends CharacterBody3D
 
 var last_animation = ""
 var last_facing = "left"  # tracks left or right for idle flipping
+var _footstep_playing: bool = false
+var _current_footstep_path: String = ""
 
 func _ready():
 	# Scale Nova visually
@@ -74,12 +76,30 @@ func _physics_process(delta: float) -> void:
 			new_animation = "run_anim_down" if pressing_shift else "walk_anim_down"
 		else:
 			new_animation = "run_anim_left" if pressing_shift else "walk_anim_left"
+
+		# Footstep loop handling (looped ambient for walk/run)
+		var step_sound := "res://album/sfx/run.mp3" if pressing_shift else "res://album/sfx/walk.mp3"
+		if not _footstep_playing or _current_footstep_path != step_sound:
+			if _footstep_playing and _current_footstep_path != "":
+				if SceneManager:
+					SceneManager.stop_sfx(_current_footstep_path)
+			if SceneManager:
+				SceneManager.play_sfx(step_sound, true)
+				_footstep_playing = true
+				_current_footstep_path = step_sound
 	else:
 		# Stop smoothly
 		velocity.x = 0
 		velocity.z = 0
 		new_animation = "nova_idle"
 		sprite.flip_h = (last_facing == "left")
+
+		# Stop footstep loop when player stops
+		if _footstep_playing and _current_footstep_path != "":
+			if SceneManager:
+				SceneManager.stop_sfx(_current_footstep_path)
+			_footstep_playing = false
+			_current_footstep_path = ""
 
 	move_and_slide()
 
