@@ -24,14 +24,14 @@ Tux: Perfect. Input pipeline confirmed.
 ~ hud_unlock
 Tux: Time to unlock your HUD.
 Tux: Bottom-right panel has three anchors:
-Tux: FILE for inventory and documents.
-Tux: TERM for your terminal.
-Tux: TUX for quick tutorial tips and mission beats.
+Tux: FILE icon is for inventory and documents.
+Tux: TERMINAL icon is for your terminal.
+Tux: TUX icon is for quick tutorial tips and mission beats.
 Tux: We survive Linuxia by reading the system, not guessing.
 => END
 
 ~ terminal_objective
-Tux: Terminal check. Open TERM and run these commands:
+Tux: Terminal check. Open TERMINAL and run these commands:
 Tux: 1) pwd
 Tux: 2) ls
 Tux: 3) cd <location>  (example: cd hamlet)

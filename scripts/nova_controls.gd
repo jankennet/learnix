@@ -89,7 +89,7 @@ func _physics_process(delta: float) -> void:
 		last_animation = new_animation
 		
 
-func _input(event):
+func _input(_event):
 	# Respect global input lock
 	if SceneManager and SceneManager.input_locked:
 		return

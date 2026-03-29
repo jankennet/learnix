@@ -92,7 +92,7 @@ func _run_tutorial() -> void:
 	_show_hint_card(
 		"Tux Boot Sequence",
 		"Welcome to Linuxia onboarding.\nFollow each checkpoint and keep your eyes on prompts.",
-		"Press Continue in dialogue"
+		"Press [E] to continue in dialogue"
 	)
 	await _show_dialogue("wake_up", [self])
 	await _section_pause(0.2)
@@ -237,9 +237,9 @@ func _on_terminal_command_executed(command: String, args: Array) -> void:
 			_required_terminal_commands["pwd"] = true
 		"ls", "dir":
 			_required_terminal_commands["ls"] = true
-		"cd":
+		"cat":
 			if args.size() > 0:
-				_required_terminal_commands["cd"] = true
+				_required_terminal_commands["cat"] = true
 	_update_terminal_objective_canvas()
 
 func _all_terminal_commands_seen() -> bool:
@@ -482,7 +482,7 @@ func _show_interact_canvas() -> void:
 func _show_hud_guide_canvas() -> void:
 	_show_hint_card(
 		"HUD Unlocked",
-		"Top-right quick menu:\nFILE = inventory/docs\nTERM = terminal\nTUX = mission help",
+		"Bottom-right quick menu:\nFILE icon = inventory/docs\nTERMINAL icon = terminal\nTUX icon = mission help",
 		"Use these throughout Linuxia"
 	)
 
@@ -492,18 +492,18 @@ func _show_terminal_objective_canvas() -> void:
 func _update_terminal_objective_canvas() -> void:
 	var pwd_done := "[ ]"
 	var ls_done := "[ ]"
-	var cd_done := "[ ]"
+	var cat_done := "[ ]"
 	if bool(_required_terminal_commands.get("pwd", false)):
 		pwd_done = "[x]"
 	if bool(_required_terminal_commands.get("ls", false)):
 		ls_done = "[x]"
 	if bool(_required_terminal_commands.get("cd", false)):
-		cd_done = "[x]"
+		cat_done = "[x]"
 
 	_show_hint_card(
 		"Terminal Objective",
-		pwd_done + " pwd\n" + ls_done + " ls\n" + cd_done + " cd <location>",
-		"Open TERM and complete all commands"
+		pwd_done + " pwd\n" + ls_done + " ls\n" + cat_done + " cat <file_name>",
+		"Open TERMINAL and complete all commands"
 	)
 
 func _hide_hud() -> void:

@@ -253,8 +253,10 @@ func apply_dialogue_line() -> void:
 
 	progress.hide()
 	is_waiting_for_input = false
+	var panel: Control = balloon.get_node("MarginContainer/PanelContainer")
 	balloon.focus_mode = Control.FOCUS_ALL
-	balloon.grab_focus()
+	panel.focus_mode = Control.FOCUS_ALL
+	panel.grab_focus()
 
 	character_label.visible = not dialogue_line.character.is_empty()
 	character_label.text = tr(dialogue_line.character, "dialogue")
@@ -293,8 +295,10 @@ func apply_dialogue_line() -> void:
 		next(dialogue_line.next_id)
 	else:
 		is_waiting_for_input = true
+		panel = balloon.get_node("MarginContainer/PanelContainer")
 		balloon.focus_mode = Control.FOCUS_ALL
-		balloon.grab_focus()
+		panel.focus_mode = Control.FOCUS_ALL
+		panel.grab_focus()
 
 
 ## Update the portrait based on character name
@@ -458,8 +462,14 @@ func _on_balloon_gui_input(event: InputEvent) -> void:
 
 	if event is InputEventMouseButton and event.is_pressed() and event.button_index == MOUSE_BUTTON_LEFT:
 		next(dialogue_line.next_id)
-	elif event.is_action_pressed(next_action) and get_viewport().gui_get_focus_owner() == balloon:
-		next(dialogue_line.next_id)
+	elif event.is_action_pressed(next_action):
+		var focus_owner := get_viewport().gui_get_focus_owner()
+		var node := focus_owner
+		while node != null:
+			if node == balloon:
+				next(dialogue_line.next_id)
+				break
+			node = node.get_parent()
 
 
 func _on_responses_menu_response_selected(response: DialogueResponse) -> void:

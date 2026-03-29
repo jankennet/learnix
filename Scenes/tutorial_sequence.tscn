@@ -1,0 +1,53 @@
+[gd_scene load_steps=4 format=3 uid="uid://cbk66h0y2b7vi"]
+
+[ext_resource type="Script" uid="uid://dc5ffxh11njtw" path="res://scripts/tutorial_sequence_controller.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://b1pfxsi5467pn" path="res://Assets/mainHUD_Icons_Terminal.png" id="2_6veap"]
+[ext_resource type="Texture2D" uid="uid://bvbsrdib0cx5f" path="res://Assets/mainHUD_Icons_Tux.png" id="3_bh8fm"]
+
+[node name="TutorialController" type="Node"]
+script = ExtResource("1")
+
+[node name="TutorialController#UI" type="CanvasLayer" parent="."]
+
+[node name="UI#MainHUD" type="PanelContainer" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+
+[node name="MainHUD#HBox" type="HBoxContainer" parent="."]
+
+[node name="HBox#Icon1" type="TextureRect" parent="."]
+texture = ExtResource("2_6veap")
+
+[node name="Icon1#Icon1#Icon1Label" type="Label" parent="."]
+text = "TERMINAL"
+horizontal_alignment = 1
+
+[node name="HBox#Icon2" type="TextureRect" parent="."]
+texture = ExtResource("3_bh8fm")
+
+[node name="Icon2#Icon2#Icon2Label" type="Label" parent="."]
+text = "TUX"
+horizontal_alignment = 1
+
+[node name="HBox#Icon3" type="TextureRect" parent="."]
+
+[node name="Icon3#Icon3#Icon3Label" type="Label" parent="."]
+text = "Icon 3"
+horizontal_alignment = 1
+
+[node name="TutorialController#TutorialCanvas" type="CanvasLayer" parent="."]
+layer = 30
+
+[node name="TutorialCanvas#TutorialPanel" type="PanelContainer" parent="."]
+visible = false
+
+[node name="TutorialPanel#TutorialMargin" type="MarginContainer" parent="."]
+
+[node name="TutorialMargin#TutorialVBox" type="VBoxContainer" parent="."]
+
+[node name="TutorialVBox#TutorialTitle" type="Label" parent="."]
+
+[node name="TutorialVBox#TutorialBody" type="Label" parent="."]
+
+[node name="TutorialVBox#TutorialFooter" type="Label" parent="."]
