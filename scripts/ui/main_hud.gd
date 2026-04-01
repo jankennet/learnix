@@ -88,13 +88,14 @@ var _check_timer := 0.0
 @onready var file_item: Control = $TopRight/MenuStack/BagItem
 @onready var term_item: Control = $TopRight/MenuStack/MessagesItem
 @onready var quest_item: Control = $TopRight/MenuStack/QuestItem
-@onready var terminal_panel: Control = $TerminalPanel
-@onready var terminal_output: RichTextLabel = $TerminalPanel/TerminalMargin/TerminalVBox/TerminalOutput
-@onready var terminal_input: LineEdit = $TerminalPanel/TerminalMargin/TerminalVBox/TerminalInputRow/TerminalInput
-@onready var run_command_button: Button = $TerminalPanel/TerminalMargin/TerminalVBox/TerminalInputRow/RunCommandButton
-@onready var terminal_header: Control = $TerminalPanel/TerminalMargin/TerminalVBox/TerminalHeader
-@onready var fullscreen_terminal_button: Button = $TerminalPanel/TerminalMargin/TerminalVBox/TerminalHeader/FullscreenTerminalButton
-@onready var close_terminal_button: Button = $TerminalPanel/TerminalMargin/TerminalVBox/TerminalHeader/CloseTerminalButton
+
+var terminal_panel: TerminalPanel = null
+var terminal_output: RichTextLabel = null
+var terminal_input: LineEdit = null
+var run_command_button: Button = null
+var terminal_header: Control = null
+var fullscreen_terminal_button: Button = null
+var close_terminal_button: Button = null
 
 var _terminal_is_open := false
 var _current_terminal_path := ""
@@ -105,8 +106,30 @@ var _is_dragging_terminal := false
 var _terminal_drag_offset := Vector2.ZERO
 var _terminal_saved_window_rect := Rect2(300.0, 120.0, 680.0, 360.0)
 var _last_recorded_location := ""
+var _cached_quest_list: CanvasItem = null
 
 func _ready() -> void:
+	# Instantiate TerminalPanel scene
+	var TerminalPanelScene := preload("res://Scenes/ui/TerminalPanel.tscn")
+	terminal_panel = TerminalPanelScene.instantiate() as TerminalPanel
+	get_tree().get_root().add_child(terminal_panel)
+	
+	# Get references to terminal UI elements
+	terminal_output = terminal_panel.get_output()
+	terminal_input = terminal_panel.get_input()
+	run_command_button = terminal_panel.get_run_button()
+	terminal_header = terminal_panel.get_header()
+	fullscreen_terminal_button = terminal_panel.fullscreen_button
+	close_terminal_button = terminal_panel.close_button
+	
+	# Connect button callbacks
+	terminal_panel.set_button_callbacks(
+		Callable(self, "_close_terminal"),
+		Callable(self, "_toggle_terminal_fullscreen"),
+		Callable(self, "_close_terminal")  # Minimize also closes for now
+	)
+	
+	# Connect input signals
 	if file_item and not file_item.gui_input.is_connected(_on_file_item_gui_input):
 		file_item.gui_input.connect(_on_file_item_gui_input)
 	if term_item and not term_item.gui_input.is_connected(_on_term_item_gui_input):
@@ -115,22 +138,13 @@ func _ready() -> void:
 		quest_item.gui_input.connect(_on_quest_item_gui_input)
 	if run_command_button and not run_command_button.pressed.is_connected(_on_run_command_pressed):
 		run_command_button.pressed.connect(_on_run_command_pressed)
-	if fullscreen_terminal_button and not fullscreen_terminal_button.pressed.is_connected(_toggle_terminal_fullscreen):
-		fullscreen_terminal_button.pressed.connect(_toggle_terminal_fullscreen)
-	if close_terminal_button and not close_terminal_button.pressed.is_connected(_close_terminal):
-		close_terminal_button.pressed.connect(_close_terminal)
 	if terminal_input and not terminal_input.text_submitted.is_connected(_on_terminal_text_submitted):
 		terminal_input.text_submitted.connect(_on_terminal_text_submitted)
 	if terminal_header and not terminal_header.gui_input.is_connected(_on_terminal_header_gui_input):
 		terminal_header.gui_input.connect(_on_terminal_header_gui_input)
-	if run_command_button:
-		run_command_button.text = "[ENTER]"
-	if fullscreen_terminal_button:
-		fullscreen_terminal_button.text = "[MAX]"
-	if close_terminal_button:
-		close_terminal_button.text = "[EXIT]"
 	if terminal_input:
 		terminal_input.placeholder_text = "Type command (help, ls, cat, save, quit)"
+	
 	_record_current_location_explored()
 	randomize()
 	_update_visibility()
@@ -188,16 +202,9 @@ func _update_visibility() -> void:
 		_close_terminal()
 
 func _set_quest_list_visible(should_show: bool) -> void:
-	var root := get_tree().root
-	if root == null:
-		return
-
-	var quest_list := root.find_child(QUEST_LIST_NODE_NAME, true, false)
-	if quest_list == null:
-		return
-
-	if quest_list is CanvasItem:
-		(quest_list as CanvasItem).visible = should_show
+	var quest_list := _get_quest_list_node()
+	if quest_list:
+		quest_list.visible = should_show
 
 func _is_combat_ui_visible() -> bool:
 	var root := get_tree().root
@@ -246,11 +253,24 @@ func _on_quest_item_gui_input(event: InputEvent) -> void:
 					w.set_quest(q)
 					return
 		# Fallback: toggle small quest list UI if it exists
-		var root := get_tree().root
-		if root:
-			var quest_list := root.find_child(QUEST_LIST_NODE_NAME, true, false)
-			if quest_list and quest_list is CanvasItem:
-				(quest_list as CanvasItem).visible = not (quest_list as CanvasItem).visible
+		var quest_list := _get_quest_list_node()
+		if quest_list:
+			quest_list.visible = not quest_list.visible
+
+func _get_quest_list_node() -> CanvasItem:
+	if _cached_quest_list and is_instance_valid(_cached_quest_list):
+		return _cached_quest_list
+
+	var root := get_tree().root
+	if root == null:
+		return null
+
+	var found := root.find_child(QUEST_LIST_NODE_NAME, true, false)
+	if found is CanvasItem:
+		_cached_quest_list = found as CanvasItem
+		return _cached_quest_list
+
+	return null
 
 func _open_file_explorer_from_hud() -> void:
 	if _terminal_is_open:
@@ -312,7 +332,11 @@ func _process_terminal_command(raw_command: String) -> void:
 
 	match command:
 		"help", "?":
-			_print_terminal_line("Commands: help, map, pwd, ls, cat <file>, cd <location>, cd .., explorer, save, quit, clear, sudo shutdown")
+			var help_text = "Commands: help, map, pwd, ls, cat <file>, explorer, save, quit, clear"
+			if _is_cd_command_unlocked():
+				help_text += ", cd <location>, cd .."
+			help_text += ", echo <text>, whoami, date, uname, touch <file>, mkdir <dir>, rm <file>, sudo shutdown"
+			_print_terminal_line(help_text)
 			if _is_tutorial_scene_active():
 				_print_terminal_line("Locations: tutorial")
 			else:
@@ -326,7 +350,36 @@ func _process_terminal_command(raw_command: String) -> void:
 		"cat":
 			_handle_cat_command(args)
 		"cd":
-			_handle_cd_command(args)
+			if not _is_cd_command_unlocked():
+				_print_terminal_line("cd: command not found (defeat PrinterBoss to unlock)")
+			else:
+				_handle_cd_command(args)
+		"echo":
+			if args.is_empty():
+				_print_terminal_line("")
+			else:
+				_print_terminal_line(" ".join(args))
+		"whoami":
+			_print_terminal_line("nova")
+		"date":
+			_print_terminal_line(Time.get_datetime_string_from_system())
+		"uname":
+			_print_terminal_line("Linuxia 5.15.0 #1 SMP x86_64 GNU/Linux")
+		"touch":
+			if args.is_empty():
+				_print_terminal_line("touch: missing file operand")
+			else:
+				_print_terminal_line("touch: created %s" % args[0])
+		"mkdir":
+			if args.is_empty():
+				_print_terminal_line("mkdir: missing directory operand")
+			else:
+				_print_terminal_line("mkdir: created directory '%s'" % args[0])
+		"rm":
+			if args.is_empty():
+				_print_terminal_line("rm: missing file operand")
+			else:
+				_print_terminal_line("rm: removed '%s'" % args[0])
 		"explorer", "files", "open":
 			_print_terminal_line("Opening file explorer...")
 			_open_file_explorer_from_hud()
@@ -536,6 +589,11 @@ func _get_current_location_key() -> String:
 		return ""
 	return _location_key_from_scene_path(current_scene.scene_file_path)
 
+func _is_cd_command_unlocked() -> bool:
+	if SceneManager == null:
+		return false
+	return SceneManager.printer_beast_defeated
+
 func _location_key_from_scene_path(scene_path: String) -> String:
 	match scene_path:
 		"res://Scenes/Levels/tutorial - Copy.tscn":
@@ -562,13 +620,25 @@ func _set_terminal_fullscreen(fullscreen_enabled: bool) -> void:
 
 	if fullscreen_enabled:
 		_terminal_saved_window_rect = Rect2(terminal_panel.position, terminal_panel.size)
-		terminal_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		
+		# Get the taskbar/HUD height to avoid covering it (taskbar is at bottom)
+		var hud_height = 80.0  # Taskbar height with margin
+		if term_item:
+			# Calculate bottom position from taskbar location
+			var taskbar_pos = term_item.get_global_rect().position.y
+			var viewport_size = get_viewport_rect().size.y
+			hud_height = viewport_size - taskbar_pos + 10  # Extra padding
+		
+		terminal_panel.anchor_left = 0.0
+		terminal_panel.anchor_top = 0.0
+		terminal_panel.anchor_right = 1.0
+		terminal_panel.anchor_bottom = 1.0
 		terminal_panel.offset_left = 0.0
-		terminal_panel.offset_top = 0.0
+		terminal_panel.offset_top = 0.0  # Full height from top
 		terminal_panel.offset_right = 0.0
-		terminal_panel.offset_bottom = 0.0
+		terminal_panel.offset_bottom = -hud_height  # Leave room for bottom taskbar
 		if fullscreen_terminal_button:
-			fullscreen_terminal_button.text = "[WIN]"
+			fullscreen_terminal_button.text = "[-]"
 		_terminal_is_fullscreen = true
 		return
 
@@ -582,7 +652,7 @@ func _set_terminal_fullscreen(fullscreen_enabled: bool) -> void:
 	terminal_panel.offset_bottom = _terminal_saved_window_rect.position.y + _terminal_saved_window_rect.size.y
 	_clamp_terminal_to_viewport()
 	if fullscreen_terminal_button:
-		fullscreen_terminal_button.text = "[MAX]"
+		fullscreen_terminal_button.text = "[]"
 	_terminal_is_fullscreen = false
 
 func _on_terminal_header_gui_input(event: InputEvent) -> void:
@@ -605,8 +675,7 @@ func _on_terminal_header_gui_input(event: InputEvent) -> void:
 func _update_terminal_drag_position(mouse_global_pos: Vector2) -> void:
 	if terminal_panel == null:
 		return
-	var new_pos := mouse_global_pos - _terminal_drag_offset
-	terminal_panel.position = new_pos
+	terminal_panel.position = mouse_global_pos - _terminal_drag_offset
 	_clamp_terminal_to_viewport()
 
 func _clamp_terminal_to_viewport() -> void:

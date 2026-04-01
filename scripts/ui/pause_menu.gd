@@ -3,7 +3,6 @@ extends CanvasLayer
 const TITLE_SCENE := "res://Scenes/ui/title_menu.tscn"
 const MENU_ITEMS : Array[String] = ["QUICK SAVE", "LOAD", "FILE EXPLORER", "TITLE SCREEN", "SETTINGS", "QUIT GAME"]
 const SETTINGS_ITEMS : Array[String] = ["CONTROLS", "GRAPHICS", "SOUND", "SAVE", "GO BACK"]
-const GRAPHICS_ITEMS := ["WINDOW MODE", "RESOLUTION", "QUALITY", "APPLY", "GO BACK"]
 const WINDOW_MODE_OPTIONS := ["WINDOWED", "BORDERLESS", "FULLSCREEN"]
 const RESOLUTION_OPTIONS := [Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1080)]
 const QUALITY_OPTIONS := ["LOW", "MEDIUM", "HIGH"]
@@ -809,10 +808,7 @@ func _open_quest_from_entry(entry: Dictionary) -> void:
 		return
 	var QuestWindowScene := preload("res://Scenes/ui/QuestWindow.tscn")
 	var w: QuestWindow = QuestWindowScene.instantiate() as QuestWindow
-	if menu_root:
-		menu_root.add_child(w)
-	else:
-		get_tree().get_root().add_child(w)
+	get_tree().get_root().add_child(w)
 	w.set_quest(q)
 
 func _build_explorer_folders() -> Array[String]:

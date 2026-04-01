@@ -8,6 +8,7 @@ extends CanvasLayer
 @onready var action_label: Label = $PromptContainer/PromptPanel/HBox/ActionLabel
 
 var _last_interactable: Node = null
+var _interaction_manager_cache: Node = null
 
 func _ready() -> void:
 	# Start hidden
@@ -15,7 +16,7 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	# Check InteractionManager for current interactable
-	var im = _get_interaction_manager()
+	var im := _get_interaction_manager()
 	if not im:
 		prompt_container.visible = false
 		return
@@ -69,6 +70,10 @@ func _update_prompt_text(interactable: Node) -> void:
 	action_label.text = action_text
 
 func _get_interaction_manager() -> Node:
+	if _interaction_manager_cache and is_instance_valid(_interaction_manager_cache):
+		return _interaction_manager_cache
 	if Engine.has_singleton("InteractionManager"):
-		return Engine.get_singleton("InteractionManager")
-	return get_tree().root.get_node_or_null("InteractionManager")
+		_interaction_manager_cache = Engine.get_singleton("InteractionManager")
+		return _interaction_manager_cache
+	_interaction_manager_cache = get_tree().root.get_node_or_null("InteractionManager")
+	return _interaction_manager_cache

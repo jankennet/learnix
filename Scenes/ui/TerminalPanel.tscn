@@ -1,0 +1,109 @@
+[gd_scene load_steps=3 format=3 uid="uid://bg3bjr6eeodbl"]
+
+[ext_resource type="Script" uid="uid://b3vpsfht005en" path="res://scripts/ui/TerminalPanel.gd" id="1_script"]
+[ext_resource type="FontFile" uid="uid://lqtbary7gh5r" path="res://Assets/fonts/PressStart2P-Regular.ttf" id="2_font"]
+
+[node name="TerminalPanel" type="Control"]
+z_index = 100
+custom_minimum_size = Vector2(680, 360)
+layout_mode = 3
+anchors_preset = 0
+offset_left = 300.0
+offset_top = 120.0
+offset_right = 980.0
+offset_bottom = 480.0
+mouse_filter = 1
+script = ExtResource("1_script")
+
+[node name="PanelBg" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelBg"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="VBox" type="VBoxContainer" parent="PanelBg/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="TerminalHeader" type="Control" parent="PanelBg/MarginContainer/VBox"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+mouse_filter = 1
+
+[node name="HeaderLabel" type="Label" parent="PanelBg/MarginContainer/VBox/TerminalHeader"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -40.0
+offset_top = 2.0
+offset_right = 40.0
+offset_bottom = 30.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 12
+text = "TERMINAL"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ButtonRow" type="HBoxContainer" parent="PanelBg/MarginContainer/VBox/TerminalHeader"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -100.0
+offset_top = 2.0
+offset_right = -8.0
+offset_bottom = 30.0
+grow_horizontal = 0
+theme_override_constants/separation = 4
+alignment = 2
+
+[node name="MinimizeButton" type="Button" parent="PanelBg/MarginContainer/VBox/TerminalHeader/ButtonRow"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+text = "-"
+
+[node name="FullscreenButton" type="Button" parent="PanelBg/MarginContainer/VBox/TerminalHeader/ButtonRow"]
+custom_minimum_size = Vector2(28, 24)
+layout_mode = 2
+text = "[]"
+
+[node name="CloseButton" type="Button" parent="PanelBg/MarginContainer/VBox/TerminalHeader/ButtonRow"]
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+text = "X"
+
+[node name="TerminalOutput" type="RichTextLabel" parent="PanelBg/MarginContainer/VBox"]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+scroll_active = false
+scroll_following = true
+
+[node name="TerminalInputRow" type="HBoxContainer" parent="PanelBg/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TerminalInput" type="LineEdit" parent="PanelBg/MarginContainer/VBox/TerminalInputRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Type command (help, ls, cat, save, quit)"
+
+[node name="RunCommandButton" type="Button" parent="PanelBg/MarginContainer/VBox/TerminalInputRow"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "[ENTER]"
