@@ -293,6 +293,7 @@ func _serialize_quest_state() -> Dictionary:
 	return {
 		"statuses": quest_statuses,
 		"active": quest_manager.active_quests.duplicate(true) if quest_manager else [],
+		"pending_check": quest_manager.pending_completion.keys() if quest_manager else [],
 	}
 
 func _apply_quest_state(quest_data: Dictionary) -> void:
@@ -317,6 +318,14 @@ func _apply_quest_state(quest_data: Dictionary) -> void:
 			var quest_id_string := String(quest_id)
 			if quest_manager.quests.has(quest_id_string):
 				quest_manager.active_quests.append(quest_id_string)
+
+	quest_manager.pending_completion.clear()
+	var pending_list = quest_data.get("pending_check", []) if quest_data.has("pending_check") else []
+	if pending_list is Array:
+		for quest_id in pending_list:
+			var quest_id_string := String(quest_id)
+			if quest_manager.quests.has(quest_id_string):
+				quest_manager.pending_completion[quest_id_string] = true
 
 func _serialize_persistent_meta() -> Dictionary:
 	var meta_state := {}

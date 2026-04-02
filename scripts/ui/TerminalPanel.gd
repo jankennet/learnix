@@ -19,7 +19,7 @@ func _ready() -> void:
 	
 	# Hide the run button - real terminals don't show it (but keep reference valid)
 	if run_command_button:
-		run_command_button.visible = false
+		run_command_button.visible = true
 	
 	# Style the panel background with authentic CRT terminal colors
 	var sb_main := StyleBoxFlat.new()

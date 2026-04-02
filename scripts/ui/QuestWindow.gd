@@ -9,6 +9,9 @@ class_name QuestWindow
 var _quest_tab_map: Dictionary = {}
 var _is_dragging_window := false
 var _window_drag_offset := Vector2.ZERO
+var _progress_refresh_timer := 0.0
+
+const PROGRESS_REFRESH_INTERVAL := 0.2
 
 const NOTEPAD_BG = Color(0.95, 0.95, 0.9, 1.0)
 const NOTEPAD_BORDER = Color(0.18, 0.18, 0.18, 1.0)
@@ -40,6 +43,20 @@ func _ready() -> void:
 
 	_connect_quest_manager_signals()
 	_refresh_tabs()
+
+func _process(delta: float) -> void:
+	if not visible:
+		return
+
+	_progress_refresh_timer -= delta
+	if _progress_refresh_timer > 0.0:
+		return
+	_progress_refresh_timer = PROGRESS_REFRESH_INTERVAL
+
+	for quest_id in _quest_tab_map.keys():
+		if String(quest_id) == "NoQuests":
+			continue
+		_update_tab_for_quest(String(quest_id))
 
 func _style_close_button() -> void:
 	if not close_button:
@@ -103,28 +120,38 @@ func _create_quest_tab(quest: Quest) -> void:
 	prog_label.add_theme_color_override("font_color", TEXT_DARK)
 	prog_row.add_child(prog_label)
 	
-	var prog_overlay := Control.new()
-	prog_overlay.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	prog_overlay.custom_minimum_size = Vector2(0, 26)
-	
 	var prog_bar := ProgressBar.new()
+	prog_bar.name = "ProgressBar"
 	prog_bar.min_value = 0
 	prog_bar.max_value = 100
 	prog_bar.value = 0
+	prog_bar.custom_minimum_size = Vector2(0, 24)
 	prog_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	prog_overlay.add_child(prog_bar)
+	prog_row.add_child(prog_bar)
 	
 	var prog_percent := Label.new()
+	prog_percent.name = "ProgressPercent"
 	prog_percent.text = "0%"
-	prog_percent.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	prog_percent.set_anchors_preset(Control.PRESET_FULL_RECT)
-	prog_percent.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	prog_percent.custom_minimum_size = Vector2(52, 0)
+	prog_percent.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	prog_percent.add_theme_font_size_override("font_size", 13)
 	prog_percent.add_theme_color_override("font_color", TEXT_DARK)
-	prog_overlay.add_child(prog_percent)
-	
-	prog_row.add_child(prog_overlay)
+	prog_row.add_child(prog_percent)
 	vbox.add_child(prog_row)
+
+	var status_label := Label.new()
+	status_label.name = "QuestStatusLabel"
+	status_label.text = ""
+	status_label.add_theme_font_size_override("font_size", 13)
+	status_label.add_theme_color_override("font_color", TEXT_BODY)
+	vbox.add_child(status_label)
+
+	var check_button := Button.new()
+	check_button.name = "CheckCompleteButton"
+	check_button.text = "CHECK COMPLETE"
+	check_button.visible = false
+	check_button.pressed.connect(Callable(self, "_on_check_complete_pressed").bind(quest.quest_id))
+	vbox.add_child(check_button)
 	
 	# Assemble
 	margin.add_child(vbox)
@@ -248,20 +275,32 @@ func _update_tab_for_quest(quest_id: String) -> void:
 	if not prog_bar:
 		return
 	
-	match q.status:
-		"inactive":
-			prog_bar.value = 0
-		"active":
-			prog_bar.value = 50
-		"completed":
-			prog_bar.value = 100
-		"failed":
-			prog_bar.value = 0
+	var progress_value := qm.get_quest_progress(quest_id) if qm and qm.has_method("get_quest_progress") else 0
+	prog_bar.value = progress_value
 	
 	# Update progress label
 	var prog_percent = _find_node_by_name(tab, "ProgressPercent") as Label
 	if prog_percent:
 		prog_percent.text = "%d%%" % int(prog_bar.value)
+
+	var status_label = _find_node_by_name(tab, "QuestStatusLabel") as Label
+	if status_label:
+		var ready_to_check := qm and qm.has_method("can_check_complete") and qm.can_check_complete(quest_id)
+		match String(q.status):
+			"inactive":
+				status_label.text = "Status: Not started"
+			"active":
+				status_label.text = "Status: Ready to check" if ready_to_check else "Status: In progress"
+			"completed":
+				status_label.text = "Status: Completed"
+			"failed":
+				status_label.text = "Status: Failed"
+			_:
+				status_label.text = "Status: %s" % String(q.status)
+
+	var check_button = _find_node_by_name(tab, "CheckCompleteButton") as Button
+	if check_button and qm and qm.has_method("can_check_complete"):
+		check_button.visible = qm.can_check_complete(quest_id)
 
 func _find_node_by_name(node: Node, target_name: String) -> Node:
 	if node.name == target_name:
@@ -326,6 +365,19 @@ func _on_quest_completed(quest_id: String) -> void:
 func _on_quest_updated(quest_id: String) -> void:
 	_update_tab_for_quest(quest_id)
 
+func _on_check_complete_pressed(quest_id: String) -> void:
+	var qm := _get_quest_manager()
+	if qm == null or not qm.has_method("check_complete"):
+		return
+
+	if not qm.check_complete(quest_id):
+		return
+
+	hide()
+	var tux_ctrl := _scene_manager.get_node_or_null("TuxDialogueController") if _scene_manager else null
+	if tux_ctrl and tux_ctrl.has_method("on_quest_checked_complete"):
+		tux_ctrl.call("on_quest_checked_complete", quest_id)
+
 func _get_quest_manager() -> QuestManager:
 	if _scene_manager == null:
 		_scene_manager = get_node_or_null("/root/SceneManager")
@@ -338,4 +390,6 @@ func _connect_quest_manager_signals() -> void:
 
 	qm.quest_started.connect(Callable(self, "_on_quest_started"))
 	qm.quest_completed.connect(Callable(self, "_on_quest_completed"))
+	qm.quest_failed.connect(Callable(self, "_on_quest_updated"))
+	qm.quest_ready_to_check.connect(Callable(self, "_on_quest_updated"))
 	qm.quest_updated.connect(Callable(self, "_on_quest_updated"))

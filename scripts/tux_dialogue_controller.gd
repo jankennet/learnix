@@ -11,6 +11,11 @@ var _prev_player_karma: String = ""
 var _prev_defeated_flags: Dictionary = {}
 var _prev_item_flags: Dictionary = {}
 var _sage_quiz_announced: bool = false
+var _ready_check_prompted: Dictionary = {}
+var _tux_line_queue: Array[String] = []
+var _draining_tux_lines: bool = false
+
+const TUX_LINE_GAP_SECONDS := 1.25
 
 const ITEM_FLAGS: Array[String] = [
 	"gatekeeper_pass_granted",
@@ -103,6 +108,9 @@ func _ready() -> void:
 			_prev_item_flags[flag] = sm.get(flag) if sm.get(flag) != null else false
 		for flag in DEFEAT_FLAGS:
 			_prev_defeated_flags[flag] = sm.get(flag) if sm.get(flag) != null else false
+		for quest_id in sm.quest_manager.quests.keys() if sm.quest_manager else []:
+			var qid := String(quest_id)
+			_ready_check_prompted[qid] = _is_quest_ready_to_check(qid)
 			
 		if sm.has_signal("npc_first_interacted"):
 			sm.npc_first_interacted.connect(_on_npc_first_interacted)
@@ -160,6 +168,7 @@ func _on_dialogue_ended(_resource: Resource) -> void:
 	# 3. Check Flags (Items & Defeats)
 	_check_boolean_flags(ITEM_FLAGS, _prev_item_flags, _handle_item_granted)
 	_check_boolean_flags(DEFEAT_FLAGS, _prev_defeated_flags, _handle_npc_defeated)
+	_maybe_prompt_ready_quest_check()
 
 # Periodically check NPC states to catch state changes from puzzle solving
 func _check_state_changes_periodic() -> void:
@@ -173,6 +182,7 @@ func _check_state_changes_periodic() -> void:
 			print("[TuxDialogueController] NPC state changed: %s from %s to %s" % [npc_key, old_val, new_val])
 			_handle_npc_state_change(npc_key, old_val, new_val)
 	_prev_npc_states = curr_states
+	_maybe_prompt_ready_quest_check()
 
 # Helper to reduce code duplication for flag checking
 func _check_boolean_flags(flag_list: Array[String], storage: Dictionary, callback: Callable) -> void:
@@ -239,25 +249,94 @@ func _handle_item_granted(flag: String) -> void:
 		"broken_link_fragmented_key": "You found a fragmented link piece. It might restore access somewhere."
 	}
 	_show_tux_line(item_messages.get(flag, "You received something new. Check your inventory."))
+	_maybe_prompt_ready_quest_check()
+
+func _get_quest_manager() -> QuestManager:
+	if sm == null:
+		return null
+	return sm.quest_manager if sm.quest_manager else null
+
+func _is_quest_ready_to_check(quest_id: String) -> bool:
+	var qm := _get_quest_manager()
+	if qm == null:
+		return false
+	if not qm.has_method("is_quest_ready_to_check"):
+		return false
+	return bool(qm.call("is_quest_ready_to_check", quest_id))
+
+func _quest_display_name(quest_id: String) -> String:
+	var qm := _get_quest_manager()
+	if qm == null:
+		return quest_id
+	var quest := qm.get_quest(quest_id)
+	return quest.quest_name if quest else quest_id
+
+func _maybe_prompt_ready_quest_check() -> void:
+	var qm := _get_quest_manager()
+	if qm == null:
+		return
+
+	for quest_id in qm.get_active_quests():
+		var qid := String(quest_id)
+		if bool(_ready_check_prompted.get(qid, false)):
+			continue
+		if not _is_quest_ready_to_check(qid):
+			continue
+		_ready_check_prompted[qid] = true
+		var quest_name := _quest_display_name(qid)
+		await get_tree().create_timer(1.0).timeout
+		_show_tux_line("Quest ready: %s. Open your Quest tab and press CHECK COMPLETE." % quest_name)
+		return
+
+func on_quest_checked_complete(quest_id: String) -> void:
+	_ready_check_prompted[String(quest_id)] = true
+	match quest_id:
+		"find_lost_file":
+			_show_tux_line("Quest confirmed. Return to Messy Directory in Fallback Hamlet for your next lead.")
+		"broken_link_puzzle":
+			_show_tux_line("Quest confirmed. Report to the Gate Keeper and keep building your proficiency path.")
+		"drivers_den_cleanup":
+			_show_tux_line("Quest confirmed. Talk to Hardware Ghost, then prepare for the next zone unlock.")
+		"gatekeeper_proficiency":
+			_show_tux_line("Great work. You proved your proficiency. Head back to the Gate Keeper in Fallback Hamlet to unlock the BIOS Vault.")
+		_:
+			_show_tux_line("Quest confirmed. Nice work. Check your map and continue to the next objective.")
 
 func _show_tux_line(text: String) -> void:
 	if dm == null:
 		push_warning("Tux: DialogueManager not found. Text: %s" % text)
 		return
+	if text.strip_edges().is_empty():
+		return
 
-	print("[TuxDialogueController] Showing Tux line: %s" % text)
-	
-	var resource := DialogueResourceRes.new()
-	resource.lines = {
-		"start": {
-			"id": "start",
-			"type": DMConstantsRes.TYPE_DIALOGUE,
-			"character": "Tux",
-			"text": text,
-			"next_id": DMConstantsRes.ID_END
+	_tux_line_queue.append(text)
+	if _draining_tux_lines:
+		return
+	_draining_tux_lines = true
+	call_deferred("_drain_tux_line_queue")
+
+func _drain_tux_line_queue() -> void:
+	while not _tux_line_queue.is_empty():
+		var text := String(_tux_line_queue.pop_front())
+		print("[TuxDialogueController] Showing Tux line: %s" % text)
+
+		var resource := DialogueResourceRes.new()
+		resource.lines = {
+			"start": {
+				"id": "start",
+				"type": DMConstantsRes.TYPE_DIALOGUE,
+				"character": "Tux",
+				"text": text,
+				"next_id": DMConstantsRes.ID_END
+			}
 		}
-	}
-	dm.show_dialogue_balloon(resource, "start")
+		dm.show_dialogue_balloon(resource, "start")
+
+		if dm.has_signal("dialogue_ended"):
+			await dm.dialogue_ended
+		await get_tree().create_timer(TUX_LINE_GAP_SECONDS).timeout
+
+	_draining_tux_lines = false
 
 func on_sage_quiz_passed() -> void:
 	if _sage_quiz_announced:

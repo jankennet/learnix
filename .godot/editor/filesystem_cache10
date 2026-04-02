@@ -1,8 +1,8 @@
 f098f8d3115d962055284dee314b4f89
-::res://::1775056133
+::res://::1775091149
 dungeonEntrance.gdshader::Shader::6234696419347358226::1773758680::0::1::::<><><>0<>0<><>::
 export_presets.cfg::TextFile::-1::1774785474::0::1::::<><><>0<>0<><>::
-grass.gdshader::Shader::8998852723237408497::1775049965::0::1::::<><><>0<>0<><>::
+grass.gdshader::Shader::8998852723237408497::1775056143::0::1::::<><><>0<>0<><>::
 icon.svg::CompressedTexture2D/CompressedTexture2D::5149639601883211627::1759534024::1766202476::1::::<><><>0<>0<>052efabeb1f85be87cb0227fa3b814ea<>res://.godot/imported/icon.svg-218a8f2b3041327d8a5756f3a245f83b.ctex::
 image-1.png::CompressedTexture2D::7723150591982063042::1772033527::1772033528::1::::<><><>0<>0<>6dd48b32ee4209e938550aa9a4ba2cfc<>res://.godot/imported/image-1.png-dbab14dd40403047ee602a1bb16c5f26.ctex::
 image-2.png::CompressedTexture2D::4386495194584307040::1772033540::1772033541::1::::<><><>0<>0<>44b8d0ee005bb4d6678709fb6f7b8f5c<>res://.godot/imported/image-2.png-e95f4ae09da26d29a7fb4c29f15e7ead.ctex::
@@ -368,9 +368,9 @@ dot1.png::CompressedTexture2D::7166621501565270876::1766203156::1766203663::1:::
 dot2.png::CompressedTexture2D::4851983250050402842::1766203156::1766203664::1::::<><><>0<>0<>a81297d72d3c6914476654e08efe68df<>res://.godot/imported/dot2.png-86a9db80ef4413e353c4339ad8f68a5f.ctex::
 embedded.png::CompressedTexture2D::6770921736681233239::1766203157::1766203663::1::::<><><>0<>0<>ed1e69304b7e66bc672463ff1f2c838c<>res://.godot/imported/embedded.png-29390948772209a603567d24f8766495.ctex::
 horizontal-line2.png::CompressedTexture2D::2822315393280434635::1766203157::1766203663::1::::<><><>0<>0<>2b7e67f2fc3806dd7e6907ebe39513ff<>res://.godot/imported/horizontal-line2.png-92618e6ee5cc9002847547a8c9deadbc.ctex::
-::res://addons/godot_landscaper/::1775056136
+::res://addons/godot_landscaper/::1775091167
 icon.svg::CompressedTexture2D::5783167400173111000::1773760879::1773760900::0::::<><><>0<>0<>364f06ae67125f23f23d38f8e41eb17f<>::
-icon_clean.png::CompressedTexture2D::711444754842548895::1773760879::1775056136::0::::<><><>0<>0<>1e4be8ad33324bc1586218d68f9b5a61<>::
+icon_clean.png::CompressedTexture2D::711444754842548895::1773760879::1775091167::0::::<><><>0<>0<>1e4be8ad33324bc1586218d68f9b5a61<>::
 plugin.cfg::TextFile::-1::1773760879::0::1::::<><><>0<>0<><>::
 plugin_landscaper.gd::GDScript::5343232134170777213::1773760879::0::1::::GLandscaper<>EditorPlugin<><>0<>1<><>::
 ::res://addons/godot_landscaper/assets_manager/::1773760899
@@ -488,9 +488,9 @@ tab_terrain_build.svg::CompressedTexture2D::5037888181993250834::1773760878::177
 tab_terrain_height.svg::CompressedTexture2D::2967257191114497703::1773760878::1773761131::1::::<><><>0<>0<>d270da54e11212a72dc86b4c15fe5877<>res://.godot/imported/tab_terrain_height.svg-5a2a24c3269ca153f4878b1e796d7690.s3tc.ctex::
 tab_terrain_paint.svg::CompressedTexture2D::485639868797648782::1773760878::1773760900::1::::<><><>0<>0<>bd347d9fe52bfedeab52412341569296<>res://.godot/imported/tab_terrain_paint.svg-548e5c1a3a5ef644d880802a671d8773.s3tc.ctex::
 terrain_icon.svg::CompressedTexture2D::3922279527886666577::1773760878::1773760900::1::::<><><>0<>0<>be4fab408e2bf7859989222d146d87f5<>res://.godot/imported/terrain_icon.svg-e77ffbb89c56c3166d5386a271fb4c8c.s3tc.ctex::
-::res://addons/godot_landscaper/controllers/terrain/resources/::1775048689
+::res://addons/godot_landscaper/controllers/terrain/resources/::1775056143
 brush_shape.tres::GradientTexture2D::2473237174138966428::1773760878::0::1::::<><><>0<>0<><>::
-grass.tres::NoiseTexture2D::1238988630306029665::1775048689::0::1::::<><><>0<>0<><>::
+grass.tres::NoiseTexture2D::1238988630306029665::1775056143::0::1::::<><><>0<>0<><>::
 material.tres::ShaderMaterial::8685563498817251893::1773760878::0::1::::<><><>0<>0<><>::uid://dblstk6bs53sr::::res://addons/godot_landscaper/controllers/terrain/resources/terrain_shader.gdshader<>uid://rwf7x0st0av6::::res://addons/godot_landscaper/controllers/terrain/resources/grass.tres
 paving_stones.svg::CompressedTexture2D::5978276892642166876::1773760878::1773760900::1::::<><><>0<>0<>458b94213f32cb21086c65250fd98e8f<>res://.godot/imported/paving_stones.svg-d68bd9f856efbab914d2431ad9a4a6bf.ctex::
 terrain_shader.gdshader::Shader::7253286459159122389::1773760878::0::1::::<><><>0<>0<><>::
@@ -539,7 +539,7 @@ plugin.cfg::TextFile::-1::1759814508::0::1::::<><><>0<>0<><>::
 README.md::TextFile::-1::1759814508::0::1::::<><><>0<>0<><>::
 terrain3d_00_00.res::Terrain3DRegion::5551519945458341323::1773758246::0::1::::<><><>0<>0<><>::
 terrain.gdextension::GDExtension::2625506675569593757::1759814510::0::1::::<><><>0<>0<><>::
-::res://addons/terrain_3d/bin/::1775056128
+::res://addons/terrain_3d/bin/::1775091142
 ::res://addons/terrain_3d/bin/libterrain.macos.debug.framework/::1760967133
 ::res://addons/terrain_3d/bin/libterrain.macos.release.framework/::1760967133
 ::res://addons/terrain_3d/extras/::1760967133
@@ -644,12 +644,12 @@ terminal-bg-2.mp3::AudioStreamMP3::4349821950747245732::1728700718::1774764750::
 terminal-bg.mp3::AudioStreamMP3::8472917690359817311::1773052598::1774764725::1::::<><><>0<>0<>2fe2a03e060283bbd2027a747dd28816<>res://.godot/imported/terminal-bg.mp3-696231f3d28f5b8d1a25b2e63590014f.mp3str::
 walk.mp3::AudioStreamMP3::5981557156430814602::1740484553::1774764816::1::::<><><>0<>0<>e1093113bab0622553f6d60119de3d81<>res://.godot/imported/walk.mp3-611e4bd4e21f3662b47a6abcf5a3ef35.mp3str::
 walking-on-wood.mp3::AudioStreamMP3::2096884025810885268::1653835112::1774764599::1::::<><><>0<>0<>74249531f38c40d11477468f37747009<>res://.godot/imported/walking-on-wood.mp3-f3817e41874be2d3f38ccdea18eb6861.mp3str::
-::res://Assets/::1775048689
+::res://Assets/::1775056143
 Glitch.svg::CompressedTexture2D::3352032544867977217::1773799462::1773799511::1::::<><><>0<>0<>06232ed21c1ec61e0efa7dd5bf946ad3<>res://.godot/imported/Glitch.svg-99a39f395f46b379980a1af413217242.s3tc.ctex::
 mainHUD_Icons_File.png::CompressedTexture2D::3024117897750941792::1774154634::1774154671::1::::<><><>0<>0<>71541af704a854b74df822e8db358337<>res://.godot/imported/mainHUD_Icons_File.png-b86c954b8ef1702472f624fbef2321b4.ctex::
 mainHUD_Icons_Terminal.png::CompressedTexture2D::4242641901998294931::1774154649::1774154649::1::::<><><>0<>0<>f87d34539e786d237965fd761af2f4f3<>res://.godot/imported/mainHUD_Icons_Terminal.png-216b2e1845f75a32cd5f3424d30a8969.ctex::
 mainHUD_Icons_Tux.png::CompressedTexture2D::3863574212219456285::1774154748::1774154748::1::::<><><>0<>0<>668696a41ff47d8072421dcc208de870<>res://.godot/imported/mainHUD_Icons_Tux.png-35c490e1a760efd8c16dd8dbdde59c67.ctex::
-portal_shader.tres::VisualShader::8678376238673171705::1775048689::0::1::::<><><>0<>0<><>::uid://cf7nmo7ppvc2i::::res://Assets/shaders/T_VFX_CircleFit1.png
+portal_shader.tres::VisualShader::8678376238673171705::1775056143::0::1::::<><><>0<>0<><>::uid://cf7nmo7ppvc2i::::res://Assets/shaders/T_VFX_CircleFit1.png
 referenceDependencyUI.png::CompressedTexture2D::9128593884331235013::1773841413::1773841458::1::::<><><>0<>0<>3219ad1ec2c1039dfc38410f15539bb8<>res://.godot/imported/referenceDependencyUI.png-0ad5f374430544fe3533e00824f4f33b.ctex::
 referenceTerminalUI.png::CompressedTexture2D::7889923712769205347::1773841394::1773841436::1::::<><><>0<>0<>c971934ece6fab10cb2fcb7d4080dff9<>res://.godot/imported/referenceTerminalUI.png-7573e4d28d498ad95f839e18cac565b2.ctex::
 referenceTimingUI.png::CompressedTexture2D::8918238292598676788::1773841406::1773841447::1::::<><><>0<>0<>03d3acd73da5bdec0f445a32dbb4bd0b<>res://.godot/imported/referenceTimingUI.png-ba0297604316dcde061b24bc197f8d42.ctex::
@@ -802,17 +802,17 @@ dialogue_balloon.gd::GDScript::1555574286296522657::1774771302::0::1::::<>Canvas
 dialogue_balloon.tscn::PackedScene::8058327382265900983::1774751417::0::1::::<><><>0<>0<><>::res://Scenes/dialogue_balloon.gd<>uid://ckvgyvclnwggo::::res://addons/dialogue_manager/dialogue_label.tscn<>uid://bb52rsfwhkxbn::::res://addons/dialogue_manager/dialogue_responses_menu.gd<>res://Assets/fonts/PressStart2P-Regular.ttf
 tutorial_sequence.tscn::PackedScene::4865611982361814090::1774761166::0::1::::<><><>0<>0<><>::uid://dc5ffxh11njtw::::res://scripts/tutorial_sequence_controller.gd<>uid://b1pfxsi5467pn::::res://Assets/mainHUD_Icons_Terminal.png<>uid://bvbsrdib0cx5f::::res://Assets/mainHUD_Icons_Tux.png
 world_main.tscn::PackedScene::7802616945458743415::1772160304::0::1::::<><><>0<>0<><>::uid://djwelxifkmkf7::::res://Scenes/Player/player.tscn<>uid://bu0nmb1xl7di1::::res://Scenes/Levels/fallback_hamlet.tscn<>res://Scenes/ui/QuestList.tscn<>res://Scenes/ui/MainHUD.tscn
-::res://Scenes/combat/::1775048689
+::res://Scenes/combat/::1775056143
 combat_encounter.tscn::PackedScene::-1::1766898201::0::1::::<><><>0<>0<><>::res://scripts/combat/combat_ui.gd
 combat_terminal_ui.tscn::PackedScene::2273704854269644536::1773836937::0::1::::<><><>0<>0<><>::uid://p3mbu7wibxub::::res://scripts/combat/combat_terminal_ui.gd<>uid://doak8ce36xvhu::::res://Scenes/combat/crt_terminal_theme.tres<>uid://cmh6cx1xegkl0::::res://Scenes/combat/crt_effect.gdshader
 combat_tutorial_popup.tscn::PackedScene::953085090578869325::1774158854::0::1::::<><><>0<>0<><>::uid://duq8yc24f2l7s::::res://scripts/combat/combat_tutorial_popup.gd<>uid://dkn65j1w4mubb::::res://Assets/referenceTerminalUI.png<>uid://d0ccc1ppt0xyq::::res://Assets/referenceTimingUI.png<>uid://d3b7uwl7tl3ef::::res://Assets/referenceDependencyUI.png
 crt_effect.gdshader::Shader::5631445182937155335::1767356428::0::1::::<><><>0<>0<><>::
-crt_terminal_theme.tres::Theme::8142572075678747518::1775048689::0::1::::<><><>0<>0<><>::uid://lqtbary7gh5r::::res://Assets/fonts/PressStart2P-Regular.ttf
+crt_terminal_theme.tres::Theme::8142572075678747518::1775056143::0::1::::<><><>0<>0<><>::uid://lqtbary7gh5r::::res://Assets/fonts/PressStart2P-Regular.ttf
 dependency_resolver_minigame.tscn::PackedScene::7692324700677216353::1774144663::0::1::::<><><>0<>0<><>::uid://6whf7m1tkxp1::::res://scripts/combat/dependency_resolver_minigame.gd
 timing_minigame.tscn::PackedScene::7468576128431279290::1774495297::0::1::::<><><>0<>0<><>::uid://dg8dinhi5qbju::::res://scripts/combat/timing_minigame.gd
 ::res://Scenes/globals/::1771756957
 loading_screen.tscn::PackedScene::2055564449893421984::1773152636::0::1::::<><><>0<>0<><>::uid://d14cf7gr3ghxy::::res://scripts/loading_screen.gd<>res://Assets/fonts/PressStart2P-Regular.ttf<>res://Scenes/combat/crt_effect.gdshader
-::res://Scenes/Levels/::1775054024
+::res://Scenes/Levels/::1775056143
 bios_vault.tscn::PackedScene::7225355803976451817::1774155651::0::1::::<><><>0<>0<><>::uid://blbtdjemwq2po::::res://levelAssets/gtlfLevels/Old Computers.glb<>uid://b1qh4gi60jfmy::::res://Assets/characterSpriteSheets/ss_FallbackHamletNPC/sage.png<>uid://b0ir6gis4a7s3::::res://scripts/npc_script.gd<>uid://bxbhqli8vhkha::::res://scripts/bios_vault_intro.gd
 bios_vault_.tscn::PackedScene::357977194225978390::1771557508::0::1::::<><><>0<>0<><>::uid://dfmth68n240j6::::res://levelAssets/fbxLevels/BiosVault.fbx
 cone.tscn::PackedScene::8226945095151851428::1773796397::0::1::::<><><>0<>0<><>::
@@ -823,14 +823,14 @@ file_system_forest.tscn::PackedScene::150153199441923897::1774408403::0::1::::<>
 forest.tscn::PackedScene::3210260498317728570::1773653951::0::1::::<><><>0<>0<><>::uid://bm7hpgfgj6e5u::::res://levelAssets/gtlfLevels/Forest.glb
 forest_no_plain.tscn::PackedScene::5657657897961265630::1773652231::0::1::::<><><>0<>0<><>::uid://04qh4al76ow3::::res://levelAssets/fbxLevels/Forest_NoPlain.fbx
 proprietary_citadel.tscn::PackedScene::5220840865972576327::1775053645::0::1::::<><><>0<>0<><>::uid://c130218kdolm1::::res://levelAssets/gtlfLevels/CitadelKaykit.glb<>uid://2sr4mubj2xie::::res://levelAssets/hdris/DaySkyHDRI046A_1K_HDR.exr<>uid://dylqagb1orkkm::::res://levelAssets/obj/CitadelKaykit.obj<>uid://c1pnywisgeo0c::::res://Assets/characterSpriteSheets/ss_Tux/tux_idle.png
-river.gdshader::Shader::4118684864245040352::1775049965::0::1::::<><><>0<>0<><>::
-sky.gdshader::Shader::4396020394382423470::1775049965::0::1::::<><><>0<>0<><>::
+river.gdshader::Shader::4118684864245040352::1775056143::0::1::::<><><>0<>0<><>::
+sky.gdshader::Shader::4396020394382423470::1775056143::0::1::::<><><>0<>0<><>::
 tutorial - Copy.tscn::PackedScene::4919734157153184481::1774493939::0::1::::<><><>0<>0<><>::uid://c1pnywisgeo0c::::res://Assets/characterSpriteSheets/ss_Tux/tux_idle.png<>uid://dblstk6bs53sr::::res://addons/godot_landscaper/controllers/terrain/resources/terrain_shader.gdshader<>uid://rwf7x0st0av6::::res://addons/godot_landscaper/controllers/terrain/resources/grass.tres<>uid://c3py3xunrss0i::::res://addons/godot_landscaper/controllers/grass/resources/mesh_3d_single.res
 tutorial.tscn::PackedScene::4389349206554286292::1773819749::0::1::::<><><>0<>0<><>::uid://k2h3xr0j4uvh::::res://addons/godot_landscaper/controllers/terrain/terrain_controller.gd<>uid://c4o8a3upq14ry::::res://addons/godot_landscaper/controllers/terrain/services/paint_layer.gd<>uid://crf6l2d5b341e::::res://addons/godot_landscaper/controllers/terrain/resources/paving_stones.svg<>uid://6ux47eatwsff::::res://addons/godot_landscaper/controllers/terrain/services/stencil_maker.gd<>uid://dblstk6bs53sr::::res://addons/godot_landscaper/controllers/terrain/resources/terrain_shader.gdshader<>uid://rwf7x0st0av6::::res://addons/godot_landscaper/controllers/terrain/resources/grass.tres<>uid://cjj5c4v753qbs::::res://addons/godot_landscaper/controllers/terrain/build_data/terrain_build_data.gd<>uid://dahanv36eslxl::::res://addons/godot_landscaper/controllers/grass/grass_controller.gd<>uid://b1obt5uj8bhxk::::res://addons/godot_landscaper/controllers/grass/resources/material.tres<>uid://c3py3xunrss0i::::res://addons/godot_landscaper/controllers/grass/resources/mesh_3d_single.res<>uid://bv82e7nydb1r::::res://addons/godot_landscaper/controllers/grass/build_data/build_data_grass.gd<>uid://dq64xuf2n7r4::::res://addons/godot_landscaper/controllers/grass/resources/grass_shader.gdshader<>uid://dcx371d0n5uuo::::res://addons/godot_landscaper/controllers/grass/services/texture_atlas_layer.gd<>uid://dexka4nfcsts4::::res://Scenes/Player/tux.tscn
 ::res://Scenes/Player/::1773711521
 player.tscn::PackedScene::7836641686751441938::1773711521::0::1::::<><><>0<>0<><>::uid://3tjo4ty6qgpg::::res://scripts/nova_controls.gd<>uid://backns8cap53v::::res://Assets/characterSpriteSheets/ss_Nova/nova_idle.png<>uid://n6i68hiiyroe::::res://Assets/characterSpriteSheets/ss_Nova/run_anim_down.png<>uid://bdq2n2oonhcjl::::res://Assets/characterSpriteSheets/ss_Nova/run_anim_left.png<>uid://jm2dpg6wg6::::res://Assets/characterSpriteSheets/ss_Nova/run_anim_up.png<>uid://n06vxg7mgtfl::::res://Assets/characterSpriteSheets/ss_Nova/walk_anim_down.png<>uid://vflcwvvg6oog::::res://Assets/characterSpriteSheets/ss_Nova/walk_anim_left.png<>uid://chjcr0bqm755::::res://Assets/characterSpriteSheets/ss_Nova/walk_anim_up.png<>uid://dexka4nfcsts4::::res://Scenes/Player/tux.tscn<>uid://s4pt2krh3jop::::res://scripts/camera_main.gd
 tux.tscn::PackedScene::7488106827392663645::1773661292::0::1::::<><><>0<>0<><>::uid://dcqi50kevwdju::::res://scripts/tux_follower.gd<>uid://b5cnsesyaob8o::::res://Assets/characterSpriteSheets/ss_Tux/tux_idleForward.png<>uid://du62yhyjwyg58::::res://Assets/characterSpriteSheets/ss_Tux/tux_idleBackward.png<>uid://c1pnywisgeo0c::::res://Assets/characterSpriteSheets/ss_Tux/tux_idle.png
-::res://Scenes/ui/::1775056065
+::res://Scenes/ui/::1775056192
 controls_help.tscn::PackedScene::-1::1771729334::0::1::::<><><>0<>0<><>::res://scripts/ui/controls_help.gd<>res://Assets/fonts/PressStart2P-Regular.ttf
 interaction_prompt.tscn::PackedScene::-1::1767362059::0::1::::<><><>0<>0<><>::res://scripts/ui/interaction_prompt.gd<>res://Assets/fonts/PressStart2P-Regular.ttf
 MainHUD.tscn::PackedScene::7522535084660538802::1774774802::0::1::::<><><>0<>0<><>::uid://lqtbary7gh5r::::res://Assets/fonts/PressStart2P-Regular.ttf<>uid://mqkv64skk1kd::::res://scripts/ui/main_hud.gd<>uid://doak8ce36xvhu::::res://Scenes/combat/crt_terminal_theme.tres<>uid://bjc51rva8ysea::::res://Assets/mainHUD_Icons_File.png<>uid://cmh6cx1xegkl0::::res://Scenes/combat/crt_effect.gdshader<>uid://b1pfxsi5467pn::::res://Assets/mainHUD_Icons_Terminal.png<>uid://bvbsrdib0cx5f::::res://Assets/mainHUD_Icons_Tux.png
@@ -839,7 +839,7 @@ QuestList.tscn::PackedScene::3185445307682786787::1774784574::0::1::::<><><>0<>0
 QuestListItem.tscn::PackedScene::6935339806164525848::1774781974::0::1::::<><><>0<>0<><>::uid://o5ubrp41lfdy::::res://scripts/QuestListItem.gd
 QuestSideButton.tscn::PackedScene::1164585091668851303::1775053211::0::1::::<><><>0<>0<><>::uid://ulne4xoihrca::::res://scripts/ui/QuestSideButton.gd<>uid://font::::res://Assets/fonts/PressStart2P-Regular.ttf
 QuestWindow.tscn::PackedScene::34252502878276710::1775054000::0::1::::<><><>0<>0<><>::uid://script::::res://scripts/ui/QuestWindow.gd<>uid://font::::res://Assets/fonts/PressStart2P-Regular.ttf
-TerminalPanel.tscn::PackedScene::2865434052746409769::1775056065::0::1::::<><><>0<>0<><>::uid://b3vpsfht005en::::res://scripts/ui/TerminalPanel.gd<>uid://lqtbary7gh5r::::res://Assets/fonts/PressStart2P-Regular.ttf
+TerminalPanel.tscn::PackedScene::2865434052746409769::1775056192::0::1::::<><><>0<>0<><>::uid://b3vpsfht005en::::res://scripts/ui/TerminalPanel.gd<>uid://lqtbary7gh5r::::res://Assets/fonts/PressStart2P-Regular.ttf
 title_menu.tscn::PackedScene::556967592929475475::1774763065::0::1::::<><><>0<>0<><>::uid://ckdhtdqpse7py::::res://scripts/ui/title_menu.gd<>uid://lqtbary7gh5r::::res://Assets/fonts/PressStart2P-Regular.ttf<>uid://b8gpuq6lauslf::::res://shaders/ui/title_crt_overlay.gdshader<>uid://b0fqo5q00erm3::::res://Assets/titleMenu_bg.png
 ::res://scripts/::1774760689
 bios_vault_intro.gd::GDScript::4003282648416755134::1774179287::0::1::::<>Node3D<><>0<>0<><>::
