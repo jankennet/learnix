@@ -1,0 +1,229 @@
+[gd_scene load_steps=16 format=3 uid="uid://bqtth0ai62mnu"]
+
+[ext_resource type="Script" uid="uid://cu3vir7auv2j7" path="res://scripts/combat/tux_terminal_helper_popup.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://bvbsrdib0cx5f" path="res://Assets/mainHUD_Icons_Tux.png" id="2_tux_icon"]
+[ext_resource type="Texture2D" uid="uid://daqbb88x1r802" path="res://Assets/characterSpriteSheets/ss_Tux/tux_terminal_anim.png" id="3_tux_anim"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l5vwx"]
+atlas = ExtResource("3_tux_anim")
+region = Rect2(0, 0, 52, 38)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jxurg"]
+atlas = ExtResource("3_tux_anim")
+region = Rect2(52, 0, 52, 38)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yh3rq"]
+atlas = ExtResource("3_tux_anim")
+region = Rect2(104, 0, 52, 38)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_njcu3"]
+atlas = ExtResource("3_tux_anim")
+region = Rect2(156, 0, 52, 38)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b2nbq"]
+atlas = ExtResource("3_tux_anim")
+region = Rect2(208, 0, 52, 38)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hovqh"]
+atlas = ExtResource("3_tux_anim")
+region = Rect2(260, 0, 52, 38)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fv0n1"]
+atlas = ExtResource("3_tux_anim")
+region = Rect2(312, 0, 52, 38)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4evq7"]
+atlas = ExtResource("3_tux_anim")
+region = Rect2(364, 0, 52, 38)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w5maq"]
+atlas = ExtResource("3_tux_anim")
+region = Rect2(416, 0, 52, 38)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lc3i3"]
+atlas = ExtResource("3_tux_anim")
+region = Rect2(468, 0, 52, 38)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g5m6q"]
+atlas = ExtResource("3_tux_anim")
+region = Rect2(520, 0, 52, 38)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_3u7sy"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l5vwx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jxurg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yh3rq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_njcu3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_b2nbq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hovqh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fv0n1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4evq7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w5maq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lc3i3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g5m6q")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="TuxTerminalHelperPopup" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_script")
+
+[node name="Overlay" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.02, 0.04, 0.04, 0.68)
+
+[node name="Window" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -390.0
+offset_top = -235.0
+offset_right = 390.0
+offset_bottom = 235.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Window"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="VBox" type="VBoxContainer" parent="Window/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="HBoxContainer" parent="Window/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TitleIcon" type="TextureRect" parent="Window/MarginContainer/VBox/Header"]
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+texture = ExtResource("2_tux_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TitleStack" type="VBoxContainer" parent="Window/MarginContainer/VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="TitleLabel" type="Label" parent="Window/MarginContainer/VBox/Header/TitleStack"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.84, 0.45, 1)
+theme_override_font_sizes/font_size = 12
+text = "TUX HELPER"
+
+[node name="SubtitleLabel" type="Label" parent="Window/MarginContainer/VBox/Header/TitleStack"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.78, 0.62, 1)
+theme_override_font_sizes/font_size = 8
+text = "NPC clue assistant"
+
+[node name="Spacer" type="Control" parent="Window/MarginContainer/VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CloseButton" type="Button" parent="Window/MarginContainer/VBox/Header"]
+custom_minimum_size = Vector2(34, 30)
+layout_mode = 2
+text = "X"
+
+[node name="Body" type="HBoxContainer" parent="Window/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="InfoColumn" type="VBoxContainer" parent="Window/MarginContainer/VBox/Body"]
+custom_minimum_size = Vector2(0, 300)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="SummaryLabel" type="RichTextLabel" parent="Window/MarginContainer/VBox/Body/InfoColumn"]
+custom_minimum_size = Vector2(0, 84)
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+
+[node name="SuggestionLabel" type="Label" parent="Window/MarginContainer/VBox/Body/InfoColumn"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.84, 0.45, 1)
+theme_override_font_sizes/font_size = 9
+text = "SUGGESTIONS"
+
+[node name="SuggestionFlow" type="HFlowContainer" parent="Window/MarginContainer/VBox/Body/InfoColumn"]
+layout_mode = 2
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+
+[node name="ResponseLabel" type="RichTextLabel" parent="Window/MarginContainer/VBox/Body/InfoColumn"]
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+
+[node name="AnimationPanel" type="PanelContainer" parent="Window/MarginContainer/VBox/Body"]
+custom_minimum_size = Vector2(220, 300)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="AnimationHost" type="Control" parent="Window/MarginContainer/VBox/Body/AnimationPanel"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="TuxAnimation" type="AnimatedSprite2D" parent="Window/MarginContainer/VBox/Body/AnimationPanel/AnimationHost"]
+position = Vector2(116, 232)
+scale = Vector2(2.6, 2.6)
+sprite_frames = SubResource("SpriteFrames_3u7sy")
+
+[node name="Footer" type="Label" parent="Window/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.78, 0.62, 1)
+theme_override_font_sizes/font_size = 8
+text = "Pick a question for a focused hint."
+horizontal_alignment = 1

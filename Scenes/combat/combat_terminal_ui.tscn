@@ -1,8 +1,20 @@
-[gd_scene load_steps=5 format=3 uid="uid://7nnt7j6asu45"]
+[gd_scene load_steps=9 format=3 uid="uid://7nnt7j6asu45"]
 
 [ext_resource type="Script" uid="uid://p3mbu7wibxub" path="res://scripts/combat/combat_terminal_ui.gd" id="1_script"]
 [ext_resource type="Theme" uid="uid://doak8ce36xvhu" path="res://Scenes/combat/crt_terminal_theme.tres" id="2_theme"]
 [ext_resource type="Shader" uid="uid://cmh6cx1xegkl0" path="res://Scenes/combat/crt_effect.gdshader" id="3_shader"]
+[ext_resource type="Shader" uid="uid://dgaayvix000r3" path="res://Scenes/combat/cracked_glass.gdshader" id="4_tusew"]
+[ext_resource type="Texture2D" uid="uid://bvbsrdib0cx5f" path="res://Assets/mainHUD_Icons_Tux.png" id="4_tux_icon"]
+[ext_resource type="Texture2D" uid="uid://ckhlojn5y0q8g" path="res://Assets/Glass-Cracks-PNG-HD.png" id="4_x8ih1"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_tusew"]
+shader = ExtResource("4_tusew")
+shader_parameter/refraction_offset = Vector2(25, 25)
+shader_parameter/crack_dark_threshold = 0.22
+shader_parameter/crack_rim_threshold = 0.36
+shader_parameter/crack_alpha_threshold = 0.05
+shader_parameter/crack_core_darkness = 0.65
+shader_parameter/crack_rim_brightness = 0.35
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_crt"]
 shader = ExtResource("3_shader")
@@ -195,26 +207,111 @@ theme_override_font_sizes/font_size = 8
 text = "[ AWAITING INPUT ]"
 horizontal_alignment = 1
 
+[node name="NpcVisualPanel" type="PanelContainer" parent="StatusPanel/VBox"]
+custom_minimum_size = Vector2(0, 158)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NpcVisualHost" type="Control" parent="StatusPanel/VBox/NpcVisualPanel"]
+clip_contents = true
+layout_mode = 2
+mouse_filter = 2
+
+[node name="NpcBadTexture" type="TextureRect" parent="StatusPanel/VBox/NpcVisualPanel/NpcVisualHost"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NpcGoodTexture" type="TextureRect" parent="StatusPanel/VBox/NpcVisualPanel/NpcVisualHost"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NpcTurnFlash" type="ColorRect" parent="StatusPanel/VBox/NpcVisualPanel/NpcVisualHost"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 0.16, 0.16, 0)
+
 [node name="Spacer" type="Control" parent="StatusPanel/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ObjectiveTitle" type="Label" parent="StatusPanel/VBox"]
+[node name="ObjectiveFrame" type="PanelContainer" parent="StatusPanel/VBox"]
+custom_minimum_size = Vector2(0, 112)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ObjectiveBrokenTexture" type="TextureRect" parent="StatusPanel/VBox/ObjectiveFrame"]
+modulate = Color(1, 1, 1, 0.92)
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="ObjectiveContent" type="VBoxContainer" parent="StatusPanel/VBox/ObjectiveFrame"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ObjectiveTitle" type="Label" parent="StatusPanel/VBox/ObjectiveFrame/ObjectiveContent"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.84, 0.45, 1)
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 10
 text = "OBJECTIVE"
 horizontal_alignment = 1
 
-[node name="HelpLabel" type="Label" parent="StatusPanel/VBox"]
+[node name="TuxHelpButton" type="Button" parent="StatusPanel/VBox/ObjectiveFrame/ObjectiveContent"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.95, 0.84, 0.45, 1)
+theme_override_font_sizes/font_size = 8
+text = "ASK TUX"
+icon = ExtResource("4_tux_icon")
+expand_icon = true
+
+[node name="HelpLabel" type="Label" parent="StatusPanel/VBox/ObjectiveFrame/ObjectiveContent"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.35, 0.75, 0.4, 1)
-theme_override_font_sizes/font_size = 8
-text = "Follow prompts in
-terminal output"
+theme_override_font_sizes/font_size = 9
+text = "Read the objective, then ask Tux for dialogue or puzzle clues if the NPC is unclear."
 horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_tusew")
+position = Vector2(1131.625, 585.25006)
+scale = Vector2(0.2595117, 0.23692405)
+texture = ExtResource("4_x8ih1")
+
+[node name="ObjectiveCrackHole" type="TextureRect" parent="."]
+z_index = 221
+layout_mode = 0
+offset_left = 1023.0
+offset_top = 500.0
+offset_right = 1243.0
+offset_bottom = 720.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
 
 [node name="CRTEffectOverlay" type="ColorRect" parent="."]
+visible = false
 material = SubResource("ShaderMaterial_crt")
 layout_mode = 1
 anchors_preset = 15

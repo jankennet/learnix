@@ -21,15 +21,26 @@ signal tutorial_popup_closed
 @onready var status_title_label: Label = $StatusPanel/VBox/StatusTitle
 @onready var player_title_label: Label = $StatusPanel/VBox/PlayerTitle
 @onready var enemy_title_label: Label = $StatusPanel/VBox/EnemyTitle
-@onready var help_label: Label = $StatusPanel/VBox/HelpLabel
 @onready var player_hp_bar: ProgressBar = $StatusPanel/VBox/PlayerStatus/HPBar
 @onready var player_hp_label: Label = $StatusPanel/VBox/PlayerStatus/HPLabel
 @onready var enemy_hp_bar: ProgressBar = $StatusPanel/VBox/EnemyStatus/HPBar
 @onready var enemy_hp_label: Label = $StatusPanel/VBox/EnemyStatus/HPLabel
 @onready var enemy_name_label: Label = $StatusPanel/VBox/EnemyStatus/NameLabel
 @onready var turn_indicator: Label = $StatusPanel/VBox/TurnIndicator
+@onready var npc_visual_panel: PanelContainer = $StatusPanel/VBox/NpcVisualPanel
+@onready var npc_visual_host: Control = $StatusPanel/VBox/NpcVisualPanel/NpcVisualHost
+@onready var npc_bad_texture: TextureRect = $StatusPanel/VBox/NpcVisualPanel/NpcVisualHost/NpcBadTexture
+@onready var npc_good_texture: TextureRect = $StatusPanel/VBox/NpcVisualPanel/NpcVisualHost/NpcGoodTexture
+@onready var npc_turn_flash: ColorRect = $StatusPanel/VBox/NpcVisualPanel/NpcVisualHost/NpcTurnFlash
+@onready var objective_frame: PanelContainer = $StatusPanel/VBox/ObjectiveFrame
+@onready var objective_broken_texture: TextureRect = $StatusPanel/VBox/ObjectiveFrame/ObjectiveBrokenTexture
+@onready var objective_crack_sprite: Sprite2D = get_node_or_null("StatusPanel/VBox/ObjectiveFrame/Sprite2D") as Sprite2D
+@onready var objective_crack_hole: TextureRect = get_node_or_null("ObjectiveCrackHole") as TextureRect
+@onready var objective_content: VBoxContainer = $StatusPanel/VBox/ObjectiveFrame/ObjectiveContent
 @onready var mode_label: Label = $StatusPanel/VBox/ModeLabel
-@onready var objective_title_label: Label = $StatusPanel/VBox/ObjectiveTitle
+@onready var objective_title_label: Label = $StatusPanel/VBox/ObjectiveFrame/ObjectiveContent/ObjectiveTitle
+@onready var tux_help_button: Button = $StatusPanel/VBox/ObjectiveFrame/ObjectiveContent/TuxHelpButton
+@onready var help_label: Label = $StatusPanel/VBox/ObjectiveFrame/ObjectiveContent/HelpLabel
 #endregion
 
 #region Runtime State
@@ -43,6 +54,7 @@ var _dependency_fail_count: int = 0
 
 const DEPENDENCY_FAIL_DAMAGE := 10
 const DEPENDENCY_FAIL_LIMIT := 3
+const INTEGRITY_SEGMENTS := 10
 const UI_BASE_RESOLUTION := Vector2(1280.0, 720.0)
 const UI_MIN_SCALE := 1.0
 const UI_MAX_SCALE := 1.7
@@ -50,11 +62,52 @@ const TUTORIAL_META_TERMINAL_INTRO := "combat_terminal_intro_seen_v2"
 const TUTORIAL_META_TIMING_INTRO := "combat_timing_intro_seen_v2"
 const TUTORIAL_META_DEPENDENCY_INTRO := "combat_dependency_intro_seen_v2"
 const TUTORIAL_POPUP_SCENE_PATH := "res://Scenes/combat/combat_tutorial_popup.tscn"
+const TUX_HELPER_POPUP_SCENE_PATH := "res://Scenes/combat/tux_terminal_helper_popup.tscn"
+const NPC_REVEAL_SHADER_PATH := "res://shaders/ui/npc_reveal_wipe.gdshader"
+const CRACKED_GLASS_SHADER_PATH := "res://Scenes/combat/cracked_glass.gdshader"
+const CRACKED_GLASS_TEXTURE_PATH := "res://Assets/Glass-Cracks-PNG-HD.png"
+const BROKEN_SCREEN_TEXTURE_PATH := "res://Assets/shaders/gliitch.jpg"
+const NPC_VISUAL_TEXTURE_PATHS := {
+	"lost_file": {
+		"bad": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_bad_lost_file.png",
+		"good": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_good_lost_file.png"
+	},
+	"broken_link": {
+		"bad": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_bad_broken_link.png",
+		"good": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_good_broken_link.png"
+	},
+	"driver_remnant": {
+		"bad": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_bad_driver_remnant.png",
+		"good": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_good_driver_remnant.png"
+	},
+	"hardware_ghost": {
+		"bad": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_bad_hardware_ghost.png",
+		"good": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_good_hardware_ghost.png"
+	},
+	"messy_directory": {
+		"bad": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_bad_messy_directory.png",
+		"good": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_good_messy_directory.png"
+	},
+	"default": {
+		"bad": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_bad_lost_file.png",
+		"good": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_good_lost_file.png"
+	}
+}
 #endregion
 
 var _dependency_objective_active := false
 var _tutorial_popup_ui: CombatTutorialPopup = null
 var _tutorial_popup_visible := false
+var _tux_helper_popup: TuxTerminalHelperPopup = null
+var _tux_helper_visible := false
+var _player_attacked_this_encounter := false
+var _npc_visual_progress := 0.0
+var _npc_visual_tween: Tween = null
+var _npc_player_turn := false
+var _npc_visual_material: ShaderMaterial = null
+var _objective_crack_material: ShaderMaterial = null
+var _objective_crack_hole_texture: Texture2D = null
+var _npc_texture_cache: Dictionary = {}
 
 func _ready() -> void:
 	if not get_viewport().size_changed.is_connected(_on_viewport_resized):
@@ -74,9 +127,19 @@ func _ready() -> void:
 	# Setup timing minigame
 	_setup_timing_minigame()
 	_setup_dependency_minigame()
+	_setup_terminal_visuals()
 	_ensure_tutorial_popup_ui()
 	if help_label:
 		help_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	if tux_help_button:
+		if not tux_help_button.pressed.is_connected(_on_tux_help_button_pressed):
+			tux_help_button.pressed.connect(_on_tux_help_button_pressed)
+		if tux_help_button.icon == null:
+			var tux_icon := load("res://Assets/mainHUD_Icons_Tux.png")
+			if tux_icon:
+				tux_help_button.icon = tux_icon
+		if tux_help_button.text.is_empty():
+			tux_help_button.text = "ASK TUX"
 
 func _on_viewport_resized() -> void:
 	_apply_responsive_ui()
@@ -109,6 +172,13 @@ func _apply_responsive_ui() -> void:
 	status_vbox.offset_bottom = -10.0 * scale_factor
 	status_vbox.add_theme_constant_override("separation", roundi(4.0 * scale_factor))
 	input_container.add_theme_constant_override("separation", roundi(8.0 * scale_factor))
+	if npc_visual_panel:
+		npc_visual_panel.custom_minimum_size = Vector2(0.0, 218.0 * scale_factor)
+	if objective_frame:
+		objective_frame.custom_minimum_size = Vector2(0.0, 112.0 * scale_factor)
+	if objective_content:
+		objective_content.add_theme_constant_override("separation", roundi(7.0 * scale_factor))
+	_update_crack_sprite_transform(scale_factor)
 
 	terminal_output.add_theme_font_size_override("normal_font_size", roundi(12.0 * scale_factor))
 	prompt_label.add_theme_font_size_override("font_size", roundi(16.0 * scale_factor))
@@ -126,8 +196,15 @@ func _apply_responsive_ui() -> void:
 	enemy_hp_label.add_theme_font_size_override("font_size", roundi(8.0 * scale_factor))
 	turn_indicator.add_theme_font_size_override("font_size", roundi(8.0 * scale_factor))
 	if objective_title_label:
-		objective_title_label.add_theme_font_size_override("font_size", roundi(8.0 * scale_factor))
-	help_label.add_theme_font_size_override("font_size", roundi(8.0 * scale_factor))
+		objective_title_label.add_theme_font_size_override("font_size", roundi(12.0 * scale_factor))
+	if tux_help_button:
+		tux_help_button.add_theme_font_size_override("font_size", roundi(8.0 * scale_factor))
+		tux_help_button.custom_minimum_size = Vector2(0.0, 28.0 * scale_factor)
+	help_label.add_theme_font_size_override("font_size", roundi(10.0 * scale_factor))
+	help_label.add_theme_constant_override("line_spacing", roundi(3.0 * scale_factor))
+	help_label.custom_minimum_size = Vector2(0.0, 82.0 * scale_factor)
+	player_hp_bar.custom_minimum_size = Vector2(0.0, 14.0 * scale_factor)
+	enemy_hp_bar.custom_minimum_size = Vector2(0.0, 14.0 * scale_factor)
 
 func _setup_timing_minigame() -> void:
 	# Create timing minigame instance
@@ -194,12 +271,14 @@ func setup_combat(manager: Node, enemy: Node) -> void:
 	# Initial HP update
 	_update_hp_displays()
 	_update_side_help_for_mode()
+	_refresh_terminal_visuals(true)
 
 ## Show the combat UI
 func open_combat_ui() -> void:
 	is_open = true
 	_dependency_fail_count = 0
 	_dependency_objective_active = false
+	_player_attacked_this_encounter = _has_player_attacked_current_npc()
 	show()
 	_set_terminal_for_dependency_mode(false)
 	
@@ -252,16 +331,20 @@ func open_combat_ui() -> void:
 	if turn_indicator:
 		turn_indicator.text = "[ AWAITING INPUT ]"
 	_update_side_help_for_mode()
+	_refresh_terminal_visuals(true)
 	await _show_terminal_intro_tutorial_if_needed()
+	_update_tux_helper_popup()
 
 ## Hide the combat UI
 func close_combat_ui() -> void:
 	is_open = false
 	_dependency_fail_count = 0
 	_dependency_objective_active = false
+	_player_attacked_this_encounter = false
 	hide()
 	_set_terminal_for_dependency_mode(false)
 	_hide_tutorial_popup()
+	_hide_tux_helper_popup()
 	_show_queued_reward_popup()
 	
 	# Cancel any active timing minigame
@@ -293,6 +376,7 @@ func close_combat_ui() -> void:
 	
 	combat_manager = null
 	enemy_controller = null
+	_refresh_terminal_visuals(true)
 
 func _show_queued_reward_popup() -> void:
 	if not SceneManager:
@@ -338,6 +422,8 @@ func _unhandled_input(event: InputEvent) -> void:
 func _on_command_submitted(text: String) -> void:
 	if text.strip_edges().is_empty():
 		return
+
+	_track_player_attack_intent(text)
 	
 	# Echo command to terminal
 	_print_terminal("[color=#80f280]$ %s[/color]\n" % text)
@@ -516,8 +602,11 @@ func _on_turn_changed(turn_owner) -> void:
 	# Check turn owner (0 = player, 1 = enemy typically)
 	if turn_owner == 0:
 		turn_indicator.text = "[ YOUR TURN ]"
+		_npc_player_turn = true
 	else:
 		turn_indicator.text = "[ ENEMY TURN ]"
+		_npc_player_turn = false
+	_refresh_terminal_visuals()
 
 #endregion
 
@@ -606,6 +695,258 @@ func _show_contextual_help() -> void:
 	
 	_print_terminal("\n")
 
+func _on_tux_help_button_pressed() -> void:
+	_toggle_tux_helper_popup()
+
+func _toggle_tux_helper_popup() -> void:
+	if _tux_helper_visible:
+		_hide_tux_helper_popup()
+		return
+	_show_tux_helper_popup()
+
+func _show_tux_helper_popup() -> void:
+	_ensure_tux_helper_popup()
+	if _tux_helper_popup == null:
+		return
+
+	_tux_helper_visible = true
+	_tux_helper_popup.show_helper(_build_tux_helper_context())
+	if not _tux_helper_popup.hint_selected.is_connected(_on_tux_helper_hint_selected):
+		_tux_helper_popup.hint_selected.connect(_on_tux_helper_hint_selected)
+	if not _tux_helper_popup.closed.is_connected(_on_tux_helper_closed):
+		_tux_helper_popup.closed.connect(_on_tux_helper_closed)
+
+func _hide_tux_helper_popup() -> void:
+	_tux_helper_visible = false
+	if _tux_helper_popup != null and is_instance_valid(_tux_helper_popup):
+		_tux_helper_popup.hide_helper()
+
+func _on_tux_helper_closed() -> void:
+	_tux_helper_visible = false
+
+func _on_tux_helper_hint_selected(message: String) -> void:
+	if message.strip_edges().is_empty():
+		return
+	_print_terminal("[color=#f2e066]Tux:[/color] %s\n" % message)
+	if command_input:
+		command_input.grab_focus()
+
+func _ensure_tux_helper_popup() -> void:
+	if _tux_helper_popup != null and is_instance_valid(_tux_helper_popup):
+		return
+
+	var popup_scene := load(TUX_HELPER_POPUP_SCENE_PATH) as PackedScene
+	if popup_scene == null:
+		push_warning("Tux helper popup scene not found: " + TUX_HELPER_POPUP_SCENE_PATH)
+		return
+
+	var popup_instance := popup_scene.instantiate()
+	if not (popup_instance is TuxTerminalHelperPopup):
+		push_warning("Tux helper popup scene root must be TuxTerminalHelperPopup.")
+		if popup_instance:
+			popup_instance.queue_free()
+		return
+
+	_tux_helper_popup = popup_instance as TuxTerminalHelperPopup
+	_tux_helper_popup.name = "TuxTerminalHelperPopup"
+	_tux_helper_popup.z_index = 250
+	add_child(_tux_helper_popup)
+
+func _update_tux_helper_popup() -> void:
+	if _tux_helper_popup == null or not is_instance_valid(_tux_helper_popup):
+		return
+	if _tux_helper_visible:
+		_tux_helper_popup.show_helper(_build_tux_helper_context())
+
+func _build_tux_helper_context() -> Dictionary:
+	var npc_name := _get_current_npc_name()
+	var current_mode := _get_current_mode()
+	var player_attacked_npc := _has_player_attacked_current_npc()
+	var title := "TUX HELPER"
+	var summary := ""
+	var suggestions: Array[Dictionary] = []
+
+	match current_mode:
+		0:
+			title = "%s // Dialogue Briefing" % npc_name
+			summary = _build_dialogue_summary(npc_name)
+			suggestions = [
+				{"label": "What did they say?", "detail": "Turn the dialogue into a short reminder.", "message": _build_dialogue_hint_message(npc_name, "read the dialogue for the NPC's request")},
+				{"label": "What does the NPC want?", "detail": "Focus on the verb or request in the conversation.", "message": _build_dialogue_hint_message(npc_name, "look for the verb or request in the dialogue")},
+				{"label": "What should I do next?", "detail": "Ask Tux for the safest next step.", "message": _build_dialogue_hint_message(npc_name, "continue talking before you jump to combat")},
+				{"label": "Show the route", "detail": "Summarize the likely choice.", "message": _build_dialogue_hint_message(npc_name, "choose help, puzzle, or fight based on the NPC's tone")},
+			]
+		1:
+			title = "%s // Combat Notes" % npc_name
+			if player_attacked_npc:
+				summary = "TUX: You attacked first. Before your next command, answer one of these checks."
+				suggestions = [
+					{"label": "Why did you attack?", "detail": "TUX asks for intent.", "message": "TUX: Why did you attack this NPC instead of trying help or puzzle mode first?"},
+					{"label": "Was there another way?", "detail": "TUX asks for alternatives.", "message": "TUX: Could you resolve this through dialogue or puzzle steps with less damage?"},
+					{"label": "What harm are you causing?", "detail": "TUX asks about consequences.", "message": "TUX: Every attack escalates this encounter. Is this the outcome you want?"},
+					{"label": "Do you want to disengage?", "detail": "TUX suggests de-escalation.", "message": "TUX: If you need a reset, defend now or escape before integrity drops."},
+				]
+			else:
+				summary = "TUX: Stay focused. Pick your next command based on integrity, turn order, and risk."
+				suggestions = [
+					{"label": "Which commands now?", "detail": "TUX lists combat options.", "message": "TUX: Use attack, defend, scan, heal, or escape based on the current turn."},
+					{"label": "How do you survive?", "detail": "TUX gives a survival sequence.", "message": "TUX: Scan first, defend when pressured, and heal before you drop too low."},
+					{"label": "When should you escape?", "detail": "TUX gives reset timing.", "message": "TUX: Escape when your integrity trend is negative or your next turn is unsafe."},
+					{"label": "How do you read target?", "detail": "TUX explains the panel.", "message": "TUX: Watch target integrity, turn indicator, and mode changes before committing."},
+				]
+		2:
+			title = "%s // Puzzle Notes" % npc_name
+			summary = _build_puzzle_summary()
+			suggestions = _build_puzzle_suggestions(npc_name)
+		_:
+			title = "TUX HELPER"
+			summary = "This encounter is resolved. Use the helper in future encounters when the dialogue is easy to miss."
+			suggestions = [
+				{"label": "Why is this useful?", "detail": "Tux explains the helper's purpose.", "message": "The helper is here to convert dialogue into a concrete next step."},
+			]
+
+	return {
+		"title": title,
+		"summary": summary,
+		"suggestions": suggestions,
+		"show_sprite": current_mode != 1,
+		"footer": "Tip: many NPCs tell you the solution in dialogue before the terminal asks for it.",
+	}
+
+func _track_player_attack_intent(raw_input: String) -> void:
+	var normalized := raw_input.strip_edges().to_lower()
+	if normalized == "attack" or normalized == "fight" or normalized == "delete":
+		_player_attacked_this_encounter = true
+
+func _build_dialogue_summary(npc_name: String) -> String:
+	if npc_name.strip_edges().is_empty():
+		return "Listen to the NPC before you skip ahead. Dialogue usually reveals whether they want help, combat, or a puzzle fix."
+	return "%s is likely giving the clue in dialogue. Read for the key verb: help, continue, puzzle, or fight." % npc_name
+
+func _build_dialogue_hint_message(npc_name: String, default_message: String) -> String:
+	if npc_name.strip_edges().is_empty():
+		return default_message.capitalize() if default_message != "" else "Read the NPC dialogue carefully."
+	return "%s: %s." % [npc_name, default_message.capitalize()]
+
+func _build_puzzle_summary() -> String:
+	if dependency_minigame and dependency_minigame.has_method("_objective_short_text"):
+		return str(dependency_minigame.call("_objective_short_text"))
+
+	var lines := _build_puzzle_objective_lines()
+	return _join_lines(lines)
+
+func _build_puzzle_suggestions(npc_name: String) -> Array[Dictionary]:
+	var suggestions: Array[Dictionary] = []
+	var puzzle_title := _get_current_puzzle_title()
+	var puzzle_hints := _get_current_puzzle_hints()
+	var next_hint := puzzle_hints[0] if not puzzle_hints.is_empty() else ""
+
+	suggestions.append({
+		"label": "What is the goal?",
+		"detail": "Tux turns the puzzle into a short objective.",
+		"message": _build_puzzle_goal_message(puzzle_title),
+	})
+	suggestions.append({
+		"label": "What should I do first?",
+		"detail": "A first-step reminder based on the puzzle hints.",
+		"message": next_hint if next_hint != "" else "Check the objective panel and start with the first listed command.",
+	})
+	suggestions.append({
+		"label": "What am I avoiding?",
+		"detail": "A reminder about wrong links or wrong commands.",
+		"message": _build_puzzle_avoidance_message(npc_name),
+	})
+	suggestions.append({
+		"label": "Show the next step",
+		"detail": "Tux repeats the most useful current hint.",
+		"message": next_hint if next_hint != "" else "Look for the next readable step in the objective panel.",
+	})
+
+	return suggestions
+
+func _build_puzzle_goal_message(puzzle_title: String) -> String:
+	if puzzle_title.strip_edges().is_empty():
+		return "Solve the current puzzle by following the objective panel and avoiding bad links."
+	return "Current puzzle: %s. Focus on the green path, the restored fragments, or the command sequence shown in the objective panel." % puzzle_title
+
+func _build_puzzle_avoidance_message(npc_name: String) -> String:
+	var lower_name := npc_name.to_lower()
+	if lower_name.find("link") != -1:
+		return "Avoid red links and broken stubs. Build a full green path from Kernel to App."
+	if lower_name.find("ghost") != -1:
+		return "Avoid skipping the log-reading steps. The ghost puzzle usually wants a calm, ordered sequence."
+	if lower_name.find("remnant") != -1:
+		return "Avoid leaving the remnant active. Trace it, isolate it, then finish the stability steps."
+	if lower_name.find("printer") != -1:
+		return "Avoid rushing the reset. Clear the jam, fix permissions, and rebuild the queue in order."
+	if lower_name.find("lost") != -1:
+		return "Avoid trying to compile too early. Find, restore, decrypt, assemble, then compile."
+	return "Avoid random commands. Follow the visible sequence and use Tux if the dialogue gave a clue."
+
+func _get_current_puzzle_title() -> String:
+	if not enemy_controller:
+		return ""
+	if "puzzle_data" in enemy_controller and enemy_controller.puzzle_data and "title" in enemy_controller.puzzle_data:
+		return str(enemy_controller.puzzle_data.title)
+	return ""
+
+func _get_current_puzzle_hints() -> Array[String]:
+	if not enemy_controller:
+		return []
+	if not ("puzzle_data" in enemy_controller):
+		return []
+	var puzzle_data = enemy_controller.puzzle_data
+	if puzzle_data == null or not ("hints" in puzzle_data):
+		return []
+	var hints: Array[String] = []
+	for hint in puzzle_data.hints:
+		var hint_text := str(hint).strip_edges()
+		if hint_text != "":
+			hints.append(hint_text)
+	return hints
+
+func _get_current_npc_name() -> String:
+	if enemy_controller == null:
+		return "NPC"
+	if "enemy_name" in enemy_controller:
+		var enemy_name := str(enemy_controller.enemy_name).strip_edges()
+		if enemy_name != "":
+			return enemy_name
+	if "display_name" in enemy_controller:
+		var display_name := str(enemy_controller.display_name).strip_edges()
+		if display_name != "":
+			return display_name
+	return "NPC"
+
+func _get_current_mode() -> int:
+	if enemy_controller and "current_mode" in enemy_controller:
+		return int(enemy_controller.current_mode)
+	return 0
+
+func _has_player_attacked_current_npc() -> bool:
+	if _player_attacked_this_encounter:
+		return true
+
+	if enemy_controller and "has_attacked" in enemy_controller:
+		return bool(enemy_controller.has_attacked)
+
+	if not SceneManager:
+		return false
+
+	var npc_name := _get_current_npc_name()
+	if npc_name.strip_edges().is_empty():
+		return false
+
+	var meta_key := _combat_state_meta_key(npc_name)
+	if not SceneManager.has_meta(meta_key):
+		return false
+
+	var combat_state = SceneManager.get_meta(meta_key)
+	if combat_state is Dictionary:
+		return bool(combat_state.get("has_attacked", false))
+
+	return false
+
 func _update_mode_display() -> void:
 	if not mode_label or not enemy_controller:
 		return
@@ -624,6 +965,7 @@ func _update_mode_display() -> void:
 			_:
 				mode_label.text = "[UNKNOWN]"
 	_update_side_help_for_mode()
+	_refresh_terminal_visuals()
 
 func _update_hp_displays() -> void:
 	# Update player HP
@@ -633,8 +975,9 @@ func _update_hp_displays() -> void:
 			if player_hp_bar:
 				player_hp_bar.max_value = ps.max_integrity
 				player_hp_bar.value = ps.current_integrity
+				player_hp_bar.step = maxf(1.0, float(ps.max_integrity) / float(INTEGRITY_SEGMENTS))
 			if player_hp_label:
-				player_hp_label.text = "%d / %d" % [ps.current_integrity, ps.max_integrity]
+				player_hp_label.text = "%s %d / %d" % [_build_integrity_segments(ps.current_integrity, ps.max_integrity), ps.current_integrity, ps.max_integrity]
 	
 	# Update enemy HP
 	if enemy_controller:
@@ -657,8 +1000,9 @@ func _update_hp_displays() -> void:
 		if enemy_hp_bar:
 			enemy_hp_bar.max_value = max_hp_val
 			enemy_hp_bar.value = hp
+			enemy_hp_bar.step = maxf(1.0, float(max_hp_val) / float(INTEGRITY_SEGMENTS))
 		if enemy_hp_label:
-			enemy_hp_label.text = "%d / %d" % [hp, max_hp_val]
+			enemy_hp_label.text = "%s %d / %d" % [_build_integrity_segments(hp, max_hp_val), hp, max_hp_val]
 
 func _get_color_for_type(type) -> String:
 	# CRT Terminal color palette
@@ -950,38 +1294,39 @@ func _update_side_help_for_mode() -> void:
 
 	match current_mode:
 		0:
-			objective_title = "DIALOGUE OBJECTIVE"
+			objective_title = "GOAL // DIALOGUE"
 			lines = [
-				"continue: read NPC context",
-				"attack: start combat route",
-				"help or puzzle: start repair route",
+				"goal: read the NPC before you skip ahead",
+				"next: type continue to keep listening",
+				"options: attack for combat, help/puzzle for repairs",
 			]
 		1:
-			objective_title = "COMBAT OBJECTIVE"
+			objective_title = "GOAL // COMBAT"
 			lines = [
-				"Reduce target integrity to 0",
-				"Use: attack, defend, scan, heal",
-				"Optional: escape to flee",
+				"goal: reduce target integrity to 0",
+				"next: attack, defend, scan, or heal",
+				"escape: use flee if you need a reset",
 			]
 		2:
-			objective_title = "PUZZLE OBJECTIVE"
+			objective_title = "GOAL // PUZZLE"
 			lines = _build_puzzle_objective_lines()
 		_:
-			objective_title = "OBJECTIVE"
+			objective_title = "GOAL"
 			lines = ["Encounter resolved."]
 
 	if objective_title_label:
 		objective_title_label.text = objective_title
 
 	help_label.text = _join_lines(lines)
+	_refresh_terminal_visuals()
 
 func _build_puzzle_objective_lines() -> Array[String]:
 	if _dependency_objective_active:
 		return [
-			"Build a full green path:",
-			"Kernel -> ... -> App",
-			"Avoid red links and red nodes",
-			"Close with [EXIT] only if resetting",
+			"goal: build a full green Kernel -> App path",
+			"next: place the correct nodes and links",
+			"avoid: red links, red nodes, and dead ends",
+			"reset: use [EXIT] only if you need to start over",
 		]
 
 	if not enemy_controller or not ("puzzle_data" in enemy_controller):
@@ -996,18 +1341,19 @@ func _build_puzzle_objective_lines() -> Array[String]:
 		var expected_sequence: Array = custom.get("expected_sequence", [])
 		var current_index := int(custom.get("current_index", 0))
 		var seq_lines: Array[String] = []
+		seq_lines.append("goal: follow the command sequence in order")
 		var start_index := maxi(0, current_index - 1)
 		var end_index := mini(expected_sequence.size(), current_index + 3)
 		for i in range(start_index, end_index):
 			var command_text := str(expected_sequence[i])
 			var prefix := "[ ] "
 			if i < current_index:
-				prefix = "[x] "
+				prefix = "[X] "
 			elif i == current_index:
-				prefix = "> "
+				prefix = "[>] "
 			seq_lines.append(prefix + command_text)
 		if seq_lines.is_empty() and expected_sequence.size() > 0:
-			seq_lines.append("[x] sequence complete")
+			seq_lines.append("[X] sequence complete")
 		return seq_lines
 
 	if custom.has("required_fragments"):
@@ -1020,10 +1366,11 @@ func _build_puzzle_objective_lines() -> Array[String]:
 			var fragment_name := str(fragment)
 			var marker := "[ ]"
 			if fragment in restored:
-				marker = "[x]"
+				marker = "[X]"
 			elif fragment == ".fragment_003" and fragment in decrypted:
 				marker = "[~]"
 			fragment_lines.append("%s restore %s" % [marker, fragment_name])
+		fragment_lines.insert(0, "goal: recover each fragment before compiling")
 
 		if found.size() < required.size():
 			fragment_lines.append("next: find .fragment")
@@ -1042,8 +1389,19 @@ func _join_lines(lines: Array[String]) -> String:
 	var output := ""
 	for i in range(lines.size()):
 		if i > 0:
-			output += "\n"
+			output += "\n\n"
 		output += lines[i]
+	return output
+
+func _build_integrity_segments(current_value: int, max_value: int) -> String:
+	var safe_max := maxi(1, max_value)
+	var ratio := clampf(float(current_value) / float(safe_max), 0.0, 1.0)
+	var filled := int(round(ratio * float(INTEGRITY_SEGMENTS)))
+	filled = clampi(filled, 0, INTEGRITY_SEGMENTS)
+	var output := "["
+	for i in range(INTEGRITY_SEGMENTS):
+		output += "#" if i < filled else "-"
+	output += "]"
 	return output
 
 func _get_dependency_profile() -> String:
@@ -1099,6 +1457,7 @@ func _on_timing_completed(result: TimingMinigame.TimingResult) -> void:
 				result.damage_multiplier,
 				result.is_miss()
 			)
+	_refresh_terminal_visuals()
 
 ## Apply timing result to puzzle
 func _apply_puzzle_timing_result(zone: int, success_chance: float) -> void:
@@ -1242,9 +1601,10 @@ func _set_terminal_for_dependency_mode(active: bool) -> void:
 	if terminal_container_node:
 		terminal_container_node.visible = not active
 	if status_panel_node:
-		status_panel_node.visible = not active
+		status_panel_node.visible = true
 	if crt_overlay:
 		crt_overlay.visible = not active
+	_refresh_terminal_visuals(true)
 
 func _simplify_puzzle_message(message: String) -> String:
 	var out := message
@@ -1259,5 +1619,283 @@ func _simplify_puzzle_message(message: String) -> String:
 	out = out.replace("Dependency", "Link")
 	out = out.replace("dependency", "link")
 	return out
+
+func _setup_terminal_visuals() -> void:
+	var crack_sprite := _resolve_objective_crack_sprite()
+	var crack_hole := _resolve_objective_crack_hole()
+	if npc_bad_texture:
+		npc_bad_texture.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	if npc_good_texture:
+		npc_good_texture.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	if npc_turn_flash:
+		npc_turn_flash.visible = false
+	if objective_broken_texture:
+		objective_broken_texture.texture = null
+		objective_broken_texture.visible = false
+	if crack_sprite:
+		crack_sprite.visible = false
+		crack_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		crack_sprite.z_index = 220
+		crack_sprite.show_behind_parent = false
+		if crack_sprite.texture == null:
+			crack_sprite.texture = load(CRACKED_GLASS_TEXTURE_PATH)
+		if _objective_crack_material == null:
+			var cracked_shader := load(CRACKED_GLASS_SHADER_PATH) as Shader
+			if cracked_shader:
+				_objective_crack_material = ShaderMaterial.new()
+				_objective_crack_material.shader = cracked_shader
+		if _objective_crack_material:
+			_objective_crack_material.set_shader_parameter("refraction_offset", Vector2(34.0, 34.0))
+			_objective_crack_material.set_shader_parameter("crack_dark_threshold", 0.22)
+			_objective_crack_material.set_shader_parameter("crack_rim_threshold", 0.36)
+			_objective_crack_material.set_shader_parameter("crack_alpha_threshold", 0.02)
+			_objective_crack_material.set_shader_parameter("crack_core_darkness", 0.68)
+			_objective_crack_material.set_shader_parameter("crack_rim_brightness", 0.5)
+			crack_sprite.material = _objective_crack_material
+	if crack_hole:
+		crack_hole.visible = false
+		crack_hole.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		crack_hole.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		crack_hole.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		crack_hole.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		crack_hole.z_index = 221
+		crack_hole.top_level = true
+		crack_hole.modulate = Color(1.0, 1.0, 1.0, 1.0)
+		crack_hole.texture = _get_crack_hole_texture()
+	if npc_good_texture and _npc_visual_material == null:
+		var reveal_shader := load(NPC_REVEAL_SHADER_PATH) as Shader
+		if reveal_shader:
+			_npc_visual_material = ShaderMaterial.new()
+			_npc_visual_material.shader = reveal_shader
+			npc_good_texture.material = _npc_visual_material
+	_update_crack_sprite_transform(_get_ui_scale_factor())
+	_refresh_terminal_visuals(true)
+
+func _refresh_terminal_visuals(force_immediate: bool = false) -> void:
+	var crack_sprite := _resolve_objective_crack_sprite()
+	var crack_hole := _resolve_objective_crack_hole()
+	var scale_factor := _get_ui_scale_factor()
+	if npc_visual_panel:
+		npc_visual_panel.visible = true
+	var current_mode := _get_current_mode()
+	var should_show_attack_glow := current_mode == 1 and _npc_player_turn and _has_player_attacked_current_npc()
+	var enemy_key := _get_current_enemy_visual_key()
+	var bad_texture := _get_npc_visual_texture(enemy_key, "bad")
+	var good_texture := _get_npc_visual_texture(enemy_key, "good")
+	if npc_bad_texture:
+		npc_bad_texture.texture = bad_texture
+		npc_bad_texture.visible = true
+		npc_bad_texture.modulate = Color(1.0, 0.35, 0.35, 1.0) if should_show_attack_glow else Color(1.0, 1.0, 1.0, 1.0)
+	if npc_good_texture:
+		npc_good_texture.texture = good_texture
+		npc_good_texture.visible = current_mode == 2 or _get_npc_visual_progress() > 0.0
+	_set_npc_reveal_progress(_get_npc_visual_progress(), force_immediate)
+	if npc_turn_flash:
+		npc_turn_flash.visible = should_show_attack_glow
+		npc_turn_flash.color = Color(1.0, 0.1, 0.1, 0.18) if npc_turn_flash.visible else Color(1.0, 0.1, 0.1, 0.0)
+	if objective_broken_texture:
+		objective_broken_texture.visible = false
+	if crack_sprite:
+		_update_crack_sprite_transform(scale_factor)
+		crack_sprite.visible = current_mode == 1
+	if crack_hole:
+		_update_crack_hole_transform(scale_factor)
+		crack_hole.visible = current_mode == 1 and crack_sprite != null and crack_sprite.visible
+	if objective_frame:
+		objective_frame.modulate = Color(1.0, 0.82, 0.82, 1.0) if current_mode == 1 else Color(1.0, 1.0, 1.0, 1.0)
+
+func _resolve_objective_crack_sprite() -> Sprite2D:
+	if objective_crack_sprite and is_instance_valid(objective_crack_sprite):
+		return objective_crack_sprite
+
+	objective_crack_sprite = get_node_or_null("StatusPanel/VBox/ObjectiveFrame/Sprite2D") as Sprite2D
+	if objective_crack_sprite:
+		return objective_crack_sprite
+
+	objective_crack_sprite = get_node_or_null("Sprite2D") as Sprite2D
+	if objective_crack_sprite:
+		return objective_crack_sprite
+
+	var fallback := find_child("Sprite2D", true, false)
+	if fallback is Sprite2D:
+		objective_crack_sprite = fallback as Sprite2D
+
+	return objective_crack_sprite
+
+func _resolve_objective_crack_hole() -> TextureRect:
+	if objective_crack_hole and is_instance_valid(objective_crack_hole):
+		return objective_crack_hole
+
+	objective_crack_hole = get_node_or_null("ObjectiveCrackHole") as TextureRect
+	if objective_crack_hole:
+		return objective_crack_hole
+
+	var fallback := find_child("ObjectiveCrackHole", true, false)
+	if fallback is TextureRect:
+		objective_crack_hole = fallback as TextureRect
+
+	return objective_crack_hole
+
+func _get_crack_hole_texture() -> Texture2D:
+	if _objective_crack_hole_texture:
+		return _objective_crack_hole_texture
+
+	var texture_size := 256
+	var image := Image.create(texture_size, texture_size, false, Image.FORMAT_RGBA8)
+	var center := Vector2(texture_size * 0.5, texture_size * 0.5)
+	var radius := texture_size * 0.5
+
+	for y in range(texture_size):
+		for x in range(texture_size):
+			var uv := Vector2(float(x), float(y))
+			var distance_norm := uv.distance_to(center) / radius
+			var alpha := 0.0
+			if distance_norm <= 0.7:
+				alpha = 1.0
+			elif distance_norm <= 0.95:
+				alpha = 1.0 - ((distance_norm - 0.7) / 0.25)
+			alpha = clampf(alpha, 0.0, 1.0)
+			image.set_pixel(x, y, Color(0.0, 0.0, 0.0, alpha))
+
+	_objective_crack_hole_texture = ImageTexture.create_from_image(image)
+	return _objective_crack_hole_texture
+
+func _update_crack_sprite_transform(_scale_factor: float) -> void:
+	var crack_sprite := _resolve_objective_crack_sprite()
+	if crack_sprite == null:
+		return
+
+	var scale_factor := maxf(_scale_factor, 1.0)
+	var base_scale := Vector2(0.26141405, 0.23132005)
+	crack_sprite.scale = base_scale
+	crack_sprite.top_level = true
+
+	var frame_rect := Rect2()
+	if objective_frame and is_instance_valid(objective_frame):
+		frame_rect = objective_frame.get_global_rect()
+	if frame_rect.size == Vector2.ZERO:
+		frame_rect = Rect2(Vector2.ZERO, get_viewport_rect().size)
+
+	var sprite_size := Vector2(1536.0, 1536.0)
+	if crack_sprite.texture:
+		sprite_size = crack_sprite.texture.get_size()
+
+	var visual_size := sprite_size * crack_sprite.scale
+	var outside_offset := Vector2(24.0, 18.0) * scale_factor
+	var pullback := visual_size * Vector2(0.38, 0.34)
+	crack_sprite.global_position = frame_rect.position + frame_rect.size + outside_offset - pullback
+	_update_crack_hole_transform(scale_factor)
+
+func _update_crack_hole_transform(_scale_factor: float) -> void:
+	var crack_sprite := _resolve_objective_crack_sprite()
+	var crack_hole := _resolve_objective_crack_hole()
+	if crack_sprite == null or crack_hole == null:
+		return
+
+	var sprite_size := Vector2(1536.0, 1536.0)
+	if crack_sprite.texture:
+		sprite_size = crack_sprite.texture.get_size()
+
+	var visual_size := sprite_size * crack_sprite.scale
+	var hole_size := visual_size * 0.32
+	var hole_center := crack_sprite.global_position
+
+	crack_hole.size = hole_size
+	crack_hole.pivot_offset = hole_size * 0.5
+	crack_hole.global_position = hole_center - hole_size * 0.5
+
+func _set_npc_reveal_progress(progress: float, immediate: bool = false) -> void:
+	var clamped := clampf(progress, 0.0, 1.0)
+	var start_progress := _npc_visual_progress
+	_npc_visual_progress = clamped
+	if _npc_visual_material == null:
+		return
+	if _npc_visual_tween != null and _npc_visual_tween.is_running():
+		_npc_visual_tween.kill()
+	if immediate or is_equal_approx(start_progress, clamped):
+		_npc_visual_material.set_shader_parameter("progress", clamped)
+		return
+	_npc_visual_tween = create_tween()
+	_npc_visual_tween.tween_method(Callable(self, "_apply_npc_reveal_progress"), start_progress, clamped, 0.28)
+
+func _apply_npc_reveal_progress(progress: float) -> void:
+	if _npc_visual_material:
+		_npc_visual_material.set_shader_parameter("progress", clampf(progress, 0.0, 1.0))
+
+func _get_npc_visual_progress() -> float:
+	var current_mode := _get_current_mode()
+	if current_mode == 1:
+		return 0.0
+	if current_mode == 3:
+		return 1.0
+	if current_mode != 2 and not _dependency_objective_active:
+		return 0.0
+
+	if _dependency_objective_active and dependency_minigame:
+		if dependency_minigame.has_method("_compute_preflight_progress"):
+			return clampf(float(dependency_minigame.call("_compute_preflight_progress")), 0.0, 1.0)
+		if dependency_minigame.has_method("_get_subobjective_progress"):
+			var sub_progress = dependency_minigame.call("_get_subobjective_progress")
+			if sub_progress is Dictionary:
+				var current := float(sub_progress.get("current", 0.0))
+				var target := maxf(1.0, float(sub_progress.get("target", 1.0)))
+				return clampf(current / target, 0.0, 1.0)
+
+	var puzzle_data = null
+	if enemy_controller and "puzzle_data" in enemy_controller:
+		puzzle_data = enemy_controller.puzzle_data
+	if puzzle_data == null or not ("custom_data" in puzzle_data):
+		return 0.0
+
+	var custom: Dictionary = puzzle_data.custom_data
+	if custom.has("expected_sequence"):
+		var sequence: Array = custom.get("expected_sequence", [])
+		if sequence.is_empty():
+			return 0.0
+		return clampf(float(custom.get("current_index", 0)) / float(sequence.size()), 0.0, 1.0)
+
+	if custom.has("required_fragments"):
+		var required: Array = custom.get("required_fragments", [])
+		if required.is_empty():
+			return 0.0
+		var restored: Array = custom.get("fragments_restored", [])
+		var decrypted: Array = custom.get("fragments_decrypted", [])
+		var completed := 0.0
+		for fragment in required:
+			if fragment in restored:
+				completed += 1.0
+			elif fragment == ".fragment_003" and fragment in decrypted:
+				completed += 0.5
+		return clampf(completed / float(required.size()), 0.0, 1.0)
+
+	return 0.0
+
+func _get_current_enemy_visual_key() -> String:
+	var enemy_label := _get_current_enemy_label().to_lower()
+	if enemy_label.find("lost") != -1:
+		return "lost_file"
+	if enemy_label.find("broken") != -1 and enemy_label.find("link") != -1:
+		return "broken_link"
+	if enemy_label.find("driver") != -1 and enemy_label.find("remnant") != -1:
+		return "driver_remnant"
+	if enemy_label.find("ghost") != -1:
+		return "hardware_ghost"
+	if enemy_label.find("messy") != -1 or enemy_label.find("directory") != -1:
+		return "messy_directory"
+	return "default"
+
+func _get_npc_visual_texture(enemy_key: String, state: String) -> Texture2D:
+	var cache_key := "%s:%s" % [enemy_key, state]
+	if _npc_texture_cache.has(cache_key):
+		return _npc_texture_cache[cache_key]
+
+	var key_data = NPC_VISUAL_TEXTURE_PATHS.get(enemy_key, NPC_VISUAL_TEXTURE_PATHS["default"])
+	var texture_path := str(key_data.get(state, ""))
+	if texture_path.is_empty():
+		return null
+	var texture := load(texture_path) as Texture2D
+	if texture:
+		_npc_texture_cache[cache_key] = texture
+	return texture
 	
 	#endregion

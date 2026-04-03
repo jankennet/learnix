@@ -1,3 +1,5 @@
+Sprite2D
+TextureRect
 AnimatedSprite3D
 CollisionShape3D
 CharacterBody3D
@@ -9,6 +11,4 @@ Marker3D
 MeshInstance3D
 Camera3D
 CSGCylinder3D
-TextureRect
 CSGCombiner3D
-GLControllerGrass

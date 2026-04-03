@@ -1,7 +1,8 @@
+res://Scenes/combat
+res://Assets/characterSpriteSheets/ss_Tux
 E:/Games/Learnix/learnix
 res://scripts
 res://Assets/characterSpriteSheets/ss_FallbackHamletNPC
-res://Assets/characterSpriteSheets/ss_Tux
 res://Scenes/Levels
 res://Assets
 res://addons
@@ -19,4 +20,3 @@ res://Addons/terrain_3d
 E:/Games/Learnix/learnix/Addons/terrain_textures
 res://Addons
 res://Assets/characterSpriteSheets/ss_Nova
-res://Scenes

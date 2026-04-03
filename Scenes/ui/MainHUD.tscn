@@ -213,7 +213,6 @@ layout_mode = 2
 texture = ExtResource("5_gcg6u")
 expand_mode = 1
 stretch_mode = 5
-visible = true
 
 [node name="TerminalPanel" type="PanelContainer" parent="."]
 visible = false
@@ -290,7 +289,6 @@ text = "RUN"
 layout_mode = 2
 theme_override_fonts/font = ExtResource("1_font")
 theme_override_font_sizes/font_size = 8
-text = ""
 
 [node name="CRTEffectOverlay" type="ColorRect" parent="TerminalPanel"]
 material = SubResource("ShaderMaterial_hud_terminal_crt")
