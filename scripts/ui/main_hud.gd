@@ -107,6 +107,11 @@ var _terminal_drag_offset := Vector2.ZERO
 var _terminal_saved_window_rect := Rect2(300.0, 120.0, 680.0, 360.0)
 var _last_recorded_location := ""
 var _cached_quest_list: CanvasItem = null
+var _terminal_history: Array[String] = []
+var _terminal_history_index := -1
+var _terminal_history_draft := ""
+var _cli_history_wget_verified := false
+var _shop_panel: Control = null
 
 func _ready() -> void:
 	# Instantiate TerminalPanel scene
@@ -167,13 +172,24 @@ func _process(delta: float) -> void:
 func _input(event: InputEvent) -> void:
 	if not visible or get_tree().paused:
 		return
-	if file_item == null and term_item == null:
+	if file_item == null and term_item == null and quest_item == null:
 		return
 
 	if _terminal_is_open and event.is_action_pressed("ui_cancel"):
 		_close_terminal()
 		get_viewport().set_input_as_handled()
 		return
+
+	if _terminal_is_open and event is InputEventKey and event.pressed and not event.echo:
+		var key_event := event as InputEventKey
+		if key_event.keycode == KEY_UP:
+			_navigate_terminal_history(-1)
+			get_viewport().set_input_as_handled()
+			return
+		if key_event.keycode == KEY_DOWN:
+			_navigate_terminal_history(1)
+			get_viewport().set_input_as_handled()
+			return
 
 	if _terminal_is_open and _is_dragging_terminal and event is InputEventMouseMotion:
 		_update_terminal_drag_position((event as InputEventMouseMotion).position)
@@ -187,17 +203,21 @@ func _input(event: InputEvent) -> void:
 			return
 		if term_item and term_item.get_global_rect().has_point(click.position):
 			_open_terminal()
+			return
+		if quest_item and quest_item.get_global_rect().has_point(click.position):
+			_open_tux_helper_from_hud()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not _terminal_is_open:
 		return
-	if event is InputEventKey and event.pressed:
-		get_viewport().set_input_as_handled()
 
 func _update_visibility() -> void:
 	var should_show := not _is_combat_ui_visible()
 	visible = should_show
 	_set_quest_list_visible(should_show)
+	# Hide file item until file explorer is unlocked.
+	if file_item:
+		file_item.visible = should_show and _is_file_explorer_unlocked()
 	if not should_show and _terminal_is_open:
 		_close_terminal()
 
@@ -222,6 +242,11 @@ func _is_combat_ui_visible() -> bool:
 
 	return false
 
+func _is_file_explorer_unlocked() -> bool:
+	if not has_node("/root/SceneManager") or not SceneManager:
+		return false
+	return SceneManager.get("file_explorer_unlocked") == true
+
 func _on_file_item_gui_input(event: InputEvent) -> void:
 	if not visible or get_tree().paused:
 		return
@@ -239,23 +264,41 @@ func _on_quest_item_gui_input(event: InputEvent) -> void:
 	if not visible or get_tree().paused:
 		return
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		# Open QuestWindow for the first active quest in the QuestManager
-		if has_node("/root/SceneManager") and SceneManager and SceneManager.quest_manager:
-			var qm := SceneManager.quest_manager
-			var act := qm.get_active_quests()
-			if act.size() > 0:
-				var qid := act[0]
-				var q := qm.get_quest(qid)
-				if q:
-					var QuestWindowScene := preload("res://Scenes/ui/QuestWindow.tscn")
-					var w: QuestWindow = QuestWindowScene.instantiate() as QuestWindow
-					get_tree().get_root().add_child(w)
-					w.set_quest(q)
-					return
-		# Fallback: toggle small quest list UI if it exists
-		var quest_list := _get_quest_list_node()
-		if quest_list:
-			quest_list.visible = not quest_list.visible
+		_open_tux_helper_from_hud()
+
+func _open_tux_helper_from_hud() -> void:
+	if _terminal_is_open:
+		_close_terminal()
+
+	if has_node("/root/SceneManager") and SceneManager:
+		var tux_ctrl := SceneManager.get_node_or_null("TuxDialogueController")
+		if tux_ctrl and tux_ctrl.has_method("show_world_hint_from_hud"):
+			tux_ctrl.call("show_world_hint_from_hud")
+			return
+		if tux_ctrl and tux_ctrl.has_method("_show_tux_line"):
+			tux_ctrl.call("_show_tux_line", "I am online. Explore Linuxia and check your active quests for your next move.")
+			return
+
+	_open_quest_window_or_toggle_list()
+
+func _open_quest_window_or_toggle_list() -> void:
+	# Fallback behavior when Tux dialogue controller is unavailable.
+	if has_node("/root/SceneManager") and SceneManager and SceneManager.quest_manager:
+		var qm := SceneManager.quest_manager
+		var act := qm.get_active_quests()
+		if act.size() > 0:
+			var qid := act[0]
+			var q := qm.get_quest(qid)
+			if q:
+				var QuestWindowScene := preload("res://Scenes/ui/QuestWindow.tscn")
+				var w: QuestWindow = QuestWindowScene.instantiate() as QuestWindow
+				get_tree().get_root().add_child(w)
+				w.set_quest(q)
+				return
+
+	var quest_list := _get_quest_list_node()
+	if quest_list:
+		quest_list.visible = not quest_list.visible
 
 func _get_quest_list_node() -> CanvasItem:
 	if _cached_quest_list and is_instance_valid(_cached_quest_list):
@@ -273,6 +316,8 @@ func _get_quest_list_node() -> CanvasItem:
 	return null
 
 func _open_file_explorer_from_hud() -> void:
+	if not _is_file_explorer_unlocked():
+		return
 	if _terminal_is_open:
 		_close_terminal()
 	var pause_menu := get_node_or_null("/root/PauseMenu")
@@ -323,6 +368,10 @@ func _process_terminal_command(raw_command: String) -> void:
 	if text.is_empty():
 		return
 
+	_push_terminal_history(text)
+	_terminal_history_index = -1
+	_terminal_history_draft = ""
+
 	_print_terminal_line("$ %s" % text)
 
 	var parts := text.split(" ", false)
@@ -332,15 +381,18 @@ func _process_terminal_command(raw_command: String) -> void:
 
 	match command:
 		"help", "?":
-			var help_text = "Commands: help, map, pwd, ls, cat <file>, explorer, save, quit, clear"
+			var help_text = "Commands: help, map, pwd, ls, cat <file>, explorer, history, shop, save, quit, clear"
 			if _is_cd_command_unlocked():
 				help_text += ", cd <location>, cd .."
-			help_text += ", echo <text>, whoami, date, uname, touch <file>, mkdir <dir>, rm <file>, sudo shutdown"
+			help_text += ", echo <text>, whoami, date, uname, touch <file>, mkdir <dir>, rm <file>, sudo shutdown, wget <url>"
 			_print_terminal_line(help_text)
-			if _is_tutorial_scene_active():
-				_print_terminal_line("Locations: tutorial")
+			if _is_cli_history_unlocked():
+				_print_terminal_line("Tip: use [Up Key] / [Down Key] for command history.")
 			else:
-				_print_terminal_line("Locations: hamlet, filesystem_forest, deamon_depths, bios_vault")
+				_print_terminal_line("Tip: unlock CLI history with wget learnix://skills/cli_history.unlock")
+			var help_locations := _help_location_labels()
+			if not help_locations.is_empty():
+				_print_terminal_line("Locations: %s" % ", ".join(help_locations))
 		"map":
 			_print_location_map()
 		"pwd":
@@ -359,6 +411,13 @@ func _process_terminal_command(raw_command: String) -> void:
 				_print_terminal_line("")
 			else:
 				_print_terminal_line(" ".join(args))
+		"history":
+			_handle_history_command()
+		"shop":
+			_print_terminal_line("Opening skill shop...")
+			_open_shop_from_terminal()
+		"wget":
+			_handle_wget_command(args)
 		"whoami":
 			_print_terminal_line("nova")
 		"date":
@@ -381,8 +440,11 @@ func _process_terminal_command(raw_command: String) -> void:
 			else:
 				_print_terminal_line("rm: removed '%s'" % args[0])
 		"explorer", "files", "open":
-			_print_terminal_line("Opening file explorer...")
-			_open_file_explorer_from_hud()
+			if not _is_file_explorer_unlocked():
+				_print_terminal_line("explorer: command not available (unlock with wget learnix://skills/file_explorer.unlock)")
+			else:
+				_print_terminal_line("Opening file explorer...")
+				_open_file_explorer_from_hud()
 		"save":
 			_handle_save_command()
 		"quit", "exit":
@@ -541,7 +603,7 @@ func _is_terminal_location_unlocked(location_key: String) -> bool:
 		TUTORIAL_LOCATION:
 			return true
 		"bios_vault":
-			return SceneManager.gatekeeper_pass_granted or SceneManager.deamon_depths_boss_door_unlocked or bool(SceneManager.get_meta("bios_vault_sage_quiz_passed", false))
+			return SceneManager.gatekeeper_pass_granted or SceneManager.deamon_depths_boss_door_unlocked or SceneManager.get_meta("bios_vault_sage_quiz_passed", false) == true
 		"deamon_depths":
 			return SceneManager.proficiency_key_forest or SceneManager.broken_link_fragmented_key or _has_explored_location("deamon_depths")
 		"filesystem_forest":
@@ -593,6 +655,11 @@ func _is_cd_command_unlocked() -> bool:
 	if SceneManager == null:
 		return false
 	return SceneManager.printer_beast_defeated
+
+func _is_cli_history_unlocked() -> bool:
+	if SceneManager == null:
+		return false
+	return _cli_history_wget_verified and SceneManager.get("cli_history_unlocked") == true
 
 func _location_key_from_scene_path(scene_path: String) -> String:
 	match scene_path:
@@ -711,7 +778,27 @@ func _print_location_map() -> void:
 func _visible_terminal_locations() -> Array:
 	if _is_tutorial_scene_active():
 		return [TUTORIAL_LOCATION]
-	return TERMINAL_DIRECTORIES.get("", [])
+
+	var all_locations: Array = TERMINAL_DIRECTORIES.get("", [])
+	var visible_locations: Array = []
+	for location_entry in all_locations:
+		var location_key := String(location_entry)
+		if location_key == DEFAULT_HUB_LOCATION:
+			visible_locations.append(location_key)
+			continue
+		if _is_terminal_location_unlocked(location_key) and _has_explored_location(location_key):
+			visible_locations.append(location_key)
+	return visible_locations
+
+func _help_location_labels() -> Array[String]:
+	var labels: Array[String] = []
+	for location_entry in _visible_terminal_locations():
+		var location_key := String(location_entry)
+		if location_key == DEFAULT_HUB_LOCATION:
+			labels.append("hamlet")
+		else:
+			labels.append(location_key)
+	return labels
 
 func _terminal_home_location() -> String:
 	if _is_tutorial_scene_active():
@@ -723,7 +810,7 @@ func _is_tutorial_scene_active() -> bool:
 
 func _invoke_scene_manager_method(method_name: String) -> bool:
 	if SceneManager and SceneManager.has_method(method_name):
-		return bool(SceneManager.call(method_name))
+		return SceneManager.call(method_name) == true
 	return false
 
 func _maybe_print_fun_fact() -> void:
@@ -738,6 +825,130 @@ func _print_terminal_line(text: String) -> void:
 	if terminal_output == null:
 		return
 	terminal_output.append_text("%s\n" % text)
+
+func _push_terminal_history(command_text: String) -> void:
+	var normalized := command_text.strip_edges()
+	if normalized == "":
+		return
+	if not _terminal_history.is_empty() and _terminal_history[_terminal_history.size() - 1] == normalized:
+		return
+	_terminal_history.append(normalized)
+
+func _navigate_terminal_history(direction: int) -> void:
+	if terminal_input == null or _terminal_history.is_empty():
+		return
+	
+	# CLI_HISTORY skill must be unlocked to use history navigation
+	if not _is_cli_history_unlocked():
+		return
+
+	if _terminal_history_index == -1:
+		_terminal_history_draft = terminal_input.text
+
+	if direction < 0:
+		if _terminal_history_index == -1:
+			_terminal_history_index = _terminal_history.size() - 1
+		elif _terminal_history_index > 0:
+			_terminal_history_index -= 1
+	else:
+		if _terminal_history_index == -1:
+			return
+		_terminal_history_index += 1
+		if _terminal_history_index >= _terminal_history.size():
+			_terminal_history_index = -1
+			terminal_input.text = _terminal_history_draft
+			terminal_input.caret_column = terminal_input.text.length()
+			return
+
+	terminal_input.text = _terminal_history[_terminal_history_index]
+	terminal_input.caret_column = terminal_input.text.length()
+
+func _handle_history_command() -> void:
+	if not _is_cli_history_unlocked():
+		_print_terminal_line("history: command not available (unlock with wget learnix://skills/cli_history.unlock)")
+		return
+	if _terminal_history.is_empty():
+		_print_terminal_line("No command history yet.")
+		return
+	var start_index := maxi(0, _terminal_history.size() - 20)
+	for idx in range(start_index, _terminal_history.size()):
+		_print_terminal_line("%02d  %s" % [idx + 1, _terminal_history[idx]])
+
+func _handle_wget_command(args: Array) -> void:
+	if not _terminal_is_open or terminal_panel == null or not terminal_panel.visible:
+		_print_terminal_line("wget: skill unlock is only available in the MainHUD terminal")
+		return
+
+	if args.is_empty():
+		_print_terminal_line("Usage: wget <url>")
+		return
+	
+	var url := String(args[0]).strip_edges()
+	if not url.begins_with("learnix://skills/"):
+		_print_terminal_line("wget: unsupported URL scheme or path")
+		return
+	
+	# Parse learnix://skills/<skill_name>.unlock
+	var path := url.trim_prefix("learnix://skills/")
+	if not path.ends_with(".unlock"):
+		_print_terminal_line("wget: invalid skill unlock URL")
+		return
+	
+	var skill_name := path.trim_suffix(".unlock")
+	if skill_name.is_empty():
+		_print_terminal_line("wget: no skill specified")
+		return
+	
+	_unlock_skill(skill_name)
+
+func _unlock_skill(skill_name: String) -> void:
+	if SceneManager == null:
+		_print_terminal_line("Error: Cannot unlock skill (SceneManager unavailable)")
+		return
+
+	if not _can_unlock_skill(skill_name):
+		_print_terminal_line("Unlock failed: requirements not met for '%s'." % skill_name)
+		return
+	
+	var flag_name := "%s_unlocked" % skill_name
+	SceneManager.set(flag_name, true)
+	if skill_name == "cli_history":
+		_cli_history_wget_verified = true
+	if skill_name == "file_explorer":
+		_update_visibility()
+	
+	_print_terminal_line("Skill '%s' unlocked successfully!" % skill_name)
+
+func _can_unlock_skill(skill_name: String) -> bool:
+	if SceneManager == null:
+		return false
+	match skill_name:
+		"cli_history":
+			return true
+		"file_explorer":
+			return SceneManager.get("helped_lost_file") == true
+		"teleport":
+			var interacted_npcs : Variant = SceneManager.get("interacted_npcs")
+			var cmo_interacted: bool = false
+			if interacted_npcs is Dictionary:
+				var npc_map: Dictionary = interacted_npcs as Dictionary
+				var cmo_flag: Variant = npc_map.get("CMO", false)
+				cmo_interacted = cmo_flag == true
+			return SceneManager.get("printer_beast_defeated") == true and cmo_interacted
+		_:
+			return true
+
+func _open_shop_from_terminal() -> void:
+	if _shop_panel == null or not is_instance_valid(_shop_panel):
+		var ShopScene := preload("res://Scenes/ui/TerminalShop.tscn")
+		_shop_panel = ShopScene.instantiate() as Control
+		get_tree().get_root().add_child(_shop_panel)
+
+	_close_terminal()
+	if _shop_panel and _shop_panel.has_method("open_shop"):
+		_shop_panel.call("open_shop")
+	elif _shop_panel:
+		_shop_panel.visible = true
 
 func _acquire_terminal_input_lock() -> void:
 	if SceneManager == null:

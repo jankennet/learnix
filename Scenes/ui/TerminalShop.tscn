@@ -1,0 +1,455 @@
+[gd_scene load_steps=8 format=3 uid="uid://ba081tffmrakx"]
+
+[ext_resource type="Script" uid="uid://cy507htpxm1qf" path="res://scripts/ui/terminal_shop.gd" id="1_script"]
+[ext_resource type="FontFile" uid="uid://lqtbary7gh5r" path="res://Assets/fonts/PressStart2P-Regular.ttf" id="2_font"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_window"]
+bg_color = Color(0.027451, 0.0509804, 0.0901961, 0.956863)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.341176, 0.905882, 0.972549, 0.901961)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+shadow_color = Color(0.0196078, 0.643137, 0.780392, 0.14902)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_close_normal"]
+bg_color = Color(0.129412, 0.156863, 0.223529, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.560784, 0.752941, 0.85098, 0.807843)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_close_hover"]
+bg_color = Color(0.188235, 0.239216, 0.313726, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.592157, 0.862745, 0.976471, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_skill_card"]
+bg_color = Color(0.0431373, 0.0745098, 0.121569, 0.933333)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.317647, 0.764706, 0.866667, 0.811765)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_repo_card"]
+bg_color = Color(0.0392157, 0.0666667, 0.109804, 0.913725)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.286275, 0.686275, 0.792157, 0.788235)
+corner_radius_top_left = 7
+corner_radius_top_right = 7
+corner_radius_bottom_right = 7
+corner_radius_bottom_left = 7
+
+[node name="TerminalShop" type="Control"]
+visible = false
+z_index = 120
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+script = ExtResource("1_script")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0117647, 0.0156863, 0.0313726, 0.88)
+
+[node name="Atmosphere" type="Control" parent="Backdrop"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="GlowLeft" type="ColorRect" parent="Backdrop/Atmosphere"]
+layout_mode = 1
+offset_left = 66.0
+offset_top = 92.0
+offset_right = 474.0
+offset_bottom = 560.0
+grow_horizontal = 0
+color = Color(0.054902, 0.458824, 0.584314, 0.176471)
+
+[node name="GlowRight" type="ColorRect" parent="Backdrop/Atmosphere"]
+layout_mode = 1
+offset_left = 818.0
+offset_top = 114.0
+offset_right = 1225.0
+offset_bottom = 586.0
+color = Color(0.0588235, 0.388235, 0.513726, 0.133333)
+
+[node name="ShopWindow" type="PanelContainer" parent="Backdrop"]
+custom_minimum_size = Vector2(860, 520)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -80.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_window")
+
+[node name="InnerGlow" type="ReferenceRect" parent="Backdrop/ShopWindow"]
+layout_mode = 2
+mouse_filter = 2
+border_color = Color(0.286275, 0.901961, 0.984314, 0.447059)
+editor_only = false
+
+[node name="Margin" type="MarginContainer" parent="Backdrop/ShopWindow"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 18
+
+[node name="VRoot" type="VBoxContainer" parent="Backdrop/ShopWindow/Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="HeaderRow" type="HBoxContainer" parent="Backdrop/ShopWindow/Margin/VRoot"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="TitleBlock" type="VBoxContainer" parent="Backdrop/ShopWindow/Margin/VRoot/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/HeaderRow/TitleBlock"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 15
+text = "TERMINAL SKILL SHOP"
+
+[node name="Subtitle" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/HeaderRow/TitleBlock"]
+modulate = Color(0.67451, 0.803922, 0.901961, 0.909804)
+layout_mode = 2
+text = "Unlock command mechanics and archive NPC lesson data."
+
+[node name="DataBitsLabel" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/HeaderRow"]
+custom_minimum_size = Vector2(188, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Data Bits: 0"
+horizontal_alignment = 2
+
+[node name="CloseButton" type="Button" parent="Backdrop/ShopWindow/Margin/VRoot/HeaderRow"]
+custom_minimum_size = Vector2(130, 38)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_close_normal")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_close_hover")
+theme_override_styles/hover = SubResource("StyleBoxFlat_close_hover")
+text = "CLOSE"
+
+[node name="BodyRow" type="HSplitContainer" parent="Backdrop/ShopWindow/Margin/VRoot"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+split_offset = 640
+
+[node name="SkillsMenu" type="VBoxContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow"]
+custom_minimum_size = Vector2(720, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="SkillsHeading" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+text = "Skill List"
+
+[node name="SkillsHint" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu"]
+modulate = Color(0.662745, 0.780392, 0.886275, 0.843137)
+layout_mode = 2
+text = "Hover or click a skill"
+
+[node name="SkillsScroll" type="ScrollContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+follow_focus = true
+
+[node name="SkillsList" type="VBoxContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu/SkillsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="SkillsNetwork" type="Control" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu"]
+custom_minimum_size = Vector2(640, 500)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="CoreHub" type="PanelContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu/SkillsNetwork"]
+layout_mode = 1
+offset_left = 182.0
+offset_top = 164.0
+offset_right = 340.0
+offset_bottom = 310.0
+grow_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_skill_card")
+
+[node name="CoreLabel" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu/SkillsNetwork/CoreHub"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+text = "LEARNIX
+CORE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ConnectionA" type="Line2D" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu/SkillsNetwork"]
+modulate = Color(0.415686, 0.913725, 0.984314, 0.760784)
+points = PackedVector2Array(190, 118, 322, 268)
+width = 2.6
+default_color = Color(0.415686, 0.913725, 0.984314, 0.760784)
+
+[node name="ConnectionB" type="Line2D" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu/SkillsNetwork"]
+modulate = Color(0.415686, 0.913725, 0.984314, 0.760784)
+points = PackedVector2Array(372, 320, 520, 414)
+width = 2.6
+default_color = Color(0.415686, 0.913725, 0.984314, 0.760784)
+
+[node name="ConnectionC" type="Line2D" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu/SkillsNetwork"]
+modulate = Color(0.415686, 0.913725, 0.984314, 0.760784)
+points = PackedVector2Array(420, 242, 518, 196)
+width = 2.6
+default_color = Color(0.415686, 0.913725, 0.984314, 0.760784)
+
+[node name="CLI_HISTORY" type="PanelContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu/SkillsNetwork"]
+layout_mode = 1
+offset_left = 20.0
+offset_top = 44.0
+offset_right = 274.0
+offset_bottom = 188.0
+grow_horizontal = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_skill_card")
+
+[node name="Content" type="VBoxContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu/SkillsNetwork/CLI_HISTORY"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu/SkillsNetwork/CLI_HISTORY/Content"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+text = "CLI_HISTORY"
+
+[node name="Description" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu/SkillsNetwork/CLI_HISTORY/Content"]
+layout_mode = 2
+text = "[Up Key] command history and quick replay support."
+autowrap_mode = 3
+
+[node name="Status" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu/SkillsNetwork/CLI_HISTORY/Content"]
+layout_mode = 2
+text = "UNLOCKED"
+
+[node name="TELEPORT" type="PanelContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu/SkillsNetwork"]
+layout_mode = 0
+offset_left = 228.0
+offset_top = 212.0
+offset_right = 482.0
+offset_bottom = 356.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_skill_card")
+
+[node name="Content" type="VBoxContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu/SkillsNetwork/TELEPORT"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu/SkillsNetwork/TELEPORT/Content"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+text = "TELEPORT"
+
+[node name="Description" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu/SkillsNetwork/TELEPORT/Content"]
+layout_mode = 2
+text = "Map cd locations to world teleport nodes once unlocked."
+autowrap_mode = 3
+
+[node name="Status" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu/SkillsNetwork/TELEPORT/Content"]
+layout_mode = 2
+text = "LOCKED"
+
+[node name="FILE_EXPLORER" type="PanelContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu/SkillsNetwork"]
+layout_mode = 0
+offset_left = 390.0
+offset_top = 372.0
+offset_right = 640.0
+offset_bottom = 498.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_skill_card")
+
+[node name="Content" type="VBoxContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu/SkillsNetwork/FILE_EXPLORER"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu/SkillsNetwork/FILE_EXPLORER/Content"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 10
+text = "FILE EXPLORER"
+
+[node name="Description" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu/SkillsNetwork/FILE_EXPLORER/Content"]
+layout_mode = 2
+text = "Repository panel on the right catalogs lesson drops from NPCs."
+autowrap_mode = 3
+
+[node name="Status" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/SkillsMenu/SkillsNetwork/FILE_EXPLORER/Content"]
+layout_mode = 2
+text = "LOCKED"
+
+[node name="LessonRepository" type="VBoxContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow"]
+custom_minimum_size = Vector2(380, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Heading" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/LessonRepository"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+text = "Skill Preview"
+
+[node name="RepositoryHint" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/LessonRepository"]
+modulate = Color(0.662745, 0.780392, 0.886275, 0.843137)
+layout_mode = 2
+text = "Short description and unlock requirements"
+
+[node name="SkillPreviewPanel" type="PanelContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/LessonRepository"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_repo_card")
+
+[node name="Margin" type="MarginContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/LessonRepository/SkillPreviewPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="Wrap" type="VBoxContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/LessonRepository/SkillPreviewPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SkillName" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/LessonRepository/SkillPreviewPanel/Margin/Wrap"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 11
+text = "CLI HISTORY"
+
+[node name="SkillSummary" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/LessonRepository/SkillPreviewPanel/Margin/Wrap"]
+layout_mode = 2
+text = "Recall previous terminal commands with [Up Key]."
+autowrap_mode = 3
+
+[node name="SkillRequirement" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/LessonRepository/SkillPreviewPanel/Margin/Wrap"]
+layout_mode = 2
+text = "Requirement: 0 Data Bits + Starter Key"
+autowrap_mode = 3
+
+[node name="SkillCommand" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/LessonRepository/SkillPreviewPanel/Margin/Wrap"]
+layout_mode = 2
+text = "Command: wget learnix://skills/cli_history.unlock"
+autowrap_mode = 3
+
+[node name="SkillActionHint" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/LessonRepository/SkillPreviewPanel/Margin/Wrap"]
+modulate = Color(0.592157, 0.862745, 0.976471, 0.901961)
+layout_mode = 2
+text = "Select a skill to preview unlock command"
+
+[node name="LessonRepositoryContainers" type="VBoxContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/LessonRepository"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="LessonRepositoryCore" type="PanelContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/LessonRepository/LessonRepositoryContainers"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_repo_card")
+
+[node name="Wrap" type="VBoxContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/LessonRepository/LessonRepositoryContainers/LessonRepositoryCore"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/LessonRepository/LessonRepositoryContainers/LessonRepositoryCore/Wrap"]
+layout_mode = 2
+text = "Core Lessons"
+
+[node name="List" type="VBoxContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/LessonRepository/LessonRepositoryContainers/LessonRepositoryCore/Wrap"]
+layout_mode = 2
+
+[node name="LessonRepositoryNetwork" type="PanelContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/LessonRepository/LessonRepositoryContainers"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_repo_card")
+
+[node name="Wrap" type="VBoxContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/LessonRepository/LessonRepositoryContainers/LessonRepositoryNetwork"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/LessonRepository/LessonRepositoryContainers/LessonRepositoryNetwork/Wrap"]
+layout_mode = 2
+text = "Network Lessons"
+
+[node name="List" type="VBoxContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/LessonRepository/LessonRepositoryContainers/LessonRepositoryNetwork/Wrap"]
+layout_mode = 2
+
+[node name="LessonRepositoryOps" type="PanelContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/LessonRepository/LessonRepositoryContainers"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_repo_card")
+
+[node name="Wrap" type="VBoxContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/LessonRepository/LessonRepositoryContainers/LessonRepositoryOps"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/LessonRepository/LessonRepositoryContainers/LessonRepositoryOps/Wrap"]
+layout_mode = 2
+text = "Ops Lessons"
+
+[node name="List" type="VBoxContainer" parent="Backdrop/ShopWindow/Margin/VRoot/BodyRow/LessonRepository/LessonRepositoryContainers/LessonRepositoryOps/Wrap"]
+layout_mode = 2
+
+[node name="CopyFeedbackDialog" type="AcceptDialog" parent="."]
+title = "Command Copied"
+size = Vector2i(500, 128)
+dialog_text = "Unlock command copied to clipboard"

@@ -66,6 +66,7 @@ class PlayerCombatState:
 	var attack_power: int = 15
 	var defense: int = 3
 	var is_defending: bool = false
+	var defend_quality: int = 0  # 0 = none, 1 = normal guard, 2 = perfect guard
 	var status_effects: Array[String] = []
 	var command_history: Array[String] = []
 	var combo_counter: int = 0
@@ -77,7 +78,13 @@ class PlayerCombatState:
 	func take_damage(amount: int) -> int:
 		var reduction := defense
 		if is_defending:
-			reduction += 10  # Extra defense when blocking
+			if defend_quality >= 2:
+				current_integrity = maxi(0, current_integrity)
+				return 0
+			if defend_quality == 1:
+				reduction += 16
+			else:
+				reduction += 10  # Extra defense when blocking
 		var actual := maxi(1, amount - reduction)
 		current_integrity = maxi(0, current_integrity - actual)
 		return actual
@@ -89,6 +96,7 @@ class PlayerCombatState:
 	
 	func reset_turn_state():
 		is_defending = false
+		defend_quality = 0
 
 ## Combat effect result from a command
 class CombatEffect:
@@ -123,6 +131,15 @@ var pending_timing_command: CommandParser.CommandResult = null
 var timing_damage_multiplier: float = 1.0
 var timing_was_critical: bool = false
 var timing_was_miss: bool = false
+var _heal_uses_remaining: int = 1
+var _heal_uses_max: int = 1
+var _overclock_used_this_battle: bool = false
+var _taskkill_used_this_battle: bool = false
+var _pending_timing_profile: Dictionary = {}
+var _skip_enemy_turn_after_command: bool = false
+var _combat_start_modifiers_applied: bool = false
+const TASKKILL_DATA_BITS_COST := 100
+const OVERCLOCK_SKIP_CHANCE := 0.35
 #endregion
 
 #region Initialization
@@ -140,6 +157,14 @@ func start_combat(enemy: EnemyData) -> void:
 	turn_number = 0
 	combat_log.clear()
 	player_state = PlayerCombatState.new()
+	_heal_uses_max = 3 if _is_skill_unlocked("potion_patch") else 1
+	_heal_uses_remaining = 1
+	_overclock_used_this_battle = false
+	_taskkill_used_this_battle = false
+	_pending_timing_profile = {}
+	_skip_enemy_turn_after_command = false
+	_combat_start_modifiers_applied = false
+	_apply_sudo_privilege_modifiers()
 	
 	combat_state = CombatState.ACTIVE
 	_log_message("=== COMBAT INITIATED ===", MessageType.INFO)
@@ -307,16 +332,41 @@ func process_input(raw_input: String) -> void:
 	# Warn about typos but accept
 	if result.partial_match:
 		_log_message("Did you mean '%s'? Executing..." % result.suggested_command, MessageType.WARNING)
+
+	# Hard-lock taskkill command until the related skill is unlocked.
+	if result.command_type == CommandParser.CommandType.KILL and not _is_skill_unlocked("taskkill"):
+		_log_message("Command unavailable: unlock taskkill in the skill shop first.", MessageType.ERROR)
+		awaiting_input.emit()
+		return
 	
 	# Store in history
 	player_state.command_history.append(result.raw_input)
+
+	# Enforce resource-gated skills before timing starts so spam attempts still cost the turn.
+	if result.command_type == CommandParser.CommandType.HEAL and not _can_use_heal():
+		_log_message("Heal failed: patch reserves are exhausted.", MessageType.ERROR)
+		_after_command_resolved(CombatEffect.new())
+		return
+
+	if result.command_type == CommandParser.CommandType.KILL:
+		if not _consume_taskkill():
+			_log_message("taskkill failed: not enough data bits or already used this battle.", MessageType.ERROR)
+			_after_command_resolved(CombatEffect.new())
+			return
+		_skip_enemy_turn_after_command = true
 	
 	# Check if timing minigame is enabled and command should use it
 	if timing_minigame_enabled and _command_uses_timing(result.command_type):
+		_pending_timing_profile = _build_timing_profile(result)
+		if bool(_pending_timing_profile.get("skip_timing", false)):
+			_log_message("Overclock burst skips the timing window!", MessageType.SUCCESS)
+			_execute_command_after_timing(result)
+			return
+
 		# Store the command and request timing minigame
 		pending_timing_command = result
 		combat_state = CombatState.RESOLVING
-		var difficulty := _get_timing_difficulty()
+		var difficulty := float(_pending_timing_profile.get("difficulty", _get_timing_difficulty()))
 		timing_minigame_requested.emit(result, difficulty)
 		return
 	
@@ -328,6 +378,7 @@ func _command_uses_timing(cmd_type: int) -> bool:
 	# Commands that require timing (offensive/active commands)
 	return cmd_type in [
 		CommandParser.CommandType.ATTACK,
+		CommandParser.CommandType.DEFEND,
 		CommandParser.CommandType.DELETE,
 		CommandParser.CommandType.KILL,
 		CommandParser.CommandType.HEAL,
@@ -383,6 +434,8 @@ func _after_command_resolved(effect: CombatEffect) -> void:
 	timing_damage_multiplier = 1.0
 	timing_was_critical = false
 	timing_was_miss = false
+	_skip_enemy_turn_after_command = false
+	_pending_timing_profile.clear()
 	
 	# Check for combat end
 	if effect.ends_combat:
@@ -395,6 +448,13 @@ func _after_command_resolved(effect: CombatEffect) -> void:
 		return
 	
 	# Proceed to enemy turn
+	if effect.special_effect == "skip_enemy_turn":
+		_log_message("Enemy turn skipped.", MessageType.SUCCESS)
+		_skip_enemy_turn_after_command = false
+		await get_tree().create_timer(0.35).timeout
+		_start_player_turn()
+		return
+
 	await get_tree().create_timer(0.5).timeout
 	_start_enemy_turn()
 
@@ -481,8 +541,12 @@ func _resolve_attack(_result: CommandParser.CommandResult) -> CombatEffect:
 func _resolve_defend(_result: CommandParser.CommandResult) -> CombatEffect:
 	var effect := CombatEffect.new()
 	player_state.is_defending = true
+	player_state.defend_quality = 2 if timing_was_critical else 1
 	
-	_log_message("You raise your defenses. Damage reduced next hit.", MessageType.INFO)
+	if timing_was_critical:
+		_log_message("Perfect guard! The next hit will be fully blocked.", MessageType.SUCCESS)
+	else:
+		_log_message("You brace for impact. The next hit will be heavily reduced.", MessageType.INFO)
 	effect.message = "Defending"
 	
 	return effect
@@ -508,6 +572,12 @@ func _resolve_scan(_result: CommandParser.CommandResult) -> CombatEffect:
 
 func _resolve_heal(_result: CommandParser.CommandResult) -> CombatEffect:
 	var effect := CombatEffect.new()
+	if _heal_uses_remaining <= 0:
+		_log_message("No patch reserves left.", MessageType.ERROR)
+		effect.success = false
+		return effect
+
+	_heal_uses_remaining -= 1
 	var heal_amount := 25
 	
 	# Apply timing multiplier to healing
@@ -523,6 +593,107 @@ func _resolve_heal(_result: CommandParser.CommandResult) -> CombatEffect:
 	_log_message("Restored %d integrity." % actual, MessageType.HEAL)
 	
 	return effect
+
+func get_timing_profile() -> Dictionary:
+	return _pending_timing_profile.duplicate(true)
+
+func _build_timing_profile(result: CommandParser.CommandResult) -> Dictionary:
+	var profile := {
+		"skip_timing": false,
+		"force_critical_only": false,
+		"difficulty": _get_timing_difficulty(),
+		"critical_zone_percent": 0.12,
+		"normal_zone_percent": 0.22,
+		"instruction": "Press SPACE at the right moment!",
+	}
+
+	match result.command_type:
+		CommandParser.CommandType.ATTACK, CommandParser.CommandType.DELETE:
+			if _should_trigger_overclock_skip():
+				profile.skip_timing = true
+				profile.difficulty = 1.0
+				profile.instruction = "Overclock surge: timing skipped"
+		CommandParser.CommandType.DEFEND:
+			profile.difficulty = _get_defend_timing_difficulty()
+			profile.critical_zone_percent = 0.08 if not _is_skill_unlocked("potion_hardening") else 0.11
+			profile.normal_zone_percent = 0.12 if not _is_skill_unlocked("potion_hardening") else 0.16
+			profile.instruction = "Press SPACE for a perfect guard!"
+		CommandParser.CommandType.HEAL:
+			profile.difficulty = clampf(_get_timing_difficulty() - 0.15, 0.5, 2.0)
+			profile.critical_zone_percent = 0.14
+			profile.normal_zone_percent = 0.24
+			profile.instruction = "Press SPACE to restore integrity!"
+		CommandParser.CommandType.KILL:
+			profile.force_critical_only = true
+			profile.difficulty = clampf(_get_timing_difficulty(), 0.8, 2.0)
+			profile.critical_zone_percent = 1.0
+			profile.normal_zone_percent = 0.0
+			profile.instruction = "Critical-only taskkill"
+		CommandParser.CommandType.RESTORE:
+			profile.difficulty = clampf(_get_timing_difficulty() - 0.05, 0.5, 2.0)
+
+	return profile
+
+func _should_trigger_overclock_skip() -> bool:
+	if _overclock_used_this_battle:
+		return false
+	if not _is_skill_unlocked("potion_overclock"):
+		return false
+	if randf() > OVERCLOCK_SKIP_CHANCE:
+		return false
+	_overclock_used_this_battle = true
+	return true
+
+func _can_use_heal() -> bool:
+	return _heal_uses_remaining > 0
+
+func _can_use_taskkill() -> bool:
+	if _taskkill_used_this_battle:
+		return false
+	if not _is_skill_unlocked("taskkill"):
+		return false
+	if SceneManager == null:
+		return false
+	return int(SceneManager.get("data_bits")) >= TASKKILL_DATA_BITS_COST
+
+func _consume_taskkill() -> bool:
+	if not _can_use_taskkill():
+		return false
+	if not SceneManager.spend_data_bits(TASKKILL_DATA_BITS_COST, "combat_taskkill"):
+		return false
+	_taskkill_used_this_battle = true
+	return true
+
+func _get_defend_timing_difficulty() -> float:
+	var difficulty := minf(2.0, _get_timing_difficulty() + 0.6)
+	if _is_skill_unlocked("potion_hardening"):
+		difficulty = maxf(1.55, difficulty - 0.25)
+	return clampf(difficulty, 1.4, 2.0)
+
+func _is_skill_unlocked(skill_id: String) -> bool:
+	if SceneManager == null:
+		return false
+	return SceneManager.get("%s_unlocked" % skill_id) == true
+
+func _apply_sudo_privilege_modifiers() -> void:
+	if _combat_start_modifiers_applied:
+		return
+	_combat_start_modifiers_applied = true
+	if not _is_skill_unlocked("sudo_privilege"):
+		return
+
+	player_state.max_integrity += 25
+	player_state.current_integrity += 25
+	player_state.attack_power += 5
+
+	if current_enemy:
+		current_enemy.max_hp = maxi(1, int(round(current_enemy.max_hp * 1.25)))
+		current_enemy.current_hp = current_enemy.max_hp
+		current_enemy.attack_power += 4
+		current_enemy.defense += 2
+		current_enemy.speed += 1
+
+	_log_message("sudo privilege activated: your power rises, but enemies harden too.", MessageType.WARNING)
 
 func _resolve_escape(_result: CommandParser.CommandResult) -> CombatEffect:
 	var effect := CombatEffect.new()
@@ -575,6 +746,10 @@ func _resolve_delete(result: CommandParser.CommandResult) -> CombatEffect:
 		
 		var actual := current_enemy.take_damage(base_damage)
 		effect.damage_dealt = actual
+		if result.command_type == CommandParser.CommandType.KILL and _skip_enemy_turn_after_command:
+			effect.is_critical = true
+			effect.special_effect = "skip_enemy_turn"
+			_log_message("taskkill injected a fatal critical strike!", MessageType.SUCCESS)
 		
 		_log_message("rm -f %s ... Deleted %d bytes!" % [target, actual], MessageType.DAMAGE)
 		damage_dealt.emit("enemy", actual, effect.is_critical)

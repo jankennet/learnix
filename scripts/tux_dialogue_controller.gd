@@ -2,6 +2,7 @@ extends Node
 
 const DialogueResourceRes = preload("res://addons/dialogue_manager/dialogue_resource.gd")
 const DMConstantsRes = preload("res://addons/dialogue_manager/constants.gd")
+const HUD_DIALOGUE_PATH := "res://dialogues/TuxHUD.dialogue"
 
 var dm: Node = null
 var sm: Node = null
@@ -14,6 +15,9 @@ var _sage_quiz_announced: bool = false
 var _ready_check_prompted: Dictionary = {}
 var _tux_line_queue: Array[String] = []
 var _draining_tux_lines: bool = false
+var _hud_dialogue_resource: Resource = null
+var _hud_dialogue_busy: bool = false
+var _hud_selected_topic: String = ""
 
 const TUX_LINE_GAP_SECONDS := 1.25
 
@@ -302,7 +306,174 @@ func on_quest_checked_complete(quest_id: String) -> void:
 		_:
 			_show_tux_line("Quest confirmed. Nice work. Check your map and continue to the next objective.")
 
+func show_world_hint_from_hud() -> void:
+	if _hud_dialogue_busy:
+		return
+
+	if sm == null:
+		sm = get_node_or_null("/root/SceneManager")
+	if dm == null:
+		dm = get_node_or_null("/root/DialogueManager")
+
+	var dialogue := _get_hud_dialogue_resource()
+	if dm == null or dialogue == null:
+		_show_tux_line("I am online. Explore Linuxia and check your active quests for your next move.")
+		return
+
+	_hud_dialogue_busy = true
+	call_deferred("_run_hud_dialogue_session")
+
+func _get_hud_dialogue_resource() -> Resource:
+	if _hud_dialogue_resource != null:
+		return _hud_dialogue_resource
+	_hud_dialogue_resource = load(HUD_DIALOGUE_PATH)
+	if _hud_dialogue_resource == null:
+		push_warning("HUD Tux dialogue not found: " + HUD_DIALOGUE_PATH)
+	return _hud_dialogue_resource
+
+func _run_hud_dialogue_session() -> void:
+	var dialogue := _get_hud_dialogue_resource()
+	if dm == null or dialogue == null:
+		_hud_dialogue_busy = false
+		return
+
+	_hud_selected_topic = ""
+	dm.show_dialogue_balloon(dialogue, "hud_menu", [self])
+	if dm.has_signal("dialogue_ended"):
+		await dm.dialogue_ended
+
+	var topic := _hud_selected_topic.strip_edges().to_lower()
+	var titles: Array[String] = []
+
+	if topic == "location":
+		titles.append(_pick_label(_location_dialogue_titles(), "hud_location_unknown_a"))
+	elif topic == "objective":
+		titles.append(_pick_label(_objective_dialogue_titles(), "hud_objective_no_tracker_a"))
+	elif topic == "world":
+		titles.append(_pick_label(_world_state_dialogue_titles(), "hud_world_default_a"))
+	elif topic == "tone":
+		titles.append(_pick_label(_tone_dialogue_titles(), "hud_tone_neutral_a"))
+	elif topic == "shop":
+		titles.append(_pick_label(_shop_dialogue_titles(), "hud_shop_hint_a"))
+	elif topic == "full":
+		titles = [
+			_pick_label(_location_dialogue_titles(), "hud_location_unknown_a"),
+			_pick_label(_objective_dialogue_titles(), "hud_objective_no_tracker_a"),
+			_pick_label(_world_state_dialogue_titles(), "hud_world_default_a"),
+			_pick_label(_tone_dialogue_titles(), "hud_tone_neutral_a"),
+			_pick_label(_shop_dialogue_titles(), "hud_shop_hint_a"),
+		]
+	else:
+		titles.append("hud_exit")
+
+	for title in titles:
+		dm.show_dialogue_balloon(dialogue, title, [self])
+		if dm.has_signal("dialogue_ended"):
+			await dm.dialogue_ended
+
+	_hud_dialogue_busy = false
+
+func choose_hud_topic_location() -> void:
+	_hud_selected_topic = "location"
+
+func choose_hud_topic_objective() -> void:
+	_hud_selected_topic = "objective"
+
+func choose_hud_topic_world() -> void:
+	_hud_selected_topic = "world"
+
+func choose_hud_topic_tone() -> void:
+	_hud_selected_topic = "tone"
+
+func choose_hud_topic_shop() -> void:
+	_hud_selected_topic = "shop"
+
+func choose_hud_topic_full() -> void:
+	_hud_selected_topic = "full"
+
+func choose_hud_topic_exit() -> void:
+	_hud_selected_topic = "exit"
+
+func _location_dialogue_titles() -> Array[String]:
+	var current_scene := get_tree().current_scene
+	var scene_path := ""
+	if current_scene != null:
+		scene_path = String(current_scene.scene_file_path)
+
+	match scene_path:
+		"res://Scenes/Levels/tutorial - Copy.tscn":
+			return ["hud_location_tutorial_a", "hud_location_tutorial_b"]
+		"res://Scenes/Levels/fallback_hamlet.tscn":
+			return ["hud_location_hamlet_a", "hud_location_hamlet_b"]
+		"res://Scenes/Levels/file_system_forest.tscn":
+			return ["hud_location_forest_a", "hud_location_forest_b"]
+		"res://Scenes/Levels/deamon_depths.tscn":
+			return ["hud_location_depths_a", "hud_location_depths_b"]
+		"res://Scenes/Levels/bios_vault.tscn", "res://Scenes/Levels/bios_vault_.tscn":
+			return ["hud_location_vault_a", "hud_location_vault_b"]
+		_:
+			return ["hud_location_unknown_a", "hud_location_unknown_b"]
+
+func _objective_dialogue_titles() -> Array[String]:
+	var qm := _get_quest_manager()
+	if qm == null:
+		return ["hud_objective_no_tracker_a", "hud_objective_no_tracker_b"]
+
+	var active := qm.get_active_quests()
+	if active.is_empty():
+		return ["hud_objective_no_active_a", "hud_objective_no_active_b"]
+
+	var quest_id := String(active[0])
+	if _is_quest_ready_to_check(quest_id):
+		return ["hud_objective_ready_a", "hud_objective_ready_b"]
+
+	return ["hud_objective_active_a", "hud_objective_active_b"]
+
+func _world_state_dialogue_titles() -> Array[String]:
+	if sm == null:
+		return ["hud_world_default_a", "hud_world_default_b"]
+
+	if bool(sm.get("printer_beast_defeated")) and bool(sm.get("gatekeeper_pass_granted")):
+		return ["hud_world_momentum_a", "hud_world_momentum_b"]
+
+	if bool(sm.get("proficiency_key_forest")) and not bool(sm.get("broken_link_fragmented_key")):
+		return ["hud_world_forest_key_a", "hud_world_forest_key_b"]
+
+	if bool(sm.get("gatekeeper_pass_granted")) and not bool(sm.get("deamon_depths_boss_door_unlocked")):
+		return ["hud_world_gatepass_a", "hud_world_gatepass_b"]
+
+	return ["hud_world_default_a", "hud_world_default_b"]
+
+func _tone_dialogue_titles() -> Array[String]:
+	if sm == null:
+		return ["hud_tone_neutral_a", "hud_tone_neutral_b"]
+
+	var karma := str(sm.player_karma)
+	match karma:
+		"good":
+			return ["hud_tone_good_a", "hud_tone_good_b"]
+		"evil":
+			return ["hud_tone_evil_a", "hud_tone_evil_b"]
+		_:
+			return ["hud_tone_neutral_a", "hud_tone_neutral_b"]
+
+func _shop_dialogue_titles() -> Array[String]:
+	if sm == null:
+		return ["hud_shop_hint_a", "hud_shop_hint_b"]
+
+	if bool(sm.get("file_explorer_unlocked")) and bool(sm.get("cli_history_unlocked")):
+		return ["hud_shop_ready_a", "hud_shop_ready_b"]
+
+	return ["hud_shop_hint_a", "hud_shop_hint_b"]
+
+func _pick_label(options: Array[String], fallback: String) -> String:
+	if options.is_empty():
+		return fallback
+	return options[randi() % options.size()]
+
 func _show_tux_line(text: String) -> void:
+	if dm == null:
+		dm = get_node_or_null("/root/DialogueManager")
 	if dm == null:
 		push_warning("Tux: DialogueManager not found. Text: %s" % text)
 		return

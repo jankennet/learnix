@@ -1,0 +1,238 @@
+~ hud_menu
+Tux: Need a quick brief, Nova?
+- Where should I go right now?
+	=> hud_pick_location
+- What should I do next?
+	=> hud_pick_objective
+- Give me a world status check.
+	=> hud_pick_world
+- Read my vibe.
+	=> hud_pick_tone
+- How do I use the skill shop?
+	=> hud_pick_shop
+- Give me the full brief.
+	=> hud_pick_full
+- Never mind.
+	=> hud_pick_exit
+
+~ hud_pick_location
+do choose_hud_topic_location()
+=> END
+
+~ hud_pick_objective
+do choose_hud_topic_objective()
+=> END
+
+~ hud_pick_world
+do choose_hud_topic_world()
+=> END
+
+~ hud_pick_tone
+do choose_hud_topic_tone()
+=> END
+
+~ hud_pick_shop
+do choose_hud_topic_shop()
+=> END
+
+~ hud_pick_full
+do choose_hud_topic_full()
+=> END
+
+~ hud_pick_exit
+do choose_hud_topic_exit()
+=> END
+
+~ hud_exit
+Tux: Copy that. Ping me when you want another brief.
+=> END
+
+~ hud_location_tutorial_a
+Tux: You are still in onboarding mode.
+Tux: Lock in terminal basics now, and later zones will feel slower and clearer.
+=> END
+
+~ hud_location_tutorial_b
+Tux: This area is your safe boot sandbox.
+Tux: Test ideas here before you gamble in live Linuxia sectors.
+=> END
+
+~ hud_location_hamlet_a
+Tux: Fallback Hamlet is your intel hub.
+Tux: If direction gets fuzzy, talk to locals before forcing progress.
+=> END
+
+~ hud_location_hamlet_b
+Tux: This town is stable for a reason.
+Tux: NPC conversations here usually reveal your cleanest next move.
+=> END
+
+~ hud_location_forest_a
+Tux: Filesystem Forest is full of misleading branches.
+Tux: Trace clues carefully and do not trust the first route.
+=> END
+
+~ hud_location_forest_b
+Tux: Forest sectors reward patience.
+Tux: Read signs, inspect artifacts, and connect the dots before you sprint.
+=> END
+
+~ hud_location_depths_a
+Tux: Daemon Depths is high-risk territory.
+Tux: Keep your objective and fallback path in mind at all times.
+=> END
+
+~ hud_location_depths_b
+Tux: Depths pressure people into bad decisions.
+Tux: Stay deliberate and verify each interaction.
+=> END
+
+~ hud_location_vault_a
+Tux: BIOS Vault is precision country.
+Tux: One careful action beats three rushed ones.
+=> END
+
+~ hud_location_vault_b
+Tux: Vault systems do not forgive sloppy reads.
+Tux: Parse every prompt before you commit.
+=> END
+
+~ hud_location_unknown_a
+Tux: This sector is not mapped in my quick index.
+Tux: Scout first, commit second.
+=> END
+
+~ hud_location_unknown_b
+Tux: Unknown zone detected.
+Tux: Treat this area like a live incident: gather data before action.
+=> END
+
+~ hud_objective_no_tracker_a
+Tux: I cannot read an objective tracker from here.
+Tux: Use NPC dialogue as your temporary mission log.
+=> END
+
+~ hud_objective_no_tracker_b
+Tux: Quest signal is unclear.
+Tux: Re-anchor by talking to key NPCs and checking your journal flow.
+=> END
+
+~ hud_objective_no_active_a
+Tux: No active quest is currently pinned.
+Tux: Your next step is likely hidden behind a conversation trigger.
+=> END
+
+~ hud_objective_no_active_b
+Tux: Tracker looks clean right now.
+Tux: That usually means someone nearby has your next objective.
+=> END
+
+~ hud_objective_ready_a
+Tux: You have a quest ready to check complete.
+Tux: Confirm it now to unlock the next branch.
+=> END
+
+~ hud_objective_ready_b
+Tux: One of your objectives is already finishable.
+Tux: Cash it in before collecting new noise.
+=> END
+
+~ hud_objective_active_a
+Tux: You have an active quest chain in progress.
+Tux: Stay on that thread until the checkpoint closes.
+=> END
+
+~ hud_objective_active_b
+Tux: Keep focus on your current objective.
+Tux: Progress compounds when you finish one chain at a time.
+=> END
+
+~ hud_world_momentum_a
+Tux: You have real momentum now.
+Tux: Major blockers are falling; push high-value objectives while the path is warm.
+=> END
+
+~ hud_world_momentum_b
+Tux: System state is opening up in your favor.
+Tux: Convert this momentum into a major unlock.
+=> END
+
+~ hud_world_forest_key_a
+Tux: Forest proficiency is online.
+Tux: Find the missing fragmented link and the route should stabilize.
+=> END
+
+~ hud_world_forest_key_b
+Tux: You unlocked forest systems but one chain is still incomplete.
+Tux: Hunt the fragment and close that gap.
+=> END
+
+~ hud_world_gatepass_a
+Tux: Gatekeeper pass is confirmed.
+Tux: Your next leverage point is deeper access progression.
+=> END
+
+~ hud_world_gatepass_b
+Tux: Passage is earned.
+Tux: Now turn that permission into meaningful territory control.
+=> END
+
+~ hud_world_default_a
+Tux: Linuxia is still shifting.
+Tux: Keep collecting context from people, logs, and outcomes.
+=> END
+
+~ hud_world_default_b
+Tux: World state is open-ended right now.
+Tux: Dialogue clues are your fastest compass.
+=> END
+
+~ hud_tone_good_a
+Tux: Your choices are building trust.
+Tux: Keep leading with discipline and people will back you.
+=> END
+
+~ hud_tone_good_b
+Tux: You are earning goodwill across the map.
+Tux: That opens better doors than force ever will.
+=> END
+
+~ hud_tone_evil_a
+Tux: Your actions are being noticed.
+Tux: Expect resistance, tighter reactions, and fewer second chances.
+=> END
+
+~ hud_tone_evil_b
+Tux: Fear can move systems quickly.
+Tux: But it always leaves debt behind you.
+=> END
+
+~ hud_tone_neutral_a
+Tux: Stay balanced.
+Tux: Read, think, then act.
+=> END
+
+~ hud_tone_neutral_b
+Tux: Your path is still flexible.
+Tux: Next choices can tilt Linuxia in either direction.
+=> END
+
+~ hud_shop_hint_a
+Tux: Open TERMINAL, then type: shop
+Tux: That opens the skill graph where wget unlock commands are listed.
+=> END
+
+~ hud_shop_hint_b
+Tux: The shop is terminal-driven here.
+Tux: Use shop, then copy the wget unlock command for the skill you want.
+=> END
+
+~ hud_shop_ready_a
+Tux: Your shop loop is online.
+Tux: Keep using shop as your upgrade map before hard fights.
+=> END
+
+~ hud_shop_ready_b
+Tux: You already unlocked core terminal upgrades.
+Tux: Recheck shop between encounters to plan your next skill path.
+=> END

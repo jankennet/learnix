@@ -90,6 +90,7 @@ var _zone_crit_start: float = 0.0
 var _zone_crit_end: float = 0.0
 var _zone_norm_left_start: float = 0.0
 var _zone_norm_right_end: float = 0.0
+var force_critical_only: bool = false
 
 # Stored bar position for debug
 var _bar_container_x: float = 0.0
@@ -211,6 +212,43 @@ func _build_ui() -> void:
 	bar_rect.position = Vector2.ZERO
 	bar_rect.size = Vector2(scaled_bar_width, scaled_bar_height)
 	bar_container.add_child(bar_rect)
+
+	if force_critical_only:
+		_zone_norm_left_start = 0.0
+		_zone_crit_start = 0.0
+		_zone_crit_end = 1.0
+		_zone_norm_right_end = 1.0
+		bar_rect.color = Color(0.18, 0.62, 0.18, 0.95)
+
+		critical_zone_rect = ColorRect.new()
+		critical_zone_rect.name = "CriticalZone"
+		critical_zone_rect.color = critical_color
+		critical_zone_rect.position = Vector2.ZERO
+		critical_zone_rect.size = Vector2(scaled_bar_width, scaled_bar_height)
+		bar_container.add_child(critical_zone_rect)
+
+		indicator_rect = ColorRect.new()
+		indicator_rect.name = "Indicator"
+		indicator_rect.color = indicator_color
+		indicator_rect.size = Vector2(max(indicator_width * ui_scale, 4.0), scaled_bar_height + 16.0 * ui_scale)
+		indicator_rect.position = Vector2(-indicator_rect.size.x / 2.0, -8.0 * ui_scale)
+		bar_container.add_child(indicator_rect)
+
+		set_meta("bar_x", 0.0)
+		set_meta("bar_container", bar_container)
+
+		content_y += scaled_bar_height + 20.0 * ui_scale
+
+		timer_label = Label.new()
+		timer_label.name = "TimerLabel"
+		timer_label.text = "4.0"
+		timer_label.position = Vector2(panel_x + 10.0 * ui_scale, content_y)
+		timer_label.size = Vector2(panel_width - 20.0 * ui_scale, 25.0 * ui_scale)
+		timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		timer_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+		timer_label.add_theme_font_size_override("font_size", int(16 * ui_scale))
+		add_child(timer_label)
+		return
 
 	# Calculate zone sizes (apply difficulty modifier for visual match with hit detection)
 	var adjusted_crit: float = critical_zone_percent / difficulty_modifier
@@ -451,6 +489,11 @@ func set_zone_sizes(critical_percent: float, normal_percent: float) -> void:
 	normal_zone_percent = clampf(normal_percent, 0.05, 0.4)
 	if is_active:
 		_update_zone_sizes()
+
+func set_force_critical_only(enabled: bool) -> void:
+	force_critical_only = enabled
+	if is_active:
+		_update_zone_sizes()
 #endregion
 
 #region Internal Methods
@@ -480,6 +523,8 @@ func _complete_timing(forced_miss: bool) -> void:
 	
 	if forced_miss:
 		result.zone = ZoneType.MISS
+	elif force_critical_only:
+		result.zone = ZoneType.CRITICAL
 	else:
 		result.zone = _get_zone_at_position(detection_pos)
 	
@@ -501,6 +546,8 @@ func _complete_timing(forced_miss: bool) -> void:
 	_show_result_feedback(result)
 
 func _get_zone_at_position(pos: float) -> ZoneType:
+	if force_critical_only:
+		return ZoneType.CRITICAL
 	# Calculate zone boundaries using the same logic as visual zones
 	# pos is normalized 0.0-1.0
 	

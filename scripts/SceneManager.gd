@@ -53,13 +53,16 @@ const SCENE_MUSIC_MAP := {
 
 # Grouped to prevent typos when saving/loading
 const PERSISTED_STATE_KEYS := [
+	"data_bits",
 	"player_karma", "npc_states", "interacted_npcs", "met_messy_directory", 
 	"met_elder_shell", "met_broken_installer", "met_lost_file", "helped_lost_file", 
 	"deleted_lost_file", "met_gate_keeper", "proficiency_key_forest", "proficiency_key_printer", 
 	"broken_link_fragmented_key", "gatekeeper_pass_granted", "met_hardware_ghost", 
 	"met_driver_remnant", "met_printer_boss", "driver_remnant_defeated", "printer_beast_defeated", 
 	"sudo_token_driver_remnant", "deamon_depths_boss_door_unlocked", "deamon_depths_printer_intro_played", 
-	"sage_has_many_quests", "sage_boss_only_progress", "sage_quiz_tier", "sage_quiz_fail_count", "sage_force_combat"
+	"sage_has_many_quests", "sage_boss_only_progress", "sage_quiz_tier", "sage_quiz_fail_count", "sage_force_combat",
+	"cli_history_unlocked", "teleport_unlocked", "file_explorer_unlocked", "mkdir_construct_unlocked",
+	"taskkill_unlocked", "sudo_privilege_unlocked", "potion_patch_unlocked", "potion_overclock_unlocked", "potion_hardening_unlocked"
 ]
 
 @export var player_scene_path: String = "res://Scenes/Player/player.tscn"
@@ -68,10 +71,13 @@ var _bg_music_player: AudioStreamPlayer = null
 var _current_music_key: String = ""
 
 # --- Game State ---
+var data_bits: int = 0
 var player_karma: String = "neutral"
 var npc_states: Dictionary = {}
 var interacted_npcs: Dictionary = {}
 var input_locked: bool = false
+
+signal data_bits_changed(total: int, delta: int, source: String)
 
 # Dialogue flags
 var met_messy_directory: bool = false
@@ -100,6 +106,17 @@ var sage_boss_only_progress: bool = false
 var sage_quiz_tier: String = "intermediate"
 var sage_quiz_fail_count: int = 0
 var sage_force_combat: bool = false
+
+# Terminal skill unlock flags
+var cli_history_unlocked: bool = false
+var teleport_unlocked: bool = false
+var file_explorer_unlocked: bool = false
+var mkdir_construct_unlocked: bool = false
+var taskkill_unlocked: bool = false
+var sudo_privilege_unlocked: bool = false
+var potion_patch_unlocked: bool = false
+var potion_overclock_unlocked: bool = false
+var potion_hardening_unlocked: bool = false
 
 # Systems
 var quest_manager: QuestManager
@@ -381,6 +398,7 @@ func _deserialize_transform(data: Dictionary) -> Transform3D:
 
 func _reset_runtime_state() -> void:
 	player = null
+	data_bits = 0
 	player_karma = "neutral"
 	npc_states.clear()
 	interacted_npcs.clear()
@@ -412,6 +430,15 @@ func _reset_runtime_state() -> void:
 	sage_quiz_tier = "intermediate"
 	sage_quiz_fail_count = 0
 	sage_force_combat = false
+	cli_history_unlocked = false
+	teleport_unlocked = false
+	file_explorer_unlocked = false
+	mkdir_construct_unlocked = false
+	taskkill_unlocked = false
+	sudo_privilege_unlocked = false
+	potion_patch_unlocked = false
+	potion_overclock_unlocked = false
+	potion_hardening_unlocked = false
 
 	_reset_quest_progress()
 	_clear_persistent_meta()
@@ -517,6 +544,22 @@ func mark_npc_interacted(npc_name: String) -> bool:
 		emit_signal("npc_first_interacted", npc_name)
 
 	return first_time
+
+func award_data_bits(amount: int, source: String = "") -> int:
+	if amount <= 0:
+		return data_bits
+	data_bits += amount
+	emit_signal("data_bits_changed", data_bits, amount, source)
+	return data_bits
+
+func spend_data_bits(amount: int, source: String = "") -> bool:
+	if amount <= 0:
+		return true
+	if data_bits < amount:
+		return false
+	data_bits -= amount
+	emit_signal("data_bits_changed", data_bits, -amount, source)
+	return true
 
 func has_interacted_with_npc(npc_name: String) -> bool:
 	return bool(interacted_npcs.get(npc_name, false))

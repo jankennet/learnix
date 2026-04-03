@@ -92,7 +92,7 @@ func _run_tutorial() -> void:
 	_show_hint_card(
 		"Tux Boot Sequence",
 		"Welcome to Linuxia onboarding.\nFollow each checkpoint and keep your eyes on prompts.",
-		"Press [E] to continue in dialogue"
+		"Press [E] or LMB to continue in dialogue"
 	)
 	await _show_dialogue("wake_up", [self])
 	await _section_pause(0.2)

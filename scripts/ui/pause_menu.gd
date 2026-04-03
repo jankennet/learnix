@@ -453,7 +453,14 @@ func _close_graphics_menu() -> void:
 func _active_menu_items() -> Array[String]:
 	if in_graphics_menu:
 		return _build_graphics_menu_items()
-	return SETTINGS_ITEMS if in_settings_menu else MENU_ITEMS
+	if in_settings_menu:
+		return SETTINGS_ITEMS
+	
+	# Filter menu items based on unlock status
+	var active_items := MENU_ITEMS.duplicate()
+	if not _is_file_explorer_unlocked():
+		active_items.erase("FILE EXPLORER")
+	return active_items
 
 func _build_graphics_menu_items() -> Array[String]:
 	var resolution :Vector2i = RESOLUTION_OPTIONS[graphics_resolution_index]
@@ -464,6 +471,11 @@ func _build_graphics_menu_items() -> Array[String]:
 		"APPLY",
 		"GO BACK"
 	]
+
+func _is_file_explorer_unlocked() -> bool:
+	if not has_node("/root/SceneManager") or not SceneManager:
+		return false
+	return SceneManager.get("file_explorer_unlocked") == true
 
 func _adjust_graphics_option(direction: int) -> void:
 	match selected_index:
@@ -577,6 +589,8 @@ func _open_in_game_file_explorer() -> void:
 
 func open_file_explorer_from_main_ui() -> void:
 	if _is_title_scene_active():
+		return
+	if not _is_file_explorer_unlocked():
 		return
 
 	visible = true

@@ -108,6 +108,9 @@ var _npc_visual_material: ShaderMaterial = null
 var _objective_crack_material: ShaderMaterial = null
 var _objective_crack_hole_texture: Texture2D = null
 var _npc_texture_cache: Dictionary = {}
+var _command_history: Array[String] = []
+var _history_index := -1
+var _history_draft := ""
 
 func _ready() -> void:
 	if not get_viewport().size_changed.is_connected(_on_viewport_resized):
@@ -404,6 +407,22 @@ func _show_queued_reward_popup() -> void:
 #region Signal Handlers
 
 # Use _unhandled_input instead of _input so GUI controls (LineEdit) process events first
+func _input(event: InputEvent) -> void:
+	if not is_open or not command_input or not command_input.has_focus():
+		return
+	
+	# Intercept UP/DOWN keys for history navigation before LineEdit processes them
+	if event is InputEventKey and event.pressed:
+		var key_event := event as InputEventKey
+		if key_event.keycode == KEY_UP:
+			_navigate_command_history(-1)
+			get_viewport().set_input_as_handled()
+			return
+		if key_event.keycode == KEY_DOWN:
+			_navigate_command_history(1)
+			get_viewport().set_input_as_handled()
+			return
+
 func _unhandled_input(event: InputEvent) -> void:
 	if not is_open:
 		return
@@ -424,6 +443,7 @@ func _on_command_submitted(text: String) -> void:
 		return
 
 	_track_player_attack_intent(text)
+	_push_command_history(text)
 	
 	# Echo command to terminal
 	_print_terminal("[color=#80f280]$ %s[/color]\n" % text)
@@ -432,6 +452,9 @@ func _on_command_submitted(text: String) -> void:
 	if command_input:
 		command_input.clear()
 		command_input.grab_focus()
+	
+	_history_index = -1
+	_history_draft = ""
 	
 	# Handle help command locally before routing to enemy
 	if text.strip_edges().to_lower() == "help" or text.strip_edges().to_lower() == "?":
@@ -1205,16 +1228,16 @@ func _make_visual_chip(text: String, color: Color, chip_size: Vector2 = Vector2(
 ## Called when combat manager requests the timing minigame
 func _on_timing_minigame_requested(command: CommandParser.CommandResult, difficulty: float) -> void:
 	if not timing_minigame:
+		var fallback_profile: Dictionary = {}
+		if combat_manager and combat_manager.has_method("get_timing_profile"):
+			fallback_profile = combat_manager.call("get_timing_profile") as Dictionary
 		# Fallback: if no minigame, complete with normal hit
 		if combat_manager and combat_manager.has_method("apply_timing_result"):
-			combat_manager.apply_timing_result(1, 1.0, false)
+			var fallback_zone := 2 if bool(fallback_profile.get("force_critical_only", false)) else 1
+			combat_manager.apply_timing_result(fallback_zone, 1.0, false)
 		return
 
 	await _show_timing_intro_tutorial_if_needed()
-	
-	# Print message in terminal
-	_print_terminal("\n[color=#f2e066]⚔️ TIMING CHALLENGE! Press SPACE at the right moment![/color]\n")
-	_print_terminal("[color=#aaaaaa]Command: %s[/color]\n" % command.raw_input)
 	
 	# Disable input while timing
 	if command_input:
@@ -1226,9 +1249,33 @@ func _on_timing_minigame_requested(command: CommandParser.CommandResult, difficu
 	
 	# Store that this is combat timing
 	_current_timing_context = "combat"
+	var timing_profile: Dictionary = {}
+	if combat_manager and combat_manager.has_method("get_timing_profile"):
+		timing_profile = combat_manager.call("get_timing_profile") as Dictionary
+	if timing_profile.is_empty():
+		timing_profile = {}
+
+	var prompt_text := "⚔️ TIMING CHALLENGE! Press SPACE at the right moment!"
+	if bool(timing_profile.get("force_critical_only", false)):
+		prompt_text = "⚔️ TASKKILL! Critical window only."
+	elif command.command_type == CommandParser.CommandType.DEFEND:
+		prompt_text = "🛡️ DEFEND! Press SPACE for a perfect guard."
+	elif command.command_type == CommandParser.CommandType.HEAL:
+		prompt_text = "💊 HEAL! Press SPACE to restore integrity."
+
+	if timing_profile.get("force_critical_only", false):
+		timing_minigame.set_force_critical_only(true)
+	else:
+		timing_minigame.set_force_critical_only(false)
+
+	if timing_profile.has("critical_zone_percent") and timing_profile.has("normal_zone_percent"):
+		timing_minigame.set_zone_sizes(float(timing_profile.get("critical_zone_percent", 0.12)), float(timing_profile.get("normal_zone_percent", 0.22)))
 	
 	# Start the timing minigame
-	timing_minigame.start_timing(TimingMinigame.TimingContext.COMBAT, difficulty)
+	_print_terminal("\n[color=#f2e066]%s[/color]\n" % prompt_text)
+	_print_terminal("[color=#aaaaaa]Command: %s[/color]\n" % command.raw_input)
+	var custom_instruction := String(timing_profile.get("instruction", ""))
+	timing_minigame.start_timing(TimingMinigame.TimingContext.COMBAT, difficulty, custom_instruction)
 
 ## Start timing-bar minigame for puzzle steps before final compile
 func _start_puzzle_timing_minigame(difficulty: float) -> void:
@@ -1897,5 +1944,139 @@ func _get_npc_visual_texture(enemy_key: String, state: String) -> Texture2D:
 	if texture:
 		_npc_texture_cache[cache_key] = texture
 	return texture
+
+## History Helper Functions
+
+func _get_combat_history() -> Array:
+	"""Returns an array of all combat events for display in history."""
+	if not combat_manager:
+		return []
+	
+	var history: Array = []
+	# Collect from combat_data if available
+	if "combat_history" in combat_manager:
+		history = combat_manager.combat_history.duplicate()
+	
+	return history
+
+func _add_to_history(event_data: Dictionary) -> void:
+	"""Adds an event to combat history."""
+	if not combat_manager:
+		return
+	
+	if not "combat_history" in combat_manager:
+		combat_manager.combat_history = []
+	
+	# Ensure event_data has timestamp
+	if not "timestamp" in event_data:
+		event_data["timestamp"] = Time.get_ticks_msec()
+	
+	combat_manager.combat_history.append(event_data)
+
+func _clear_combat_history() -> void:
+	"""Clears the combat history."""
+	if not combat_manager:
+		return
+	
+	if "combat_history" in combat_manager:
+		combat_manager.combat_history.clear()
+
+func _get_history_entry_text(entry: Dictionary) -> String:
+	"""Formats a history entry for display."""
+	var event_type: String = entry.get("type", "unknown")
+	var text: String = ""
+	
+	match event_type:
+		"attack":
+			var attacker = entry.get("attacker", "Unknown")
+			var target = entry.get("target", "Unknown")
+			var damage = entry.get("damage", 0)
+			text = "%s attacked %s for %s damage" % [attacker, target, damage]
+		
+		"heal":
+			var healer = entry.get("healer", "Unknown")
+			var amount = entry.get("amount", 0)
+			text = "%s healed for %s" % [healer, amount]
+		
+		"puzzle_solved":
+			var puzzle_name = entry.get("puzzle_name", "Unknown Puzzle")
+			text = "Puzzle solved: %s" % puzzle_name
+		
+		"enemy_defeated":
+			var enemy_name = entry.get("enemy_name", "Unknown Enemy")
+			text = "Defeated: %s" % enemy_name
+		
+		"turn_started":
+			var turn_number = entry.get("turn", 0)
+			var current_player = entry.get("player_turn", false)
+			text = "Turn %d - %s's turn" % [turn_number, "Player" if current_player else "Enemy"]
+		
+		"status_applied":
+			var status = entry.get("status", "Unknown")
+			var target = entry.get("target", "Unknown")
+			text = "%s affected by %s" % [target, status]
+		
+		_:
+			text = entry.get("message", "Unknown event")
+	
+	return text
+
+func _filter_history_by_type(event_type: String) -> Array:
+	"""Returns history entries of a specific type."""
+	var history := _get_combat_history()
+	return history.filter(func(entry): return entry.get("type", "") == event_type)
+
+func _get_recent_history_entries(count: int = 5) -> Array:
+	"""Returns the most recent N history entries."""
+	var history := _get_combat_history()
+	if history.size() <= count:
+		return history
+	return history.slice(history.size() - count, history.size())
+
+## Command History Navigation
+
+func _push_command_history(command: String) -> void:
+	"""Adds a command to the command history."""
+	if command.is_empty():
+		return
+	
+	# Avoid duplicate consecutive commands
+	if not _command_history.is_empty() and _command_history[-1] == command:
+		return
+	
+	_command_history.append(command)
+	_history_index = -1
+	_history_draft = ""
+
+func _navigate_command_history(direction: int) -> void:
+	"""Navigate through command history.
+	direction: -1 for previous (up), 1 for next (down)
+	"""
+	if _command_history.is_empty() or not command_input:
+		return
+	
+	# Save current input if we're at the end
+	if _history_index == -1:
+		_history_draft = command_input.text
+	
+	# Update index
+	var new_index := _history_index + direction
+	
+	# Clamp to valid range
+	if new_index < -1:
+		new_index = -1
+	elif new_index >= _command_history.size():
+		new_index = _command_history.size() - 1
+	
+	_history_index = new_index
+	
+	# Update input field
+	if _history_index == -1:
+		command_input.text = _history_draft
+	else:
+		command_input.text = _command_history[_history_index]
+	
+	# Move cursor to end
+	command_input.caret_column = command_input.text.length()
 	
 	#endregion

@@ -14,6 +14,14 @@ signal quest_failed(quest_id: String)
 signal quest_updated(quest_id: String)
 signal quest_ready_to_check(quest_id: String)
 
+const DEFAULT_QUEST_DATA_BITS := 20
+const QUEST_DATA_BIT_REWARDS := {
+	"find_lost_file": 25,
+	"broken_link_puzzle": 30,
+	"drivers_den_cleanup": 35,
+	"gatekeeper_proficiency": 50,
+}
+
 ## Register a new quest in the system
 func register_quest(quest: Quest) -> void:
 	if quest.quest_id in quests:
@@ -47,6 +55,8 @@ func complete_quest(quest_id: String, force: bool = false) -> void:
 		return
 	
 	var quest = quests[quest_id]
+	if String(quest.status) == "completed":
+		return
 	if not force and String(quest.status) == "active":
 		pending_completion[quest_id] = true
 		print("📝 Quest ready to check: %s" % quest.quest_name)
@@ -59,6 +69,8 @@ func complete_quest(quest_id: String, force: bool = false) -> void:
 	
 	if quest_id in active_quests:
 		active_quests.erase(quest_id)
+	
+	_award_completion_data_bits(quest_id)
 	
 	print("✅ Quest completed: %s" % quest.quest_name)
 	quest_completed.emit(quest_id)
@@ -184,3 +196,11 @@ func check_complete(quest_id: String) -> bool:
 	pending_completion.erase(quest_id)
 	quest_updated.emit(quest_id)
 	return true
+
+func _award_completion_data_bits(quest_id: String) -> void:
+	var reward := int(QUEST_DATA_BIT_REWARDS.get(quest_id, DEFAULT_QUEST_DATA_BITS))
+	if reward <= 0:
+		return
+	var scene_manager := get_node_or_null("/root/SceneManager")
+	if scene_manager and scene_manager.has_method("award_data_bits"):
+		scene_manager.call("award_data_bits", reward, "quest:%s" % quest_id)
