@@ -1,0 +1,95 @@
+extends CanvasLayer
+
+signal finished
+
+@export var message: String = ""
+@export var hold_duration: float = 2.8
+@export var start_black_immediately: bool = true
+@export var fade_in_duration: float = 0.2
+@export var fade_out_duration: float = 0.2
+
+@onready var _background: ColorRect = get_node_or_null("Background") as ColorRect
+@onready var _message_label: Label = get_node_or_null("Message") as Label
+
+func _ready() -> void:
+	layer = 120
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	if _background:
+		_background.modulate.a = 1.0 if start_black_immediately else 0.0
+	if _message_label:
+		_message_label.modulate.a = 1.0 if start_black_immediately else 0.0
+
+func play(message_override: String = "", duration_override: float = -1.0) -> void:
+	if message_override != "":
+		message = message_override
+	if duration_override > 0.0:
+		hold_duration = duration_override
+	if _message_label:
+		_message_label.text = message
+
+	await _run_timeline()
+	finished.emit()
+
+func fade_in_and_hold(message_override: String = "", duration_override: float = -1.0) -> void:
+	if message_override != "":
+		message = message_override
+	if duration_override > 0.0:
+		hold_duration = duration_override
+	if _message_label:
+		_message_label.text = message
+
+	if _background == null or _message_label == null:
+		await get_tree().create_timer(max(hold_duration, 0.1)).timeout
+		return
+
+	# Force a visible fade-in for scene transitions.
+	_background.modulate.a = 0.0
+	_message_label.modulate.a = 0.0
+
+	var fade_in := create_tween()
+	fade_in.tween_property(_background, "modulate:a", 1.0, max(fade_in_duration, 0.01))
+	fade_in.parallel().tween_property(_message_label, "modulate:a", 1.0, max(fade_in_duration, 0.01))
+	await fade_in.finished
+
+	await get_tree().create_timer(max(hold_duration, 0.1)).timeout
+
+func fade_out_only() -> void:
+	if _background == null or _message_label == null:
+		return
+
+	var fade_out := create_tween()
+	fade_out.tween_property(_message_label, "modulate:a", 0.0, max(fade_out_duration, 0.01))
+	fade_out.parallel().tween_property(_background, "modulate:a", 0.0, max(fade_out_duration, 0.01))
+	await fade_out.finished
+
+func play_teleport_transition(scene_path: String, spawn_name: String, message_override: String = "", duration_override: float = -1.0, teleport_delay: float = 0.5) -> void:
+	await fade_in_and_hold(message_override, duration_override)
+
+	var scene_manager := get_node_or_null("/root/SceneManager")
+	if scene_manager and scene_manager.has_method("teleport_to_scene"):
+		await scene_manager.teleport_to_scene(scene_path, spawn_name, teleport_delay)
+
+	await fade_out_only()
+	finished.emit()
+	queue_free()
+
+func _run_timeline() -> void:
+	if _background == null or _message_label == null:
+		await get_tree().create_timer(max(hold_duration, 0.1)).timeout
+		return
+
+	if start_black_immediately:
+		_background.modulate.a = 1.0
+		_message_label.modulate.a = 1.0
+	else:
+		var tween := create_tween()
+		tween.tween_property(_background, "modulate:a", 1.0, max(fade_in_duration, 0.01))
+		tween.parallel().tween_property(_message_label, "modulate:a", 1.0, max(fade_in_duration, 0.01))
+		await tween.finished
+
+	await get_tree().create_timer(max(hold_duration, 0.1)).timeout
+
+	var fade_out := create_tween()
+	fade_out.tween_property(_message_label, "modulate:a", 0.0, max(fade_out_duration, 0.01))
+	fade_out.parallel().tween_property(_background, "modulate:a", 0.0, max(fade_out_duration, 0.01))
+	await fade_out.finished

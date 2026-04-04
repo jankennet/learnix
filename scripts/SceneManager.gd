@@ -11,6 +11,8 @@ const PLAYER_FOLLOW_TUX_NODE_NAME := "Tux"
 const WORLD_MAIN_SCENE_PATH := "res://Scenes/world_main.tscn"
 const MAIN_HUD_SCENE_PATH := "res://Scenes/ui/MainHUD.tscn"
 const QUEST_LIST_SCENE_PATH := "res://Scenes/ui/QuestList.tscn"
+const BIOS_VAULT_SCENE_PATH := "res://Scenes/Levels/bios_vault.tscn"
+const BIOS_VAULT_ALT_SCENE_PATH := "res://Scenes/Levels/bios_vault_.tscn"
 const TERMINAL_EXPLORED_META_KEY := "terminal_explored_locations"
 const BIOS_VAULT_SAGE_META_KEY := "bios_vault_sage_quiz_passed"
 const PENDING_REWARD_META_KEY := "pending_reward_popup_key"
@@ -264,6 +266,8 @@ func _load_game_from_data(save_data: Dictionary) -> void:
 
 	var active_player := _ensure_player_in_loaded_scene(new_scene)
 	if active_player:
+		if _is_bios_vault_scene(scene_path):
+			_hide_player_companion_tux(active_player)
 		active_player.global_transform = _deserialize_transform(save_data.get("player_transform", {}))
 		player = active_player
 		var cam = active_player.get_node_or_null("Camera3D")
@@ -634,6 +638,7 @@ func _ensure_player() -> CharacterBody3D:
 func _apply_spawn_transform(transfer_node: Node, active_player: CharacterBody3D, spawn_transform: Transform3D) -> void:
 	var yaw := spawn_transform.basis.get_euler().y
 	var target_player_transform := Transform3D(Basis(Vector3.UP, yaw), spawn_transform.origin)
+	target_player_transform = _resolve_safe_spawn_transform(active_player, target_player_transform)
 
 	if transfer_node == active_player:
 		active_player.global_transform = target_player_transform
@@ -647,6 +652,67 @@ func _apply_spawn_transform(transfer_node: Node, active_player: CharacterBody3D,
 		return
 
 	active_player.global_transform = target_player_transform
+
+func _resolve_safe_spawn_transform(active_player: CharacterBody3D, desired_transform: Transform3D) -> Transform3D:
+	if active_player == null:
+		return desired_transform
+
+	var resolved := desired_transform
+	var space_state := active_player.get_world_3d().direct_space_state
+	if space_state == null:
+		return resolved
+
+	var floor_clearance := _player_floor_clearance(active_player)
+	var ray_start := desired_transform.origin + Vector3.UP * 8.0
+	var ray_end := desired_transform.origin - Vector3.UP * 40.0
+	var query := PhysicsRayQueryParameters3D.create(ray_start, ray_end)
+	query.exclude = [active_player]
+	var hit := space_state.intersect_ray(query)
+	if not hit.is_empty() and hit.has("position"):
+		resolved.origin.y = (hit.position as Vector3).y + floor_clearance + 0.05
+
+	# If still overlapping after floor snap, nudge upward until clear.
+	var attempts := 0
+	while attempts < 10 and active_player.test_move(resolved, Vector3.ZERO):
+		resolved.origin.y += 0.1
+		attempts += 1
+
+	return resolved
+
+func _player_floor_clearance(active_player: CharacterBody3D) -> float:
+	var min_bottom := 0.0
+	var found_shape := false
+
+	for child in active_player.get_children():
+		if not (child is CollisionShape3D):
+			continue
+		var collision := child as CollisionShape3D
+		if collision.shape == null:
+			continue
+
+		var half_height := 0.5
+		if collision.shape is CapsuleShape3D:
+			var capsule := collision.shape as CapsuleShape3D
+			half_height = capsule.radius + (capsule.height * 0.5)
+		elif collision.shape is BoxShape3D:
+			var box := collision.shape as BoxShape3D
+			half_height = box.size.y * 0.5
+		elif collision.shape is CylinderShape3D:
+			var cylinder := collision.shape as CylinderShape3D
+			half_height = cylinder.height * 0.5
+		elif collision.shape is SphereShape3D:
+			var sphere := collision.shape as SphereShape3D
+			half_height = sphere.radius
+
+		var local_bottom := collision.transform.origin.y - half_height
+		if not found_shape or local_bottom < min_bottom:
+			min_bottom = local_bottom
+			found_shape = true
+
+	if not found_shape:
+		return 0.6
+
+	return max(0.2, -min_bottom)
 
 # 🌀 Universal teleport (with loading screen + NPC refresh)
 func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.0) -> void:
@@ -663,6 +729,8 @@ func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.
 		return
 
 	var transfer_node := _get_player_transfer_root(active_player)
+	if _is_bios_vault_scene(scene_path):
+		_hide_player_companion_tux(active_player)
 	var persistent_ui := _extract_persistent_ui(current_scene)
 
 	var loading_ui = await _show_loading_screen(scene_path, spawn_name)
@@ -746,6 +814,35 @@ func _extract_persistent_ui(scene: Node) -> Node:
 		return ui_node
 	return null
 
+func _is_bios_vault_scene(scene_path: String) -> bool:
+	return scene_path == BIOS_VAULT_SCENE_PATH or scene_path == BIOS_VAULT_ALT_SCENE_PATH
+
+func _hide_player_companion_tux(active_player: CharacterBody3D) -> void:
+	if active_player == null:
+		return
+
+	var player_root := active_player.get_parent()
+	if player_root:
+		var sibling_tux := player_root.find_child(PLAYER_FOLLOW_TUX_NODE_NAME, true, false)
+		if sibling_tux is Node3D:
+			_hide_tux_node(sibling_tux as Node3D)
+
+	for child in active_player.find_children("*", "Node3D", true, false):
+		if not (child is Node3D):
+			continue
+		var node := child as Node3D
+		if not node.name.to_lower().contains("tux"):
+			continue
+		_hide_tux_node(node)
+
+func _hide_tux_node(node: Node3D) -> void:
+	node.visible = false
+	node.set_process(false)
+	node.set_physics_process(false)
+	if node is CollisionObject3D:
+		(node as CollisionObject3D).collision_layer = 0
+		(node as CollisionObject3D).collision_mask = 0
+
 func _bind_terrain_camera_for_scene(scene: Node, camera_node: Node) -> void:
 	if scene == null:
 		return
@@ -789,11 +886,13 @@ func start_new_game(scene_path: String) -> void:
 
 	var active_player := _ensure_player_in_loaded_scene(new_scene)
 	if active_player:
+		if _is_bios_vault_scene(scene_path):
+			_hide_player_companion_tux(active_player)
 		var spawn_path: String = LEVEL_DEFAULT_SPAWNS.get(scene_path, "")
 		if spawn_path != "":
 			var spawn_point := new_scene.get_node_or_null(spawn_path)
 			if spawn_point:
-				active_player.global_position = spawn_point.global_position
+				_apply_spawn_transform(_get_player_transfer_root(active_player), active_player, spawn_point.global_transform)
 		player = active_player
 		_attach_tutorial_controller(new_scene, active_player, scene_path)
 		var cam = active_player.get_node_or_null("Camera3D")

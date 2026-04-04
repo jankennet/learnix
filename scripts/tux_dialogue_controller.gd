@@ -320,8 +320,58 @@ func show_world_hint_from_hud() -> void:
 		_show_tux_line("I am online. Explore Linuxia and check your active quests for your next move.")
 		return
 
+	if _is_bios_vault_scene_active():
+		_hud_dialogue_busy = true
+		call_deferred("_run_bios_vault_missing_tux_dialogue")
+		return
+
+	if _is_proprietary_citadel_scene_active():
+		_hud_dialogue_busy = true
+		call_deferred("_run_proprietary_tux_ahead_dialogue")
+		return
+
 	_hud_dialogue_busy = true
 	call_deferred("_run_hud_dialogue_session")
+
+func _run_bios_vault_missing_tux_dialogue() -> void:
+	var dialogue := _get_hud_dialogue_resource()
+	if dm == null or dialogue == null:
+		_hud_dialogue_busy = false
+		return
+
+	dm.show_dialogue_balloon(dialogue, "hud_bios_tux_missing", [self])
+	if dm.has_signal("dialogue_ended"):
+		await dm.dialogue_ended
+
+	_hud_dialogue_busy = false
+
+func _run_proprietary_tux_ahead_dialogue() -> void:
+	var dialogue := _get_hud_dialogue_resource()
+	if dm == null or dialogue == null:
+		_hud_dialogue_busy = false
+		return
+
+	dm.show_dialogue_balloon(dialogue, "hud_proprietary_tux_ahead", [self])
+	if dm.has_signal("dialogue_ended"):
+		await dm.dialogue_ended
+
+	_hud_dialogue_busy = false
+
+func _is_bios_vault_scene_active() -> bool:
+	var current_scene := get_tree().current_scene
+	if current_scene == null:
+		return false
+
+	var scene_path := String(current_scene.scene_file_path)
+	return scene_path == "res://Scenes/Levels/bios_vault.tscn" or scene_path == "res://Scenes/Levels/bios_vault_.tscn"
+
+func _is_proprietary_citadel_scene_active() -> bool:
+	var current_scene := get_tree().current_scene
+	if current_scene == null:
+		return false
+
+	var scene_path := String(current_scene.scene_file_path)
+	return scene_path == "res://Scenes/Levels/proprietary_citadel.tscn"
 
 func _get_hud_dialogue_resource() -> Resource:
 	if _hud_dialogue_resource != null:

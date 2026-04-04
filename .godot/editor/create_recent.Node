@@ -1,7 +1,8 @@
+CollisionShape3D
+Area3D
 Sprite2D
 TextureRect
 AnimatedSprite3D
-CollisionShape3D
 CharacterBody3D
 Node3D
 StaticBody3D
@@ -11,4 +12,3 @@ Marker3D
 MeshInstance3D
 Camera3D
 CSGCylinder3D
-CSGCombiner3D

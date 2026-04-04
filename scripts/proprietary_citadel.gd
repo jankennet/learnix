@@ -3,7 +3,6 @@ extends Node3D
 
 @export var good_karma_sky_color: Color = Color(0.1, 0.5, 1.0, 1.0)  # Bright blue
 @export var bad_karma_env_color: Color = Color(0.3, 0.3, 0.4, 1.0)   # Dark gray/slate
-@export var neutral_karma_sky_color: Color = Color(0.5, 0.5, 0.6, 1.0)  # Neutral gray
 
 var world_environment: WorldEnvironment
 var environment: Environment
@@ -20,14 +19,13 @@ func _apply_karma_sky() -> void:
 		return
 	
 	var karma = SceneManager.player_karma if SceneManager else "neutral"
-	
-	match karma:
-		"good":
-			_set_bright_blue_sky()
-		"bad":
-			_set_dark_sky()
-		_:
-			_set_neutral_sky()
+
+	# Proprietary Citadel has two intended moods in this arc:
+	# high karma => sunny; anything else => dark/genocide tone.
+	if karma == "good":
+		_set_bright_blue_sky()
+	else:
+		_set_dark_sky()
 
 func _set_bright_blue_sky() -> void:
 	"""Set a bright blue sky for good karma"""
@@ -53,13 +51,3 @@ func _set_dark_sky() -> void:
 	environment.ambient_light_color = Color(0.7, 0.7, 0.7)
 	environment.ambient_light_energy = 0.6
 
-func _set_neutral_sky() -> void:
-	"""Set a neutral gray sky for neutral karma"""
-	if not environment:
-		return
-	
-	environment.background_mode = Environment.BG_COLOR
-	environment.background_color = neutral_karma_sky_color
-	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = Color(0.8, 0.8, 0.8)
-	environment.ambient_light_energy = 0.8

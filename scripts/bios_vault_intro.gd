@@ -5,6 +5,11 @@ extends Node3D
 @export var sage_reveal_duration: float = 2.2
 @export var sage_combat_encounter_id: String = "printer_beast"
 @export var bios_vault_camera_path: NodePath = "Camera3D"
+@export var pre_citadel_cutscene_duration: float = 4.0
+
+const PROPRIETARY_CITADEL_SCENE_PATH := "res://Scenes/Levels/proprietary_citadel.tscn"
+const PROPRIETARY_CITADEL_SPAWN := "Spawn_BVTPC"
+const BLACK_TEXT_CUTSCENE_SCENE := preload("res://Scenes/ui/black_text_cutscene.tscn")
 
 var _intro_playing: bool = false
 var _sage_combat_started: bool = false
@@ -16,6 +21,7 @@ var _vault_camera: Camera3D = null
 var _sage_area_intro: Area3D = null
 var _sage_area_triggered: bool = false
 var _sage_encounter_controller: Node = null
+var _citadel_transition_started: bool = false
 
 var _quiz_question_order: Array = []
 var _quiz_current_index: int = 0
@@ -235,6 +241,8 @@ func mark_sage_quiz_passed() -> void:
 		if tux_ctrl and tux_ctrl.has_method("on_sage_quiz_passed"):
 			tux_ctrl.call("on_sage_quiz_passed")
 
+	call_deferred("_begin_post_sage_transition", "puzzle_solved")
+
 func reset_sage_quiz_attempts() -> void:
 	if SceneManager:
 		SceneManager.sage_quiz_fail_count = 0
@@ -323,18 +331,58 @@ func _on_sage_encounter_ended(method: String) -> void:
 	# method can be: "combat_victory", "puzzle_solved", or "fled"
 	
 	if method in ["combat_victory", "puzzle_solved"]:
-		# Player cleared the sage encounter - transition to proprietary citadel
+		_begin_post_sage_transition(method)
+
+func _begin_post_sage_transition(method: String) -> void:
+	if _citadel_transition_started:
+		return
+
+	_citadel_transition_started = true
+
+	# Player cleared the sage encounter - transition to proprietary citadel
+	if SceneManager:
+		SceneManager.input_locked = true
+
+	_start_persistent_citadel_transition(method)
+
+func _start_persistent_citadel_transition(method: String) -> void:
+	var cutscene_text := _get_pre_citadel_text(method)
+	if cutscene_text.is_empty():
 		if SceneManager:
-			SceneManager.input_locked = true
-		
-		# Wait a brief moment for any UI cleanup
-		await get_tree().create_timer(1.0).timeout
-		
-		# Transition to the citadel
-		var citadel_scene_path := "res://Scenes/Levels/proprietary_citadel.tscn"
-		var spawn_point_name := "Spawn_BVTPC"
-		
+			SceneManager.teleport_to_scene(PROPRIETARY_CITADEL_SCENE_PATH, PROPRIETARY_CITADEL_SPAWN, 0.5)
+		return
+
+	var cutscene := BLACK_TEXT_CUTSCENE_SCENE.instantiate()
+	if cutscene == null:
 		if SceneManager:
-			await SceneManager.teleport_to_scene(citadel_scene_path, spawn_point_name, 0.5)
-		else:
-			get_tree().change_scene_to_file(citadel_scene_path)
+			SceneManager.teleport_to_scene(PROPRIETARY_CITADEL_SCENE_PATH, PROPRIETARY_CITADEL_SPAWN, 0.5)
+		return
+
+	get_tree().root.add_child(cutscene)
+
+	if cutscene.has_method("play_teleport_transition"):
+		cutscene.call_deferred(
+			"play_teleport_transition",
+			PROPRIETARY_CITADEL_SCENE_PATH,
+			PROPRIETARY_CITADEL_SPAWN,
+			cutscene_text,
+			max(pre_citadel_cutscene_duration, 8.0),
+			0.5
+		)
+	else:
+		if SceneManager:
+			SceneManager.teleport_to_scene(PROPRIETARY_CITADEL_SCENE_PATH, PROPRIETARY_CITADEL_SPAWN, 0.5)
+
+func _get_pre_citadel_text(method: String) -> String:
+	var high_karma := SceneManager and String(SceneManager.player_karma) == "good"
+	var killed_sage := method == "combat_victory"
+
+	if high_karma and not killed_sage:
+		return "You pass. Tux is waiting for you."
+	if high_karma and killed_sage:
+		return "I won... so why does it feel like I lost something?"
+	if not high_karma and killed_sage:
+		return "Tux is waiting for you."
+
+	# Fallback for any unhandled karma/outcome combination.
+	return "The path opens ahead. Tux is waiting for you."
