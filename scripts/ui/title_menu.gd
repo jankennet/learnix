@@ -47,10 +47,12 @@ var current_state := MenuState.MAIN
 var selected_index := 0
 var graphics_indices := {"mode": 0, "res": 2, "qual": 2}
 var hover_index := -1
+var quit_confirm_dialog: ConfirmationDialog = null
 
 # --- Initialization ---
 func _ready() -> void:
 	_set_global_ui_visibility(false)
+	_cleanup_gameplay_ui_artifacts()
 	logo_label.text = ASCII_LOGO
 	subtitle_label.text = "A LINUX BUILDER RPG"
 	
@@ -87,6 +89,7 @@ func _ready() -> void:
 				lbl.mouse_exited.connect(_on_main_label_mouse_exited.bind(i))
 
 	_update_menu_visuals()
+	_setup_quit_confirmation_dialog()
 
 func _setup_lists() -> void:
 	# Populate Settings
@@ -231,11 +234,44 @@ func _execute_main_selection(choice: String) -> void:
 			else:
 				get_tree().change_scene_to_file(WORLD_MAIN_SCENE)
 		"SETTINGS": _switch_to_settings()
-		"QUIT GAME": get_tree().quit()
+		"QUIT GAME": _request_desktop_quit_confirmation()
 		"CONTINUE": 
 			_set_global_ui_visibility(true)
 			if SceneManager and SceneManager.has_method("load_game"): 
 				SceneManager.load_game()
+
+func _setup_quit_confirmation_dialog() -> void:
+	quit_confirm_dialog = ConfirmationDialog.new()
+	quit_confirm_dialog.name = "TitleQuitConfirmDialog"
+	quit_confirm_dialog.process_mode = Node.PROCESS_MODE_ALWAYS
+	quit_confirm_dialog.exclusive = true
+	add_child(quit_confirm_dialog)
+	if not quit_confirm_dialog.confirmed.is_connected(_on_title_quit_confirmed):
+		quit_confirm_dialog.confirmed.connect(_on_title_quit_confirmed)
+
+func _request_desktop_quit_confirmation() -> void:
+	if quit_confirm_dialog == null:
+		return
+	quit_confirm_dialog.title = "Quit Game"
+	quit_confirm_dialog.dialog_text = "Quit to desktop?"
+	quit_confirm_dialog.ok_button_text = "Quit to Desktop"
+	quit_confirm_dialog.popup_centered(Vector2i(520, 160))
+
+func _on_title_quit_confirmed() -> void:
+	if quit_confirm_dialog:
+		quit_confirm_dialog.hide()
+	get_tree().quit()
+
+func _cleanup_gameplay_ui_artifacts() -> void:
+	for node_path in ["/root/QuestSideButton", "/root/QuestWindow", "/root/TerminalPanel", "/root/ControlsHelp", "/root/InteractionPrompt"]:
+		var node := get_node_or_null(node_path)
+		if node and node is CanvasItem:
+			(node as CanvasItem).visible = false
+
+	# PauseMenu is autoloaded; ensure it is visually dismissed when title opens.
+	var pause_menu := get_node_or_null("/root/PauseMenu")
+	if pause_menu and pause_menu.has_method("_resume_game"):
+		pause_menu.call("_resume_game")
 
 func _execute_settings_selection() -> void:
 	var selected = settings_list.get_selected_items()
@@ -254,12 +290,7 @@ func _execute_settings_selection() -> void:
 		"CONTROLS":
 			current_state = MenuState.OTHER_PANEL
 			settings_list.hide()
-			# Prefer the global ControlsHelp overlay if present
-			var ch = get_node_or_null("/root/ControlsHelp")
-			if ch:
-				ch.show()
-			else:
-				panels[0].show()
+			panels[0].show()
 		"SOUND":
 			current_state = MenuState.OTHER_PANEL
 			settings_list.hide()

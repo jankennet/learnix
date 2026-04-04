@@ -14,6 +14,7 @@ const QUEST_LIST_SCENE_PATH := "res://Scenes/ui/QuestList.tscn"
 const TERMINAL_EXPLORED_META_KEY := "terminal_explored_locations"
 const BIOS_VAULT_SAGE_META_KEY := "bios_vault_sage_quiz_passed"
 const PENDING_REWARD_META_KEY := "pending_reward_popup_key"
+const SKILL_UNLOCK_RECEIPTS_META_KEY := "skill_unlock_receipts"
 
 const LEVEL_DEFAULT_SPAWNS := {
 	"res://Scenes/Levels/tutorial - Copy.tscn": "Spawn_player",
@@ -49,6 +50,17 @@ const SCENE_MUSIC_MAP := {
 	"res://Scenes/Levels/bios_vault_.tscn": "bios_vault",
 	"res://Scenes/Levels/proprietary_citadel.tscn": "proprietary_citadel",
 	"res://Scenes/ui/title_menu.tscn": "title_screen",
+}
+
+const SCENE_DISPLAY_NAMES := {
+	"res://Scenes/Levels/tutorial - Copy.tscn": "Tutorial Boot",
+	"res://Scenes/Levels/fallback_hamlet.tscn": "Fallback Hamlet",
+	"res://Scenes/Levels/file_system_forest.tscn": "Filesystem Forest",
+	"res://Scenes/Levels/deamon_depths.tscn": "Deamon Depths",
+	"res://Scenes/Levels/bios_vault.tscn": "Bios Vault",
+	"res://Scenes/Levels/bios_vault_.tscn": "Bios Vault",
+	"res://Scenes/Levels/proprietary_citadel.tscn": "Proprietary Citadel",
+	"res://Scenes/ui/title_menu.tscn": "Title Screen",
 }
 
 # Grouped to prevent typos when saving/loading
@@ -151,6 +163,25 @@ func _ready() -> void:
 func has_save_game() -> bool:
 	return FileAccess.file_exists(SAVE_FILE_PATH)
 
+func get_save_summary() -> Dictionary:
+	if not has_save_game():
+		return {}
+
+	var save_data := _read_save_data()
+	if save_data.is_empty():
+		return {}
+
+	var scene_path := String(save_data.get("scene_path", ""))
+	var saved_at_unix := int(save_data.get("saved_at_unix", 0))
+	if saved_at_unix <= 0:
+		saved_at_unix = int(FileAccess.get_modified_time(SAVE_FILE_PATH))
+	return {
+		"scene_path": scene_path,
+		"location": _describe_scene_path(scene_path),
+		"saved_at_unix": saved_at_unix,
+		"saved_at_text": _format_unix_timestamp(saved_at_unix),
+	}
+
 func quick_save() -> bool:
 	return save_game()
 
@@ -238,6 +269,7 @@ func _load_game_from_data(save_data: Dictionary) -> void:
 		var cam = active_player.get_node_or_null("Camera3D")
 		if cam:
 			cam.current = true
+			_bind_terrain_camera_for_scene(new_scene, cam)
 	else:
 		push_warning("Loaded save without a valid player instance.")
 
@@ -261,11 +293,33 @@ func _build_save_data() -> Dictionary:
 	return {
 		"version": SAVE_FORMAT_VERSION,
 		"scene_path": scene_path,
+		"saved_at_unix": int(Time.get_unix_time_from_system()),
 		"player_transform": _serialize_transform(active_player.global_transform),
 		"state": _serialize_runtime_state(),
 		"quests": _serialize_quest_state(),
 		"meta": _serialize_persistent_meta(),
 	}
+
+func _describe_scene_path(scene_path: String) -> String:
+	if SCENE_DISPLAY_NAMES.has(scene_path):
+		return String(SCENE_DISPLAY_NAMES[scene_path])
+	if scene_path == "":
+		return "Unknown Area"
+	return scene_path.get_file().get_basename().replace("_", " ").capitalize()
+
+func _format_unix_timestamp(unix_ts: int) -> String:
+	if unix_ts <= 0:
+		return "Unknown time"
+	var dt := Time.get_datetime_dict_from_unix_time(unix_ts)
+	if dt.is_empty():
+		return "Unknown time"
+	return "%04d-%02d-%02d %02d:%02d" % [
+		int(dt.get("year", 0)),
+		int(dt.get("month", 0)),
+		int(dt.get("day", 0)),
+		int(dt.get("hour", 0)),
+		int(dt.get("minute", 0)),
+	]
 
 func _read_save_data() -> Dictionary:
 	var save_file := FileAccess.open(SAVE_FILE_PATH, FileAccess.READ)
@@ -364,6 +418,7 @@ func _persistent_meta_keys() -> Array[String]:
 		TERMINAL_EXPLORED_META_KEY,
 		BIOS_VAULT_SAGE_META_KEY,
 		PENDING_REWARD_META_KEY,
+		SKILL_UNLOCK_RECEIPTS_META_KEY,
 	]
 	for npc_name in npc_states.keys():
 		var combat_key := _combat_state_meta_key(String(npc_name))
@@ -656,6 +711,7 @@ func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.
 	var cam := active_player.get_node_or_null("Camera3D")
 	if cam:
 		cam.current = true
+		_bind_terrain_camera_for_scene(new_scene, cam)
 
 	_activate_scene_npcs(new_scene)
 
@@ -689,6 +745,24 @@ func _extract_persistent_ui(scene: Node) -> Node:
 	if ui_node and ui_node is CanvasLayer:
 		return ui_node
 	return null
+
+func _bind_terrain_camera_for_scene(scene: Node, camera_node: Node) -> void:
+	if scene == null:
+		return
+	if not (camera_node is Camera3D):
+		return
+	_assign_camera_to_terrain_recursive(scene, camera_node as Camera3D)
+
+func _assign_camera_to_terrain_recursive(node: Node, camera: Camera3D) -> void:
+	if node == null:
+		return
+
+	if node.get_class() == "Terrain3D" and node.has_method("set_camera"):
+		node.call("set_camera", camera)
+
+	for child in node.get_children():
+		if child is Node:
+			_assign_camera_to_terrain_recursive(child as Node, camera)
 
 func start_new_game(scene_path: String) -> void:
 	_reset_runtime_state()
@@ -725,6 +799,7 @@ func start_new_game(scene_path: String) -> void:
 		var cam = active_player.get_node_or_null("Camera3D")
 		if cam:
 			cam.current = true
+			_bind_terrain_camera_for_scene(new_scene, cam)
 	else:
 		push_warning("Failed to instantiate player for new game.")
 

@@ -113,6 +113,7 @@ const HINT_MESSAGES := {
 @onready var darken_overlay: CanvasItem = get_node_or_null("MenuRoot/DarkenOverlay") as CanvasItem
 @onready var pause_content_margin: CanvasItem = get_node_or_null("MenuRoot/ContentMargin") as CanvasItem
 @onready var menu_vbox: VBoxContainer = $MenuRoot/ContentMargin/MainColumn/MenuRow/MenuVBox
+@onready var key_hint_vbox: CanvasItem = get_node_or_null("MenuRoot/ContentMargin/MainColumn/MenuRow/KeyHintVBox") as CanvasItem
 @onready var menu_labels: Array[Label] = [
 	$MenuRoot/ContentMargin/MainColumn/MenuRow/MenuVBox/QuickSaveLabel,
 	$MenuRoot/ContentMargin/MainColumn/MenuRow/MenuVBox/LoadLabel,
@@ -142,6 +143,16 @@ var explorer_opened_from_main_ui := false
 var explorer_selected_folder := "Desktop"
 var explorer_dragging := false
 var explorer_last_mouse_global := Vector2.ZERO
+var hovered_index := -1
+
+var confirmation_dialog: ConfirmationDialog = null
+var confirmation_mode := ""
+var quit_main_menu_button: Button = null
+var controls_dialog: AcceptDialog = null
+var sound_dialog: AcceptDialog = null
+var sound_master_slider: HSlider = null
+var sound_music_slider: HSlider = null
+var sound_sfx_slider: HSlider = null
 
 var graphics_window_mode_index := 0
 var graphics_resolution_index := 2
@@ -183,6 +194,12 @@ func _ready() -> void:
 		explorer_file_list.item_activated.connect(_on_explorer_item_activated)
 	if explorer_top_bar:
 		explorer_top_bar.mouse_default_cursor_shape = Control.CURSOR_MOVE
+	if key_hint_vbox:
+		key_hint_vbox.visible = false
+	_setup_menu_label_mouse()
+	_setup_confirmation_dialog()
+	_setup_controls_dialog()
+	_setup_sound_dialog()
 	_update_menu_visuals()
 
 func _input(event: InputEvent) -> void:
@@ -202,19 +219,8 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo:
-		if _handle_letter_hotkey(event as InputEventKey):
-			get_viewport().set_input_as_handled()
-			return
-
 	if _is_title_scene_active():
 		return
-
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		if get_tree().paused and visible and not in_file_explorer:
-			if _handle_pause_menu_click((event as InputEventMouseButton).position):
-				get_viewport().set_input_as_handled()
-				return
 
 	if not event.is_action_pressed("ui_cancel") and not event.is_action_pressed("ui_up") and not event.is_action_pressed("ui_down") and not event.is_action_pressed("ui_left") and not event.is_action_pressed("ui_right") and not event.is_action_pressed("ui_accept"):
 		return
@@ -262,39 +268,6 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	if event.is_action_pressed("ui_accept"):
 		_activate_selection()
-
-func _handle_letter_hotkey(event: InputEventKey) -> bool:
-	if _is_title_scene_active() or not get_tree().paused:
-		return false
-	if in_settings_menu or in_file_explorer:
-		return false
-
-	match event.keycode:
-		KEY_S:
-			_activate_menu_index(0)
-			return true
-		KEY_L:
-			_activate_menu_index(1)
-			return true
-		KEY_E:
-			_activate_menu_index(2)
-			return true
-		KEY_T:
-			_activate_menu_index(3)
-			return true
-		KEY_C:
-			_activate_menu_index(4)
-			return true
-		KEY_Q:
-			_activate_menu_index(5)
-			return true
-		_:
-			return false
-
-func _activate_menu_index(index: int) -> void:
-	selected_index = clampi(index, 0, _active_menu_items().size() - 1)
-	_update_menu_visuals()
-	_activate_selection()
 
 func _toggle_pause() -> void:
 	if get_tree().paused:
@@ -375,35 +348,39 @@ func _activate_selection() -> void:
 		_activate_settings_selection()
 		return
 
-	match selected_index:
-		0:
+	var active_items := _active_menu_items()
+	if selected_index < 0 or selected_index >= active_items.size():
+		return
+	var selected_item := active_items[selected_index]
+
+	match selected_item:
+		"QUICK SAVE":
 			if _invoke_scene_manager_method("quick_save"):
 				_show_status("Quick save complete.")
 			else:
 				_show_status(HINT_MESSAGES.quick_save)
-		1:
-			if _invoke_scene_manager_method("load_game") or _invoke_scene_manager_method("quick_load"):
-				_show_status("Load requested.")
-			else:
-				_show_status(HINT_MESSAGES.load)
-		2:
+		"LOAD":
+			_request_load_confirmation()
+		"FILE EXPLORER":
 			_open_in_game_file_explorer()
-		3:
+		"TITLE SCREEN":
 			_resume_game()
 			get_tree().change_scene_to_file(TITLE_SCENE)
-		4:
+		"SETTINGS":
 			_open_settings_menu()
-		5:
-			get_tree().quit()
+		"QUIT GAME":
+			_request_quit_confirmation()
+		_:
+			pass
 
 func _activate_settings_selection() -> void:
 	match selected_index:
 		0:
-			_show_status(HINT_MESSAGES.controls)
+			_open_controls_dialog()
 		1:
 			_open_graphics_menu()
 		2:
-			_show_status(HINT_MESSAGES.sound)
+			_open_sound_dialog()
 		3:
 			if _invoke_scene_manager_method("save_settings") or _invoke_scene_manager_method("save_game"):
 				_show_status("Save requested.")
@@ -437,7 +414,10 @@ func _open_settings_menu() -> void:
 func _close_settings_menu() -> void:
 	in_settings_menu = false
 	in_graphics_menu = false
-	selected_index = 4
+	var active_items := _active_menu_items()
+	selected_index = active_items.find("SETTINGS")
+	if selected_index < 0:
+		selected_index = 0
 	_update_menu_visuals()
 
 func _open_graphics_menu() -> void:
@@ -552,6 +532,9 @@ func _apply_quality_preset() -> void:
 
 func _update_menu_visuals() -> void:
 	var active_items := _active_menu_items()
+	var display_index := selected_index
+	if hovered_index >= 0 and hovered_index < active_items.size():
+		display_index = hovered_index
 	for i in menu_labels.size():
 		var option_label := menu_labels[i]
 		if i >= active_items.size():
@@ -559,12 +542,229 @@ func _update_menu_visuals() -> void:
 			continue
 
 		option_label.visible = true
-		if i == selected_index:
+		if i == display_index:
 			option_label.text = "# " + active_items[i]
 			option_label.modulate = Color(0.95, 0.97, 1.0)
 		else:
 			option_label.text = "  " + active_items[i]
 			option_label.modulate = Color(0.53, 0.68, 0.88)
+
+func _setup_menu_label_mouse() -> void:
+	for i in menu_labels.size():
+		var label := menu_labels[i]
+		if label == null:
+			continue
+		label.mouse_filter = Control.MOUSE_FILTER_STOP
+		label.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+		if not label.gui_input.is_connected(_on_menu_label_gui_input):
+			label.gui_input.connect(_on_menu_label_gui_input.bind(i))
+		if not label.mouse_entered.is_connected(_on_menu_label_mouse_entered):
+			label.mouse_entered.connect(_on_menu_label_mouse_entered.bind(i))
+		if not label.mouse_exited.is_connected(_on_menu_label_mouse_exited):
+			label.mouse_exited.connect(_on_menu_label_mouse_exited.bind(i))
+
+func _on_menu_label_gui_input(event: InputEvent, index: int) -> void:
+	if not get_tree().paused or in_file_explorer:
+		return
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		var active_count := _active_menu_items().size()
+		if index < 0 or index >= active_count:
+			return
+		hovered_index = index
+		selected_index = index
+		_update_menu_visuals()
+		_activate_selection()
+		get_viewport().set_input_as_handled()
+
+func _on_menu_label_mouse_entered(index: int) -> void:
+	if not get_tree().paused or in_file_explorer:
+		return
+	var active_count := _active_menu_items().size()
+	if index < 0 or index >= active_count:
+		return
+	hovered_index = index
+	selected_index = index
+	_update_menu_visuals()
+
+func _on_menu_label_mouse_exited(_index: int) -> void:
+	hovered_index = -1
+	_update_menu_visuals()
+
+func _setup_confirmation_dialog() -> void:
+	confirmation_dialog = ConfirmationDialog.new()
+	confirmation_dialog.name = "PauseConfirmationDialog"
+	confirmation_dialog.process_mode = Node.PROCESS_MODE_ALWAYS
+	confirmation_dialog.exclusive = true
+	add_child(confirmation_dialog)
+	if not confirmation_dialog.confirmed.is_connected(_on_confirmation_dialog_confirmed):
+		confirmation_dialog.confirmed.connect(_on_confirmation_dialog_confirmed)
+	if not confirmation_dialog.custom_action.is_connected(_on_confirmation_dialog_custom_action):
+		confirmation_dialog.custom_action.connect(_on_confirmation_dialog_custom_action)
+
+func _request_load_confirmation() -> void:
+	var summary := _get_load_summary_text()
+	confirmation_mode = "load"
+	if quit_main_menu_button and is_instance_valid(quit_main_menu_button):
+		quit_main_menu_button.visible = false
+	confirmation_dialog.title = "Load Save"
+	confirmation_dialog.dialog_text = "Want to load %s?" % summary
+	confirmation_dialog.ok_button_text = "Load"
+	confirmation_dialog.popup_centered(Vector2i(560, 180))
+
+func _request_quit_confirmation() -> void:
+	confirmation_mode = "quit"
+	if quit_main_menu_button == null or not is_instance_valid(quit_main_menu_button):
+		quit_main_menu_button = confirmation_dialog.add_button("Main Menu", true, "to_main_menu")
+	quit_main_menu_button.visible = true
+	confirmation_dialog.title = "Quit Game"
+	confirmation_dialog.dialog_text = "Where do you want to go?"
+	confirmation_dialog.ok_button_text = "Quit to Desktop"
+	confirmation_dialog.popup_centered(Vector2i(560, 180))
+
+func _on_confirmation_dialog_confirmed() -> void:
+	if confirmation_dialog:
+		confirmation_dialog.hide()
+	match confirmation_mode:
+		"load":
+			if _invoke_scene_manager_method("load_game") or _invoke_scene_manager_method("quick_load"):
+				_show_status("Load requested.")
+			else:
+				_show_status(HINT_MESSAGES.load)
+		"quit":
+			get_tree().quit()
+		_:
+			pass
+	confirmation_mode = ""
+
+func _on_confirmation_dialog_custom_action(action: StringName) -> void:
+	if confirmation_dialog:
+		confirmation_dialog.hide()
+	if confirmation_mode == "quit" and String(action) == "to_main_menu":
+		_resume_game()
+		get_tree().change_scene_to_file(TITLE_SCENE)
+	confirmation_mode = ""
+
+func _get_load_summary_text() -> String:
+	if SceneManager and SceneManager.has_method("get_save_summary"):
+		var summary: Dictionary = SceneManager.get_save_summary()
+		if not summary.is_empty():
+			var saved_time := String(summary.get("saved_at_text", "Unknown time"))
+			var location := String(summary.get("location", "Unknown Area"))
+			return "%s at %s" % [location, saved_time]
+	return "the latest save"
+
+func _setup_controls_dialog() -> void:
+	controls_dialog = AcceptDialog.new()
+	controls_dialog.name = "PauseControlsDialog"
+	controls_dialog.process_mode = Node.PROCESS_MODE_ALWAYS
+	controls_dialog.exclusive = true
+	controls_dialog.title = "Controls"
+	controls_dialog.ok_button_text = "Close"
+	controls_dialog.dialog_text = "Move: WASD\nRun: Shift\nInteract: E\nConfirm: Enter\nCancel/Pause: Esc"
+	add_child(controls_dialog)
+
+func _open_controls_dialog() -> void:
+	if controls_dialog == null:
+		return
+	controls_dialog.popup_centered(Vector2i(520, 260))
+
+func _setup_sound_dialog() -> void:
+	sound_dialog = AcceptDialog.new()
+	sound_dialog.name = "PauseSoundDialog"
+	sound_dialog.process_mode = Node.PROCESS_MODE_ALWAYS
+	sound_dialog.exclusive = true
+	sound_dialog.title = "Sound"
+	sound_dialog.ok_button_text = "Close"
+	sound_dialog.dialog_text = ""
+	add_child(sound_dialog)
+
+	var content := VBoxContainer.new()
+	content.custom_minimum_size = Vector2(420, 140)
+	content.add_theme_constant_override("separation", 8)
+	sound_dialog.add_child(content)
+
+	var master_row := HBoxContainer.new()
+	content.add_child(master_row)
+	var master_label := Label.new()
+	master_label.text = "Master"
+	master_label.custom_minimum_size = Vector2(90, 0)
+	master_row.add_child(master_label)
+	sound_master_slider = HSlider.new()
+	sound_master_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sound_master_slider.min_value = 0.0
+	sound_master_slider.max_value = 1.0
+	sound_master_slider.step = 0.01
+	sound_master_slider.value_changed.connect(_on_sound_slider_changed.bind("Master"))
+	master_row.add_child(sound_master_slider)
+
+	var music_row := HBoxContainer.new()
+	content.add_child(music_row)
+	var music_label := Label.new()
+	music_label.text = "Music"
+	music_label.custom_minimum_size = Vector2(90, 0)
+	music_row.add_child(music_label)
+	sound_music_slider = HSlider.new()
+	sound_music_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sound_music_slider.min_value = 0.0
+	sound_music_slider.max_value = 1.0
+	sound_music_slider.step = 0.01
+	sound_music_slider.value_changed.connect(_on_sound_slider_changed.bind("Music"))
+	music_row.add_child(sound_music_slider)
+
+	var sfx_row := HBoxContainer.new()
+	content.add_child(sfx_row)
+	var sfx_label := Label.new()
+	sfx_label.text = "SFX"
+	sfx_label.custom_minimum_size = Vector2(90, 0)
+	sfx_row.add_child(sfx_label)
+	sound_sfx_slider = HSlider.new()
+	sound_sfx_slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sound_sfx_slider.min_value = 0.0
+	sound_sfx_slider.max_value = 1.0
+	sound_sfx_slider.step = 0.01
+	sound_sfx_slider.value_changed.connect(_on_sound_slider_changed.bind("SFX"))
+	sfx_row.add_child(sound_sfx_slider)
+
+func _open_sound_dialog() -> void:
+	if sound_dialog == null:
+		return
+	_sync_sound_dialog_from_audio()
+	sound_dialog.popup_centered(Vector2i(560, 260))
+
+func _find_bus_index(bus_name: String) -> int:
+	var idx := AudioServer.get_bus_index(bus_name)
+	if idx != -1:
+		return idx
+	var target := bus_name.to_lower()
+	for i in range(AudioServer.get_bus_count()):
+		var n := AudioServer.get_bus_name(i)
+		if n and n.to_lower() == target:
+			return i
+	return -1
+
+func _sync_sound_dialog_from_audio() -> void:
+	if sound_master_slider:
+		var master_idx := _find_bus_index("Master")
+		sound_master_slider.value = db_to_linear(AudioServer.get_bus_volume_db(master_idx)) if master_idx != -1 else 1.0
+	if sound_music_slider:
+		var music_idx := _find_bus_index("Music")
+		if music_idx == -1:
+			music_idx = _find_bus_index("Master")
+		sound_music_slider.value = db_to_linear(AudioServer.get_bus_volume_db(music_idx)) if music_idx != -1 else 1.0
+	if sound_sfx_slider:
+		var sfx_idx := _find_bus_index("SFX")
+		if sfx_idx == -1:
+			sfx_idx = _find_bus_index("Master")
+		sound_sfx_slider.value = db_to_linear(AudioServer.get_bus_volume_db(sfx_idx)) if sfx_idx != -1 else 1.0
+
+func _on_sound_slider_changed(value: float, bus_name: String) -> void:
+	var bus_index := _find_bus_index(bus_name)
+	if bus_index == -1:
+		bus_index = _find_bus_index("Master")
+	if bus_index == -1:
+		return
+	AudioServer.set_bus_volume_db(bus_index, linear_to_db(value))
+	AudioServer.set_bus_mute(bus_index, value <= 0.001)
 
 func _show_status(message: String) -> void:
 	status_label.text = message

@@ -13,6 +13,18 @@ const HUB_DEFAULT_SPAWN := "Fallback_Hamlet_Final/first_spawn"
 const HUB_FOREST_RETURN_SPAWN := "Fallback_Hamlet_Final/Spawn_FTFM"
 const HUB_DEPTHS_RETURN_SPAWN := "Fallback_Hamlet_Final/Spawn_DDTFM"
 const HUB_BIOS_RETURN_SPAWN := "Fallback_Hamlet_Final/Spawn_BVTFM"
+const SKILL_UNLOCK_RECEIPTS_META_KEY := "skill_unlock_receipts"
+const SKILL_UNLOCK_FLAGS := {
+	"cli_history": "cli_history_unlocked",
+	"teleport": "teleport_unlocked",
+	"file_explorer": "file_explorer_unlocked",
+	"mkdir_construct": "mkdir_construct_unlocked",
+	"taskkill": "taskkill_unlocked",
+	"sudo_privilege": "sudo_privilege_unlocked",
+	"potion_patch": "potion_patch_unlocked",
+	"potion_overclock": "potion_overclock_unlocked",
+	"potion_hardening": "potion_hardening_unlocked",
+}
 
 const TERMINAL_TELEPORT_TARGETS := {
 	"fallback_hamlet": {
@@ -110,8 +122,9 @@ var _cached_quest_list: CanvasItem = null
 var _terminal_history: Array[String] = []
 var _terminal_history_index := -1
 var _terminal_history_draft := ""
-var _cli_history_wget_verified := false
 var _shop_panel: Control = null
+var _shutdown_confirm_dialog: ConfirmationDialog = null
+var _shutdown_main_menu_button: Button = null
 
 func _ready() -> void:
 	# Instantiate TerminalPanel scene
@@ -153,6 +166,7 @@ func _ready() -> void:
 	_record_current_location_explored()
 	randomize()
 	_update_visibility()
+	_setup_shutdown_confirm_dialog()
 
 	# Ensure a side quest button exists (exclamation on screen edge)
 	if get_tree().get_root().find_child("QuestSideButton", true, false) == null:
@@ -182,14 +196,18 @@ func _input(event: InputEvent) -> void:
 
 	if _terminal_is_open and event is InputEventKey and event.pressed and not event.echo:
 		var key_event := event as InputEventKey
-		if key_event.keycode == KEY_UP:
-			_navigate_terminal_history(-1)
-			get_viewport().set_input_as_handled()
-			return
-		if key_event.keycode == KEY_DOWN:
-			_navigate_terminal_history(1)
-			get_viewport().set_input_as_handled()
-			return
+		if key_event.keycode == KEY_UP or key_event.keycode == KEY_DOWN:
+			if terminal_input and terminal_input.has_focus():
+				# Never allow any history navigation path unless CLI history is unlocked.
+				if not _is_cli_history_unlocked():
+					get_viewport().set_input_as_handled()
+					return
+				if key_event.keycode == KEY_UP:
+					_navigate_terminal_history_previous()
+				else:
+					_navigate_terminal_history_next()
+				get_viewport().set_input_as_handled()
+				return
 
 	if _terminal_is_open and _is_dragging_terminal and event is InputEventMouseMotion:
 		_update_terminal_drag_position((event as InputEventMouseMotion).position)
@@ -207,7 +225,7 @@ func _input(event: InputEvent) -> void:
 		if quest_item and quest_item.get_global_rect().has_point(click.position):
 			_open_tux_helper_from_hud()
 
-func _unhandled_input(event: InputEvent) -> void:
+func _unhandled_input(_event: InputEvent) -> void:
 	if not _terminal_is_open:
 		return
 
@@ -243,9 +261,7 @@ func _is_combat_ui_visible() -> bool:
 	return false
 
 func _is_file_explorer_unlocked() -> bool:
-	if not has_node("/root/SceneManager") or not SceneManager:
-		return false
-	return SceneManager.get("file_explorer_unlocked") == true
+	return _is_skill_unlocked("file_explorer")
 
 func _on_file_item_gui_input(event: InputEvent) -> void:
 	if not visible or get_tree().paused:
@@ -452,8 +468,7 @@ func _process_terminal_command(raw_command: String) -> void:
 			_close_terminal()
 		"sudo":
 			if args.size() > 0 and String(args[0]).to_lower() == "shutdown":
-				_print_terminal_line("Shutting down Learnix...")
-				get_tree().quit()
+				_request_shutdown_confirmation()
 			else:
 				_print_terminal_line("sudo: supported command is `sudo shutdown`")
 		"clear", "cls":
@@ -511,6 +526,11 @@ func _handle_cd_command(args: Array) -> void:
 	if args.is_empty():
 		_current_terminal_path = _terminal_home_location()
 		_print_terminal_line(_terminal_pwd())
+		return
+
+	# Check if teleport skill is unlocked before allowing any teleportation
+	if not _is_skill_unlocked("teleport"):
+		_print_terminal_line("cd: teleport skill not unlocked (unlock with wget learnix://skills/teleport.unlock)")
 		return
 
 	var target := String(args[0]).strip_edges().to_lower()
@@ -657,9 +677,36 @@ func _is_cd_command_unlocked() -> bool:
 	return SceneManager.printer_beast_defeated
 
 func _is_cli_history_unlocked() -> bool:
+	return _is_skill_unlocked("cli_history")
+
+func _is_skill_unlocked(skill_name: String) -> bool:
 	if SceneManager == null:
 		return false
-	return _cli_history_wget_verified and SceneManager.get("cli_history_unlocked") == true
+	var flag_name := String(SKILL_UNLOCK_FLAGS.get(skill_name, ""))
+	if flag_name == "":
+		return false
+	if SceneManager.get(flag_name) != true:
+		return false
+	return _has_skill_unlock_receipt(skill_name)
+
+func _get_skill_unlock_receipts() -> Dictionary:
+	if SceneManager == null:
+		return {}
+	var stored: Variant = SceneManager.get_meta(SKILL_UNLOCK_RECEIPTS_META_KEY, {})
+	if stored is Dictionary:
+		return (stored as Dictionary).duplicate(true)
+	return {}
+
+func _has_skill_unlock_receipt(skill_name: String) -> bool:
+	var receipts := _get_skill_unlock_receipts()
+	return receipts.get(skill_name, false) == true
+
+func _mark_skill_unlock_receipt(skill_name: String) -> void:
+	if SceneManager == null:
+		return
+	var receipts := _get_skill_unlock_receipts()
+	receipts[skill_name] = true
+	SceneManager.set_meta(SKILL_UNLOCK_RECEIPTS_META_KEY, receipts)
 
 func _location_key_from_scene_path(scene_path: String) -> String:
 	match scene_path:
@@ -763,6 +810,45 @@ func _handle_save_command() -> void:
 		return
 	_print_terminal_line("Save is not available yet.")
 
+func _setup_shutdown_confirm_dialog() -> void:
+	_shutdown_confirm_dialog = ConfirmationDialog.new()
+	_shutdown_confirm_dialog.name = "TerminalShutdownConfirmDialog"
+	_shutdown_confirm_dialog.process_mode = Node.PROCESS_MODE_ALWAYS
+	_shutdown_confirm_dialog.exclusive = true
+	add_child(_shutdown_confirm_dialog)
+	_shutdown_main_menu_button = _shutdown_confirm_dialog.add_button("Main Menu", true, "to_main_menu")
+	if not _shutdown_confirm_dialog.confirmed.is_connected(_on_shutdown_confirmed):
+		_shutdown_confirm_dialog.confirmed.connect(_on_shutdown_confirmed)
+	if not _shutdown_confirm_dialog.custom_action.is_connected(_on_shutdown_custom_action):
+		_shutdown_confirm_dialog.custom_action.connect(_on_shutdown_custom_action)
+
+func _request_shutdown_confirmation() -> void:
+	if _shutdown_confirm_dialog == null:
+		return
+	_print_terminal_line("sudo: choose shutdown target...")
+	_shutdown_confirm_dialog.title = "Sudo Shutdown"
+	_shutdown_confirm_dialog.dialog_text = "Exit to main menu or quit to desktop?"
+	_shutdown_confirm_dialog.ok_button_text = "Quit to Desktop"
+	if _shutdown_main_menu_button and is_instance_valid(_shutdown_main_menu_button):
+		_shutdown_main_menu_button.visible = true
+	_shutdown_confirm_dialog.popup_centered(Vector2i(560, 180))
+
+func _on_shutdown_confirmed() -> void:
+	if _shutdown_confirm_dialog:
+		_shutdown_confirm_dialog.hide()
+	_print_terminal_line("Shutting down Learnix to desktop...")
+	get_tree().quit()
+
+func _on_shutdown_custom_action(action: StringName) -> void:
+	if String(action) != "to_main_menu":
+		return
+	if _shutdown_confirm_dialog:
+		_shutdown_confirm_dialog.hide()
+	_print_terminal_line("Returning to main menu...")
+	_close_terminal()
+	if get_tree():
+		get_tree().change_scene_to_file("res://Scenes/ui/title_menu.tscn")
+
 func _print_location_map() -> void:
 	_print_terminal_line("Location map:")
 	for location_key in _visible_terminal_locations():
@@ -834,7 +920,7 @@ func _push_terminal_history(command_text: String) -> void:
 		return
 	_terminal_history.append(normalized)
 
-func _navigate_terminal_history(direction: int) -> void:
+func _navigate_terminal_history_previous() -> void:
 	if terminal_input == null or _terminal_history.is_empty():
 		return
 	
@@ -844,21 +930,29 @@ func _navigate_terminal_history(direction: int) -> void:
 
 	if _terminal_history_index == -1:
 		_terminal_history_draft = terminal_input.text
+		_terminal_history_index = _terminal_history.size() - 1
+	elif _terminal_history_index > 0:
+		_terminal_history_index -= 1
 
-	if direction < 0:
-		if _terminal_history_index == -1:
-			_terminal_history_index = _terminal_history.size() - 1
-		elif _terminal_history_index > 0:
-			_terminal_history_index -= 1
-	else:
-		if _terminal_history_index == -1:
-			return
-		_terminal_history_index += 1
-		if _terminal_history_index >= _terminal_history.size():
-			_terminal_history_index = -1
-			terminal_input.text = _terminal_history_draft
-			terminal_input.caret_column = terminal_input.text.length()
-			return
+	terminal_input.text = _terminal_history[_terminal_history_index]
+	terminal_input.caret_column = terminal_input.text.length()
+
+func _navigate_terminal_history_next() -> void:
+	if terminal_input == null or _terminal_history.is_empty():
+		return
+
+	if not _is_cli_history_unlocked():
+		return
+
+	if _terminal_history_index == -1:
+		return
+
+	_terminal_history_index += 1
+	if _terminal_history_index >= _terminal_history.size():
+		_terminal_history_index = -1
+		terminal_input.text = _terminal_history_draft
+		terminal_input.caret_column = terminal_input.text.length()
+		return
 
 	terminal_input.text = _terminal_history[_terminal_history_index]
 	terminal_input.caret_column = terminal_input.text.length()
@@ -905,15 +999,23 @@ func _unlock_skill(skill_name: String) -> void:
 	if SceneManager == null:
 		_print_terminal_line("Error: Cannot unlock skill (SceneManager unavailable)")
 		return
+	if not SKILL_UNLOCK_FLAGS.has(skill_name):
+		_print_terminal_line("Unlock failed: unknown skill '%s'." % skill_name)
+		return
 
 	if not _can_unlock_skill(skill_name):
 		_print_terminal_line("Unlock failed: requirements not met for '%s'." % skill_name)
 		return
 	
-	var flag_name := "%s_unlocked" % skill_name
+	var flag_name := String(SKILL_UNLOCK_FLAGS.get(skill_name, ""))
+	if flag_name == "":
+		_print_terminal_line("Unlock failed: invalid unlock mapping for '%s'." % skill_name)
+		return
+	if SceneManager.get(flag_name) == true:
+		_print_terminal_line("Skill '%s' is already unlocked." % skill_name)
+		return
 	SceneManager.set(flag_name, true)
-	if skill_name == "cli_history":
-		_cli_history_wget_verified = true
+	_mark_skill_unlock_receipt(skill_name)
 	if skill_name == "file_explorer":
 		_update_visibility()
 	
@@ -936,7 +1038,7 @@ func _can_unlock_skill(skill_name: String) -> bool:
 				cmo_interacted = cmo_flag == true
 			return SceneManager.get("printer_beast_defeated") == true and cmo_interacted
 		_:
-			return true
+			return SKILL_UNLOCK_FLAGS.has(skill_name)
 
 func _open_shop_from_terminal() -> void:
 	if _shop_panel == null or not is_instance_valid(_shop_panel):

@@ -1,6 +1,8 @@
 class_name TerminalShop
 extends Control
 
+const SKILL_UNLOCK_RECEIPTS_META_KEY := "skill_unlock_receipts"
+
 @onready var data_bits_label: Label = $Backdrop/ShopWindow/Margin/VRoot/HeaderRow/DataBitsLabel
 @onready var close_button: Button = $Backdrop/ShopWindow/Margin/VRoot/HeaderRow/CloseButton
 @onready var body_row: HSplitContainer = $Backdrop/ShopWindow/Margin/VRoot/BodyRow
@@ -320,11 +322,15 @@ func _apply_skill_button_style(button: Button, unlocked: bool, selected: bool) -
 func _is_skill_unlocked(skill_id: String) -> bool:
 	if _scene_manager == null:
 		return false
+	var receipts_variant: Variant = _scene_manager.get_meta(SKILL_UNLOCK_RECEIPTS_META_KEY, {})
+	var receipts: Dictionary = {}
+	if receipts_variant is Dictionary:
+		receipts = receipts_variant as Dictionary
 	match skill_id:
 		"kill_taskkill":
-			return _as_bool(_scene_manager.get("taskkill_unlocked"))
+			return _as_bool(_scene_manager.get("taskkill_unlocked")) and _as_bool(receipts.get("taskkill", false))
 		_:
-			return _as_bool(_scene_manager.get("%s_unlocked" % skill_id))
+			return _as_bool(_scene_manager.get("%s_unlocked" % skill_id)) and _as_bool(receipts.get(skill_id, false))
 
 func _is_skill_requirements_met(skill_id: String) -> bool:
 	match skill_id:

@@ -63,6 +63,7 @@ const TUTORIAL_META_TIMING_INTRO := "combat_timing_intro_seen_v2"
 const TUTORIAL_META_DEPENDENCY_INTRO := "combat_dependency_intro_seen_v2"
 const TUTORIAL_POPUP_SCENE_PATH := "res://Scenes/combat/combat_tutorial_popup.tscn"
 const TUX_HELPER_POPUP_SCENE_PATH := "res://Scenes/combat/tux_terminal_helper_popup.tscn"
+const SKILL_UNLOCK_RECEIPTS_META_KEY := "skill_unlock_receipts"
 const NPC_REVEAL_SHADER_PATH := "res://shaders/ui/npc_reveal_wipe.gdshader"
 const CRACKED_GLASS_SHADER_PATH := "res://Scenes/combat/cracked_glass.gdshader"
 const CRACKED_GLASS_TEXTURE_PATH := "res://Assets/Glass-Cracks-PNG-HD.png"
@@ -414,12 +415,15 @@ func _input(event: InputEvent) -> void:
 	# Intercept UP/DOWN keys for history navigation before LineEdit processes them
 	if event is InputEventKey and event.pressed:
 		var key_event := event as InputEventKey
-		if key_event.keycode == KEY_UP:
-			_navigate_command_history(-1)
-			get_viewport().set_input_as_handled()
-			return
-		if key_event.keycode == KEY_DOWN:
-			_navigate_command_history(1)
+		if key_event.keycode == KEY_UP or key_event.keycode == KEY_DOWN:
+			# Never allow command history navigation unless cli_history was unlocked via wget.
+			if not _is_cli_history_unlocked():
+				get_viewport().set_input_as_handled()
+				return
+			if key_event.keycode == KEY_UP:
+				_navigate_command_history_previous()
+			else:
+				_navigate_command_history_next()
 			get_viewport().set_input_as_handled()
 			return
 
@@ -2048,35 +2052,52 @@ func _push_command_history(command: String) -> void:
 	_history_index = -1
 	_history_draft = ""
 
-func _navigate_command_history(direction: int) -> void:
-	"""Navigate through command history.
-	direction: -1 for previous (up), 1 for next (down)
-	"""
+func _navigate_command_history_previous() -> void:
+	"""Navigate to previous command (Up key)."""
 	if _command_history.is_empty() or not command_input:
 		return
+	if not _is_cli_history_unlocked():
+		return
 	
-	# Save current input if we're at the end
 	if _history_index == -1:
 		_history_draft = command_input.text
-	
-	# Update index
-	var new_index := _history_index + direction
-	
-	# Clamp to valid range
-	if new_index < -1:
-		new_index = -1
-	elif new_index >= _command_history.size():
-		new_index = _command_history.size() - 1
-	
-	_history_index = new_index
-	
-	# Update input field
+		_history_index = _command_history.size() - 1
+	elif _history_index > 0:
+		_history_index -= 1
+
 	if _history_index == -1:
 		command_input.text = _history_draft
 	else:
 		command_input.text = _command_history[_history_index]
-	
+
 	# Move cursor to end
 	command_input.caret_column = command_input.text.length()
+
+func _navigate_command_history_next() -> void:
+	"""Navigate to next command (Down key)."""
+	if _command_history.is_empty() or not command_input:
+		return
+	if not _is_cli_history_unlocked():
+		return
+	if _history_index == -1:
+		return
+
+	_history_index += 1
+	if _history_index >= _command_history.size():
+		_history_index = -1
+		command_input.text = _history_draft
+	else:
+		command_input.text = _command_history[_history_index]
+	command_input.caret_column = command_input.text.length()
+
+func _is_cli_history_unlocked() -> bool:
+	if not SceneManager:
+		return false
+	if SceneManager.get("cli_history_unlocked") != true:
+		return false
+	var receipts: Variant = SceneManager.get_meta(SKILL_UNLOCK_RECEIPTS_META_KEY, {})
+	if receipts is Dictionary:
+		return receipts.get("cli_history", false) == true
+	return false
 	
 	#endregion

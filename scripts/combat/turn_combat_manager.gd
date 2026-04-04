@@ -140,6 +140,7 @@ var _skip_enemy_turn_after_command: bool = false
 var _combat_start_modifiers_applied: bool = false
 const TASKKILL_DATA_BITS_COST := 100
 const OVERCLOCK_SKIP_CHANCE := 0.35
+const SKILL_UNLOCK_RECEIPTS_META_KEY := "skill_unlock_receipts"
 #endregion
 
 #region Initialization
@@ -158,7 +159,7 @@ func start_combat(enemy: EnemyData) -> void:
 	combat_log.clear()
 	player_state = PlayerCombatState.new()
 	_heal_uses_max = 3 if _is_skill_unlocked("potion_patch") else 1
-	_heal_uses_remaining = 1
+	_heal_uses_remaining = _heal_uses_max
 	_overclock_used_this_battle = false
 	_taskkill_used_this_battle = false
 	_pending_timing_profile = {}
@@ -342,11 +343,16 @@ func process_input(raw_input: String) -> void:
 	# Store in history
 	player_state.command_history.append(result.raw_input)
 
-	# Enforce resource-gated skills before timing starts so spam attempts still cost the turn.
-	if result.command_type == CommandParser.CommandType.HEAL and not _can_use_heal():
-		_log_message("Heal failed: patch reserves are exhausted.", MessageType.ERROR)
-		_after_command_resolved(CombatEffect.new())
-		return
+	# Enforce skill unlocks and resource gates for healing.
+	if result.command_type == CommandParser.CommandType.HEAL:
+		if not _is_skill_unlocked("potion_patch"):
+			_log_message("Heal failed: potion_patch skill not unlocked (unlock with wget learnix://skills/potion_patch.unlock).", MessageType.ERROR)
+			awaiting_input.emit()
+			return
+		if not _can_use_heal():
+			_log_message("Heal failed: patch reserves are exhausted.", MessageType.ERROR)
+			_after_command_resolved(CombatEffect.new())
+			return
 
 	if result.command_type == CommandParser.CommandType.KILL:
 		if not _consume_taskkill():
@@ -673,7 +679,12 @@ func _get_defend_timing_difficulty() -> float:
 func _is_skill_unlocked(skill_id: String) -> bool:
 	if SceneManager == null:
 		return false
-	return SceneManager.get("%s_unlocked" % skill_id) == true
+	if SceneManager.get("%s_unlocked" % skill_id) != true:
+		return false
+	var receipts: Variant = SceneManager.get_meta(SKILL_UNLOCK_RECEIPTS_META_KEY, {})
+	if receipts is Dictionary:
+		return receipts.get(skill_id, false) == true
+	return false
 
 func _apply_sudo_privilege_modifiers() -> void:
 	if _combat_start_modifiers_applied:
