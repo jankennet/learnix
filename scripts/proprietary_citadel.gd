@@ -6,11 +6,19 @@ extends Node3D
 
 var world_environment: WorldEnvironment
 var environment: Environment
+var directional_light: DirectionalLight3D
+var _base_light_color: Color = Color.WHITE
+var _base_light_energy: float = 1.0
 
 func _ready() -> void:
 	world_environment = get_node_or_null("WorldEnvironment")
 	if world_environment:
 		environment = world_environment.environment
+
+	directional_light = get_node_or_null("DirectionalLight3D") as DirectionalLight3D
+	if directional_light:
+		_base_light_color = directional_light.light_color
+		_base_light_energy = directional_light.light_energy
 	
 	_apply_karma_sky()
 
@@ -38,6 +46,9 @@ func _set_bright_blue_sky() -> void:
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	environment.ambient_light_color = Color.WHITE
 	environment.ambient_light_energy = 1.0
+	if directional_light:
+		directional_light.light_color = _base_light_color
+		directional_light.light_energy = _base_light_energy
 
 func _set_dark_sky() -> void:
 	"""Set a dark sky with reduced lighting for bad karma"""
@@ -50,4 +61,7 @@ func _set_dark_sky() -> void:
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	environment.ambient_light_color = Color(0.7, 0.7, 0.7)
 	environment.ambient_light_energy = 0.6
+	if directional_light:
+		directional_light.light_color = Color(0.5, 0.54, 0.65, 1.0)
+		directional_light.light_energy = maxf(0.15, _base_light_energy * 0.35)
 

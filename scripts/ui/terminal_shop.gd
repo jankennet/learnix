@@ -45,6 +45,14 @@ const _SKILL_ORDER := [
 	"potion_hardening"
 ]
 
+const _SKILL_UNLOCK_COSTS := {
+	"kill_taskkill": 120,
+	"potion_patch": 150,
+	"potion_overclock": 220,
+	"potion_hardening": 260,
+	"sudo_privilege": 320,
+}
+
 const _SKILL_META := {
 	"cli_history": {
 		"title": "CLI HISTORY",
@@ -270,14 +278,22 @@ func _update_skill_preview(skill_id: String) -> void:
 	if preview_summary:
 		preview_summary.text = String(skill.get("summary", ""))
 	if preview_requirement:
+		var unlock_cost := _get_skill_unlock_cost(skill_id)
+		var current_bits := _current_data_bits()
 		if unlocked:
 			preview_requirement.text = "Status: UNLOCKED"
 			preview_requirement.modulate = Color(0.58, 1.0, 0.73, 1.0)
 		elif requirements_met:
-			preview_requirement.text = "Status: REQUIREMENTS MET"
+			if unlock_cost > 0:
+				preview_requirement.text = "Status: REQUIREMENTS MET (%d/%d Data Bits)" % [current_bits, unlock_cost]
+			else:
+				preview_requirement.text = "Status: REQUIREMENTS MET"
 			preview_requirement.modulate = Color(0.88, 0.95, 1.0, 1.0)
 		else:
-			preview_requirement.text = "Status: Locked"
+			if unlock_cost > 0:
+				preview_requirement.text = "Status: Locked (%d/%d Data Bits)" % [current_bits, unlock_cost]
+			else:
+				preview_requirement.text = "Status: Locked"
 			preview_requirement.modulate = Color(1.0, 0.76, 0.76, 1.0)
 	if preview_command:
 		preview_command.text = "Command: %s" % String(skill.get("command", "wget learnix://skills/%s.unlock" % skill_id))
@@ -340,8 +356,18 @@ func _is_skill_requirements_met(skill_id: String) -> bool:
 			return _is_teleport_skill_requirements_met()
 		"file_explorer":
 			return _is_file_explorer_skill_requirements_met()
+		"kill_taskkill", "sudo_privilege", "potion_patch", "potion_overclock", "potion_hardening":
+			return _current_data_bits() >= _get_skill_unlock_cost(skill_id)
 		_:
 			return false
+
+func _get_skill_unlock_cost(skill_id: String) -> int:
+	return int(_SKILL_UNLOCK_COSTS.get(skill_id, 0))
+
+func _current_data_bits() -> int:
+	if _scene_manager == null:
+		return 0
+	return int(_scene_manager.get("data_bits"))
 
 func _copy_skill_command(skill_id: String) -> void:
 	if not _is_skill_requirements_met(skill_id):

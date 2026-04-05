@@ -158,8 +158,12 @@ func start_combat(enemy: EnemyData) -> void:
 	turn_number = 0
 	combat_log.clear()
 	player_state = PlayerCombatState.new()
-	_heal_uses_max = 3 if _is_skill_unlocked("potion_patch") else 1
-	_heal_uses_remaining = _heal_uses_max
+	if _is_skill_unlocked("potion_patch"):
+		_heal_uses_max = 3
+		_heal_uses_remaining = 3
+	else:
+		_heal_uses_max = 1
+		_heal_uses_remaining = 1
 	_overclock_used_this_battle = false
 	_taskkill_used_this_battle = false
 	_pending_timing_profile = {}
@@ -345,10 +349,6 @@ func process_input(raw_input: String) -> void:
 
 	# Enforce skill unlocks and resource gates for healing.
 	if result.command_type == CommandParser.CommandType.HEAL:
-		if not _is_skill_unlocked("potion_patch"):
-			_log_message("Heal failed: potion_patch skill not unlocked (unlock with wget learnix://skills/potion_patch.unlock).", MessageType.ERROR)
-			awaiting_input.emit()
-			return
 		if not _can_use_heal():
 			_log_message("Heal failed: patch reserves are exhausted.", MessageType.ERROR)
 			_after_command_resolved(CombatEffect.new())
@@ -724,6 +724,7 @@ func _resolve_escape(_result: CommandParser.CommandResult) -> CombatEffect:
 func _resolve_delete(result: CommandParser.CommandResult) -> CombatEffect:
 	var effect := CombatEffect.new()
 	var target := result.target.to_lower()
+	var is_taskkill := result.command_type == CommandParser.CommandType.KILL
 	
 	# Check if target matches enemy
 	var enemy_keywords := [
@@ -733,7 +734,7 @@ func _resolve_delete(result: CommandParser.CommandResult) -> CombatEffect:
 		"target"
 	]
 	
-	var valid_target := false
+	var valid_target := is_taskkill
 	for keyword in enemy_keywords:
 		if target.contains(keyword) or keyword.contains(target):
 			valid_target = true
@@ -757,12 +758,15 @@ func _resolve_delete(result: CommandParser.CommandResult) -> CombatEffect:
 		
 		var actual := current_enemy.take_damage(base_damage)
 		effect.damage_dealt = actual
-		if result.command_type == CommandParser.CommandType.KILL and _skip_enemy_turn_after_command:
+		if is_taskkill and _skip_enemy_turn_after_command:
 			effect.is_critical = true
 			effect.special_effect = "skip_enemy_turn"
 			_log_message("taskkill injected a fatal critical strike!", MessageType.SUCCESS)
 		
-		_log_message("rm -f %s ... Deleted %d bytes!" % [target, actual], MessageType.DAMAGE)
+		if is_taskkill:
+			_log_message("taskkill executed for %d damage!" % actual, MessageType.DAMAGE)
+		else:
+			_log_message("rm -f %s ... Deleted %d bytes!" % [target, actual], MessageType.DAMAGE)
 		damage_dealt.emit("enemy", actual, effect.is_critical)
 	else:
 		_log_message("Target '%s' not found. Delete failed." % target, MessageType.ERROR)

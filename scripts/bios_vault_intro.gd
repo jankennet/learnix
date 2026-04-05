@@ -3,7 +3,7 @@ extends Node3D
 @export var intro_dialogue_path: String = "res://dialogues/BiosVaultIntro.dialogue"
 @export var camera_pan_duration: float = 2.0
 @export var sage_reveal_duration: float = 2.2
-@export var sage_combat_encounter_id: String = "printer_beast"
+@export var sage_combat_encounter_id: String = "sage"
 @export var bios_vault_camera_path: NodePath = "Camera3D"
 @export var pre_citadel_cutscene_duration: float = 4.0
 

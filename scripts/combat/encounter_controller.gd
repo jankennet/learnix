@@ -25,12 +25,15 @@ var combat_manager: TurnCombatManager
 var combat_ui: Control  # CombatTerminalUI - type not available at compile time
 var enemy_controller: Node
 var is_active: bool = false
+var _encounter_resolved: bool = false
 #endregion
 
 func _ready() -> void:
 	# Create combat manager
 	combat_manager = TurnCombatManager.new()
 	add_child(combat_manager)
+	if combat_manager.has_signal("combat_ended") and not combat_manager.combat_ended.is_connected(_on_combat_manager_ended):
+		combat_manager.combat_ended.connect(_on_combat_manager_ended)
 	
 	# Load combat UI
 	if combat_ui_scene:
@@ -58,6 +61,10 @@ func _ready() -> void:
 
 func _create_enemy_controller() -> void:
 	match encounter_id:
+		"sage":
+			enemy_controller = SageEnemy.new()
+			add_child(enemy_controller)
+			enemy_controller.encounter_ended.connect(_on_encounter_ended)
 		"lost_file":
 			enemy_controller = LostFileEnemy.new()
 			add_child(enemy_controller)
@@ -89,6 +96,7 @@ func start_encounter() -> void:
 		return
 	
 	is_active = true
+	_encounter_resolved = false
 	encounter_started.emit(encounter_id)
 	
 	# Check if we should start in puzzle mode or combat mode
@@ -134,6 +142,9 @@ func start_encounter() -> void:
 
 ## Called when encounter ends
 func _on_encounter_ended(method: String) -> void:
+	if _encounter_resolved:
+		return
+	_encounter_resolved = true
 	is_active = false
 	
 	# Clear the fled_combat state since encounter is now properly resolved
@@ -164,6 +175,15 @@ func _on_encounter_ended(method: String) -> void:
 	
 	# Clean up the encounter controller itself
 	queue_free()
+
+func _on_combat_manager_ended(victory: bool, _enemy_data) -> void:
+	if _encounter_resolved or not victory:
+		return
+
+	if enemy_controller and enemy_controller.has_method("_resolve_encounter"):
+		enemy_controller.call("_resolve_encounter", "combat_victory")
+	elif enemy_controller and enemy_controller.has_signal("encounter_ended"):
+		enemy_controller.encounter_ended.emit("combat_victory")
 
 ## Reset encounter for replay
 func reset_encounter() -> void:

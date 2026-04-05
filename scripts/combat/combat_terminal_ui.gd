@@ -89,6 +89,10 @@ const NPC_VISUAL_TEXTURE_PATHS := {
 		"bad": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_bad_messy_directory.png",
 		"good": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_good_messy_directory.png"
 	},
+	"sage": {
+		"bad": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_Sage.png",
+		"good": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_Sage.png"
+	},
 	"default": {
 		"bad": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_bad_lost_file.png",
 		"good": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_good_lost_file.png"
@@ -1923,6 +1927,14 @@ func _get_npc_visual_progress() -> float:
 
 func _get_current_enemy_visual_key() -> String:
 	var enemy_label := _get_current_enemy_label().to_lower()
+	var enemy_id := ""
+	if enemy_controller and "enemy_data" in enemy_controller and enemy_controller.enemy_data and "id" in enemy_controller.enemy_data:
+		enemy_id = str(enemy_controller.enemy_data.id).to_lower()
+
+	if enemy_id == "sage" or enemy_label.find("sage") != -1:
+		return "sage"
+	if enemy_id == "printer_beast" or enemy_label.find("printer") != -1:
+		return "printer_beast"
 	if enemy_label.find("lost") != -1:
 		return "lost_file"
 	if enemy_label.find("broken") != -1 and enemy_label.find("link") != -1:

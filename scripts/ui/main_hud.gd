@@ -25,6 +25,13 @@ const SKILL_UNLOCK_FLAGS := {
 	"potion_overclock": "potion_overclock_unlocked",
 	"potion_hardening": "potion_hardening_unlocked",
 }
+const SKILL_UNLOCK_COSTS := {
+	"taskkill": 120,
+	"potion_patch": 150,
+	"potion_overclock": 220,
+	"potion_hardening": 260,
+	"sudo_privilege": 320,
+}
 
 const TERMINAL_TELEPORT_TARGETS := {
 	"fallback_hamlet": {
@@ -1004,6 +1011,12 @@ func _unlock_skill(skill_name: String) -> void:
 		return
 
 	if not _can_unlock_skill(skill_name):
+		var unlock_cost := _get_skill_unlock_cost(skill_name)
+		if unlock_cost > 0:
+			var current_bits := int(SceneManager.get("data_bits"))
+			if current_bits < unlock_cost:
+				_print_terminal_line("Unlock failed: '%s' requires %d Data Bits (you have %d)." % [skill_name, unlock_cost, current_bits])
+				return
 		_print_terminal_line("Unlock failed: requirements not met for '%s'." % skill_name)
 		return
 	
@@ -1012,14 +1025,28 @@ func _unlock_skill(skill_name: String) -> void:
 		_print_terminal_line("Unlock failed: invalid unlock mapping for '%s'." % skill_name)
 		return
 	if SceneManager.get(flag_name) == true:
-		_print_terminal_line("Skill '%s' is already unlocked." % skill_name)
+		if not _has_skill_unlock_receipt(skill_name):
+			_mark_skill_unlock_receipt(skill_name)
+			_print_terminal_line("Skill '%s' is already unlocked. Receipt synced." % skill_name)
+		else:
+			_print_terminal_line("Skill '%s' is already unlocked." % skill_name)
 		return
+
+	var skill_cost := _get_skill_unlock_cost(skill_name)
+	if skill_cost > 0:
+		if not SceneManager.spend_data_bits(skill_cost, "skill_unlock_%s" % skill_name):
+			_print_terminal_line("Unlock failed: couldn't spend %d Data Bits for '%s'." % [skill_cost, skill_name])
+			return
+		_print_terminal_line("Spent %d Data Bits to unlock '%s'." % [skill_cost, skill_name])
 	SceneManager.set(flag_name, true)
 	_mark_skill_unlock_receipt(skill_name)
 	if skill_name == "file_explorer":
 		_update_visibility()
 	
 	_print_terminal_line("Skill '%s' unlocked successfully!" % skill_name)
+
+func _get_skill_unlock_cost(skill_name: String) -> int:
+	return int(SKILL_UNLOCK_COSTS.get(skill_name, 0))
 
 func _can_unlock_skill(skill_name: String) -> bool:
 	if SceneManager == null:
@@ -1037,6 +1064,8 @@ func _can_unlock_skill(skill_name: String) -> bool:
 				var cmo_flag: Variant = npc_map.get("CMO", false)
 				cmo_interacted = cmo_flag == true
 			return SceneManager.get("printer_beast_defeated") == true and cmo_interacted
+		"taskkill", "sudo_privilege", "potion_patch", "potion_overclock", "potion_hardening":
+			return int(SceneManager.get("data_bits")) >= _get_skill_unlock_cost(skill_name)
 		_:
 			return SKILL_UNLOCK_FLAGS.has(skill_name)
 

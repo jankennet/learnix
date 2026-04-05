@@ -1,8 +1,9 @@
-[gd_scene load_steps=19 format=3 uid="uid://cgnaqsfcnjcqh"]
+[gd_scene load_steps=20 format=3 uid="uid://cgnaqsfcnjcqh"]
 
 [ext_resource type="PackedScene" uid="uid://c130218kdolm1" path="res://levelAssets/gtlfLevels/CitadelKaykit.glb" id="1_7lphe"]
 [ext_resource type="Texture2D" uid="uid://2sr4mubj2xie" path="res://levelAssets/hdris/DaySkyHDRI046A_1K_HDR.exr" id="1_pcl2b"]
 [ext_resource type="Script" uid="uid://bck3pddiufo8o" path="res://scripts/collision_builder.gd" id="3_w7pyj"]
+[ext_resource type="Script" uid="uid://kli8g5vspyy6" path="res://scripts/proprietary_citadel.gd" id="4_karma"]
 [ext_resource type="Texture2D" uid="uid://c1pnywisgeo0c" path="res://Assets/characterSpriteSheets/ss_Tux/tux_idle.png" id="4_vgi1g"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_vgi1g"]
@@ -74,6 +75,7 @@ animations = [{
 
 [node name="ProprietaryCitadel" type="Node3D"]
 transform = Transform3D(5, 0, 0, 0, 5, 0, 0, 0, 5, 0, 0, 0)
+script = ExtResource("4_karma")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_m7513")
