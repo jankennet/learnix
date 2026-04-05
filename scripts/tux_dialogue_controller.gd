@@ -3,6 +3,7 @@ extends Node
 const DialogueResourceRes = preload("res://addons/dialogue_manager/dialogue_resource.gd")
 const DMConstantsRes = preload("res://addons/dialogue_manager/constants.gd")
 const HUD_DIALOGUE_PATH := "res://dialogues/TuxHUD.dialogue"
+const FALLBACK_HAMLET_SCENE_PATH := "res://Scenes/Levels/fallback_hamlet.tscn"
 
 var dm: Node = null
 var sm: Node = null
@@ -18,6 +19,8 @@ var _draining_tux_lines: bool = false
 var _hud_dialogue_resource: Resource = null
 var _hud_dialogue_busy: bool = false
 var _hud_selected_topic: String = ""
+var _last_scene_path_seen: String = ""
+var _post_ending_greeting_shown_for_scene: bool = false
 
 const TUX_LINE_GAP_SECONDS := 1.25
 
@@ -105,16 +108,7 @@ func _ready() -> void:
 	sm = get_node_or_null("/root/SceneManager")
 
 	if sm:
-		_prev_npc_states = sm.npc_states.duplicate(true) if sm.npc_states != null else {}
-		_prev_player_karma = str(sm.player_karma)
-		
-		for flag in ITEM_FLAGS:
-			_prev_item_flags[flag] = sm.get(flag) if sm.get(flag) != null else false
-		for flag in DEFEAT_FLAGS:
-			_prev_defeated_flags[flag] = sm.get(flag) if sm.get(flag) != null else false
-		for quest_id in sm.quest_manager.quests.keys() if sm.quest_manager else []:
-			var qid := String(quest_id)
-			_ready_check_prompted[qid] = _is_quest_ready_to_check(qid)
+		refresh_state_snapshot()
 			
 		if sm.has_signal("npc_first_interacted"):
 			sm.npc_first_interacted.connect(_on_npc_first_interacted)
@@ -131,6 +125,31 @@ func _ready() -> void:
 	check_timer.timeout.connect(_check_state_changes_periodic)
 	add_child(check_timer)
 	check_timer.start()
+
+func refresh_state_snapshot(clear_pending_lines: bool = false) -> void:
+	if sm == null:
+		sm = get_node_or_null("/root/SceneManager")
+	if sm == null:
+		return
+
+	_prev_npc_states = sm.npc_states.duplicate(true) if sm.npc_states != null else {}
+	_prev_player_karma = str(sm.player_karma)
+
+	_prev_item_flags.clear()
+	for flag in ITEM_FLAGS:
+		_prev_item_flags[flag] = sm.get(flag) if sm.get(flag) != null else false
+
+	_prev_defeated_flags.clear()
+	for flag in DEFEAT_FLAGS:
+		_prev_defeated_flags[flag] = sm.get(flag) if sm.get(flag) != null else false
+
+	_ready_check_prompted.clear()
+	for quest_id in sm.quest_manager.quests.keys() if sm.quest_manager else []:
+		var qid := String(quest_id)
+		_ready_check_prompted[qid] = _is_quest_ready_to_check(qid)
+
+	if clear_pending_lines:
+		_tux_line_queue.clear()
 
 func _on_npc_first_interacted(npc_name: String) -> void:
 	# Just show status in inventory UI when met; don't open file explorer
@@ -177,6 +196,13 @@ func _on_dialogue_ended(_resource: Resource) -> void:
 # Periodically check NPC states to catch state changes from puzzle solving
 func _check_state_changes_periodic() -> void:
 	if sm == null: return
+
+	var current_scene := get_tree().current_scene
+	var current_scene_path := String(current_scene.scene_file_path) if current_scene else ""
+	if current_scene_path != _last_scene_path_seen:
+		_last_scene_path_seen = current_scene_path
+		_post_ending_greeting_shown_for_scene = false
+	_maybe_show_post_ending_greeting(current_scene_path)
 	
 	var curr_states: Dictionary = sm.npc_states.duplicate(true) if sm.npc_states else {}
 	for npc_key in curr_states.keys():
@@ -187,6 +213,25 @@ func _check_state_changes_periodic() -> void:
 			_handle_npc_state_change(npc_key, old_val, new_val)
 	_prev_npc_states = curr_states
 	_maybe_prompt_ready_quest_check()
+
+func _maybe_show_post_ending_greeting(scene_path: String) -> void:
+	if _post_ending_greeting_shown_for_scene:
+		return
+	if scene_path != FALLBACK_HAMLET_SCENE_PATH:
+		return
+	if sm == null:
+		return
+	if not bool(sm.get_meta("evil_tux_boss_cleared", false)):
+		return
+	if bool(sm.get_meta("hide_all_npcs_post_evil_tux", false)):
+		return
+	if str(sm.player_karma) != "good":
+		return
+	if not bool(sm.bios_vault_sage_quiz_passed) and not bool(sm.bios_vault_sage_defeated):
+		return
+
+	_post_ending_greeting_shown_for_scene = true
+	_show_tux_line("Hey there, savior. Good to see you back in Fallback Hamlet.")
 
 # Helper to reduce code duplication for flag checking
 func _check_boolean_flags(flag_list: Array[String], storage: Dictionary, callback: Callable) -> void:
@@ -325,6 +370,11 @@ func show_world_hint_from_hud() -> void:
 		call_deferred("_run_bios_vault_missing_tux_dialogue")
 		return
 
+	if _is_post_evil_tux_bad_route_state():
+		_hud_dialogue_busy = true
+		call_deferred("_run_post_evil_tux_tux_icon_offline_dialogue")
+		return
+
 	if _is_proprietary_citadel_scene_active():
 		_hud_dialogue_busy = true
 		call_deferred("_run_proprietary_tux_ahead_dialogue")
@@ -356,6 +406,24 @@ func _run_proprietary_tux_ahead_dialogue() -> void:
 		await dm.dialogue_ended
 
 	_hud_dialogue_busy = false
+
+func _run_post_evil_tux_tux_icon_offline_dialogue() -> void:
+	var dialogue := _get_hud_dialogue_resource()
+	if dm == null or dialogue == null:
+		_hud_dialogue_busy = false
+		return
+
+	dm.show_dialogue_balloon(dialogue, "hud_post_evil_tux_icon_offline", [self])
+	if dm.has_signal("dialogue_ended"):
+		await dm.dialogue_ended
+
+	_hud_dialogue_busy = false
+
+func _is_post_evil_tux_bad_route_state() -> bool:
+	if sm == null:
+		return false
+
+	return bool(sm.get_meta("evil_tux_boss_cleared", false)) and bool(sm.get_meta("hide_all_npcs_post_evil_tux", false))
 
 func _is_bios_vault_scene_active() -> bool:
 	var current_scene := get_tree().current_scene

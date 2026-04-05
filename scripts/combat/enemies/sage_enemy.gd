@@ -95,6 +95,7 @@ func _resolve_encounter(method: String) -> void:
 		"combat_victory":
 			if SceneManager:
 				SceneManager.npc_states["Sage"] = "defeated"
+				SceneManager.bios_vault_sage_defeated = true
 				SceneManager.set_meta("bios_vault_sage_defeated", true)
 			_hide_npc_after_defeat("Sage")
 		"fled":

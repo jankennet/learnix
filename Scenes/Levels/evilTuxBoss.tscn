@@ -1,6 +1,8 @@
-[gd_scene load_steps=30 format=3 uid="uid://bosnnh7d5ydpn"]
+[gd_scene load_steps=32 format=3 uid="uid://bosnnh7d5ydpn"]
 
 [ext_resource type="Texture2D" uid="uid://wfse0iuwquxn" path="res://Assets/characterSpriteSheets/ss_Tux/bossTux_idle.png" id="1_3mo84"]
+[ext_resource type="Script" uid="uid://dud6j4ymrx6hf" path="res://scripts/tutorial_tux_actor.gd" id="2_tuxanim"]
+[ext_resource type="Script" uid="uid://kobej58ihpnc" path="res://scripts/evil_tux_boss.gd" id="3_bossctl"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_fuhtj"]
 sky_top_color = Color(0, 0, 0, 1)
@@ -204,6 +206,7 @@ animations = [{
 }]
 
 [node name="Node3D" type="Node3D"]
+script = ExtResource("3_bossctl")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_myh5v")
@@ -221,13 +224,14 @@ radius = 3.8774414
 height = 0.44128418
 sides = 21
 
-[node name="CharacterBody3D" type="CharacterBody3D" parent="."]
+[node name="EvilTux" type="CharacterBody3D" parent="." groups=["npcs"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0868948, -4.8074493)
+script = ExtResource("2_tuxanim")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="EvilTux"]
 shape = SubResource("CapsuleShape3D_hpcgj")
 
-[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="CharacterBody3D"]
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="EvilTux"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.002061367, 0.007871866, -0.003774166)
 pixel_size = 0.05
 billboard = 2

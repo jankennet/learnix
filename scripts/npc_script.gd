@@ -108,6 +108,10 @@ func _ready():
 				var path_p = "res://dialogues/PrinterBeast.dialogue"
 				if ResourceLoader.exists(path_p):
 					dialogue_resource_path = path_p
+			"tux":
+				var path_tux = "res://dialogues/ProprietaryCitadelTux.dialogue"
+				if ResourceLoader.exists(path_tux):
+					dialogue_resource_path = path_tux
 			"cmo":
 				var path_cmo = "res://dialogues/CMO.dialogue"
 				if ResourceLoader.exists(path_cmo):
@@ -186,6 +190,10 @@ func _should_disable_interaction_for_state(state: String) -> bool:
 	return state == "defeated"
 
 func _apply_state_visuals_from_scene_state(force: bool = false) -> void:
+	if SceneManager and bool(SceneManager.get_meta("hide_all_npcs_post_evil_tux", false)):
+		_hide_self(true)
+		return
+
 	var state := ""
 	if npc_name in SceneManager.npc_states:
 		state = str(SceneManager.npc_states[npc_name])
@@ -375,6 +383,27 @@ func start_bios_vault_transfer() -> void:
 		return
 	_gatekeeper_transfer_running = true
 	call_deferred("_run_bios_vault_transfer")
+
+func start_proprietary_citadel_good_pass_ending() -> void:
+	_call_scene_controller("start_good_pass_ending")
+
+func start_proprietary_citadel_good_kill_ending() -> void:
+	_call_scene_controller("start_good_kill_ending")
+
+func start_proprietary_citadel_bad_kill_ending() -> void:
+	_call_scene_controller("start_bad_kill_ending")
+
+func start_evil_tux_boss_fight() -> void:
+	_call_scene_controller("start_evil_tux_boss_fight")
+
+func _call_scene_controller(method_name: String) -> void:
+	var scene_controller = get_tree().current_scene
+	if scene_controller and scene_controller.has_method(method_name):
+		scene_controller.call(method_name)
+		return
+
+	if SceneManager and SceneManager.has_method(method_name):
+		SceneManager.call(method_name)
 
 func _run_bios_vault_transfer() -> void:
 	var target_scene_path := "res://Scenes/Levels/bios_vault.tscn"

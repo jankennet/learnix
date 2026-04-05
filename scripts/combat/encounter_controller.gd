@@ -61,6 +61,10 @@ func _ready() -> void:
 
 func _create_enemy_controller() -> void:
 	match encounter_id:
+		"evil_tux":
+			enemy_controller = EvilTuxEnemy.new()
+			add_child(enemy_controller)
+			enemy_controller.encounter_ended.connect(_on_encounter_ended)
 		"sage":
 			enemy_controller = SageEnemy.new()
 			add_child(enemy_controller)

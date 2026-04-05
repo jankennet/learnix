@@ -1,0 +1,35 @@
+~ start
+if SceneManager.get_meta("evil_tux_boss_cleared", false) == true and SceneManager.player_karma == "good" and SceneManager.bios_vault_sage_quiz_passed == true and SceneManager.bios_vault_sage_defeated == false:
+	Tux: Hey there, savior.
+	Tux: Fallback Hamlet is calmer with you back in it.
+	Tux: You kept the Vault clean. I remember that.
+	=> END
+elif SceneManager.get_meta("evil_tux_boss_cleared", false) == true and SceneManager.player_karma == "good" and SceneManager.bios_vault_sage_defeated == true:
+	Tux: You're back.
+	Tux: You forced your way through the Vault, but you still made it home.
+	Tux: Let's treat that as progress and keep moving.
+	=> END
+if SceneManager.player_karma == "good" and SceneManager.bios_vault_sage_quiz_passed == true and SceneManager.bios_vault_sage_defeated == false:
+	Tux: Nova. You stayed clean in the Vault.
+	Tux: You understood—the Vault was never about power or conquest.
+	Tux: It was about integrity. About knowing when not to fight.
+	Tux: That's the kind of wisdom this world needs right now.
+	Tux: Thank you.
+	do start_proprietary_citadel_good_pass_ending()
+	=> END
+elif SceneManager.player_karma == "good" and SceneManager.bios_vault_sage_defeated == true:
+	Tux: You made it through.
+	Tux: I am glad you survived, but you chose force over trust.
+	Tux: I am not fully convinced, but the path is yours now.
+	do start_proprietary_citadel_good_kill_ending()
+	=> END
+elif SceneManager.player_karma == "bad" and SceneManager.bios_vault_sage_defeated == true:
+	Tux: What did you do?
+	Tux: That was not a correction. That was a rupture.
+	Tux: ...I don't feel too good.
+	do start_proprietary_citadel_bad_kill_ending()
+	=> END
+else:
+	Tux: I am here, but your path is not finished yet.
+	Tux: Come back after the Vault is resolved.
+	=> END

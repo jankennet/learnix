@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://bck3pddiufo8o" path="res://scripts/collision_builder.gd" id="3_w7pyj"]
 [ext_resource type="Script" uid="uid://kli8g5vspyy6" path="res://scripts/proprietary_citadel.gd" id="4_karma"]
 [ext_resource type="Texture2D" uid="uid://c1pnywisgeo0c" path="res://Assets/characterSpriteSheets/ss_Tux/tux_idle.png" id="4_vgi1g"]
+[ext_resource type="Script" path="res://scripts/npc_script.gd" id="5_tuxnpc"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_vgi1g"]
 panorama = ExtResource("1_pcl2b")
@@ -148,6 +149,13 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.76003796, 0, -3.381411)
 
 [node name="Tux" type="CharacterBody3D" parent="NPCs" groups=["npcs"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4564797, 0)
+script = ExtResource("5_tuxnpc")
+idle_animation = "default"
+good_idle_anim = "default"
+bad_idle_anim = "default"
+neutral_idle_anim = "default"
+dialogue_resource_path = "res://dialogues/ProprietaryCitadelTux.dialogue"
+dialogue_start_title = "start"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="NPCs/Tux"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.16687012, 0)

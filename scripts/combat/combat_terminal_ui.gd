@@ -93,6 +93,10 @@ const NPC_VISUAL_TEXTURE_PATHS := {
 		"bad": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_Sage.png",
 		"good": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_Sage.png"
 	},
+	"evil_tux": {
+		"bad": "res://Assets/characterSpriteSheets/ss_Tux/bossTux_idle.png",
+		"good": "res://Assets/characterSpriteSheets/ss_Tux/bossTux_idle.png"
+	},
 	"default": {
 		"bad": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_bad_lost_file.png",
 		"good": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_good_lost_file.png"
@@ -341,6 +345,9 @@ func open_combat_ui() -> void:
 	_update_side_help_for_mode()
 	_refresh_terminal_visuals(true)
 	await _show_terminal_intro_tutorial_if_needed()
+	if command_input:
+		command_input.editable = true
+		command_input.grab_focus()
 	_update_tux_helper_popup()
 
 ## Hide the combat UI
@@ -1473,6 +1480,8 @@ func _get_dependency_profile() -> String:
 		return "driver_remnant"
 	if enemy_label.find("ghost") != -1:
 		return "hardware_ghost"
+	if enemy_label.find("evil") != -1 and enemy_label.find("tux") != -1:
+		return "evil_tux"
 	if enemy_label.find("printer") != -1:
 		return "printer_beast"
 	if enemy_label.find("broken") != -1 and enemy_label.find("link") != -1:
@@ -1481,6 +1490,14 @@ func _get_dependency_profile() -> String:
 		return "lost_file"
 
 	return "default"
+
+func _get_dependency_fail_limit() -> int:
+	var enemy_id := ""
+	if enemy_controller and "enemy_data" in enemy_controller and enemy_controller.enemy_data and "id" in enemy_controller.enemy_data:
+		enemy_id = str(enemy_controller.enemy_data.id).to_lower()
+	if enemy_id == "evil_tux":
+		return 1
+	return DEPENDENCY_FAIL_LIMIT
 
 ## Track current timing context
 var _current_timing_context: String = "combat"
@@ -1596,7 +1613,7 @@ func _handle_dependency_minigame_failure(reason_text: String) -> void:
 	_print_terminal("[color=#e68c33]Integrity -%d (%d/%d failures)[/color]\n" % [
 		damage_taken,
 		_dependency_fail_count,
-		DEPENDENCY_FAIL_LIMIT
+		_get_dependency_fail_limit()
 	])
 	_update_hp_displays()
 	_update_side_help_for_mode()
@@ -1606,7 +1623,7 @@ func _handle_dependency_minigame_failure(reason_text: String) -> void:
 		_force_close_and_cleanup()
 		return
 
-	if _dependency_fail_count >= DEPENDENCY_FAIL_LIMIT:
+	if _dependency_fail_count >= _get_dependency_fail_limit():
 		_mark_dependency_failure_dialogue_state()
 		_print_terminal("[color=#f26666]Too many failed puzzle attempts. Terminal access revoked.[/color]\n")
 		if turn_indicator:

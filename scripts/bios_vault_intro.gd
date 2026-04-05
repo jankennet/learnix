@@ -236,6 +236,7 @@ func mark_sage_quiz_passed() -> void:
 	if SceneManager:
 		SceneManager.sage_quiz_fail_count = 0
 		SceneManager.sage_force_combat = false
+		SceneManager.bios_vault_sage_quiz_passed = true
 		SceneManager.set_meta("bios_vault_sage_quiz_passed", true)
 		var tux_ctrl = SceneManager.get_node_or_null("TuxDialogueController")
 		if tux_ctrl and tux_ctrl.has_method("on_sage_quiz_passed"):

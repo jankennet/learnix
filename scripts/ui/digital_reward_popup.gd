@@ -5,6 +5,7 @@ const FONT_PATH := "res://Assets/fonts/PressStart2P-Regular.ttf"
 
 var _backdrop: ColorRect
 var _panel: PanelContainer
+var _reward_image: TextureRect
 var _title: Label
 var _subtitle: Label
 var _key_text: Label
@@ -12,14 +13,14 @@ var _hint_text: Label
 var _icon: ProficiencyKeyIcon
 var _dismiss_ready: bool = false
 
-func show_key_reward(key_name: String) -> void:
+func show_key_reward(key_name: String, reward_texture: Texture2D = null) -> void:
 	layer = 90
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	_build_ui(key_name)
+	_build_ui(key_name, reward_texture)
 	await _play_animation()
 	_dismiss_ready = true
 
-func _build_ui(key_name: String) -> void:
+func _build_ui(key_name: String, reward_texture: Texture2D = null) -> void:
 	_backdrop = ColorRect.new()
 	_backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_backdrop.color = Color(0, 0.02, 0.06, 0)
@@ -64,9 +65,18 @@ func _build_ui(key_name: String) -> void:
 	icon_holder.custom_minimum_size = Vector2(150, 150)
 	root_hbox.add_child(icon_holder)
 
-	_icon = ProficiencyKeyIcon.new()
-	_icon.scale = Vector2(1.2, 1.2)
-	icon_holder.add_child(_icon)
+	if reward_texture:
+		_reward_image = TextureRect.new()
+		_reward_image.texture = reward_texture
+		_reward_image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		_reward_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		_reward_image.custom_minimum_size = Vector2(150, 150)
+		_reward_image.modulate = Color(1, 1, 1, 0)
+		icon_holder.add_child(_reward_image)
+	else:
+		_icon = ProficiencyKeyIcon.new()
+		_icon.scale = Vector2(1.2, 1.2)
+		icon_holder.add_child(_icon)
 
 	var text_box := VBoxContainer.new()
 	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -116,6 +126,10 @@ func _play_animation() -> void:
 	tween.tween_property(_backdrop, "color:a", 0.62, 0.18)
 	tween.tween_property(_panel, "modulate:a", 1.0, 0.18)
 	tween.tween_property(_panel, "scale", Vector2(1.02, 1.02), 0.20)
+	if _reward_image:
+		tween.tween_property(_reward_image, "modulate:a", 1.0, 0.18)
+	if _icon:
+		tween.tween_property(_icon, "modulate:a", 1.0, 0.18)
 	await tween.finished
 
 	var settle := create_tween()
@@ -144,5 +158,9 @@ func _dismiss() -> void:
 	fade.set_parallel(true)
 	fade.tween_property(_panel, "modulate:a", 0.0, 0.18)
 	fade.tween_property(_backdrop, "color:a", 0.0, 0.18)
+	if _reward_image:
+		fade.tween_property(_reward_image, "modulate:a", 0.0, 0.18)
+	if _icon:
+		fade.tween_property(_icon, "modulate:a", 0.0, 0.18)
 	await fade.finished
 	queue_free()

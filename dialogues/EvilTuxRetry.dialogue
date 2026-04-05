@@ -1,0 +1,15 @@
+~ start
+Evil Tux: The shell is still shaking.
+Evil Tux: You can stop here, or you can try again.
+- Retry the fight.
+	=> retry_yes
+- Leave for now.
+	=> retry_no
+
+~ retry_yes
+do retry_evil_tux_boss()
+=> END
+
+~ retry_no
+do decline_evil_tux_retry()
+=> END

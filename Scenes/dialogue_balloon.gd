@@ -37,7 +37,9 @@ const DIALOGUE_PORTRAITS_BASE := {
 	"Mount Whisperer": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_mount_whisperer.png",
 	"Printer Beast": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_PrinterBoss.png",
 	"Sage": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_Sage.png",
+	"Evil Tux": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_EvilTux.png",
 	"Tux": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_Tux.png",
+	"EvilTux": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_EvilTux.png",
 	"CMO": "res://Assets/characterSpriteSheets/ss_FallbackHamletNPC/CMO.png"
 }
 

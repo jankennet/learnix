@@ -13,6 +13,13 @@ const MAIN_HUD_SCENE_PATH := "res://Scenes/ui/MainHUD.tscn"
 const QUEST_LIST_SCENE_PATH := "res://Scenes/ui/QuestList.tscn"
 const BIOS_VAULT_SCENE_PATH := "res://Scenes/Levels/bios_vault.tscn"
 const BIOS_VAULT_ALT_SCENE_PATH := "res://Scenes/Levels/bios_vault_.tscn"
+const PROPRIETARY_CITADEL_SCENE_PATH := "res://Scenes/Levels/proprietary_citadel.tscn"
+const EVIL_TUX_BOSS_SCENE_PATH := "res://Scenes/Levels/evilTuxBoss.tscn"
+const EVIL_TUX_BOSS_CLEARED_META_KEY := "evil_tux_boss_cleared"
+const EVIL_TUX_ENDGAME_META_KEY := "post_evil_tux_endgame"
+const EVIL_TUX_HIDE_NPCS_META_KEY := "hide_all_npcs_post_evil_tux"
+const EVIL_TUX_RETURN_SCENE_META_KEY := "evil_tux_return_scene_path"
+const EVIL_TUX_RETURN_SPAWN_META_KEY := "evil_tux_return_spawn_name"
 const TERMINAL_EXPLORED_META_KEY := "terminal_explored_locations"
 const BIOS_VAULT_SAGE_META_KEY := "bios_vault_sage_quiz_passed"
 const PENDING_REWARD_META_KEY := "pending_reward_popup_key"
@@ -75,6 +82,7 @@ const PERSISTED_STATE_KEYS := [
 	"met_driver_remnant", "met_printer_boss", "driver_remnant_defeated", "printer_beast_defeated", 
 	"sudo_token_driver_remnant", "deamon_depths_boss_door_unlocked", "deamon_depths_printer_intro_played", 
 	"sage_has_many_quests", "sage_boss_only_progress", "sage_quiz_tier", "sage_quiz_fail_count", "sage_force_combat",
+	"bios_vault_sage_quiz_passed", "bios_vault_sage_defeated",
 	"cli_history_unlocked", "teleport_unlocked", "file_explorer_unlocked", "mkdir_construct_unlocked",
 	"taskkill_unlocked", "sudo_privilege_unlocked", "potion_patch_unlocked", "potion_overclock_unlocked", "potion_hardening_unlocked"
 ]
@@ -120,6 +128,8 @@ var sage_boss_only_progress: bool = false
 var sage_quiz_tier: String = "intermediate"
 var sage_quiz_fail_count: int = 0
 var sage_force_combat: bool = false
+var bios_vault_sage_quiz_passed: bool = false
+var bios_vault_sage_defeated: bool = false
 
 # Terminal skill unlock flags
 var cli_history_unlocked: bool = false
@@ -233,6 +243,27 @@ func _load_game_from_data(save_data: Dictionary) -> void:
 		input_locked = false
 		return
 
+	var save_meta: Dictionary = save_data.get("meta", {}) if save_data.has("meta") else {}
+	var evil_tux_cleared := bool(save_meta.get(EVIL_TUX_BOSS_CLEARED_META_KEY, false))
+	if not evil_tux_cleared:
+		save_meta.erase(EVIL_TUX_ENDGAME_META_KEY)
+		save_meta.erase(EVIL_TUX_HIDE_NPCS_META_KEY)
+		save_meta.erase(EVIL_TUX_RETURN_SCENE_META_KEY)
+		save_meta.erase(EVIL_TUX_RETURN_SPAWN_META_KEY)
+		save_data["meta"] = save_meta
+	var spawn_name := ""
+	if evil_tux_cleared and save_meta.has(EVIL_TUX_RETURN_SCENE_META_KEY):
+		scene_path = String(save_meta.get(EVIL_TUX_RETURN_SCENE_META_KEY, scene_path))
+		spawn_name = String(save_meta.get(EVIL_TUX_RETURN_SPAWN_META_KEY, ""))
+	elif evil_tux_cleared and bool(save_meta.get(EVIL_TUX_ENDGAME_META_KEY, false)):
+		scene_path = FALLBACK_HAMLET_SCENE_PATH
+		spawn_name = "first_spawn"
+
+	if spawn_name == "":
+		spawn_name = String(LEVEL_DEFAULT_SPAWNS.get(scene_path, ""))
+	if spawn_name == "" and scene_path == FALLBACK_HAMLET_SCENE_PATH:
+		spawn_name = "first_spawn"
+
 	var loading_ui = await _show_loading_screen(scene_path)
 	var packed_scene := await _load_scene_threaded(scene_path, loading_ui)
 	if not packed_scene:
@@ -241,6 +272,7 @@ func _load_game_from_data(save_data: Dictionary) -> void:
 		return
 
 	_apply_runtime_state(save_data)
+	_refresh_tux_dialogue_snapshot(true)
 
 	var root := get_tree().root
 	var previous_scene := get_tree().current_scene
@@ -266,9 +298,23 @@ func _load_game_from_data(save_data: Dictionary) -> void:
 
 	var active_player := _ensure_player_in_loaded_scene(new_scene)
 	if active_player:
-		if _is_bios_vault_scene(scene_path):
+		active_player.set_physics_process(false)
+		if _should_hide_companion_tux_in_scene(scene_path):
 			_hide_player_companion_tux(active_player)
-		active_player.global_transform = _deserialize_transform(save_data.get("player_transform", {}))
+		var transfer_root := _get_player_transfer_root(active_player)
+		if spawn_name != "":
+			var spawn_point := new_scene.get_node_or_null(spawn_name)
+			if spawn_point == null:
+				var level_default_spawn := String(LEVEL_DEFAULT_SPAWNS.get(scene_path, ""))
+				if level_default_spawn != "" and level_default_spawn != spawn_name:
+					spawn_point = new_scene.get_node_or_null(level_default_spawn)
+			var spawn_point_3d := spawn_point as Node3D
+			if spawn_point_3d:
+				_apply_spawn_transform(transfer_root, active_player, spawn_point_3d.global_transform)
+			else:
+				_apply_spawn_transform(transfer_root, active_player, _deserialize_transform(save_data.get("player_transform", {})))
+		else:
+			_apply_spawn_transform(transfer_root, active_player, _deserialize_transform(save_data.get("player_transform", {})))
 		player = active_player
 		var cam = active_player.get_node_or_null("Camera3D")
 		if cam:
@@ -279,7 +325,14 @@ func _load_game_from_data(save_data: Dictionary) -> void:
 
 	_activate_scene_npcs(new_scene)
 	await get_tree().process_frame
+	if active_player and is_instance_valid(active_player):
+		active_player.set_physics_process(true)
 	await _hide_loading_screen()
+
+func _refresh_tux_dialogue_snapshot(clear_pending_lines: bool = false) -> void:
+	var tux_ctrl := get_node_or_null("TuxDialogueController")
+	if tux_ctrl and tux_ctrl.has_method("refresh_state_snapshot"):
+		tux_ctrl.call("refresh_state_snapshot", clear_pending_lines)
 
 func _build_save_data() -> Dictionary:
 	var current_scene := get_tree().current_scene
@@ -421,6 +474,11 @@ func _persistent_meta_keys() -> Array[String]:
 	var keys: Array[String] = [
 		TERMINAL_EXPLORED_META_KEY,
 		BIOS_VAULT_SAGE_META_KEY,
+		EVIL_TUX_BOSS_CLEARED_META_KEY,
+		EVIL_TUX_ENDGAME_META_KEY,
+		EVIL_TUX_HIDE_NPCS_META_KEY,
+		EVIL_TUX_RETURN_SCENE_META_KEY,
+		EVIL_TUX_RETURN_SPAWN_META_KEY,
 		PENDING_REWARD_META_KEY,
 		SKILL_UNLOCK_RECEIPTS_META_KEY,
 	]
@@ -489,6 +547,8 @@ func _reset_runtime_state() -> void:
 	sage_quiz_tier = "intermediate"
 	sage_quiz_fail_count = 0
 	sage_force_combat = false
+	bios_vault_sage_quiz_passed = false
+	bios_vault_sage_defeated = false
 	cli_history_unlocked = false
 	teleport_unlocked = false
 	file_explorer_unlocked = false
@@ -715,7 +775,7 @@ func _player_floor_clearance(active_player: CharacterBody3D) -> float:
 	return max(0.2, -min_bottom)
 
 # 🌀 Universal teleport (with loading screen + NPC refresh)
-func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.0) -> void:
+func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.0, preserve_gameplay_nodes: bool = true) -> void:
 	print("🌍 Teleporting to: ", scene_path)
 	input_locked = true
 	# Play teleport SFX
@@ -723,15 +783,19 @@ func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.
 	var current_scene := get_tree().current_scene
 	var previous_scene_path := current_scene.scene_file_path if current_scene else ""
 
-	var active_player := _ensure_player()
-	if not active_player:
-		input_locked = false
-		return
+	var active_player: CharacterBody3D = null
+	var transfer_node: Node = null
+	var persistent_ui: Node = null
+	if preserve_gameplay_nodes:
+		active_player = _ensure_player()
+		if not active_player:
+			input_locked = false
+			return
 
-	var transfer_node := _get_player_transfer_root(active_player)
-	if _is_bios_vault_scene(scene_path):
-		_hide_player_companion_tux(active_player)
-	var persistent_ui := _extract_persistent_ui(current_scene)
+		transfer_node = _get_player_transfer_root(active_player)
+		if _should_hide_companion_tux_in_scene(scene_path):
+			_hide_player_companion_tux(active_player)
+		persistent_ui = _extract_persistent_ui(current_scene)
 
 	var loading_ui = await _show_loading_screen(scene_path, spawn_name)
 	var new_scene_res := await _load_scene_threaded(scene_path, loading_ui)
@@ -745,10 +809,11 @@ func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.
 	var root := get_tree().root
 
 	# Safely re-parent
-	if transfer_node.get_parent():
-		transfer_node.get_parent().remove_child(transfer_node)
-	if persistent_ui and persistent_ui.get_parent():
-		persistent_ui.get_parent().remove_child(persistent_ui)
+	if preserve_gameplay_nodes:
+		if transfer_node.get_parent():
+			transfer_node.get_parent().remove_child(transfer_node)
+		if persistent_ui and persistent_ui.get_parent():
+			persistent_ui.get_parent().remove_child(persistent_ui)
 
 	if current_scene:
 		current_scene.queue_free()
@@ -759,38 +824,45 @@ func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.
 	if SCENE_MUSIC_MAP.has(scene_path):
 		play_music_for_key(SCENE_MUSIC_MAP[scene_path])
 
-	new_scene.add_child(transfer_node)
-	if persistent_ui and not new_scene.has_node("UI"):
-		new_scene.add_child(persistent_ui)
-	elif persistent_ui:
-		root.add_child(persistent_ui)
+	if preserve_gameplay_nodes:
+		new_scene.add_child(transfer_node)
+		if persistent_ui and not new_scene.has_node("UI"):
+			new_scene.add_child(persistent_ui)
+		elif persistent_ui:
+			root.add_child(persistent_ui)
 
-	player = active_player
+	if preserve_gameplay_nodes:
+		player = active_player
 
 	# Spawn Resolution
-	var spawn := new_scene.get_node_or_null(spawn_name)
-	if spawn:
-		_apply_spawn_transform(transfer_node, active_player, spawn.global_transform)
-	else:
-		push_warning("Spawn point not found: " + spawn_name)
+	if preserve_gameplay_nodes:
+		var spawn := new_scene.get_node_or_null(spawn_name)
+		if spawn:
+			_apply_spawn_transform(transfer_node, active_player, spawn.global_transform)
+		else:
+			push_warning("Spawn point not found: " + spawn_name)
 
 	await get_tree().create_timer(delay).timeout
 
-	var cam := active_player.get_node_or_null("Camera3D")
-	if cam:
-		cam.current = true
-		_bind_terrain_camera_for_scene(new_scene, cam)
+	if preserve_gameplay_nodes and active_player:
+		var cam := active_player.get_node_or_null("Camera3D")
+		if cam:
+			cam.current = true
+			_bind_terrain_camera_for_scene(new_scene, cam)
 
-	_activate_scene_npcs(new_scene)
+	if preserve_gameplay_nodes:
+		_activate_scene_npcs(new_scene)
 
 	# Clean state restoration
-	active_player.process_mode = Node.PROCESS_MODE_INHERIT
-	active_player.set_physics_process(true)
-	active_player.set_process_input(true)
-	active_player.set_process_unhandled_input(true)
+	if preserve_gameplay_nodes and active_player:
+		active_player.process_mode = Node.PROCESS_MODE_INHERIT
+		active_player.set_physics_process(true)
+		active_player.set_process_input(true)
+		active_player.set_process_unhandled_input(true)
 
 	await _hide_loading_screen()
-	await _run_post_tutorial_arrival_sequence(previous_scene_path, scene_path, active_player)
+	if preserve_gameplay_nodes and active_player:
+		await _run_post_tutorial_arrival_sequence(previous_scene_path, scene_path, active_player)
 
 func _get_player_transfer_root(active_player: CharacterBody3D) -> Node:
 	var cursor: Node = active_player
@@ -816,6 +888,12 @@ func _extract_persistent_ui(scene: Node) -> Node:
 
 func _is_bios_vault_scene(scene_path: String) -> bool:
 	return scene_path == BIOS_VAULT_SCENE_PATH or scene_path == BIOS_VAULT_ALT_SCENE_PATH
+
+func _should_hide_companion_tux_in_scene(scene_path: String) -> bool:
+	return _is_bios_vault_scene(scene_path) \
+		or scene_path == PROPRIETARY_CITADEL_SCENE_PATH \
+		or scene_path == EVIL_TUX_BOSS_SCENE_PATH \
+		or bool(get_meta(EVIL_TUX_HIDE_NPCS_META_KEY, false))
 
 func _hide_player_companion_tux(active_player: CharacterBody3D) -> void:
 	if active_player == null:
@@ -886,7 +964,7 @@ func start_new_game(scene_path: String) -> void:
 
 	var active_player := _ensure_player_in_loaded_scene(new_scene)
 	if active_player:
-		if _is_bios_vault_scene(scene_path):
+		if _should_hide_companion_tux_in_scene(scene_path):
 			_hide_player_companion_tux(active_player)
 		var spawn_path: String = LEVEL_DEFAULT_SPAWNS.get(scene_path, "")
 		if spawn_path != "":

@@ -245,3 +245,7 @@ Nova: This place feels wrong without you.
 ~ hud_proprietary_tux_ahead
 Nova: Oh, Tux is right up ahead.
 => END
+
+~ hud_post_evil_tux_icon_offline
+Nova: It's not working anymore.
+=> END

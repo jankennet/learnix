@@ -1025,12 +1025,12 @@ func _unlock_skill(skill_name: String) -> void:
 		_print_terminal_line("Unlock failed: invalid unlock mapping for '%s'." % skill_name)
 		return
 	if SceneManager.get(flag_name) == true:
-		if not _has_skill_unlock_receipt(skill_name):
-			_mark_skill_unlock_receipt(skill_name)
-			_print_terminal_line("Skill '%s' is already unlocked. Receipt synced." % skill_name)
-		else:
+		if _has_skill_unlock_receipt(skill_name):
 			_print_terminal_line("Skill '%s' is already unlocked." % skill_name)
-		return
+			return
+		# Legacy flag-only state can appear from older saves. Require normal purchase flow.
+		SceneManager.set(flag_name, false)
+		_print_terminal_line("Legacy unlock state detected for '%s'. Purchase required to activate." % skill_name)
 
 	var skill_cost := _get_skill_unlock_cost(skill_name)
 	if skill_cost > 0:
