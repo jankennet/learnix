@@ -23,9 +23,10 @@ Tux: Perfect. Input pipeline confirmed.
 
 ~ hud_unlock
 Tux: Time to unlock your HUD.
-Tux: Bottom-right panel has three anchors:
-Tux: TERMINAL icon is for your terminal.
+Tux: Bottom-right panel has your two anchors:
 Tux: TUX icon is for quick tutorial tips and mission beats.
+Tux: TERMINAL icon is for your terminal.
+Tux: To access the skill shop, open TERMINAL and run: shop.
 Tux: We survive Linuxia by reading the system, not guessing.
 => END
 

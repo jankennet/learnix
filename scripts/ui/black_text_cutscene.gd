@@ -30,6 +30,43 @@ func play(message_override: String = "", duration_override: float = -1.0) -> voi
 	await _run_timeline()
 	finished.emit()
 
+func play_lines(lines: Array[String], per_line_duration: float = 1.4) -> void:
+	if lines.is_empty():
+		await _run_timeline()
+		finished.emit()
+		return
+
+	if _background == null or _message_label == null:
+		await get_tree().create_timer(max(per_line_duration * float(lines.size()), 0.1)).timeout
+		finished.emit()
+		return
+
+	_background.modulate.a = 0.0
+	_message_label.modulate.a = 0.0
+
+	var intro_fade := create_tween()
+	intro_fade.tween_property(_background, "modulate:a", 1.0, max(fade_in_duration, 0.01))
+	intro_fade.parallel().tween_property(_message_label, "modulate:a", 1.0, max(fade_in_duration, 0.01))
+	await intro_fade.finished
+
+	for i in range(lines.size()):
+		var line_text := lines[i]
+		if i > 0:
+			var text_fade_out := create_tween()
+			text_fade_out.tween_property(_message_label, "modulate:a", 0.0, 0.08)
+			await text_fade_out.finished
+		_message_label.text = line_text
+		var text_fade_in := create_tween()
+		text_fade_in.tween_property(_message_label, "modulate:a", 1.0, 0.08)
+		await text_fade_in.finished
+		await get_tree().create_timer(max(per_line_duration, 0.1)).timeout
+
+	var outro_fade := create_tween()
+	outro_fade.tween_property(_message_label, "modulate:a", 0.0, max(fade_out_duration, 0.01))
+	outro_fade.parallel().tween_property(_background, "modulate:a", 0.0, max(fade_out_duration, 0.01))
+	await outro_fade.finished
+	finished.emit()
+
 func fade_in_and_hold(message_override: String = "", duration_override: float = -1.0) -> void:
 	if message_override != "":
 		message = message_override
