@@ -93,6 +93,10 @@ const NPC_VISUAL_TEXTURE_PATHS := {
 		"bad": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_Sage.png",
 		"good": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_Sage.png"
 	},
+	"printer_beast": {
+		"bad": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_PrinterBoss.png",
+		"good": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_PrinterBoss.png"
+	},
 	"evil_tux": {
 		"bad": "res://Assets/characterSpriteSheets/ss_Tux/bossTux_idle.png",
 		"good": "res://Assets/characterSpriteSheets/ss_Tux/bossTux_idle.png"
@@ -1943,26 +1947,64 @@ func _get_npc_visual_progress() -> float:
 	return 0.0
 
 func _get_current_enemy_visual_key() -> String:
-	var enemy_label := _get_current_enemy_label().to_lower()
-	var enemy_id := ""
-	if enemy_controller and "enemy_data" in enemy_controller and enemy_controller.enemy_data and "id" in enemy_controller.enemy_data:
-		enemy_id = str(enemy_controller.enemy_data.id).to_lower()
+	if not enemy_controller:
+		return "default"
 
-	if enemy_id == "sage" or enemy_label.find("sage") != -1:
-		return "sage"
-	if enemy_id == "printer_beast" or enemy_label.find("printer") != -1:
-		return "printer_beast"
-	if enemy_label.find("lost") != -1:
-		return "lost_file"
-	if enemy_label.find("broken") != -1 and enemy_label.find("link") != -1:
-		return "broken_link"
-	if enemy_label.find("driver") != -1 and enemy_label.find("remnant") != -1:
-		return "driver_remnant"
-	if enemy_label.find("ghost") != -1:
-		return "hardware_ghost"
-	if enemy_label.find("messy") != -1 or enemy_label.find("directory") != -1:
-		return "messy_directory"
+	var candidates: Array[String] = []
+	if "enemy_data" in enemy_controller and enemy_controller.enemy_data:
+		if "id" in enemy_controller.enemy_data:
+			candidates.append(str(enemy_controller.enemy_data.id))
+		if "display_name" in enemy_controller.enemy_data:
+			candidates.append(str(enemy_controller.enemy_data.display_name))
+	if "enemy_name" in enemy_controller:
+		candidates.append(str(enemy_controller.enemy_name))
+
+	var label := _get_current_enemy_label()
+	if label != "":
+		candidates.append(label)
+
+	# Include class/script hints to survive initialization-order races.
+	candidates.append(str(enemy_controller.get_class()))
+	var enemy_script: Script = enemy_controller.get_script() as Script
+	if enemy_script != null:
+		var script_path := str(enemy_script.resource_path)
+		if script_path != "":
+			candidates.append(script_path.get_file().get_basename())
+
+	for raw_hint in candidates:
+		var resolved := _resolve_enemy_visual_key_from_hint(raw_hint)
+		if resolved != "":
+			return resolved
+
 	return "default"
+
+
+func _resolve_enemy_visual_key_from_hint(hint: String) -> String:
+	var key := hint.strip_edges().to_lower().replace("-", "_").replace(" ", "_")
+	if key == "":
+		return ""
+
+	if NPC_VISUAL_TEXTURE_PATHS.has(key):
+		return key
+
+	if key.find("sage") != -1:
+		return "sage"
+	if key.find("evil") != -1 and key.find("tux") != -1:
+		return "evil_tux"
+	if key.find("printer") != -1:
+		return "printer_beast"
+	if key.find("lost") != -1 and key.find("file") != -1:
+		return "lost_file"
+	if key.find("broken") != -1 and key.find("link") != -1:
+		return "broken_link"
+	if key.find("driver") != -1 and key.find("remnant") != -1:
+		return "driver_remnant"
+	if key.find("hardware") != -1 and key.find("ghost") != -1:
+		return "hardware_ghost"
+	if key.find("messy") != -1 or key.find("directory") != -1:
+		return "messy_directory"
+
+	return ""
 
 func _get_npc_visual_texture(enemy_key: String, state: String) -> Texture2D:
 	var cache_key := "%s:%s" % [enemy_key, state]
