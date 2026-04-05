@@ -48,7 +48,7 @@ From the end credits:
 - John Kenneth L. Belano (ME) - Analyst and Programmer, Story and Design, Programming
 - Marielle Gaviño - Documentarian
 - Claykit - 3D Assets
-- Rose Milan Gagante (Miwabun) - 2D Assets
+- Rose Milan Gagante (Miwabun) - Character Designer / 2D Artist
 - Pixverses - Music and Sound
 
 ---

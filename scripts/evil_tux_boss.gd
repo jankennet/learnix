@@ -34,7 +34,7 @@ const FINAL_CREDIT_LINES := [
 	"",
 	"Visuals:",
 	"Claykit - 3D Assets",
-	"Miwabun - 2D Assets",
+	"Miwabun - Character Designer / 2D Artist",
 	"",
 	"Music and sound",
 	"Pixverses",

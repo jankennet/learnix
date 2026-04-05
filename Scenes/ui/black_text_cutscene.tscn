@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3 uid="uid://dft204jk4cd12"]
 
-[ext_resource type="Script" path="res://scripts/ui/black_text_cutscene.gd" id="1_h0a2q"]
+[ext_resource type="Script" uid="uid://cquegk3hkghfq" path="res://scripts/ui/black_text_cutscene.gd" id="1_h0a2q"]
+[ext_resource type="VideoStream" uid="uid://dh1u874bymph0" path="res://Assets/secret/SpecialEndCreds.ogv" id="2_b4iec"]
 
 [node name="BlackTextCutscene" type="CanvasLayer"]
 script = ExtResource("1_h0a2q")
@@ -28,3 +29,11 @@ text = "..."
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
+
+[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="."]
+visible = false
+offset_left = 2.0
+offset_right = 1522.0
+offset_bottom = 832.0
+scale = Vector2(0.84, 0.86)
+stream = ExtResource("2_b4iec")

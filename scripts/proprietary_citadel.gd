@@ -5,6 +5,7 @@ const BLACK_TEXT_CUTSCENE_SCENE := preload("res://Scenes/ui/black_text_cutscene.
 const EVIL_TUX_BOSS_SCENE_PATH := "res://Scenes/Levels/evilTuxBoss.tscn"
 const TUX_REWARD_POPUP_SCRIPT_PATH := "res://scripts/ui/digital_reward_popup.gd"
 const TUX_REWARD_TEXTURE_PATH := "res://Assets/characterSpriteSheets/ss_Tux/bossTux_idle.png"
+const SPECIAL_END_CREDITS_VIDEO_PATH := "res://Assets/secret/SpecialEndCreds.ogv"
 const FINAL_CREDIT_LINES := [
 	"LEARNIX",
 	"",
@@ -26,7 +27,7 @@ const FINAL_CREDIT_LINES := [
 	"",
 	"Visuals:",
 	"Claykit - 3D Assets",
-	"Miwabun - 2D Assets",
+	"Miwabun - Character Designer / 2D Artist",
 	"",
 	"Music and sound",
 	"Pixverses",
@@ -244,7 +245,7 @@ func _run_good_pass_ending_sequence() -> void:
 	if SceneManager:
 		SceneManager.input_locked = true
 	_hide_tux_npc()
-	await _show_final_black_cutscene("You can wake up now.", 3.0)
+	await _play_special_end_credits_with_fade()
 	if SceneManager:
 		SceneManager.stop_music()
 		SceneManager.set_meta("evil_tux_boss_cleared", true)
@@ -310,3 +311,33 @@ func _run_light_flicker_sequence() -> void:
 	await get_tree().create_timer(0.12).timeout
 	overlay.queue_free()
 
+func _play_special_end_credits_with_fade() -> void:
+	if SceneManager:
+		SceneManager.stop_music()
+
+	if not ResourceLoader.exists(SPECIAL_END_CREDITS_VIDEO_PATH):
+		push_warning("Special end credits video not found: " + SPECIAL_END_CREDITS_VIDEO_PATH)
+		push_warning("Falling back to black cutscene.")
+		await _show_final_black_cutscene("You can wake up now.", 3.0)
+		return
+
+	var cutscene := BLACK_TEXT_CUTSCENE_SCENE.instantiate()
+	if cutscene == null:
+		await _show_final_black_cutscene("You can wake up now.", 3.0)
+		return
+
+	get_tree().root.add_child(cutscene)
+	var played_video := false
+	if cutscene.has_method("play_embedded_video"):
+		await cutscene.play_embedded_video(0.5, 0.8)
+		played_video = true
+	else:
+		await _show_final_black_cutscene("You can wake up now.", 3.0)
+
+	if is_instance_valid(cutscene):
+		cutscene.queue_free()
+
+	if played_video:
+		await _show_final_black_cutscene("You can wake up now.", 3.0)
+
+	await get_tree().create_timer(0.3).timeout

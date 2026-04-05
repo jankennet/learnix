@@ -10,6 +10,7 @@ signal finished
 
 @onready var _background: ColorRect = get_node_or_null("Background") as ColorRect
 @onready var _message_label: Label = get_node_or_null("Message") as Label
+@onready var _video_player: VideoStreamPlayer = get_node_or_null("VideoStreamPlayer") as VideoStreamPlayer
 
 func _ready() -> void:
 	layer = 120
@@ -18,6 +19,73 @@ func _ready() -> void:
 		_background.modulate.a = 1.0 if start_black_immediately else 0.0
 	if _message_label:
 		_message_label.modulate.a = 1.0 if start_black_immediately else 0.0
+	if _video_player:
+		_video_player.visible = false
+		_video_player.paused = true
+		_fit_video_player_to_viewport()
+
+func _fit_video_player_to_viewport() -> void:
+	if _video_player == null:
+		return
+
+	var viewport_size := get_viewport().get_visible_rect().size
+	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
+		return
+
+	# Keep 16:9 and letterbox to avoid any stretch.
+	var target_aspect := 16.0 / 9.0
+	var viewport_aspect := viewport_size.x / viewport_size.y
+	var fitted_size := Vector2.ZERO
+
+	if viewport_aspect >= target_aspect:
+		fitted_size.y = viewport_size.y
+		fitted_size.x = fitted_size.y * target_aspect
+	else:
+		fitted_size.x = viewport_size.x
+		fitted_size.y = fitted_size.x / target_aspect
+
+	_video_player.anchor_left = 0.0
+	_video_player.anchor_top = 0.0
+	_video_player.anchor_right = 0.0
+	_video_player.anchor_bottom = 0.0
+	_video_player.position = (viewport_size - fitted_size) * 0.5
+	_video_player.size = fitted_size
+
+func play_embedded_video(hold_after: float = 0.5, fade_duration: float = 0.8) -> void:
+	if _video_player == null:
+		await _run_timeline()
+		finished.emit()
+		return
+
+	_fit_video_player_to_viewport()
+
+	if _background:
+		_background.modulate.a = 1.0
+	if _message_label:
+		_message_label.visible = false
+
+	_video_player.visible = true
+	_video_player.modulate.a = 0.0
+	_video_player.paused = false
+	_video_player.play()
+
+	var intro_fade := create_tween()
+	intro_fade.tween_property(_video_player, "modulate:a", 1.0, max(fade_duration * 0.6, 0.12))
+	await intro_fade.finished
+
+	while _video_player.is_playing():
+		await get_tree().process_frame
+
+	await get_tree().create_timer(max(hold_after, 0.0)).timeout
+
+	var fade := create_tween()
+	fade.set_parallel(true)
+	fade.tween_property(_video_player, "modulate:a", 0.0, max(fade_duration, 0.01))
+	if _background:
+		fade.tween_property(_background, "modulate:a", 1.0, max(fade_duration, 0.01))
+	await fade.finished
+
+	finished.emit()
 
 func play(message_override: String = "", duration_override: float = -1.0) -> void:
 	if message_override != "":
