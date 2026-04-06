@@ -1,5 +1,7 @@
 extends Node3D
 
+const DIALOGUE_CANCEL_LOCK_META_KEY := "dialogue_cancel_locked"
+
 @export var idle_animation: String = "idle"
 @export var good_idle_anim: String = "good_idle"
 @export var bad_idle_anim: String = "bad_idle"
@@ -324,11 +326,27 @@ func on_interact() -> void:
 			# DialogueManager is an autoload - access via scene tree
 			var dm = get_node_or_null("/root/DialogueManager")
 			if dm:
+				if _should_lock_dialogue_cancel_for_npc():
+					SceneManager.set_meta(DIALOGUE_CANCEL_LOCK_META_KEY, true)
 				var start_title = dialogue_start_title if dialogue_start_title != "" else ""
 				dm.show_dialogue_balloon(resource, start_title, [self, root_node])
 				return
 	# Fallback: simple interaction without dialogue
 	pass
+
+func _should_lock_dialogue_cancel_for_npc() -> bool:
+	if SceneManager == null:
+		return false
+
+	var normalized_name: String = (npc_name if npc_name != "" else String(name)).strip_edges().to_lower().replace("_", " ")
+	while normalized_name.find("  ") != -1:
+		normalized_name = normalized_name.replace("  ", " ")
+
+	if normalized_name == "broken link" or normalized_name == "printer boss" or normalized_name == "printer beast" or normalized_name == "sage" or normalized_name == "evil tux":
+		return true
+
+	var normalized_encounter := encounter_id.strip_edges().to_lower()
+	return normalized_encounter == "broken_link" or normalized_encounter == "printer_beast" or normalized_encounter == "sage" or normalized_encounter == "evil_tux"
 
 ## Handlers callable from DialogueManager via `do start_combat()` or `do start_puzzle()`
 func start_combat() -> void:

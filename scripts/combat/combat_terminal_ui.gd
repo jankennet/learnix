@@ -379,6 +379,7 @@ func close_combat_ui() -> void:
 	# Unlock player input
 	if SceneManager:
 		SceneManager.input_locked = false
+		SceneManager.play_music_for_current_scene()
 	
 	# Disconnect signals
 	if combat_manager:
@@ -563,6 +564,12 @@ func _attempt_escape() -> void:
 	var current_mode := 0  # 0=dialogue, 1=combat, 2=puzzle
 	if enemy_controller and "current_mode" in enemy_controller:
 		current_mode = enemy_controller.current_mode
+
+	if _is_boss_encounter_locked_exit():
+		_print_terminal("[color=#f26666]Boss battle happening, can't do that.[/color]\n")
+		if current_mode == 1:
+			_consume_turn_for_blocked_boss_exit()
+		return
 	
 	# In combat mode, escape is chance-based and counts as a turn
 	if current_mode == 1:  # COMBAT
@@ -612,6 +619,42 @@ func _attempt_escape() -> void:
 		_print_terminal("[color=#f2e066]Exiting terminal...[/color]\n")
 		await get_tree().create_timer(0.5).timeout
 		_force_close_and_cleanup()
+
+func _is_boss_encounter_locked_exit() -> bool:
+	if enemy_controller == null:
+		return false
+
+	if "enemy_data" in enemy_controller and enemy_controller.enemy_data:
+		if "id" in enemy_controller.enemy_data:
+			var enemy_id := str(enemy_controller.enemy_data.id).strip_edges().to_lower()
+			if enemy_id == "printer_beast" or enemy_id == "evil_tux":
+				return true
+
+	if "encounter_id" in enemy_controller:
+		var encounter_id := str(enemy_controller.encounter_id).strip_edges().to_lower()
+		if encounter_id == "printer_beast" or encounter_id == "evil_tux":
+			return true
+
+	if "puzzle_data" in enemy_controller and enemy_controller.puzzle_data and "custom_data" in enemy_controller.puzzle_data:
+		var custom_data: Variant = enemy_controller.puzzle_data.custom_data
+		if custom_data is Dictionary and bool((custom_data as Dictionary).get("boss_mode", false)):
+			return true
+
+	return false
+
+func _consume_turn_for_blocked_boss_exit() -> void:
+	if combat_manager == null:
+		return
+	if not ("combat_state" in combat_manager):
+		return
+	if int(combat_manager.combat_state) != int(TurnCombatManager.CombatState.PLAYER_INPUT):
+		return
+
+	if command_input:
+		command_input.editable = false
+	await get_tree().create_timer(0.25).timeout
+	if combat_manager and combat_manager.has_method("_start_enemy_turn"):
+		combat_manager._start_enemy_turn()
 
 ## Force close and clean up the encounter controller
 func _force_close_and_cleanup() -> void:
@@ -676,11 +719,12 @@ func _show_contextual_help() -> void:
 		
 		1:  # COMBAT
 			_print_terminal("[color=#66f266]HELP - COMBAT MODE[/color]\n\n")
-			_print_terminal("  attack     - Strike the enemy\n")
-			_print_terminal("  defend     - Reduce incoming damage\n")
-			_print_terminal("  scan       - Reveal enemy weakness\n")
-			_print_terminal("  heal       - Restore your integrity\n")
-			_print_terminal("  escape     - Attempt to flee\n")
+			_print_terminal("  attack, hit   - Strike the enemy\n")
+			_print_terminal("  defend, block - Reduce incoming damage\n")
+			_print_terminal("  heal, repair  - Restore your integrity\n")
+			_print_terminal("  kill <target> - Taskkill finisher (skill required)\n")
+			_print_terminal("  restore       - Enemy-specific interaction\n")
+			_print_terminal("  escape, flee  - Attempt to flee\n")
 		
 		2:  # PUZZLE
 			var enemy_label := ""
@@ -831,8 +875,8 @@ func _build_tux_helper_context() -> Dictionary:
 			else:
 				summary = "TUX: Stay focused. Pick your next command based on integrity, turn order, and risk."
 				suggestions = [
-					{"label": "Which commands now?", "detail": "TUX lists combat options.", "message": "TUX: Use attack, defend, scan, heal, or escape based on the current turn."},
-					{"label": "How do you survive?", "detail": "TUX gives a survival sequence.", "message": "TUX: Scan first, defend when pressured, and heal before you drop too low."},
+					{"label": "Which commands now?", "detail": "TUX lists combat options.", "message": "TUX: Use attack or defend to manage pressure, heal to recover, or escape to reset."},
+					{"label": "How do you survive?", "detail": "TUX gives a survival sequence.", "message": "TUX: Defend when pressured, heal before you drop too low, then attack when stable."},
 					{"label": "When should you escape?", "detail": "TUX gives reset timing.", "message": "TUX: Escape when your integrity trend is negative or your next turn is unsafe."},
 					{"label": "How do you read target?", "detail": "TUX explains the panel.", "message": "TUX: Watch target integrity, turn indicator, and mode changes before committing."},
 				]
@@ -857,7 +901,7 @@ func _build_tux_helper_context() -> Dictionary:
 
 func _track_player_attack_intent(raw_input: String) -> void:
 	var normalized := raw_input.strip_edges().to_lower()
-	if normalized == "attack" or normalized == "fight" or normalized == "delete":
+	if normalized == "attack" or normalized == "hit" or normalized == "fight":
 		_player_attacked_this_encounter = true
 
 func _build_dialogue_summary(npc_name: String) -> String:
@@ -1376,7 +1420,7 @@ func _update_side_help_for_mode() -> void:
 			objective_title = "GOAL // COMBAT"
 			lines = [
 				"goal: reduce target integrity to 0",
-				"next: attack, defend, scan, or heal",
+				"next: attack/hit, defend/block, heal/repair, kill, or restore",
 				"escape: use flee if you need a reset",
 			]
 		2:

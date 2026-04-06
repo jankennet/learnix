@@ -1,5 +1,7 @@
 extends Area3D
 
+const DIALOGUE_CANCEL_LOCK_META_KEY := "dialogue_cancel_locked"
+
 @export var required_command: String = "sudo unlock bossroom"
 @export var token_flag: String = "sudo_token_driver_remnant"
 @export var unlocked_flag: String = "deamon_depths_boss_door_unlocked"
@@ -380,6 +382,8 @@ func _play_printer_intro_sequence() -> void:
 		var dm = get_tree().root.get_node_or_null("DialogueManager")
 		if dm:
 			await dm.dialogue_ended
+		if SceneManager and SceneManager.has_meta(DIALOGUE_CANCEL_LOCK_META_KEY):
+			SceneManager.set_meta(DIALOGUE_CANCEL_LOCK_META_KEY, false)
 
 	if SceneManager:
 		SceneManager.set(printer_intro_played_flag, true)
@@ -410,6 +414,8 @@ func _show_printer_intro_dialogue() -> bool:
 	var dm = get_tree().root.get_node_or_null("DialogueManager")
 	if dm == null:
 		return false
+	if SceneManager:
+		SceneManager.set_meta(DIALOGUE_CANCEL_LOCK_META_KEY, true)
 	dm.show_dialogue_balloon(_printer_intro_dialogue_resource, "start", [self])
 	return true
 

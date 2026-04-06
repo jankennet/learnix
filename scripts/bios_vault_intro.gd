@@ -9,6 +9,7 @@ extends Node3D
 
 const PROPRIETARY_CITADEL_SCENE_PATH := "res://Scenes/Levels/proprietary_citadel.tscn"
 const PROPRIETARY_CITADEL_SPAWN := "Spawn_BVTPC"
+const DIALOGUE_CANCEL_LOCK_META_KEY := "dialogue_cancel_locked"
 const BLACK_TEXT_CUTSCENE_SCENE := preload("res://Scenes/ui/black_text_cutscene.tscn")
 
 var _intro_playing: bool = false
@@ -102,9 +103,13 @@ func _show_intro_dialogue(start_title: String, context_args: Array) -> void:
 	var dm = get_tree().root.get_node_or_null("DialogueManager")
 	if dm == null:
 		return
+	if SceneManager:
+		SceneManager.set_meta(DIALOGUE_CANCEL_LOCK_META_KEY, true)
 	dm.show_dialogue_balloon(_dialogue_resource, start_title, context_args)
 	if dm.has_signal("dialogue_ended"):
 		await dm.dialogue_ended
+	if SceneManager and SceneManager.has_meta(DIALOGUE_CANCEL_LOCK_META_KEY):
+		SceneManager.set_meta(DIALOGUE_CANCEL_LOCK_META_KEY, false)
 
 func _pan_camera_left_to_right(cam: Camera3D) -> void:
 	if cam == null:
@@ -301,9 +306,13 @@ func show_next_question() -> void:
 		var dialogue_manager = get_tree().root.get_node_or_null("DialogueManager")
 		if dialogue_manager == null:
 			return
+		if SceneManager:
+			SceneManager.set_meta(DIALOGUE_CANCEL_LOCK_META_KEY, true)
 		dialogue_manager.show_dialogue_balloon(_dialogue_resource, "quiz_pass", [self])
 		if dialogue_manager.has_signal("dialogue_ended"):
 			await dialogue_manager.dialogue_ended
+		if SceneManager and SceneManager.has_meta(DIALOGUE_CANCEL_LOCK_META_KEY):
+			SceneManager.set_meta(DIALOGUE_CANCEL_LOCK_META_KEY, false)
 		return
 	
 	var question_num = _quiz_question_order[_quiz_current_index]
@@ -322,10 +331,14 @@ func show_next_question() -> void:
 	var dm = get_tree().root.get_node_or_null("DialogueManager")
 	if dm == null:
 		return
+	if SceneManager:
+		SceneManager.set_meta(DIALOGUE_CANCEL_LOCK_META_KEY, true)
 	
 	dm.show_dialogue_balloon(_dialogue_resource, question_node, [self])
 	if dm.has_signal("dialogue_ended"):
 		await dm.dialogue_ended
+	if SceneManager and SceneManager.has_meta(DIALOGUE_CANCEL_LOCK_META_KEY):
+		SceneManager.set_meta(DIALOGUE_CANCEL_LOCK_META_KEY, false)
 
 func _on_sage_encounter_ended(method: String) -> void:
 	# Called when sage combat/puzzle ends

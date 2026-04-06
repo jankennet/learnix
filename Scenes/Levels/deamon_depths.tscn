@@ -1,4 +1,4 @@
-[gd_scene load_steps=65 format=3 uid="uid://lbre8n3j6pem"]
+[gd_scene load_steps=67 format=3 uid="uid://lbre8n3j6pem"]
 
 [ext_resource type="PackedScene" uid="uid://dltktt7qdwiaj" path="res://levelAssets/gtlfLevels/Dungeon.glb" id="1_m653t"]
 [ext_resource type="Script" uid="uid://dvrxfibrcccd0" path="res://scripts/teleport.gd" id="2_d5g6v"]
@@ -12,6 +12,7 @@
 [ext_resource type="Texture2D" uid="uid://bvwcyi5b54gls" path="res://Assets/characterSpriteSheets/ss_FallbackHamletNPC/CMO.png" id="9_ovu8s"]
 [ext_resource type="Texture2D" uid="uid://r0ciqujeb2cn" path="res://Assets/shaders/T_VFX_Flare_16.PNG" id="10_4cv53"]
 [ext_resource type="Texture2D" uid="uid://3oppuvtya504" path="res://Assets/shaders/T_VFX_lelu1_tiled.png" id="10_qo7kh"]
+[ext_resource type="Script" uid="uid://gwrvr1w5wrlj" path="res://scripts/boss_room_whyno_exit.gd" id="11_whyno_exit"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_o18mp"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -31,7 +32,10 @@ volumetric_fog_anisotropy = 0.7
 [sub_resource type="BoxShape3D" id="BoxShape3D_ts3xc"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_k8yqp"]
-size = Vector3(3.3878784, 2.6991577, 2.7246094)
+size = Vector3(2.8144379, 2.6991577, 2.7246094)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ovu8s"]
+size = Vector3(1.5615234, 2.5440674, 3.9645996)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_o18mp"]
 size = Vector3(5.1154175, 3.9370117, 2.7695923)
@@ -378,11 +382,18 @@ transform = Transform3D(1, 0, -1.7484555e-07, 0, 1, 0, 1.7484555e-07, 0, 1, 7.28
 script = ExtResource("6_3teor")
 
 [node name="BossRoomDoor" type="CollisionShape3D" parent="Dungeon/BoosRoomArea3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.045701, 1.3495178, 0.5001159)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.3324232, 1.3495178, 0.5001178)
 shape = SubResource("BoxShape3D_k8yqp")
 
 [node name="Marker3D" type="Marker3D" parent="Dungeon/BoosRoomArea3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.201911, 0.12922513, -0.13248062)
+
+[node name="BossRoomWhynoExit" type="Area3D" parent="Dungeon"]
+transform = Transform3D(1, 0, -1.7484555e-07, 0, 1, 0, 1.7484555e-07, 0, 1, 7.8895507, 0.7720337, -8.423819)
+script = ExtResource("11_whyno_exit")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Dungeon/BossRoomWhynoExit"]
+shape = SubResource("BoxShape3D_ovu8s")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Dungeon"]
 
@@ -455,6 +466,12 @@ animation = &"bad_idle"
 [node name="CMO" type="CharacterBody3D" parent="NPCS" groups=["npcs"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.868343, 0, 0)
 script = ExtResource("3_k8yqp")
+idle_animation = "default"
+good_idle_anim = "default"
+bad_idle_anim = "default"
+neutral_idle_anim = "default"
+dialogue_resource_path = "res://dialogues/CMO.dialogue"
+dialogue_start_title = "start"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="NPCS/CMO"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8702756, 0)
@@ -467,7 +484,6 @@ billboard = 2
 alpha_cut = 3
 texture_filter = 0
 sprite_frames = SubResource("SpriteFrames_vef8h")
-frame_progress = 0.48656014
 
 [node name="SpotLight3D" type="SpotLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -0.8067954, 0.590831, 0, -0.590831, -0.8067954, -3.9799407, 3.9883714, -31.392784)

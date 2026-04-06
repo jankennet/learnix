@@ -336,6 +336,11 @@ func process_input(raw_input: String) -> void:
 		_log_message(result.error_message, MessageType.ERROR)
 		awaiting_input.emit()  # Let player try again
 		return
+
+	if not CommandParser.is_combat_command(result.command_type):
+		_log_message("Invalid combat command. Use: attack/hit, heal/repair, defend/block, kill, restore, or escape/flee.", MessageType.ERROR)
+		awaiting_input.emit()
+		return
 	
 	# Warn about typos but accept
 	if result.partial_match:
@@ -391,7 +396,6 @@ func _command_uses_timing(cmd_type: int) -> bool:
 		CommandParser.CommandType.DELETE,
 		CommandParser.CommandType.KILL,
 		CommandParser.CommandType.HEAL,
-		CommandParser.CommandType.RESTORE,
 	]
 
 ## Get difficulty based on enemy and turn state
@@ -488,20 +492,14 @@ func _resolve_player_command(result: CommandParser.CommandResult) -> CombatEffec
 		CommandParser.CommandType.DEFEND:
 			effect = _resolve_defend(result)
 		
-		CommandParser.CommandType.SCAN:
-			effect = _resolve_scan(result)
-		
 		CommandParser.CommandType.HEAL:
 			effect = _resolve_heal(result)
 		
 		CommandParser.CommandType.ESCAPE:
 			effect = _resolve_escape(result)
 		
-		CommandParser.CommandType.DELETE, CommandParser.CommandType.KILL:
+		CommandParser.CommandType.KILL:
 			effect = _resolve_delete(result)
-		
-		CommandParser.CommandType.FIND:
-			effect = _resolve_find(result)
 		
 		CommandParser.CommandType.RESTORE:
 			effect = _resolve_restore(result)
@@ -640,8 +638,6 @@ func _build_timing_profile(result: CommandParser.CommandResult) -> Dictionary:
 			profile.critical_zone_percent = 1.0
 			profile.normal_zone_percent = 0.0
 			profile.instruction = "Critical-only taskkill"
-		CommandParser.CommandType.RESTORE:
-			profile.difficulty = clampf(_get_timing_difficulty() - 0.05, 0.5, 2.0)
 
 	return profile
 
@@ -795,29 +791,8 @@ func _resolve_find(_result: CommandParser.CommandResult) -> CombatEffect:
 
 func _resolve_restore(_result: CommandParser.CommandResult) -> CombatEffect:
 	var effect := CombatEffect.new()
-	
-	# Restore can heal or remove status effects
-	if player_state.status_effects.size() > 0:
-		var removed: String = player_state.status_effects.pop_back()
-		effect.status_removed = removed
-		
-		if timing_was_critical:
-			_log_message("PERFECT TIMING! All status effects cleared!", MessageType.SUCCESS)
-			# Clear all status effects on critical
-			while player_state.status_effects.size() > 0:
-				player_state.status_effects.pop_back()
-		else:
-			_log_message("Restored from '%s' status." % removed, MessageType.SUCCESS)
-	else:
-		# Small heal if no status to remove
-		var heal_amount := int(15 * timing_damage_multiplier)
-		if timing_was_critical:
-			heal_amount = int(heal_amount * 1.5)
-			_log_message("PERFECT TIMING! Maximum restoration!", MessageType.SUCCESS)
-		var actual := player_state.heal(heal_amount)
-		effect.healing_done = actual
-		_log_message("Restored %d integrity." % actual, MessageType.HEAL)
-	
+	effect.success = false
+	_log_message("'restore' is not a combat heal command. Use 'heal' for integrity recovery.", MessageType.ERROR)
 	return effect
 
 func _award_victory_data_bits() -> void:

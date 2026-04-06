@@ -359,10 +359,8 @@ static func is_combat_command(type: CommandType) -> bool:
 	return type in [
 		CommandType.ATTACK,
 		CommandType.DEFEND,
-		CommandType.SCAN,
 		CommandType.HEAL,
 		CommandType.ESCAPE,
-		CommandType.DELETE,
 		CommandType.KILL,
 		CommandType.RESTORE,
 	]
@@ -388,14 +386,12 @@ static func get_help_text(context: String = "all") -> String:
 	
 	if context == "combat" or context == "all":
 		help += "[COMBAT]\n"
-		help += "  attack, hit    - Strike the enemy\n"
-		help += "  defend, block  - Reduce incoming damage\n"
-		help += "  scan, analyze  - Reveal enemy info\n"
-		help += "  heal, repair   - Restore your integrity\n"
-		help += "  rm <target>    - Delete corrupted data\n"
-		help += "  kill <target>  - Terminate hostile process\n"
-		help += "  restore        - Recover/heal (effective on some enemies)\n"
-		help += "  escape, flee   - Attempt to exit combat\n\n"
+		help += "  attack, hit       - Strike the enemy\n"
+		help += "  defend, block     - Reduce incoming damage\n"
+		help += "  heal, repair      - Restore your integrity\n"
+		help += "  kill <target>     - Taskkill finisher (requires taskkill skill)\n"
+		help += "  restore           - Enemy-specific interaction (not a standard combat heal)\n"
+		help += "  escape, flee      - Attempt to exit combat\n\n"
 	
 	if context == "puzzle" or context == "all":
 		help += "[PUZZLE]\n"

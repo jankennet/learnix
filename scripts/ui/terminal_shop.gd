@@ -414,8 +414,8 @@ func _is_teleport_skill_unlocked() -> bool:
 func _is_teleport_skill_requirements_met() -> bool:
 	if _scene_manager == null:
 		return false
-	var printer_defeated := _as_bool(_scene_manager.get("printer_beast_defeated"))
-	return printer_defeated and _has_interacted_with_npc("CMO")
+	var printer_progress := _as_bool(_scene_manager.get("printer_beast_defeated")) or _as_bool(_scene_manager.get("proficiency_key_printer"))
+	return printer_progress and _has_interacted_with_npc("CMO")
 
 func _is_file_explorer_skill_requirements_met() -> bool:
 	if _scene_manager == null:

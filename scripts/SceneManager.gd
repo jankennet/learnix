@@ -58,6 +58,7 @@ const SCENE_MUSIC_MAP := {
 	"res://Scenes/Levels/bios_vault.tscn": "bios_vault",
 	"res://Scenes/Levels/bios_vault_.tscn": "bios_vault",
 	"res://Scenes/Levels/proprietary_citadel.tscn": "proprietary_citadel",
+	"res://Scenes/Levels/evilTuxBoss.tscn": "ominous_secret_evil_tux",
 	"res://Scenes/ui/title_menu.tscn": "title_screen",
 }
 
@@ -1123,6 +1124,15 @@ func play_music_for_key(key: String, loop: bool = true) -> void:
 	
 	_play_music_stream(path, loop)
 	_current_music_key = key
+
+func play_music_for_current_scene() -> void:
+	var current_scene := get_tree().current_scene
+	if current_scene == null:
+		return
+
+	var scene_path := String(current_scene.scene_file_path)
+	if SCENE_MUSIC_MAP.has(scene_path):
+		play_music_for_key(String(SCENE_MUSIC_MAP[scene_path]))
 
 func stop_music() -> void:
 	if _bg_music_player:

@@ -11,6 +11,7 @@ const BALLOON_MAX_WIDTH := 1100.0
 const CHARACTER_FONT_BASE := 16
 const DIALOGUE_FONT_BASE := 14
 const RESPONSE_FONT_BASE := 12
+const DIALOGUE_CANCEL_LOCK_META_KEY := "dialogue_cancel_locked"
 
 ## The dialogue resource
 @export var dialogue_resource: DialogueResource
@@ -91,6 +92,7 @@ var dialogue_line: DialogueLine:
 			apply_dialogue_line()
 		else:
 			# The dialogue has finished so close the balloon
+			_clear_dialogue_cancel_lock()
 			_unlock_player_controls()
 			if owner == null:
 				queue_free()
@@ -202,6 +204,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 
 	if event.is_action_pressed("ui_cancel"):
+		if _is_dialogue_cancel_locked():
+			return
 		_cancel_dialogue()
 		return
 
@@ -414,6 +418,7 @@ func next(next_id: String) -> void:
 
 func _cancel_dialogue() -> void:
 	is_waiting_for_input = false
+	_clear_dialogue_cancel_lock()
 	_unlock_player_controls()
 	var dialogue_manager = get_tree().root.get_node_or_null("DialogueManager")
 	if dialogue_manager and is_instance_valid(dialogue_resource):
@@ -423,6 +428,19 @@ func _cancel_dialogue() -> void:
 		queue_free()
 	else:
 		hide()
+
+func _is_dialogue_cancel_locked() -> bool:
+	var scene_manager = get_node_or_null("/root/SceneManager")
+	if scene_manager == null:
+		return false
+	return scene_manager.has_meta(DIALOGUE_CANCEL_LOCK_META_KEY) and bool(scene_manager.get_meta(DIALOGUE_CANCEL_LOCK_META_KEY))
+
+func _clear_dialogue_cancel_lock() -> void:
+	var scene_manager = get_node_or_null("/root/SceneManager")
+	if scene_manager == null:
+		return
+	if scene_manager.has_meta(DIALOGUE_CANCEL_LOCK_META_KEY):
+		scene_manager.set_meta(DIALOGUE_CANCEL_LOCK_META_KEY, false)
 
 
 #region Signals
@@ -444,13 +462,15 @@ func _on_mutated(_mutation: Dictionary) -> void:
 func _on_balloon_gui_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		get_viewport().set_input_as_handled()
+		if _is_dialogue_cancel_locked():
+			return
 		_cancel_dialogue()
 		return
 
 	# See if we need to skip typing of the dialogue
 	if dialogue_label.is_typing:
 		var mouse_was_clicked: bool = event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.is_pressed()
-		var skip_button_was_pressed: bool = event.is_action_pressed(skip_action)
+		var skip_button_was_pressed: bool = event.is_action_pressed(skip_action) and not _is_dialogue_cancel_locked()
 		if mouse_was_clicked or skip_button_was_pressed:
 			get_viewport().set_input_as_handled()
 			dialogue_label.skip_typing()

@@ -1063,7 +1063,8 @@ func _can_unlock_skill(skill_name: String) -> bool:
 				var npc_map: Dictionary = interacted_npcs as Dictionary
 				var cmo_flag: Variant = npc_map.get("CMO", false)
 				cmo_interacted = cmo_flag == true
-			return SceneManager.get("printer_beast_defeated") == true and cmo_interacted
+			var printer_progress: bool = SceneManager.get("printer_beast_defeated") == true or SceneManager.get("proficiency_key_printer") == true
+			return printer_progress and cmo_interacted
 		"taskkill", "sudo_privilege", "potion_patch", "potion_overclock", "potion_hardening":
 			return int(SceneManager.get("data_bits")) >= _get_skill_unlock_cost(skill_name)
 		_:

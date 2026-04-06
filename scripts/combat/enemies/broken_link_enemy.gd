@@ -294,7 +294,7 @@ func _handle_dialogue_input(input: String) -> Dictionary:
 func _handle_combat_input(input: String) -> Dictionary:
 	var result := {"handled": true, "message": "", "mode_changed": false, "encounter_ended": false}
 
-	if input == "puzzle" or input == "help" or input == "repair":
+	if input == "puzzle" or input == "help" or input == "repair" or input == "restore":
 		if has_attacked:
 			result.message = "[You've already chosen to fight. The Broken Link resists repair.]"
 			return result
@@ -315,7 +315,20 @@ func _handle_combat_input(input: String) -> Dictionary:
 	if cmd.command_type == CommandParser.CommandType.ATTACK or cmd.command_type == CommandParser.CommandType.DELETE:
 		has_attacked = true
 
+	if cmd.command_type == CommandParser.CommandType.RESTORE:
+		if has_attacked:
+			result.message = "[You've already chosen to fight. The Broken Link resists repair.]"
+			return result
+		if allow_puzzle_solution and _can_offer_puzzle():
+			_transition_to_puzzle()
+			result.mode_changed = true
+			result.message = "[Puzzle mode initiated - you can try to repair the Broken Link]"
+			return result
+		result.message = "[Puzzle mode not available yet. Continue the encounter.]"
+		return result
+
 	if cmd.command_type == CommandParser.CommandType.CONNECT:
+		has_attacked = true
 		result.message = _handle_connect_in_combat()
 		return result
 
