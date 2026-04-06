@@ -23,6 +23,7 @@ DialogueManager="*res://addons/dialogue_manager/dialogue_manager.gd"
 InteractionPrompt="*res://Scenes/ui/interaction_prompt.tscn"
 PauseMenu="*res://Scenes/ui/pause_menu.tscn"
 LoadingScreen="*res://Scenes/globals/loading_screen.tscn"
+PerformanceManager="*res://scripts/performance_manager.gd"
 
 [dialogue_manager]
 

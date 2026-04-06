@@ -58,6 +58,7 @@ func _ready() -> void:
 	
 	_setup_lists()
 	_setup_sound_sliders()
+	_sync_graphics_state_from_system()
 	
 	settings_overlay.hide()
 
@@ -333,16 +334,48 @@ func _apply_graphics_settings() -> void:
 	
 	if mode != 2:
 		DisplayServer.window_set_size(RESOLUTION_OPTIONS[graphics_indices.res])
-	
-	var viewport = get_viewport()
-	if viewport:
-		viewport.scaling_3d_scale = QUALITY_SCALES[graphics_indices.qual]
-		
-		# Optional MSAA setup based on quality
-		match graphics_indices.qual:
-			0: viewport.msaa_3d = Viewport.MSAA_DISABLED
-			1: viewport.msaa_3d = Viewport.MSAA_2X
-			2: viewport.msaa_3d = Viewport.MSAA_4X
+
+	var perf_manager := get_node_or_null("/root/PerformanceManager")
+	if perf_manager and perf_manager.has_method("set_quality_index"):
+		perf_manager.call("set_quality_index", graphics_indices.qual)
+	else:
+		var viewport := get_viewport()
+		if viewport:
+			viewport.scaling_3d_scale = QUALITY_SCALES[graphics_indices.qual]
+			match graphics_indices.qual:
+				0: viewport.msaa_3d = Viewport.MSAA_DISABLED
+				1: viewport.msaa_3d = Viewport.MSAA_2X
+				2: viewport.msaa_3d = Viewport.MSAA_4X
+
+func _sync_graphics_state_from_system() -> void:
+	var mode := DisplayServer.window_get_mode()
+	var borderless := DisplayServer.window_get_flag(DisplayServer.WINDOW_FLAG_BORDERLESS)
+	if mode == DisplayServer.WINDOW_MODE_FULLSCREEN or mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
+		graphics_indices.mode = 2
+	elif borderless:
+		graphics_indices.mode = 1
+	else:
+		graphics_indices.mode = 0
+
+	var current_size := DisplayServer.window_get_size()
+	graphics_indices.res = _nearest_resolution_index(current_size)
+
+	var perf_manager := get_node_or_null("/root/PerformanceManager")
+	if perf_manager and perf_manager.has_method("get_quality_index"):
+		graphics_indices.qual = int(perf_manager.call("get_quality_index"))
+
+func _nearest_resolution_index(window_size: Vector2i) -> int:
+	var nearest_index := 0
+	var nearest_distance := INF
+	for i in RESOLUTION_OPTIONS.size():
+		var option_size: Vector2i = RESOLUTION_OPTIONS[i]
+		var dx := float(option_size.x - window_size.x)
+		var dy := float(option_size.y - window_size.y)
+		var distance := dx * dx + dy * dy
+		if distance < nearest_distance:
+			nearest_distance = distance
+			nearest_index = i
+	return nearest_index
 
 func _on_volume_changed(value: float, bus_name: String) -> void:
 	var bus_index := _find_bus_index(bus_name)

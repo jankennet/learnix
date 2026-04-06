@@ -480,6 +480,9 @@ func _sync_graphics_state_from_system() -> void:
 
 	var current_size := DisplayServer.window_get_size()
 	graphics_resolution_index = _nearest_resolution_index(current_size)
+	var perf_manager := get_node_or_null("/root/PerformanceManager")
+	if perf_manager and perf_manager.has_method("get_quality_index"):
+		graphics_quality_index = int(perf_manager.call("get_quality_index"))
 
 func _nearest_resolution_index(size: Vector2i) -> int:
 	var nearest_index := 0
@@ -513,6 +516,11 @@ func _apply_graphics_settings() -> void:
 	_show_status(HINT_MESSAGES.graphics_apply)
 
 func _apply_quality_preset() -> void:
+	var perf_manager := get_node_or_null("/root/PerformanceManager")
+	if perf_manager and perf_manager.has_method("set_quality_index"):
+		perf_manager.call("set_quality_index", graphics_quality_index)
+		return
+
 	var viewport := get_viewport()
 	if not viewport:
 		return
