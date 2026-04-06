@@ -267,24 +267,39 @@ func _handle_npc_defeated(defeat_flag: String) -> void:
 	}
 	
 	var npc_name: String = name_map.get(defeat_flag, "Unknown")
+	var current_state: String = ""
+	if sm and sm.npc_states != null:
+		current_state = str(sm.npc_states.get(npc_name, ""))
+
+	if current_state == "helped":
+		var helped_tpl: Dictionary = NPC_TEMPLATES.get(npc_name, NPC_TEMPLATES["default"])
+		var helped_template: String = helped_tpl.get("helped", NPC_TEMPLATES["default"]["helped"])
+		var helped_text: String = helped_template
+		if "%" in helped_template:
+			helped_text = helped_template % npc_name
+		print("[TuxDialogueController] Defeat flag %s ignored because %s is helped" % [defeat_flag, npc_name])
+		await get_tree().create_timer(2.0).timeout
+		_show_tux_line(helped_text)
+		return
+
 	var karma: String = str(sm.player_karma) if sm else "neutral"
 	var tpl: Dictionary = NPC_TEMPLATES.get(npc_name, NPC_TEMPLATES["default"])
-	
+
 	var msg_key := "killed_neutral"
 	match karma:
 		"evil": msg_key = "killed_evil"
 		"good": msg_key = "killed_good"
-	
+
 	# Use default template if NPC template doesn't have this key
 	if not tpl.has(msg_key):
 		tpl = NPC_TEMPLATES["default"]
-	
+
 	var template: String = tpl.get(msg_key, "You defeated %s.")
 	print("[TuxDialogueController] Defeated flag: %s -> NPC: %s, Karma: %s, Template key: %s" % [defeat_flag, npc_name, karma, msg_key])
 	var text: String = template
 	if "%" in template:
 		text = template % npc_name
-	
+
 	# Add delay before showing Tux dialogue
 	await get_tree().create_timer(2.0).timeout
 	_show_tux_line(text)

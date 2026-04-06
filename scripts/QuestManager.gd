@@ -14,12 +14,12 @@ signal quest_failed(quest_id: String)
 signal quest_updated(quest_id: String)
 signal quest_ready_to_check(quest_id: String)
 
-const DEFAULT_QUEST_DATA_BITS := 20
+const DEFAULT_QUEST_DATA_BITS := 35
 const QUEST_DATA_BIT_REWARDS := {
-	"find_lost_file": 25,
-	"broken_link_puzzle": 30,
-	"drivers_den_cleanup": 35,
-	"gatekeeper_proficiency": 50,
+	"find_lost_file": 40,
+	"broken_link_puzzle": 50,
+	"drivers_den_cleanup": 60,
+	"gatekeeper_proficiency": 85,
 }
 
 ## Register a new quest in the system

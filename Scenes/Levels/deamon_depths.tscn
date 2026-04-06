@@ -496,3 +496,27 @@ trail_enabled = true
 trail_lifetime = 0.5
 process_material = SubResource("ParticleProcessMaterial_tuulv")
 draw_pass_1 = SubResource("RibbonTrailMesh_tuulv")
+
+[node name="vfxPortal2" type="Node3D" parent="."]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.91854715, 0, -3.790647)
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="vfxPortal2"]
+transform = Transform3D(-2.2392445, 0, -4.7257473e-07, 0, 2.3705053, 0, 1.9576098e-07, 0, -5.405625, -4.2209573, 2.2044914, -7.8068995)
+material_override = SubResource("ShaderMaterial_o18mp")
+mesh = SubResource("QuadMesh_o18mp")
+skeleton = NodePath("../../Dungeon/StaticBody3D")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="vfxPortal2"]
+transform = Transform3D(2.325, 0, 0, 0, 2.325, 0, 0, 0, 2.325, -4.0156813, 2.1248496, -6.4302883)
+material_override = SubResource("ShaderMaterial_o18mp")
+mesh = SubResource("QuadMesh_o18mp")
+skeleton = NodePath("../../Dungeon/StaticBody3D")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="vfxPortal2"]
+transform = Transform3D(1.945125, 0, 0, 0, 1.945125, 0, 0, 0, 1.945125, -4.016613, 2.1237345, -6.7196198)
+material_override = SubResource("StandardMaterial3D_tuulv")
+amount = 150
+trail_enabled = true
+trail_lifetime = 0.5
+process_material = SubResource("ParticleProcessMaterial_tuulv")
+draw_pass_1 = SubResource("RibbonTrailMesh_tuulv")

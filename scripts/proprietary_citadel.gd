@@ -134,6 +134,10 @@ func start_bad_kill_ending() -> void:
 	call_deferred("_run_bad_kill_to_boss_sequence")
 
 func start_evil_tux_boss_fight() -> void:
+	# Play the ominous evil tux music
+	if SceneManager:
+		SceneManager.play_music_for_key("ominous_secret_evil_tux")
+	
 	if _ending_sequence_started:
 		return
 	_ending_sequence_started = true

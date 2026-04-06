@@ -131,6 +131,7 @@ var pending_timing_command: CommandParser.CommandResult = null
 var timing_damage_multiplier: float = 1.0
 var timing_was_critical: bool = false
 var timing_was_miss: bool = false
+var _combat_critical_timing_hits: int = 0
 var _heal_uses_remaining: int = 1
 var _heal_uses_max: int = 1
 var _overclock_used_this_battle: bool = false
@@ -166,6 +167,7 @@ func start_combat(enemy: EnemyData) -> void:
 		_heal_uses_remaining = 1
 	_overclock_used_this_battle = false
 	_taskkill_used_this_battle = false
+	_combat_critical_timing_hits = 0
 	_pending_timing_profile = {}
 	_skip_enemy_turn_after_command = false
 	_combat_start_modifiers_applied = false
@@ -188,6 +190,7 @@ func end_combat(victory: bool) -> void:
 	if victory:
 		_log_message("=== VICTORY ===", MessageType.SUCCESS)
 		_log_message("%s has been defeated!" % current_enemy.display_name, MessageType.SUCCESS)
+		_award_victory_data_bits()
 		# Apply rewards
 		if current_enemy.defeat_reward.has("karma"):
 			SceneManager.player_karma = current_enemy.defeat_reward.karma
@@ -409,6 +412,8 @@ func apply_timing_result(zone: int, damage_multiplier: float, is_miss: bool) -> 
 	timing_damage_multiplier = damage_multiplier
 	timing_was_critical = (zone == 2)  # ZoneType.CRITICAL
 	timing_was_miss = is_miss
+	if timing_was_critical:
+		_combat_critical_timing_hits += 1
 	
 	timing_result_applied.emit(zone, damage_multiplier)
 	
@@ -748,7 +753,7 @@ func _resolve_delete(result: CommandParser.CommandResult) -> CombatEffect:
 		
 		if timing_was_critical:
 			effect.is_critical = true
-			_log_message("⭐ PERFECT TIMING! Critical deletion!", MessageType.SUCCESS)
+			_log_message("PERFECT TIMING! Critical deletion!", MessageType.SUCCESS)
 		
 		# DELETE is super effective against file-themed enemies
 		if current_enemy.weakness == "delete":
@@ -797,7 +802,7 @@ func _resolve_restore(_result: CommandParser.CommandResult) -> CombatEffect:
 		effect.status_removed = removed
 		
 		if timing_was_critical:
-			_log_message("⭐ PERFECT TIMING! All status effects cleared!", MessageType.SUCCESS)
+			_log_message("PERFECT TIMING! All status effects cleared!", MessageType.SUCCESS)
 			# Clear all status effects on critical
 			while player_state.status_effects.size() > 0:
 				player_state.status_effects.pop_back()
@@ -808,12 +813,49 @@ func _resolve_restore(_result: CommandParser.CommandResult) -> CombatEffect:
 		var heal_amount := int(15 * timing_damage_multiplier)
 		if timing_was_critical:
 			heal_amount = int(heal_amount * 1.5)
-			_log_message("⭐ PERFECT TIMING! Maximum restoration!", MessageType.SUCCESS)
+			_log_message("PERFECT TIMING! Maximum restoration!", MessageType.SUCCESS)
 		var actual := player_state.heal(heal_amount)
 		effect.healing_done = actual
 		_log_message("Restored %d integrity." % actual, MessageType.HEAL)
 	
 	return effect
+
+func _award_victory_data_bits() -> void:
+	if SceneManager == null or current_enemy == null:
+		return
+
+	var base_bits := _get_victory_data_bits_base()
+	var critical_bonus_per_hit := _get_victory_critical_bonus_per_hit(base_bits)
+	var critical_bonus := _combat_critical_timing_hits * critical_bonus_per_hit
+	var total_bits := maxi(0, base_bits + critical_bonus)
+
+	if total_bits <= 0:
+		return
+
+	SceneManager.award_data_bits(total_bits, "combat:%s" % current_enemy.id)
+	if critical_bonus > 0:
+		_log_message("Recovered %d Data Bits from %s (%d base + %d critical bonus)." % [total_bits, current_enemy.display_name, base_bits, critical_bonus], MessageType.SUCCESS)
+	else:
+		_log_message("Recovered %d Data Bits from %s." % [total_bits, current_enemy.display_name], MessageType.SUCCESS)
+
+func _get_victory_data_bits_base() -> int:
+	if current_enemy == null:
+		return 0
+
+	var reward: Dictionary = current_enemy.defeat_reward
+	if reward.has("data_bits"):
+		return maxi(0, int(reward.get("data_bits", 0)))
+
+	var base := int(round(float(current_enemy.max_hp) * 0.35))
+	base += int(current_enemy.defense * 2)
+	base += int(current_enemy.speed)
+	return maxi(35, base)
+
+func _get_victory_critical_bonus_per_hit(base_bits: int) -> int:
+	var reward: Dictionary = current_enemy.defeat_reward if current_enemy else {}
+	if reward.has("data_bits_per_critical"):
+		return maxi(0, int(reward.get("data_bits_per_critical", 0)))
+	return maxi(8, int(round(float(maxi(1, base_bits)) * 0.12)))
 #endregion
 
 #region Utility

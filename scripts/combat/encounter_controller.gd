@@ -131,12 +131,18 @@ func start_encounter() -> void:
 			# Update the UI mode display
 			if combat_ui.has_method("_update_mode_display"):
 				combat_ui._update_mode_display()
+			# Play puzzle terminal music
+			if SceneManager:
+				SceneManager.play_music_for_key("puzzle_terminal")
 		# If starting in combat mode (player fled before), transition immediately
 		elif start_in_combat and enemy_controller.has_method("_transition_to_combat"):
 			await get_tree().process_frame
 			enemy_controller._transition_to_combat()
 			if combat_ui.has_method("_update_mode_display"):
 				combat_ui._update_mode_display()
+			# Play combat terminal music
+			if SceneManager:
+				SceneManager.play_music_for_key("combat_terminal")
 			# Show resumption message
 			if combat_ui and combat_ui.has_method("_print_terminal"):
 				combat_ui._print_terminal("\n[color=#f2e066]The enemy recognizes you from before![/color]\n")
@@ -150,6 +156,8 @@ func _on_encounter_ended(method: String) -> void:
 		return
 	_encounter_resolved = true
 	is_active = false
+	if method == "puzzle_solved":
+		_award_puzzle_data_bits()
 	
 	# Clear the fled_combat state since encounter is now properly resolved
 	if enemy_controller and "enemy_name" in enemy_controller:
@@ -179,6 +187,45 @@ func _on_encounter_ended(method: String) -> void:
 	
 	# Clean up the encounter controller itself
 	queue_free()
+
+func _award_puzzle_data_bits() -> void:
+	if SceneManager == null or enemy_controller == null:
+		return
+
+	var puzzle_data: Variant = enemy_controller.get("puzzle_data")
+	if puzzle_data == null:
+		return
+
+	var reward: Dictionary = {}
+	if puzzle_data is Object and "reward" in puzzle_data:
+		reward = puzzle_data.reward
+	elif puzzle_data is Dictionary:
+		reward = puzzle_data.get("reward", {})
+	if reward.is_empty():
+		return
+
+	var base_bits := maxi(0, int(reward.get("data_bits", 0)))
+	var bonus_per_critical := maxi(0, int(reward.get("data_bits_per_critical", 0)))
+	var critical_hits := 0
+	if puzzle_data is Object and "custom_data" in puzzle_data and puzzle_data.custom_data is Dictionary:
+		critical_hits = int(puzzle_data.custom_data.get("timing_critical_hits", 0))
+	elif puzzle_data is Dictionary:
+		var custom_data: Dictionary = puzzle_data.get("custom_data", {})
+		critical_hits = int(custom_data.get("timing_critical_hits", 0))
+
+	var total_bits := base_bits + (critical_hits * bonus_per_critical)
+	if total_bits <= 0:
+		return
+
+	var enemy_name := "the puzzle"
+	if enemy_controller and "enemy_name" in enemy_controller:
+		enemy_name = str(enemy_controller.enemy_name)
+	SceneManager.award_data_bits(total_bits, "puzzle:%s" % enemy_name.to_lower().replace(" ", "_"))
+	if combat_ui and combat_ui.has_method("_print_terminal"):
+		if critical_hits > 0 and bonus_per_critical > 0:
+			combat_ui._print_terminal("[color=#66f266]Recovered %d Data Bits from %s (%d base + %d from %d critical timing hit%s).[/color]\n" % [total_bits, enemy_name, base_bits, critical_hits * bonus_per_critical, critical_hits, "s" if critical_hits != 1 else ""])
+		else:
+			combat_ui._print_terminal("[color=#66f266]Recovered %d Data Bits from %s.[/color]\n" % [total_bits, enemy_name])
 
 func _on_combat_manager_ended(victory: bool, _enemy_data) -> void:
 	if _encounter_resolved or not victory:

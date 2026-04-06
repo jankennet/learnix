@@ -1000,8 +1000,14 @@ func _update_mode_display() -> void:
 				mode_label.text = "[DIALOGUE]"
 			1:  # COMBAT
 				mode_label.text = "[COMBAT MODE]"
+				# Play combat terminal music when transitioning to combat
+				if SceneManager:
+					SceneManager.play_music_for_key("combat_terminal")
 			2:  # PUZZLE
 				mode_label.text = "[PUZZLE MODE]"
+				# Play puzzle terminal music when transitioning to puzzle
+				if SceneManager:
+					SceneManager.play_music_for_key("puzzle_terminal")
 			3:  # RESOLVED
 				mode_label.text = "[RESOLVED]"
 			_:

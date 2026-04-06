@@ -1,6 +1,6 @@
+CollisionShape3D
 VideoStreamPlayer
 Marker3D
-CollisionShape3D
 Area3D
 Sprite2D
 TextureRect
@@ -12,4 +12,3 @@ CSGBox3D
 SpotLight3D
 MeshInstance3D
 Camera3D
-CSGCylinder3D

@@ -131,6 +131,7 @@ Use filesystem commands to locate, recover, and reconstruct the file.
 		"fragments_decrypted": [],
 		"file_assembled": false,
 		"file_compiled": false,
+		"timing_critical_hits": 0,
 		"fragment_locations": {
 			".fragment_001": "/tmp",
 			".fragment_002": "/var/lost+found",
@@ -143,7 +144,9 @@ Use filesystem commands to locate, recover, and reconstruct the file.
 		"npc_state": "helped",
 		"npc_name": "Lost File",
 		"karma_change": "good",
-		"unlock": "filesystem_forest_path_2"
+		"unlock": "filesystem_forest_path_2",
+		"data_bits": 45,
+		"data_bits_per_critical": 8,
 	}
 	
 	return puzzle
@@ -189,6 +192,7 @@ reconnecting it to the correct path, fixing permissions, and patching the link t
 		],
 		"current_index": 0,
 		"reset_on_fail": false,
+		"timing_critical_hits": 0,
 		"timing_steps": [3, 5],
 		"timing_difficulty_map": {
 			3: 1.35,
@@ -200,7 +204,9 @@ reconnecting it to the correct path, fixing permissions, and patching the link t
 		"npc_state": "helped",
 		"npc_name": "Broken Link",
 		"karma_change": "good",
-		"unlock": "proficiency_key_forest"
+		"unlock": "proficiency_key_forest",
+		"data_bits": 40,
+		"data_bits_per_critical": 8,
 	}
 
 	return puzzle
@@ -236,6 +242,7 @@ Follow a calming repair sequence to quiet the phantom and stabilize the bus.
 		],
 		"current_index": 0,
 		"reset_on_fail": false,
+		"timing_critical_hits": 0,
 		"timing_steps": [2],
 		"timing_difficulty_map": {
 			2: 1.2,
@@ -246,6 +253,8 @@ Follow a calming repair sequence to quiet the phantom and stabilize the bus.
 		"npc_state": "helped",
 		"npc_name": "Hardware Ghost",
 		"karma_change": "good",
+		"data_bits": 38,
+		"data_bits_per_critical": 6,
 	}
 
 	return puzzle
@@ -283,6 +292,7 @@ and restoring stability to the interrupt table.
 		],
 		"current_index": 0,
 		"reset_on_fail": false,
+		"timing_critical_hits": 0,
 		"timing_steps": [2, 4],
 		"timing_difficulty_map": {
 			2: 1.3,
@@ -294,6 +304,8 @@ and restoring stability to the interrupt table.
 		"npc_state": "defeated",
 		"npc_name": "Driver Remnant",
 		"karma_change": "neutral",
+		"data_bits": 50,
+		"data_bits_per_critical": 8,
 	}
 
 	return puzzle
@@ -331,6 +343,7 @@ Clear the spool, fix permissions, and restart the queue to quiet the daemon.
 		],
 		"current_index": 0,
 		"reset_on_fail": false,
+		"timing_critical_hits": 0,
 		"timing_steps": [2, 4],
 		"timing_difficulty_map": {
 			2: 1.25,
@@ -342,6 +355,8 @@ Clear the spool, fix permissions, and restart the queue to quiet the daemon.
 		"npc_state": "defeated",
 		"npc_name": "Printer Boss",
 		"karma_change": "neutral",
+		"data_bits": 60,
+		"data_bits_per_critical": 10,
 	}
 
 	return puzzle
@@ -740,6 +755,7 @@ static func apply_timing_to_puzzle(puzzle: PuzzleData, original_result: PuzzleRe
 	# Handle timing based on zone
 	match zone:
 		2:  # CRITICAL - Perfect execution
+			data["timing_critical_hits"] = int(data.get("timing_critical_hits", 0)) + 1
 			result.message = "⭐ PERFECT TIMING!\n"
 			_apply_critical_timing(puzzle, result, data)
 		1:  # NORMAL - Success with chance
