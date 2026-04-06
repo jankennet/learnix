@@ -141,6 +141,8 @@ func _open_terminal_prompt() -> bool:
 		if SceneManager:
 			SceneManager.input_locked = true
 
+	_configure_boss_door_terminal_layout()
+
 	var terminal_output: RichTextLabel = _terminal_ui.get_node_or_null("TerminalContainer/TerminalOutput") as RichTextLabel
 	if terminal_output:
 		terminal_output.clear()
@@ -211,21 +213,31 @@ func _ensure_terminal_ui() -> bool:
 	_terminal_command_input = command_input
 
 	# Hide combat-specific status details to keep this focused on door auth.
+	_configure_boss_door_terminal_layout()
+
+	return true
+
+func _configure_boss_door_terminal_layout() -> void:
+	if _terminal_ui == null or not is_instance_valid(_terminal_ui):
+		return
+
 	var status_title := _terminal_ui.get_node_or_null("StatusPanel/VBox/StatusTitle") as Label
 	if status_title:
 		status_title.text = "═══ DOOR STATUS ═══"
+
 	for node_path in [
 		"StatusPanel/VBox/PlayerTitle",
 		"StatusPanel/VBox/PlayerStatus",
 		"StatusPanel/VBox/EnemyTitle",
-		"StatusPanel/VBox/EnemyStatus/HPBar",
-		"StatusPanel/VBox/EnemyStatus/HPLabel"
+		"StatusPanel/VBox/EnemyStatus",
+		"StatusPanel/VBox/NpcVisualPanel",
+		"StatusPanel/VBox/Spacer",
+		"StatusPanel/VBox/Separator2",
+		"StatusPanel/VBox/Separator3"
 	]:
 		var node := _terminal_ui.get_node_or_null(node_path)
 		if node and node is CanvasItem:
 			node.visible = false
-
-	return true
 
 func _on_terminal_submit_pressed() -> void:
 	if _terminal_command_input:
