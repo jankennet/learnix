@@ -64,6 +64,7 @@ const TUTORIAL_META_DEPENDENCY_INTRO := "combat_dependency_intro_seen_v2"
 const TUTORIAL_POPUP_SCENE_PATH := "res://Scenes/combat/combat_tutorial_popup.tscn"
 const TUX_HELPER_POPUP_SCENE_PATH := "res://Scenes/combat/tux_terminal_helper_popup.tscn"
 const SKILL_UNLOCK_RECEIPTS_META_KEY := "skill_unlock_receipts"
+const COMMAND_FOCUS_GUARD_INTERVAL := 0.1
 const NPC_REVEAL_SHADER_PATH := "res://shaders/ui/npc_reveal_wipe.gdshader"
 const CRACKED_GLASS_SHADER_PATH := "res://Scenes/combat/cracked_glass.gdshader"
 const CRACKED_GLASS_TEXTURE_PATH := "res://Assets/Glass-Cracks-PNG-HD.png"
@@ -124,6 +125,7 @@ var _npc_texture_cache: Dictionary = {}
 var _command_history: Array[String] = []
 var _history_index := -1
 var _history_draft := ""
+var _command_focus_guard_elapsed := 0.0
 
 func _ready() -> void:
 	if not get_viewport().size_changed.is_connected(_on_viewport_resized):
@@ -133,12 +135,16 @@ func _ready() -> void:
 	# Connect input signals
 	if command_input:
 		command_input.text_submitted.connect(_on_command_submitted)
+		if not command_input.focus_exited.is_connected(_on_command_input_focus_exited):
+			command_input.focus_exited.connect(_on_command_input_focus_exited)
 	
 	if submit_button:
 		submit_button.pressed.connect(_on_submit_pressed)
+		submit_button.focus_mode = Control.FOCUS_NONE
 	
 	if exit_button:
 		exit_button.pressed.connect(_on_exit_pressed)
+		exit_button.focus_mode = Control.FOCUS_NONE
 	
 	# Setup timing minigame
 	_setup_timing_minigame()
@@ -150,12 +156,22 @@ func _ready() -> void:
 	if tux_help_button:
 		if not tux_help_button.pressed.is_connected(_on_tux_help_button_pressed):
 			tux_help_button.pressed.connect(_on_tux_help_button_pressed)
+		tux_help_button.focus_mode = Control.FOCUS_NONE
 		if tux_help_button.icon == null:
 			var tux_icon := load("res://Assets/mainHUD_Icons_Tux.png")
 			if tux_icon:
 				tux_help_button.icon = tux_icon
 		if tux_help_button.text.is_empty():
 			tux_help_button.text = "ASK TUX"
+
+func _process(delta: float) -> void:
+	if not is_open:
+		return
+	_command_focus_guard_elapsed += delta
+	if _command_focus_guard_elapsed < COMMAND_FOCUS_GUARD_INTERVAL:
+		return
+	_command_focus_guard_elapsed = 0.0
+	_restore_command_focus_if_needed()
 
 func _on_viewport_resized() -> void:
 	_apply_responsive_ui()
@@ -351,7 +367,7 @@ func open_combat_ui() -> void:
 	await _show_terminal_intro_tutorial_if_needed()
 	if command_input:
 		command_input.editable = true
-		command_input.grab_focus()
+		command_input.call_deferred("grab_focus")
 	_update_tux_helper_popup()
 
 ## Hide the combat UI
@@ -425,8 +441,31 @@ func _show_queued_reward_popup() -> void:
 
 # Use _unhandled_input instead of _input so GUI controls (LineEdit) process events first
 func _input(event: InputEvent) -> void:
-	if not is_open or not command_input or not command_input.has_focus():
+	if not is_open or not command_input:
 		return
+
+	if event is InputEventKey and event.pressed and not event.echo:
+		if not command_input.has_focus() and _can_restore_command_focus():
+			var key_event := event as InputEventKey
+			if _route_key_to_command_input(key_event):
+				get_viewport().set_input_as_handled()
+				return
+			_claim_command_input_focus()
+			# Swallow the first key so it doesn't act on an unrelated control.
+			get_viewport().set_input_as_handled()
+			return
+
+	if not command_input.has_focus():
+		return
+	
+	# Intercept ENTER key when input HAS focus - process before LineEdit emits text_submitted
+	if event is InputEventKey and event.pressed and not event.echo:
+		var key_event := event as InputEventKey
+		if key_event.keycode == KEY_ENTER or key_event.keycode == KEY_KP_ENTER:
+			_on_command_submitted(command_input.text)
+			_claim_command_input_focus()
+			get_viewport().set_input_as_handled()
+			return
 	
 	# Intercept UP/DOWN keys for history navigation before LineEdit processes them
 	if event is InputEventKey and event.pressed:
@@ -455,8 +494,102 @@ func _unhandled_input(event: InputEvent) -> void:
 		
 		# If a key was pressed but LineEdit doesn't have focus, grab it
 		if command_input and event is InputEventKey and event.pressed:
-			if not command_input.has_focus():
-				command_input.grab_focus()
+			if not command_input.has_focus() and _can_restore_command_focus():
+				_claim_command_input_focus()
+
+func _on_command_input_focus_exited() -> void:
+	if not _can_restore_command_focus():
+		return
+	_claim_command_input_focus()
+
+func _is_combat_focus_modal_active() -> bool:
+	if _tutorial_popup_visible:
+		return true
+	if _tux_helper_visible:
+		return true
+	if timing_minigame and timing_minigame.is_active:
+		return true
+	if dependency_minigame and dependency_minigame.visible:
+		return true
+	return false
+
+func _can_restore_command_focus() -> bool:
+	if not is_open or not command_input:
+		return false
+	if not command_input.visible or not command_input.editable:
+		return false
+	if _is_combat_focus_modal_active():
+		return false
+	return true
+
+func _restore_command_focus_if_needed() -> void:
+	if not _can_restore_command_focus():
+		return
+	if command_input.has_focus():
+		return
+	_claim_command_input_focus()
+
+func _claim_command_input_focus() -> void:
+	if command_input == null:
+		return
+	if not command_input.visible or not command_input.editable:
+		return
+	var focus_owner := get_viewport().gui_get_focus_owner()
+	if focus_owner and focus_owner != command_input:
+		focus_owner.release_focus()
+	command_input.grab_focus()
+	command_input.call_deferred("grab_focus")
+
+func _route_key_to_command_input(key_event: InputEventKey) -> bool:
+	if command_input == null:
+		return false
+	if not _can_restore_command_focus():
+		return false
+	if key_event.ctrl_pressed or key_event.alt_pressed or key_event.meta_pressed:
+		return false
+
+	match key_event.keycode:
+		KEY_ENTER, KEY_KP_ENTER:
+			_on_command_submitted(command_input.text)
+			return true
+		KEY_BACKSPACE:
+			if command_input.caret_column > 0:
+				var idx := command_input.caret_column - 1
+				command_input.text = command_input.text.substr(0, idx) + command_input.text.substr(command_input.caret_column)
+				command_input.caret_column = idx
+			return true
+		KEY_DELETE:
+			if command_input.caret_column < command_input.text.length():
+				command_input.text = command_input.text.substr(0, command_input.caret_column) + command_input.text.substr(command_input.caret_column + 1)
+			return true
+		KEY_LEFT:
+			command_input.caret_column = maxi(0, command_input.caret_column - 1)
+			return true
+		KEY_RIGHT:
+			command_input.caret_column = mini(command_input.text.length(), command_input.caret_column + 1)
+			return true
+		KEY_HOME:
+			command_input.caret_column = 0
+			return true
+		KEY_END:
+			command_input.caret_column = command_input.text.length()
+			return true
+		KEY_TAB:
+			# Prevent focus traversal from stealing terminal typing.
+			return true
+
+	if key_event.unicode <= 0:
+		return false
+	var typed := char(key_event.unicode)
+	if typed == "":
+		return false
+	if typed == "\n" or typed == "\r" or typed == "\t":
+		return false
+
+	var insert_at := command_input.caret_column
+	command_input.text = command_input.text.substr(0, insert_at) + typed + command_input.text.substr(insert_at)
+	command_input.caret_column = insert_at + 1
+	return true
 
 func _on_command_submitted(text: String) -> void:
 	if text.strip_edges().is_empty():
@@ -471,7 +604,7 @@ func _on_command_submitted(text: String) -> void:
 	# Clear input and re-focus
 	if command_input:
 		command_input.clear()
-		command_input.grab_focus()
+		_claim_command_input_focus()
 	
 	_history_index = -1
 	_history_draft = ""
@@ -678,7 +811,7 @@ func _on_awaiting_input() -> void:
 		turn_indicator.text = "[ AWAITING INPUT ]"
 	if command_input:
 		command_input.editable = true
-		command_input.grab_focus()
+		command_input.call_deferred("grab_focus")
 
 func _on_turn_changed(turn_owner) -> void:
 	if not turn_indicator:
@@ -815,7 +948,7 @@ func _on_tux_helper_hint_selected(message: String) -> void:
 		return
 	_print_terminal("[color=#f2e066]Tux:[/color] %s\n" % message)
 	if command_input:
-		command_input.grab_focus()
+		command_input.call_deferred("grab_focus")
 
 func _ensure_tux_helper_popup() -> void:
 	if _tux_helper_popup != null and is_instance_valid(_tux_helper_popup):
@@ -1570,7 +1703,7 @@ func _on_timing_completed(result: TimingMinigame.TimingResult) -> void:
 	# Re-enable input
 	if command_input:
 		command_input.editable = true
-		command_input.grab_focus()
+		command_input.call_deferred("grab_focus")
 	
 	# Route to appropriate handler based on context
 	if _current_timing_context == "puzzle":
@@ -1614,7 +1747,7 @@ func _on_timing_cancelled() -> void:
 	# Re-enable input
 	if command_input:
 		command_input.editable = true
-		command_input.grab_focus()
+		command_input.call_deferred("grab_focus")
 	
 	# Treat as miss based on context
 	if _current_timing_context == "puzzle":
@@ -1655,7 +1788,7 @@ func _on_dependency_resolver_closed() -> void:
 	# Ensure terminal input is restored after close.
 	if command_input:
 		command_input.editable = true
-		command_input.grab_focus()
+		command_input.call_deferred("grab_focus")
 	if turn_indicator:
 		turn_indicator.text = "[ AWAITING INPUT ]"
 

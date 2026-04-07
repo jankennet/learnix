@@ -20,6 +20,7 @@ func _ready() -> void:
 	# Hide the run button - real terminals don't show it (but keep reference valid)
 	if run_command_button:
 		run_command_button.visible = true
+		run_command_button.focus_mode = Control.FOCUS_NONE
 	
 	# Style the panel background with authentic CRT terminal colors
 	var sb_main := StyleBoxFlat.new()
@@ -37,6 +38,11 @@ func _ready() -> void:
 	# Style header and buttons with CRT theme
 	var header_label = terminal_header.get_node("HeaderLabel")
 	header_label.add_theme_color_override("font_color", TERMINAL_TEXT)
+
+	# Prevent chrome buttons from stealing keyboard focus from the command line.
+	for button in [run_command_button, close_button, fullscreen_button, minimize_button]:
+		if button:
+			button.focus_mode = Control.FOCUS_NONE
 	
 	# Style buttons with minimal CRT theme - make them look like real terminal buttons
 	for button in [close_button, fullscreen_button, minimize_button]:

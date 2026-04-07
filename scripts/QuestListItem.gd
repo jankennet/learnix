@@ -61,25 +61,10 @@ func _update_display() -> void:
 func _on_pressed() -> void:
 	if not quest:
 		return
-	# Prefer using the QuestManager API so active_quests stays in sync
-	if has_node("/root/SceneManager") and SceneManager and SceneManager.quest_manager:
-		var qm = SceneManager.quest_manager
-		if quest.status != "completed":
-			if qm.has_method("complete_quest"):
-				qm.complete_quest(quest.quest_id)
-			else:
-				quest.status = "completed"
-		else:
-			if qm.has_method("start_quest"):
-				qm.start_quest(quest.quest_id)
-			else:
-				quest.status = "active"
-	else:
-		# Fallback: modify the resource directly
-		if quest.status != "completed":
-			quest.status = "completed"
-		else:
-			quest.status = "active"
-
-	_update_display()
+	# NOTE: Clicking quest items should NOT toggle quest completion!
+	# Quest completion should only happen through actual in-game gameplay
+	# (e.g., solving Lost File puzzle, defeating enemies, etc.)
+	# Allowing UI clicks to mark quests complete causes bugs like Lost File
+	# appearing in Fallback Hamlet prematurely.
+	# Emit signal for UI feedback without changing quest state
 	emit_signal("quest_toggled", quest)

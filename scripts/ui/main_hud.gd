@@ -165,6 +165,8 @@ func _ready() -> void:
 		run_command_button.pressed.connect(_on_run_command_pressed)
 	if terminal_input and not terminal_input.text_submitted.is_connected(_on_terminal_text_submitted):
 		terminal_input.text_submitted.connect(_on_terminal_text_submitted)
+	if terminal_input and not terminal_input.focus_exited.is_connected(_on_terminal_input_focus_exited):
+		terminal_input.focus_exited.connect(_on_terminal_input_focus_exited)
 	if terminal_header and not terminal_header.gui_input.is_connected(_on_terminal_header_gui_input):
 		terminal_header.gui_input.connect(_on_terminal_header_gui_input)
 	if terminal_input:
@@ -183,6 +185,7 @@ func _ready() -> void:
 			get_tree().get_root().add_child(side_btn)
 
 func _process(delta: float) -> void:
+	_restore_terminal_focus_if_needed()
 	_check_timer -= delta
 	if _check_timer > 0.0:
 		return
@@ -203,6 +206,20 @@ func _input(event: InputEvent) -> void:
 
 	if _terminal_is_open and event is InputEventKey and event.pressed and not event.echo:
 		var key_event := event as InputEventKey
+		if terminal_input and not terminal_input.has_focus() and not _is_terminal_modal_active():
+			if _route_key_to_terminal_input(key_event):
+				get_viewport().set_input_as_handled()
+				return
+			_claim_terminal_input_focus()
+			# Swallow this key so it doesn't trigger unrelated focused controls.
+			get_viewport().set_input_as_handled()
+			return
+		# Handle Enter key when input HAS focus - intercept before LineEdit processes it
+		if terminal_input and terminal_input.has_focus() and (key_event.keycode == KEY_ENTER or key_event.keycode == KEY_KP_ENTER):
+			_process_terminal_command(terminal_input.text)
+			_claim_terminal_input_focus()
+			get_viewport().set_input_as_handled()
+			return
 		if key_event.keycode == KEY_UP or key_event.keycode == KEY_DOWN:
 			if terminal_input and terminal_input.has_focus():
 				# Never allow any history navigation path unless CLI history is unlocked.
@@ -379,6 +396,11 @@ func _on_run_command_pressed() -> void:
 func _on_terminal_text_submitted(text: String) -> void:
 	_process_terminal_command(text)
 
+func _on_terminal_input_focus_exited() -> void:
+	if not _terminal_is_open or _is_terminal_modal_active():
+		return
+	_claim_terminal_input_focus()
+
 func _process_terminal_command(raw_command: String) -> void:
 	if not _terminal_is_open:
 		return
@@ -386,7 +408,7 @@ func _process_terminal_command(raw_command: String) -> void:
 	var text := raw_command.strip_edges()
 	if terminal_input:
 		terminal_input.clear()
-		terminal_input.grab_focus()
+		terminal_input.call_deferred("grab_focus")
 
 	if text.is_empty():
 		return
@@ -1098,3 +1120,87 @@ func _release_terminal_input_lock() -> void:
 		return
 	SceneManager.input_locked = _previous_input_locked
 	_owned_input_lock = false
+
+func _is_terminal_modal_active() -> bool:
+	if _shutdown_confirm_dialog and is_instance_valid(_shutdown_confirm_dialog) and _shutdown_confirm_dialog.visible:
+		return true
+	if _shop_panel and is_instance_valid(_shop_panel) and _shop_panel.visible:
+		return true
+	return false
+
+func _restore_terminal_focus_if_needed() -> void:
+	if not _terminal_is_open:
+		return
+	if terminal_panel == null or not terminal_panel.visible:
+		return
+	if terminal_input == null:
+		return
+	if not terminal_input.editable or not terminal_input.visible:
+		return
+	if _is_terminal_modal_active():
+		return
+	if terminal_input.has_focus():
+		return
+	_claim_terminal_input_focus()
+
+func _claim_terminal_input_focus() -> void:
+	if terminal_input == null:
+		return
+	if not terminal_input.visible or not terminal_input.editable:
+		return
+	var focus_owner := get_viewport().gui_get_focus_owner()
+	if focus_owner and focus_owner != terminal_input:
+		focus_owner.release_focus()
+	terminal_input.grab_focus()
+	terminal_input.call_deferred("grab_focus")
+
+func _route_key_to_terminal_input(key_event: InputEventKey) -> bool:
+	if terminal_input == null:
+		return false
+	if not _terminal_is_open or not terminal_input.visible or not terminal_input.editable:
+		return false
+	if key_event.ctrl_pressed or key_event.alt_pressed or key_event.meta_pressed:
+		return false
+
+	match key_event.keycode:
+		KEY_ENTER, KEY_KP_ENTER:
+			_process_terminal_command(terminal_input.text)
+			return true
+		KEY_BACKSPACE:
+			if terminal_input.caret_column > 0:
+				var idx := terminal_input.caret_column - 1
+				terminal_input.text = terminal_input.text.substr(0, idx) + terminal_input.text.substr(terminal_input.caret_column)
+				terminal_input.caret_column = idx
+			return true
+		KEY_DELETE:
+			if terminal_input.caret_column < terminal_input.text.length():
+				terminal_input.text = terminal_input.text.substr(0, terminal_input.caret_column) + terminal_input.text.substr(terminal_input.caret_column + 1)
+			return true
+		KEY_LEFT:
+			terminal_input.caret_column = maxi(0, terminal_input.caret_column - 1)
+			return true
+		KEY_RIGHT:
+			terminal_input.caret_column = mini(terminal_input.text.length(), terminal_input.caret_column + 1)
+			return true
+		KEY_HOME:
+			terminal_input.caret_column = 0
+			return true
+		KEY_END:
+			terminal_input.caret_column = terminal_input.text.length()
+			return true
+		KEY_TAB:
+			# Prevent focus traversal from stealing terminal typing.
+			return true
+
+	if key_event.unicode <= 0:
+		return false
+	var typed := char(key_event.unicode)
+	if typed == "":
+		return false
+	if typed == "\n" or typed == "\r" or typed == "\t":
+		return false
+
+	var insert_at := terminal_input.caret_column
+	terminal_input.text = terminal_input.text.substr(0, insert_at) + typed + terminal_input.text.substr(insert_at)
+	terminal_input.caret_column = insert_at + 1
+	return true

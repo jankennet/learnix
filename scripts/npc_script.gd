@@ -202,6 +202,21 @@ func _apply_state_visuals_from_scene_state(force: bool = false) -> void:
 		_hide_self(true)
 		return
 
+	# Special handling for Lost File in Fallback Hamlet: only show if player has helped it
+	if npc_name == "Lost File":
+		var current_scene = get_tree().current_scene
+		if current_scene and "fallback_hamlet" in current_scene.scene_file_path.to_lower():
+			# In Fallback Hamlet: only show if helped
+			if not SceneManager.helped_lost_file:
+				_hide_self(true)
+				return
+			else:
+				_hide_self(false)
+				_set_interaction_enabled(true)
+				play_idle_animation()
+				return
+		# In other scenes (Filesystem Forest), proceed with normal state logic
+
 	var state := ""
 	if npc_name in SceneManager.npc_states:
 		state = str(SceneManager.npc_states[npc_name])
@@ -678,7 +693,6 @@ func _check_should_hide_on_startup() -> void:
 			print("DEBUG: Quest not completed or failed, hiding Lost File")
 			_hide_self(true)
 			print("🙈 Lost File: Hidden in Hamlet (quest not completed/helped)")
-			print("✨ Lost File: Visible in Hamlet (quest completed)")
 	else:
 		print("DEBUG: Not in Fallback Hamlet")
 

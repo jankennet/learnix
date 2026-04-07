@@ -41,9 +41,9 @@ func _check_initial_state() -> void:
 			# Make sure it's visible if quest is still active/incomplete
 			_hide_npc_completely(current_scene, "NPC/Lost File", false)
 	
-	# In Hamlet: only show Lost File if quest is completed
+	# In Hamlet: only show Lost File if quest is completed AND helped
 	if LOST_FILE_IN_HAMLET in current_scene.scene_file_path:
-		if quest and quest.status == "completed":
+		if quest and quest.status == "completed" and SceneManager.helped_lost_file:
 			_hide_npc_completely(current_scene, "NPC/Lost File", false)
 		else:
 			# Hide Lost File by default in Hamlet
@@ -82,9 +82,9 @@ func _update_lost_file_visibility() -> void:
 		var hide_forest: bool = quest.status in ["completed", "failed"]
 		_set_npc_hidden_if_changed(current_scene, "NPC/Lost File", hide_forest)
 	
-	# In Hamlet: show Lost File if quest is completed (helped)
+	# In Hamlet: show Lost File only if quest is completed AND helped
 	if LOST_FILE_IN_HAMLET in current_scene.scene_file_path:
-		var hide_hamlet: bool = quest.status != "completed"
+		var hide_hamlet: bool = (quest.status != "completed") or (not SceneManager.helped_lost_file)
 		_set_npc_hidden_if_changed(current_scene, "NPC/Lost File", hide_hamlet)
 
 func _set_npc_hidden_if_changed(scene: Node, npc_path: String, should_hide: bool) -> void:
