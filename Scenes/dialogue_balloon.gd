@@ -41,6 +41,7 @@ const DIALOGUE_PORTRAITS_BASE := {
 	"Evil Tux": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_EvilTux.png",
 	"Tux": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_Tux.png",
 	"EvilTux": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_EvilTux.png",
+	"Nova": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_Nova.png",
 	"CMO": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_CMO.png"
 }
 

@@ -11,6 +11,22 @@ It is open for everyone who wants to learn Linux through a game, whether you are
 - Learn Linux concepts like files, permissions, processes, networking, and system tools.
 - Take on quizzes, puzzles, and a few boss-style challenges.
 
+## How The Game Works
+
+Learnix is built around a simple loop: explore a level, talk to NPCs, complete a quest or challenge, and use what you learned to open the next part of the world. Most progression is state-driven, so the game remembers who you met, which quests you finished, and which tools or areas you unlocked.
+
+The world is the main learning space. NPC conversations usually happen through authored dialogue assets, and those conversations often set up quests, hints, or new objectives. Terminal-style encounters and minigames turn Linux ideas into playable tasks, so commands, dependencies, timing, and problem-solving all become part of the lesson instead of just text on a screen.
+
+In practice, the framework looks like this:
+
+- Start in a hub or tutorial area and learn the basic controls.
+- Interact with NPCs to receive guidance, quests, or story context.
+- Use the terminal, puzzles, and combat-style challenges to practice Linux concepts.
+- Unlock new flags, skills, and areas as your progress changes.
+- Return to the world with new information, new dialogue, and new routes forward.
+
+The result is a learning game where progression is tied to understanding, not just clearing a level.
+
 
 ## Controls
 
