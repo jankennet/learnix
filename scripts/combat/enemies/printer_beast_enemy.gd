@@ -402,7 +402,8 @@ func _resolve_encounter(method: String) -> void:
 	match method:
 		"puzzle_solved":
 			var granted_printer_key := not SceneManager.proficiency_key_printer
-			SceneManager.npc_states["Printer Boss"] = "defeated"
+			# Puzzle route is restorative: treat Printer Boss as helped, not defeated.
+			SceneManager.npc_states["Printer Boss"] = "helped"
 			SceneManager.proficiency_key_printer = true
 			SceneManager.printer_beast_defeated = true
 			SceneManager.met_printer_boss = true

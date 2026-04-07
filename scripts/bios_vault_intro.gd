@@ -10,11 +10,15 @@ extends Node3D
 const PROPRIETARY_CITADEL_SCENE_PATH := "res://Scenes/Levels/proprietary_citadel.tscn"
 const PROPRIETARY_CITADEL_SPAWN := "Spawn_BVTPC"
 const DIALOGUE_CANCEL_LOCK_META_KEY := "dialogue_cancel_locked"
+const GATEKEEPER_ARRIVAL_META_KEY := "bios_vault_gatekeeper_arrival"
 const BLACK_TEXT_CUTSCENE_SCENE := preload("res://Scenes/ui/black_text_cutscene.tscn")
+const TUX_HUD_DIALOGUE_PATH := "res://dialogues/TuxHUD.dialogue"
 
 var _intro_playing: bool = false
+var _spawn_dialogue_played: bool = false
 var _sage_combat_started: bool = false
 var _dialogue_resource: Resource = null
+var _tux_hud_dialogue_resource: Resource = null
 var _sage_sprite: AnimatedSprite3D = null
 var _sage_start_pos: Vector3 = Vector3.ZERO
 var _player_camera: Camera3D = null
@@ -36,6 +40,9 @@ func _ready() -> void:
 	if intro_dialogue_path != "" and ResourceLoader.exists(intro_dialogue_path):
 		_dialogue_resource = ResourceLoader.load(intro_dialogue_path)
 
+	if ResourceLoader.exists(TUX_HUD_DIALOGUE_PATH):
+		_tux_hud_dialogue_resource = ResourceLoader.load(TUX_HUD_DIALOGUE_PATH)
+
 	_sage_sprite = get_node_or_null("Sage/AnimatedSprite3D") as AnimatedSprite3D
 	if _sage_sprite:
 		_sage_start_pos = _sage_sprite.position
@@ -47,6 +54,40 @@ func _ready() -> void:
 	_sage_area_intro = get_node_or_null("BiosVault/SageArea-Intro") as Area3D
 	if _sage_area_intro:
 		_sage_area_intro.body_entered.connect(_on_sage_area_entered)
+		_sage_area_intro.body_exited.connect(_on_sage_area_exited)
+
+	_ensure_default_camera_focus()
+	call_deferred("_show_spawn_dialogue")
+
+func _ensure_default_camera_focus() -> void:
+	_sync_camera_focus_to_player()
+
+func _sync_camera_focus_to_player() -> void:
+	var player := _find_player()
+	if player:
+		_player_camera = player.get_node_or_null("Camera3D") as Camera3D
+
+	var scene_root := get_tree().current_scene
+	if scene_root:
+		for camera_node in scene_root.find_children("*", "Camera3D", true, false):
+			if camera_node is Camera3D:
+				(camera_node as Camera3D).current = false
+
+	if _player_camera:
+		_player_camera.current = true
+
+func _show_spawn_dialogue() -> void:
+	if _spawn_dialogue_played:
+		return
+	_spawn_dialogue_played = true
+
+	if SceneManager:
+		SceneManager.input_locked = true
+
+	await _show_hud_dialogue("hud_bios_tux_missing", [])
+
+	if SceneManager:
+		SceneManager.input_locked = false
 
 func _play_intro_sequence() -> void:
 	if _intro_playing:
@@ -66,15 +107,13 @@ func _play_intro_sequence() -> void:
 	if player:
 		_player_camera = player.get_node_or_null("Camera3D") as Camera3D
 
+	_sync_camera_focus_to_player()
+
 	_compute_sage_assessment()
 
 	var cam: Camera3D = null
-	if _vault_camera and player:
-		await _shake_camera(_vault_camera, 0.4, 0.15)
-		_position_vault_camera_for_sage(player)
-		_vault_camera.current = true
-		cam = _vault_camera
-	elif _player_camera:
+	if _player_camera:
+		_player_camera.current = true
 		cam = _player_camera
 	else:
 		cam = get_viewport().get_camera_3d()
@@ -106,6 +145,20 @@ func _show_intro_dialogue(start_title: String, context_args: Array) -> void:
 	if SceneManager:
 		SceneManager.set_meta(DIALOGUE_CANCEL_LOCK_META_KEY, true)
 	dm.show_dialogue_balloon(_dialogue_resource, start_title, context_args)
+	if dm.has_signal("dialogue_ended"):
+		await dm.dialogue_ended
+	if SceneManager and SceneManager.has_meta(DIALOGUE_CANCEL_LOCK_META_KEY):
+		SceneManager.set_meta(DIALOGUE_CANCEL_LOCK_META_KEY, false)
+
+func _show_hud_dialogue(start_title: String, context_args: Array) -> void:
+	if _tux_hud_dialogue_resource == null:
+		return
+	var dm = get_tree().root.get_node_or_null("DialogueManager")
+	if dm == null:
+		return
+	if SceneManager:
+		SceneManager.set_meta(DIALOGUE_CANCEL_LOCK_META_KEY, true)
+	dm.show_dialogue_balloon(_tux_hud_dialogue_resource, start_title, context_args)
 	if dm.has_signal("dialogue_ended"):
 		await dm.dialogue_ended
 	if SceneManager and SceneManager.has_meta(DIALOGUE_CANCEL_LOCK_META_KEY):
@@ -216,6 +269,16 @@ func _on_sage_area_entered(body: Node) -> void:
 	if body.is_in_group("player"):
 		_sage_area_triggered = true
 		_play_intro_sequence()
+
+func _on_sage_area_exited(body: Node) -> void:
+	if SceneManager == null:
+		return
+	if not bool(SceneManager.get_meta(GATEKEEPER_ARRIVAL_META_KEY, false)):
+		return
+	if not body.is_in_group("player"):
+		return
+
+	SceneManager.remove_meta(GATEKEEPER_ARRIVAL_META_KEY)
 
 func _shake_camera(cam: Camera3D, duration: float, intensity: float) -> void:
 	if cam == null:

@@ -1,6 +1,12 @@
 extends Node3D
 
 const DIALOGUE_CANCEL_LOCK_META_KEY := "dialogue_cancel_locked"
+const BIOS_VAULT_GATEKEEPER_ARRIVAL_META_KEY := "bios_vault_gatekeeper_arrival"
+const BLACK_TEXT_CUTSCENE_SCENE := preload("res://Scenes/ui/black_text_cutscene.tscn")
+const BIOS_VAULT_TRANSFER_LINES_GOOD: Array[String] = ["You've done well.", "You'll handle the next task properly...", "I hope."]
+const BIOS_VAULT_TRANSFER_LINES_BAD: Array[String] = ["There's nothing for you here.", "Be gone."]
+const BIOS_VAULT_TRANSFER_CUTSCENE_DURATION := 6.0
+const BIOS_VAULT_TRANSFER_PAN_DURATION := 2.0
 
 @export var idle_animation: String = "idle"
 @export var good_idle_anim: String = "good_idle"
@@ -425,18 +431,21 @@ func _call_scene_controller(method_name: String) -> void:
 
 func _run_bios_vault_transfer() -> void:
 	var target_scene_path := "res://Scenes/Levels/bios_vault.tscn"
+	var spawn_name := "Spawn_BV"
 
 	if SceneManager:
 		SceneManager.input_locked = true
+		SceneManager.set_meta(BIOS_VAULT_GATEKEEPER_ARRIVAL_META_KEY, true)
 
 	_close_active_dialogue_balloon()
 
 	await get_tree().process_frame
-	await _pan_camera_to_gatekeeper()
-	await _flash_red_light()
+	await _pan_camera_to_gatekeeper(BIOS_VAULT_TRANSFER_PAN_DURATION)
 
 	if SceneManager:
-		await SceneManager.teleport_to_scene(target_scene_path, "Spawn_BV", 0.1)
+		var transitioned := await _play_gatekeeper_transfer_cutscene(target_scene_path, spawn_name)
+		if not transitioned:
+			await SceneManager.teleport_to_scene(target_scene_path, spawn_name, 0.1)
 		await get_tree().process_frame
 
 		SceneManager.input_locked = false
@@ -455,34 +464,80 @@ func _close_active_dialogue_balloon() -> void:
 			child.queue_free()
 
 func _pan_camera_to_gatekeeper(duration: float = 0.9) -> void:
-	var cam = get_viewport().get_camera_3d()
-	if cam == null:
+	var showtime_cam := _get_gatekeeper_showtime_camera()
+	if showtime_cam == null:
 		return
+	showtime_cam.current = true
 
-	var cam_rig = cam.get_parent()
-	var had_processing := false
-	if cam_rig:
-		had_processing = cam_rig.is_processing()
-		cam_rig.set_process(false)
-
-	var gatekeeper_head := global_transform.origin + Vector3(0.0, 1.8, 0.0)
-	var direction_from_target: Vector3 = (cam.global_position - gatekeeper_head).normalized()
-	if direction_from_target.length() < 0.01:
-		direction_from_target = Vector3(0.0, 0.35, 1.0).normalized()
-	var target_position: Vector3 = gatekeeper_head + direction_from_target * 4.8
+	# Gatekeeper showtime pan: start from Y=3deg, then rotate to Y=25deg.
+	var start_rotation := showtime_cam.rotation
+	showtime_cam.rotation = Vector3(start_rotation.x, deg_to_rad(3.0), start_rotation.z)
 
 	var tween := create_tween()
 	tween.set_trans(Tween.TRANS_SINE)
 	tween.set_ease(Tween.EASE_IN_OUT)
-	tween.tween_property(cam, "global_position", target_position, duration)
+	tween.tween_property(showtime_cam, "rotation:y", deg_to_rad(25.0), duration)
 	await tween.finished
 
-	cam.look_at(gatekeeper_head, Vector3.UP)
-	if cam_rig and cam_rig.has_method("look_at"):
-		cam_rig.look_at(gatekeeper_head, Vector3.UP)
+func _get_gatekeeper_showtime_camera() -> Camera3D:
+	var scene_root := get_tree().current_scene
+	if scene_root == null:
+		return null
 
-	if cam_rig:
-		cam_rig.set_process(had_processing)
+	var direct := scene_root.get_node_or_null("Fallback_Hamlet_Final/GatekeeperShowtime") as Camera3D
+	if direct:
+		return direct
+
+	var fallback := scene_root.find_child("GatekeeperShowtime", true, false)
+	if fallback is Camera3D:
+		return fallback as Camera3D
+
+	return null
+
+func _get_gatekeeper_transfer_lines() -> Array[String]:
+	if SceneManager and String(SceneManager.player_karma) == "good":
+		return BIOS_VAULT_TRANSFER_LINES_GOOD
+	return BIOS_VAULT_TRANSFER_LINES_BAD
+
+func _play_gatekeeper_transfer_cutscene(scene_path: String, spawn_name: String) -> bool:
+	var cutscene := BLACK_TEXT_CUTSCENE_SCENE.instantiate()
+	if cutscene == null:
+		return false
+
+	get_tree().root.add_child(cutscene)
+	var transfer_lines := _get_gatekeeper_transfer_lines()
+	var per_line_duration := BIOS_VAULT_TRANSFER_CUTSCENE_DURATION / maxf(1.0, float(transfer_lines.size()))
+
+	if cutscene.has_method("play_lines_teleport_transition"):
+		await cutscene.play_lines_teleport_transition(transfer_lines, per_line_duration, scene_path, spawn_name, 0.1)
+		return true
+
+	if cutscene.has_method("play_lines") and cutscene.has_method("fade_out_only"):
+		await cutscene.play_lines(transfer_lines, per_line_duration, true)
+		if SceneManager:
+			await SceneManager.teleport_to_scene(scene_path, spawn_name, 0.1)
+		await cutscene.fade_out_only()
+		if is_instance_valid(cutscene):
+			cutscene.queue_free()
+		return true
+
+	if cutscene.has_method("play_teleport_transition"):
+		await cutscene.play_teleport_transition(
+			scene_path,
+			spawn_name,
+			"\n".join(transfer_lines),
+			BIOS_VAULT_TRANSFER_CUTSCENE_DURATION,
+			0.1
+		)
+		return true
+
+	if cutscene.has_method("play"):
+		await cutscene.play("\n".join(transfer_lines), BIOS_VAULT_TRANSFER_CUTSCENE_DURATION)
+	if SceneManager:
+		await SceneManager.teleport_to_scene(scene_path, spawn_name, 0.1)
+	if is_instance_valid(cutscene):
+		cutscene.queue_free()
+	return true
 
 func _flash_red_light() -> void:
 	var flash_layer := CanvasLayer.new()

@@ -352,7 +352,7 @@ Clear the spool, fix permissions, and restart the queue to quiet the daemon.
 	}
 
 	puzzle.reward = {
-		"npc_state": "defeated",
+		"npc_state": "helped",
 		"npc_name": "Printer Boss",
 		"karma_change": "neutral",
 		"data_bits": 60,

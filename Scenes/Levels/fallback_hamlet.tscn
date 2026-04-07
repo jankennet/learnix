@@ -572,6 +572,10 @@ shape = SubResource("BoxShape3D_5b6jp")
 [node name="first_spawn" type="Marker3D" parent="Fallback_Hamlet_Final" groups=["spawn_point"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0069556236, 0.2762, 17.392561)
 
+[node name="GatekeeperShowtime" type="Camera3D" parent="Fallback_Hamlet_Final"]
+transform = Transform3D(0.9111054, 0.045086488, 0.40970033, 0.020690272, 0.98774314, -0.15471041, -0.41165406, 0.14943428, 0.89900535, 0, 1.139719, 8.179315)
+fov = 56.3
+
 [node name="NPC" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -11.799795)
 

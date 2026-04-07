@@ -1,6 +1,13 @@
 extends Area3D
 
 const DIALOGUE_CANCEL_LOCK_META_KEY := "dialogue_cancel_locked"
+const BLACK_TEXT_CUTSCENE_SCENE := preload("res://Scenes/ui/black_text_cutscene.tscn")
+const BOSSROOM_UNLOCK_CUTSCENE_LINES: Array[String] = [
+	"You've entered an unknown place...",
+	"While you were transported, you saw something massive moving in the dark.",
+	"Somewhere ahead, a distorted voice keeps crying for help.",
+]
+const BOSSROOM_UNLOCK_LINE_DURATION := 2.00
 
 @export var required_command: String = "sudo unlock bossroom"
 @export var token_flag: String = "sudo_token_driver_remnant"
@@ -134,12 +141,16 @@ func _open_terminal_prompt() -> bool:
 	_input_open = true
 	_dialog_open = true
 
-	if _terminal_ui.has_method("open_combat_ui"):
-		_terminal_ui.open_combat_ui()
-	else:
-		_terminal_ui.show()
-		if SceneManager:
-			SceneManager.input_locked = true
+	# This is a door-auth shell, not an encounter terminal; avoid combat UI boot logic.
+	if _terminal_ui.has_method("close_combat_ui"):
+		_terminal_ui.close_combat_ui()
+	if _terminal_layer and is_instance_valid(_terminal_layer):
+		_terminal_layer.visible = true
+	_terminal_ui.show()
+	if _terminal_ui.get("is_open") != null:
+		_terminal_ui.set("is_open", false)
+	if SceneManager:
+		SceneManager.input_locked = true
 
 	_configure_boss_door_terminal_layout()
 
@@ -167,6 +178,7 @@ func _open_terminal_prompt() -> bool:
 		name_label.text = "Boss Room Door"
 
 	if _terminal_command_input:
+		_terminal_command_input.editable = true
 		_terminal_command_input.clear()
 		_terminal_command_input.grab_focus()
 
@@ -230,6 +242,7 @@ func _configure_boss_door_terminal_layout() -> void:
 		"StatusPanel/VBox/PlayerStatus",
 		"StatusPanel/VBox/EnemyTitle",
 		"StatusPanel/VBox/EnemyStatus",
+		"StatusPanel/VBox/ObjectiveFrame",
 		"StatusPanel/VBox/NpcVisualPanel",
 		"StatusPanel/VBox/Spacer",
 		"StatusPanel/VBox/Separator2",
@@ -312,6 +325,8 @@ func _close_ui() -> void:
 			_terminal_ui.close_combat_ui()
 		else:
 			_terminal_ui.hide()
+		if _terminal_ui.get("is_open") != null:
+			_terminal_ui.set("is_open", false)
 	if _terminal_layer and is_instance_valid(_terminal_layer):
 		_terminal_layer.visible = false
 
@@ -385,8 +400,7 @@ func _play_printer_intro_sequence() -> void:
 	if SceneManager:
 		SceneManager.input_locked = true
 
-	await get_tree().create_timer(0.15).timeout
-	await _move_nova_into_boss_room()
+	await _play_bossroom_unlock_cutscene_transition()
 
 	_set_printer_boss_visible(true)
 
@@ -403,6 +417,29 @@ func _play_printer_intro_sequence() -> void:
 
 	_start_printer_boss_puzzle()
 	_cutscene_running = false
+
+func _play_bossroom_unlock_cutscene_transition() -> void:
+	var cutscene := BLACK_TEXT_CUTSCENE_SCENE.instantiate()
+	if cutscene == null:
+		await get_tree().create_timer(0.15).timeout
+		await _move_nova_into_boss_room()
+		return
+
+	get_tree().root.add_child(cutscene)
+
+	# Keep the screen black while moving the player to avoid visible drag.
+	if cutscene.has_method("play_lines") and cutscene.has_method("fade_out_only"):
+		await cutscene.play_lines(BOSSROOM_UNLOCK_CUTSCENE_LINES, BOSSROOM_UNLOCK_LINE_DURATION, true)
+		await _move_nova_into_boss_room()
+		await cutscene.fade_out_only()
+	elif cutscene.has_method("play"):
+		await cutscene.play("\n".join(BOSSROOM_UNLOCK_CUTSCENE_LINES), BOSSROOM_UNLOCK_LINE_DURATION * float(BOSSROOM_UNLOCK_CUTSCENE_LINES.size()))
+		await _move_nova_into_boss_room()
+	else:
+		await _move_nova_into_boss_room()
+
+	if is_instance_valid(cutscene):
+		cutscene.queue_free()
 
 func _move_nova_into_boss_room() -> void:
 	var player = _get_player_node()

@@ -41,7 +41,7 @@ const DIALOGUE_PORTRAITS_BASE := {
 	"Evil Tux": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_EvilTux.png",
 	"Tux": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_Tux.png",
 	"EvilTux": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_EvilTux.png",
-	"CMO": "res://Assets/characterSpriteSheets/ss_FallbackHamletNPC/CMO.png"
+	"CMO": "res://Assets/characterSpriteSheets/ss_dialouge/dialouge_CMO.png"
 }
 
 const DIALOGUE_PORTRAITS_VARIANTS := {

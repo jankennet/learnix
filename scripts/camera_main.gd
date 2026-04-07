@@ -16,10 +16,28 @@ func _ready() -> void:
 	_fixed_rotation = global_rotation  # Lock the angle set in the editor
 	if not player:
 		player = get_node("../CharacterBody3D")
+	call_deferred("_reassert_active_camera")
+
+func _enter_tree() -> void:
+	call_deferred("_reassert_active_camera")
+
+func _reassert_active_camera() -> void:
+	if player == null:
+		player = get_node_or_null("../CharacterBody3D")
+	current = true
+	force_sync_to_player()
 
 func _physics_process(delta: float) -> void:
 	if not player: return
 
+	_sync_camera_to_player(delta)
+
+func force_sync_to_player() -> void:
+	if not player:
+		return
+	_sync_camera_to_player(1.0)
+
+func _sync_camera_to_player(delta: float) -> void:
 	var target_pivot = player.global_position
 	var back_dir = Vector3(0, 0, 1)
 	var desired_pos = target_pivot + (back_dir * distance_horizontal) + (Vector3.UP * height_offset)

@@ -724,10 +724,12 @@ func _resolve_safe_spawn_transform(active_player: CharacterBody3D, desired_trans
 		return resolved
 
 	var floor_clearance := _player_floor_clearance(active_player)
-	var ray_start := desired_transform.origin + Vector3.UP * 8.0
+	# Start the floor probe near the spawn marker to avoid snapping to overhead props.
+	var ray_start := desired_transform.origin + Vector3.UP * 0.25
 	var ray_end := desired_transform.origin - Vector3.UP * 40.0
 	var query := PhysicsRayQueryParameters3D.create(ray_start, ray_end)
 	query.exclude = [active_player]
+	query.hit_from_inside = true
 	var hit := space_state.intersect_ray(query)
 	if not hit.is_empty() and hit.has("position"):
 		resolved.origin.y = (hit.position as Vector3).y + floor_clearance + 0.05
@@ -834,6 +836,7 @@ func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.
 
 	if preserve_gameplay_nodes:
 		player = active_player
+		_ensure_player_visible(active_player)
 
 	# Spawn Resolution
 	if preserve_gameplay_nodes:
@@ -849,6 +852,8 @@ func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.
 		var cam := active_player.get_node_or_null("Camera3D")
 		if cam:
 			cam.current = true
+			if cam.has_method("force_sync_to_player"):
+				cam.call("force_sync_to_player")
 			_bind_terrain_camera_for_scene(new_scene, cam)
 
 	if preserve_gameplay_nodes:
@@ -857,6 +862,7 @@ func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.
 	# Clean state restoration
 	if preserve_gameplay_nodes and active_player:
 		active_player.process_mode = Node.PROCESS_MODE_INHERIT
+		active_player.visible = true
 		active_player.set_physics_process(true)
 		active_player.set_process_input(true)
 		active_player.set_process_unhandled_input(true)
@@ -878,6 +884,18 @@ func _get_player_transfer_root(active_player: CharacterBody3D) -> Node:
 		return active_player_parent
 
 	return active_player
+
+func _ensure_player_visible(active_player: CharacterBody3D) -> void:
+	if active_player == null:
+		return
+
+	var cursor: Node = active_player
+	while cursor:
+		if cursor is CanvasItem or cursor is Node3D:
+			cursor.visible = true
+		cursor = cursor.get_parent()
+
+	active_player.visible = true
 
 func _extract_persistent_ui(scene: Node) -> Node:
 	if not scene:

@@ -98,7 +98,7 @@ func play(message_override: String = "", duration_override: float = -1.0) -> voi
 	await _run_timeline()
 	finished.emit()
 
-func play_lines(lines: Array[String], per_line_duration: float = 1.4) -> void:
+func play_lines(lines: Array[String], per_line_duration: float = 1.4, keep_black_after: bool = false) -> void:
 	if lines.is_empty():
 		await _run_timeline()
 		finished.emit()
@@ -128,6 +128,13 @@ func play_lines(lines: Array[String], per_line_duration: float = 1.4) -> void:
 		text_fade_in.tween_property(_message_label, "modulate:a", 1.0, 0.08)
 		await text_fade_in.finished
 		await get_tree().create_timer(max(per_line_duration, 0.1)).timeout
+
+	if keep_black_after:
+		# Leave black active so caller can do hidden transitions before fading out.
+		_message_label.modulate.a = 0.0
+		_background.modulate.a = 1.0
+		finished.emit()
+		return
 
 	var outro_fade := create_tween()
 	outro_fade.tween_property(_message_label, "modulate:a", 0.0, max(fade_out_duration, 0.01))
@@ -175,6 +182,17 @@ func play_teleport_transition(scene_path: String, spawn_name: String, message_ov
 		await scene_manager.teleport_to_scene(scene_path, spawn_name, teleport_delay)
 
 	await fade_out_only()
+	finished.emit()
+	queue_free()
+
+func play_lines_teleport_transition(lines: Array[String], per_line_duration: float, scene_path: String, spawn_name: String, teleport_delay: float = 0.5) -> void:
+	await play_lines(lines, per_line_duration, true)
+	await fade_out_only()
+
+	var scene_manager := get_node_or_null("/root/SceneManager")
+	if scene_manager and scene_manager.has_method("teleport_to_scene"):
+		await scene_manager.teleport_to_scene(scene_path, spawn_name, teleport_delay)
+
 	finished.emit()
 	queue_free()
 
