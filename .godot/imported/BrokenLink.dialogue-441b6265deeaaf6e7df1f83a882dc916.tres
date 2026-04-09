@@ -6,12 +6,12 @@
 script = ExtResource("1_6j4ai")
 using_states = PackedStringArray()
 titles = {
-"ask_intent": "39",
-"combat_victory": "79",
-"offer_puzzle": "51",
-"puzzle_complete": "71",
+"ask_intent": "52",
+"combat_victory": "92",
+"offer_puzzle": "64",
+"puzzle_complete": "84",
 "start": "1",
-"start_combat": "65"
+"start_combat": "78"
 }
 character_names = PackedStringArray("Broken Link")
 first_title = "0"
@@ -46,7 +46,7 @@ lines = {
 },
 &"id": "1",
 &"next_id": "2",
-&"next_id_after": "38",
+&"next_id_after": "51",
 &"next_sibling_id": "5",
 &"type": "condition"
 },
@@ -81,7 +81,7 @@ lines = {
 "14": {
 &"id": "14",
 &"is_snippet": false,
-&"next_id": "51",
+&"next_id": "64",
 &"next_id_after": "",
 &"type": "goto"
 },
@@ -94,7 +94,7 @@ lines = {
 "16": {
 &"id": "16",
 &"is_snippet": false,
-&"next_id": "65",
+&"next_id": "78",
 &"next_id_after": "",
 &"type": "goto"
 },
@@ -102,7 +102,7 @@ lines = {
 &"condition": {},
 &"id": "17",
 &"next_id": "18",
-&"next_id_after": "38",
+&"next_id_after": "51",
 &"type": "condition"
 },
 "18": {
@@ -116,7 +116,7 @@ lines = {
 &"character": "Broken Link",
 &"id": "19",
 &"next_id": "20",
-&"text": "I am a stub. A path to nowhere.",
+&"text": "I am a symbolic reference to nothing.",
 &"type": "dialogue"
 },
 "2": {
@@ -130,69 +130,70 @@ lines = {
 &"character": "Broken Link",
 &"id": "20",
 &"next_id": "21",
-&"text": "Pointers corrupted. Target missing.",
+&"text": "A pointer that points into the void.",
 &"type": "dialogue"
 },
 "21": {
 &"character": "Broken Link",
 &"id": "21",
 &"next_id": "22",
-&"text": "Will you repair... or sever?",
+&"text": "My inode is gone. My target was deleted.",
 &"type": "dialogue"
 },
 "22": {
+&"character": "Broken Link",
 &"id": "22",
 &"next_id": "23",
-&"responses": PackedStringArray("22", "28", "33"),
-&"text": "What are you?",
-&"type": "response"
+&"text": "Will you repair the reference... or delete me too?",
+&"type": "dialogue"
 },
 "23": {
-&"character": "Broken Link",
 &"id": "23",
 &"next_id": "24",
-&"text": "A shortcut with nowhere to go.",
-&"type": "dialogue"
+&"responses": PackedStringArray("23", "31", "40", "46"),
+&"text": "What are you?",
+&"type": "response"
 },
 "24": {
 &"character": "Broken Link",
 &"id": "24",
 &"next_id": "25",
-&"text": "A missing reference. A corrupted map.",
+&"text": "A symbolic link - a shortcut with nowhere to go.",
 &"type": "dialogue"
 },
 "25": {
 &"character": "Broken Link",
 &"id": "25",
 &"next_id": "26",
-&"text": "I keep looping. I keep pinging.",
+&"text": "In /home/nova, I pointed to /important/data. Very important.",
 &"type": "dialogue"
 },
 "26": {
 &"character": "Broken Link",
 &"id": "26",
 &"next_id": "27",
-&"text": "[404... 404...]",
+&"text": "Then someone did 'rm /important/data'.",
 &"type": "dialogue"
 },
 "27": {
+&"character": "Broken Link",
 &"id": "27",
-&"is_snippet": false,
-&"next_id": "39",
-&"next_id_after": "",
-&"type": "goto"
+&"next_id": "28",
+&"text": "Now I point to nothing. The system logs 404 errors.",
+&"type": "dialogue"
 },
 "28": {
+&"character": "Broken Link",
 &"id": "28",
 &"next_id": "29",
-&"text": "Can I help?",
-&"type": "response"
+&"text": "I keep looping. I keep failing. I keep trying.",
+&"type": "dialogue"
 },
 "29": {
 &"character": "Broken Link",
 &"id": "29",
 &"next_id": "30",
-&"text": "Maybe. Scan me. Find the target.",
+&"text": "[404... 404... 404...]",
 &"type": "dialogue"
 },
 "3": {
@@ -203,69 +204,73 @@ lines = {
 &"type": "dialogue"
 },
 "30": {
-&"character": "Broken Link",
 &"id": "30",
-&"next_id": "31",
-&"text": "Reconnect the stub and patch the table.",
-&"type": "dialogue"
-},
-"31": {
-&"character": "Broken Link",
-&"id": "31",
-&"next_id": "32",
-&"text": "If you repair me, I can open the way.",
-&"type": "dialogue"
-},
-"32": {
-&"id": "32",
 &"is_snippet": false,
-&"next_id": "39",
+&"next_id": "52",
 &"next_id_after": "",
 &"type": "goto"
 },
+"31": {
+&"id": "31",
+&"next_id": "32",
+&"text": "Teach me about links",
+&"type": "response"
+},
+"32": {
+&"character": "Broken Link",
+&"id": "32",
+&"next_id": "33",
+&"text": "Links are two types:",
+&"type": "dialogue"
+},
 "33": {
+&"character": "Broken Link",
 &"id": "33",
 &"next_id": "34",
-&"text": "I cannot wait. (Start Combat)",
-&"type": "response"
+&"text": "1. Hard links - multiple names for one inode, same file",
+&"type": "dialogue"
 },
 "34": {
 &"character": "Broken Link",
 &"id": "34",
 &"next_id": "35",
-&"text": "[ERROR] sever request detected.",
+&"text": "2. Symbolic links - text files containing a path",
 &"type": "dialogue"
 },
 "35": {
 &"character": "Broken Link",
 &"id": "35",
 &"next_id": "36",
-&"text": "Then I will defend the fragments.",
+&"text": "I am a symbolic link. My target was deleted.",
 &"type": "dialogue"
 },
 "36": {
+&"character": "Broken Link",
 &"id": "36",
-&"is_snippet": false,
-&"next_id": "65",
-&"next_id_after": "",
-&"type": "goto"
+&"next_id": "37",
+&"text": "Hard links can't break if you delete the original.",
+&"type": "dialogue"
 },
 "37": {
+&"character": "Broken Link",
 &"id": "37",
 &"next_id": "38",
-&"type": ""
+&"text": "But I'm fragile. Delete my target, I break.",
+&"type": "dialogue"
 },
 "38": {
+&"character": "Broken Link",
 &"id": "38",
 &"next_id": "39",
-&"type": "title"
+&"text": "Use 'ln -s' to create me, 'ls -l' to see me.",
+&"type": "dialogue"
 },
 "39": {
-&"character": "Broken Link",
 &"id": "39",
-&"next_id": "40",
-&"text": "Choose.",
-&"type": "dialogue"
+&"is_snippet": false,
+&"next_id": "52",
+&"next_id_after": "",
+&"type": "goto"
 },
 "4": {
 &"id": "4",
@@ -277,69 +282,70 @@ lines = {
 "40": {
 &"id": "40",
 &"next_id": "41",
-&"responses": PackedStringArray("40", "45"),
-&"text": "I will repair the link.",
+&"text": "Can I help?",
 &"type": "response"
 },
 "41": {
 &"character": "Broken Link",
 &"id": "41",
 &"next_id": "42",
-&"text": "[static softens] ...help...",
+&"text": "Maybe. Scan the filesystem. Find the target.",
 &"type": "dialogue"
 },
 "42": {
 &"character": "Broken Link",
 &"id": "42",
 &"next_id": "43",
-&"text": "Start with a scan. Then find the target.",
+&"text": "Understand what I should point to.",
 &"type": "dialogue"
 },
 "43": {
 &"character": "Broken Link",
 &"id": "43",
 &"next_id": "44",
-&"text": "Reconnect. Patch. Verify.",
+&"text": "Reconnect the pointer and patch the references.",
 &"type": "dialogue"
 },
 "44": {
+&"character": "Broken Link",
 &"id": "44",
-&"is_snippet": false,
-&"next_id": "51",
-&"next_id_after": "",
-&"type": "goto"
+&"next_id": "45",
+&"text": "If you repair me, I can open the way.",
+&"type": "dialogue"
 },
 "45": {
 &"id": "45",
-&"next_id": "46",
-&"text": "I will destroy the corruption. (Start Combat)",
-&"type": "response"
+&"is_snippet": false,
+&"next_id": "52",
+&"next_id_after": "",
+&"type": "goto"
 },
 "46": {
-&"character": "Broken Link",
 &"id": "46",
 &"next_id": "47",
-&"text": "[ERROR] request denied.",
-&"type": "dialogue"
+&"text": "I cannot wait. (Start Combat)",
+&"type": "response"
 },
 "47": {
 &"character": "Broken Link",
 &"id": "47",
 &"next_id": "48",
-&"text": "The stub refuses to collapse.",
+&"text": "[ERROR] sever request detected.",
 &"type": "dialogue"
 },
 "48": {
+&"character": "Broken Link",
 &"id": "48",
-&"is_snippet": false,
-&"next_id": "65",
-&"next_id_after": "",
-&"type": "goto"
+&"next_id": "49",
+&"text": "Then I will defend what remains of myself.",
+&"type": "dialogue"
 },
 "49": {
 &"id": "49",
-&"next_id": "50",
-&"type": ""
+&"is_snippet": false,
+&"next_id": "78",
+&"next_id_after": "",
+&"type": "goto"
 },
 "5": {
 &"condition": {
@@ -366,76 +372,73 @@ lines = {
 },
 &"id": "5",
 &"next_id": "6",
-&"next_id_after": "38",
+&"next_id_after": "51",
 &"next_sibling_id": "9",
 &"type": "condition"
 },
 "50": {
 &"id": "50",
 &"next_id": "51",
-&"type": "title"
+&"type": ""
 },
 "51": {
-&"character": "Broken Link",
 &"id": "51",
 &"next_id": "52",
-&"text": "The repair sequence is short but precise.",
-&"type": "dialogue"
+&"type": "title"
 },
 "52": {
 &"character": "Broken Link",
 &"id": "52",
 &"next_id": "53",
-&"text": "scan broken_link",
+&"text": "Choose.",
 &"type": "dialogue"
 },
 "53": {
-&"character": "Broken Link",
 &"id": "53",
 &"next_id": "54",
-&"text": "find /forest/target",
-&"type": "dialogue"
+&"responses": PackedStringArray("53", "58"),
+&"text": "I will repair the link.",
+&"type": "response"
 },
 "54": {
 &"character": "Broken Link",
 &"id": "54",
 &"next_id": "55",
-&"text": "disconnect stub",
+&"text": "[static softens] ...help...",
 &"type": "dialogue"
 },
 "55": {
 &"character": "Broken Link",
 &"id": "55",
 &"next_id": "56",
-&"text": "connect stub /forest/target",
+&"text": "Start with a scan. Then find the target.",
 &"type": "dialogue"
 },
 "56": {
 &"character": "Broken Link",
 &"id": "56",
 &"next_id": "57",
-&"text": "chmod link_table 644",
+&"text": "Reconnect. Patch. Verify.",
 &"type": "dialogue"
 },
 "57": {
-&"character": "Broken Link",
 &"id": "57",
-&"next_id": "58",
-&"text": "patch link_table",
-&"type": "dialogue"
+&"is_snippet": false,
+&"next_id": "64",
+&"next_id_after": "",
+&"type": "goto"
 },
 "58": {
-&"character": "Broken Link",
 &"id": "58",
 &"next_id": "59",
-&"text": "scan link_table",
-&"type": "dialogue"
+&"text": "I will destroy the corruption. (Start Combat)",
+&"type": "response"
 },
 "59": {
 &"character": "Broken Link",
 &"id": "59",
 &"next_id": "60",
-&"text": "compile link_map",
+&"text": "[ERROR] request denied.",
 &"type": "dialogue"
 },
 "6": {
@@ -449,11 +452,105 @@ lines = {
 &"character": "Broken Link",
 &"id": "60",
 &"next_id": "61",
-&"text": "[Puzzle mode will begin - type commands to solve]",
+&"text": "The stub refuses to collapse.",
 &"type": "dialogue"
 },
 "61": {
 &"id": "61",
+&"is_snippet": false,
+&"next_id": "78",
+&"next_id_after": "",
+&"type": "goto"
+},
+"62": {
+&"id": "62",
+&"next_id": "63",
+&"type": ""
+},
+"63": {
+&"id": "63",
+&"next_id": "64",
+&"type": "title"
+},
+"64": {
+&"character": "Broken Link",
+&"id": "64",
+&"next_id": "65",
+&"text": "The repair sequence is short but precise.",
+&"type": "dialogue"
+},
+"65": {
+&"character": "Broken Link",
+&"id": "65",
+&"next_id": "66",
+&"text": "scan broken_link",
+&"type": "dialogue"
+},
+"66": {
+&"character": "Broken Link",
+&"id": "66",
+&"next_id": "67",
+&"text": "find /forest/target",
+&"type": "dialogue"
+},
+"67": {
+&"character": "Broken Link",
+&"id": "67",
+&"next_id": "68",
+&"text": "disconnect stub",
+&"type": "dialogue"
+},
+"68": {
+&"character": "Broken Link",
+&"id": "68",
+&"next_id": "69",
+&"text": "connect stub /forest/target",
+&"type": "dialogue"
+},
+"69": {
+&"character": "Broken Link",
+&"id": "69",
+&"next_id": "70",
+&"text": "chmod link_table 644",
+&"type": "dialogue"
+},
+"7": {
+&"character": "Broken Link",
+&"id": "7",
+&"next_id": "8",
+&"text": "You took the fragments. Only broken pointers remain.",
+&"type": "dialogue"
+},
+"70": {
+&"character": "Broken Link",
+&"id": "70",
+&"next_id": "71",
+&"text": "patch link_table",
+&"type": "dialogue"
+},
+"71": {
+&"character": "Broken Link",
+&"id": "71",
+&"next_id": "72",
+&"text": "scan link_table",
+&"type": "dialogue"
+},
+"72": {
+&"character": "Broken Link",
+&"id": "72",
+&"next_id": "73",
+&"text": "compile link_map",
+&"type": "dialogue"
+},
+"73": {
+&"character": "Broken Link",
+&"id": "73",
+&"next_id": "74",
+&"text": "[Puzzle mode will begin - type commands to solve]",
+&"type": "dialogue"
+},
+"74": {
+&"id": "74",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "start_puzzle",
@@ -466,42 +563,49 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "62",
+&"next_id": "75",
 &"type": "mutation"
 },
-"62": {
-&"id": "62",
+"75": {
+&"id": "75",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"63": {
-&"id": "63",
-&"next_id": "64",
+"76": {
+&"id": "76",
+&"next_id": "77",
 &"type": ""
 },
-"64": {
-&"id": "64",
-&"next_id": "65",
+"77": {
+&"id": "77",
+&"next_id": "78",
 &"type": "title"
 },
-"65": {
+"78": {
 &"character": "Broken Link",
-&"id": "65",
-&"next_id": "66",
+&"id": "78",
+&"next_id": "79",
 &"text": "[ERROR: DEFENSIVE LOOP INITIATED]",
 &"type": "dialogue"
 },
-"66": {
+"79": {
 &"character": "Broken Link",
-&"id": "66",
-&"next_id": "67",
+&"id": "79",
+&"next_id": "80",
 &"text": "I will not be severed quietly.",
 &"type": "dialogue"
 },
-"67": {
-&"id": "67",
+"8": {
+&"id": "8",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"80": {
+&"id": "80",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "start_combat",
@@ -514,127 +618,63 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "68",
+&"next_id": "81",
 &"type": "mutation"
 },
-"68": {
-&"id": "68",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
-},
-"69": {
-&"id": "69",
-&"next_id": "70",
-&"type": ""
-},
-"7": {
-&"character": "Broken Link",
-&"id": "7",
-&"next_id": "8",
-&"text": "You took the fragments. Only broken pointers remain.",
-&"type": "dialogue"
-},
-"70": {
-&"id": "70",
-&"next_id": "71",
-&"type": "title"
-},
-"71": {
-&"character": "Broken Link",
-&"id": "71",
-&"next_id": "72",
-&"text": "[200 OK] link resolved.",
-&"type": "dialogue"
-},
-"72": {
-&"character": "Broken Link",
-&"id": "72",
-&"next_id": "73",
-&"text": "Pointers stabilized. Target restored.",
-&"type": "dialogue"
-},
-"73": {
-&"character": "Broken Link",
-&"id": "73",
-&"next_id": "74",
-&"text": "[visual] The stub settles into a calm, steady idle.",
-&"type": "dialogue"
-},
-"74": {
-&"character": "Broken Link",
-&"id": "74",
-&"next_id": "75",
-&"text": "Take the Proficiency key.",
-&"type": "dialogue"
-},
-"75": {
-&"character": "Broken Link",
-&"id": "75",
-&"next_id": "76",
-&"text": "The forest will remember this repair.",
-&"type": "dialogue"
-},
-"76": {
-&"id": "76",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
-},
-"77": {
-&"id": "77",
-&"next_id": "78",
-&"type": ""
-},
-"78": {
-&"id": "78",
-&"next_id": "79",
-&"type": "title"
-},
-"79": {
-&"character": "Broken Link",
-&"id": "79",
-&"next_id": "80",
-&"text": "[404 ping] signal lost...",
-&"type": "dialogue"
-},
-"8": {
-&"id": "8",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
-},
-"80": {
-&"character": "Broken Link",
-&"id": "80",
-&"next_id": "81",
-&"text": "Fragmented key... only shards remain...",
-&"type": "dialogue"
-},
 "81": {
-&"character": "Broken Link",
 &"id": "81",
-&"next_id": "82",
-&"text": "The link collapses into dead pointers.",
-&"type": "dialogue"
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
 },
 "82": {
 &"id": "82",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
+&"next_id": "83",
+&"type": ""
 },
 "83": {
 &"id": "83",
 &"next_id": "84",
-&"type": ""
+&"type": "title"
 },
 "84": {
+&"character": "Broken Link",
 &"id": "84",
+&"next_id": "85",
+&"text": "[200 OK] link resolved.",
+&"type": "dialogue"
+},
+"85": {
+&"character": "Broken Link",
+&"id": "85",
+&"next_id": "86",
+&"text": "Pointers stabilized. Target restored.",
+&"type": "dialogue"
+},
+"86": {
+&"character": "Broken Link",
+&"id": "86",
+&"next_id": "87",
+&"text": "[visual] The stub settles into a calm, steady idle.",
+&"type": "dialogue"
+},
+"87": {
+&"character": "Broken Link",
+&"id": "87",
+&"next_id": "88",
+&"text": "Take the Proficiency key.",
+&"type": "dialogue"
+},
+"88": {
+&"character": "Broken Link",
+&"id": "88",
+&"next_id": "89",
+&"text": "The forest will remember this repair.",
+&"type": "dialogue"
+},
+"89": {
+&"id": "89",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
@@ -684,9 +724,59 @@ lines = {
 },
 &"id": "9",
 &"next_id": "10",
-&"next_id_after": "38",
+&"next_id_after": "51",
 &"next_sibling_id": "17",
 &"type": "condition"
+},
+"90": {
+&"id": "90",
+&"next_id": "91",
+&"type": ""
+},
+"91": {
+&"id": "91",
+&"next_id": "92",
+&"type": "title"
+},
+"92": {
+&"character": "Broken Link",
+&"id": "92",
+&"next_id": "93",
+&"text": "[404 ping] signal lost...",
+&"type": "dialogue"
+},
+"93": {
+&"character": "Broken Link",
+&"id": "93",
+&"next_id": "94",
+&"text": "Fragmented key... only shards remain...",
+&"type": "dialogue"
+},
+"94": {
+&"character": "Broken Link",
+&"id": "94",
+&"next_id": "95",
+&"text": "The link collapses into dead pointers.",
+&"type": "dialogue"
+},
+"95": {
+&"id": "95",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"96": {
+&"id": "96",
+&"next_id": "97",
+&"type": ""
+},
+"97": {
+&"id": "97",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
 }
 }
 raw_text = "~ start
@@ -708,23 +798,36 @@ elif SceneManager.npc_states.get(\"Broken Link\", \"\") == \"puzzle_ejected\":
 		=> start_combat
 else:
 	Broken Link: [404 ping] link not found...
-	Broken Link: I am a stub. A path to nowhere.
-	Broken Link: Pointers corrupted. Target missing.
-	Broken Link: Will you repair... or sever?
+	Broken Link: I am a symbolic reference to nothing.
+	Broken Link: A pointer that points into the void.
+	Broken Link: My inode is gone. My target was deleted.
+	Broken Link: Will you repair the reference... or delete me too?
 	- What are you?
-		Broken Link: A shortcut with nowhere to go.
-		Broken Link: A missing reference. A corrupted map.
-		Broken Link: I keep looping. I keep pinging.
-		Broken Link: [404... 404...]
+		Broken Link: A symbolic link - a shortcut with nowhere to go.
+		Broken Link: In /home/nova, I pointed to /important/data. Very important.
+		Broken Link: Then someone did 'rm /important/data'.
+		Broken Link: Now I point to nothing. The system logs 404 errors.
+		Broken Link: I keep looping. I keep failing. I keep trying.
+		Broken Link: [404... 404... 404...]
+		=> ask_intent
+	- Teach me about links
+		Broken Link: Links are two types:
+		Broken Link: 1. Hard links - multiple names for one inode, same file
+		Broken Link: 2. Symbolic links - text files containing a path
+		Broken Link: I am a symbolic link. My target was deleted.
+		Broken Link: Hard links can't break if you delete the original.
+		Broken Link: But I'm fragile. Delete my target, I break.
+		Broken Link: Use 'ln -s' to create me, 'ls -l' to see me.
 		=> ask_intent
 	- Can I help?
-		Broken Link: Maybe. Scan me. Find the target.
-		Broken Link: Reconnect the stub and patch the table.
+		Broken Link: Maybe. Scan the filesystem. Find the target.
+		Broken Link: Understand what I should point to.
+		Broken Link: Reconnect the pointer and patch the references.
 		Broken Link: If you repair me, I can open the way.
 		=> ask_intent
 	- I cannot wait. (Start Combat)
 		Broken Link: [ERROR] sever request detected.
-		Broken Link: Then I will defend the fragments.
+		Broken Link: Then I will defend what remains of myself.
 		=> start_combat
 
 ~ ask_intent

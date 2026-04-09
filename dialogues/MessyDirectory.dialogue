@@ -24,12 +24,21 @@ else:
 	- What happened?
 		Messy Directory: Someone ran rm without thinking.
 		Messy Directory: No backup. No confirmation.
-		Messy Directory: Just gone.
+		Messy Directory: Just... gone. Like dust in the /dev/null.
+		Messy Directory: The worst part? I didn't even know they used -r -f.
+		Messy Directory: Recursive force delete. No trash, no recovery.
 	- I can help
-		Messy Directory: Can you?
-		Messy Directory: Or will you delete what remains?
+		Messy Directory: Can you? Or will you delete what remains?
+		Messy Directory: The Lost File fragments are scattered through the Filesystem Forest.
+		Messy Directory: I fear they're corrupted... but maybe you can find them.
+	- What should I know about keeping files safe?
+		Messy Directory: Organization is everything. Consider:
+		Messy Directory: Always use version control, like git.
+		Messy Directory: Keep backups in a separate location, never just -c
+		Messy Directory: Use permissions wisely - chmod carefully.
+		Messy Directory: Understand what a command does before running it!
 	Messy Directory: Find my child in the Filesystem Forest.
-	Messy Directory: Decide their fate wisely.
+	Messy Directory: Try to restore them... or end their suffering wisely.
 	set SceneManager.met_messy_directory = true
 	do SceneManager.quest_manager.start_quest("find_lost_file")
 	=> END

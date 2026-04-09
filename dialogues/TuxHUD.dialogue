@@ -6,7 +6,7 @@ Tux: Need a quick brief, Nova?
 	=> hud_pick_objective
 - Give me a world status check.
 	=> hud_pick_world
-- Read my vibe.
+- How are my choices going?
 	=> hud_pick_tone
 - How do I use the skill shop?
 	=> hud_pick_shop
@@ -49,12 +49,12 @@ Tux: Copy that. Ping me when you want another brief.
 
 ~ hud_location_tutorial_a
 Tux: You are still in onboarding mode.
-Tux: Lock in terminal basics now, and later zones will feel slower and clearer.
+Tux: Learn the basics now, and later areas will make much more sense.
 => END
 
 ~ hud_location_tutorial_b
 Tux: This area is your safe boot sandbox.
-Tux: Test ideas here before you gamble in live Linuxia sectors.
+Tux: Test commands here before trying them in risky zones.
 => END
 
 ~ hud_location_hamlet_a
@@ -64,12 +64,12 @@ Tux: If direction gets fuzzy, talk to locals before forcing progress.
 
 ~ hud_location_hamlet_b
 Tux: This town is stable for a reason.
-Tux: NPC conversations here usually reveal your cleanest next move.
+Tux: NPC conversations here usually tell you your next step.
 => END
 
 ~ hud_location_forest_a
 Tux: Filesystem Forest is full of misleading branches.
-Tux: Trace clues carefully and do not trust the first route.
+Tux: Follow clues carefully and do not trust the first path you see.
 => END
 
 ~ hud_location_forest_b
@@ -84,7 +84,7 @@ Tux: Keep your objective and fallback path in mind at all times.
 
 ~ hud_location_depths_b
 Tux: Depths pressure people into bad decisions.
-Tux: Stay deliberate and verify each interaction.
+Tux: Slow down and check each action before you commit.
 => END
 
 ~ hud_location_vault_a
@@ -94,7 +94,7 @@ Tux: One careful action beats three rushed ones.
 
 ~ hud_location_vault_b
 Tux: Vault systems do not forgive sloppy reads.
-Tux: Parse every prompt before you commit.
+Tux: Read every prompt fully before you type a command.
 => END
 
 ~ hud_location_unknown_a
@@ -109,7 +109,7 @@ Tux: Treat this area like a live incident: gather data before action.
 
 ~ hud_objective_no_tracker_a
 Tux: I cannot read an objective tracker from here.
-Tux: Use NPC dialogue as your temporary mission log.
+Tux: Use NPC dialogue as your mission notes for now.
 => END
 
 ~ hud_objective_no_tracker_b
@@ -124,7 +124,7 @@ Tux: Your next step is likely hidden behind a conversation trigger.
 
 ~ hud_objective_no_active_b
 Tux: Tracker looks clean right now.
-Tux: That usually means someone nearby has your next objective.
+Tux: That usually means a nearby NPC has your next objective.
 => END
 
 ~ hud_objective_ready_a
@@ -144,7 +144,7 @@ Tux: Stay on that thread until the checkpoint closes.
 
 ~ hud_objective_active_b
 Tux: Keep focus on your current objective.
-Tux: Progress compounds when you finish one chain at a time.
+Tux: Finish one objective chain at a time for steady progress.
 => END
 
 ~ hud_world_momentum_a
@@ -184,7 +184,7 @@ Tux: Keep collecting context from people, logs, and outcomes.
 
 ~ hud_world_default_b
 Tux: World state is open-ended right now.
-Tux: Dialogue clues are your fastest compass.
+Tux: Dialogue clues are your fastest guide.
 => END
 
 ~ hud_tone_good_a
@@ -204,7 +204,7 @@ Tux: Expect resistance, tighter reactions, and fewer second chances.
 
 ~ hud_tone_evil_b
 Tux: Fear can move systems quickly.
-Tux: But it always leaves debt behind you.
+Tux: But it always creates problems you must deal with later.
 => END
 
 ~ hud_tone_neutral_a

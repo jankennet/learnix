@@ -947,8 +947,8 @@ func _on_tux_helper_hint_selected(message: String) -> void:
 	if message.strip_edges().is_empty():
 		return
 	_print_terminal("[color=#f2e066]Tux:[/color] %s\n" % message)
-	if command_input:
-		command_input.call_deferred("grab_focus")
+	if _can_restore_command_focus():
+		_claim_command_input_focus()
 
 func _ensure_tux_helper_popup() -> void:
 	if _tux_helper_popup != null and is_instance_valid(_tux_helper_popup):
@@ -1039,8 +1039,8 @@ func _track_player_attack_intent(raw_input: String) -> void:
 
 func _build_dialogue_summary(npc_name: String) -> String:
 	if npc_name.strip_edges().is_empty():
-		return "Listen to the NPC before you skip ahead. Dialogue usually reveals whether they want help, combat, or a puzzle fix."
-	return "%s is likely giving the clue in dialogue. Read for the key verb: help, continue, puzzle, or fight." % npc_name
+		return "Listen first. The NPC usually tells you the goal in plain words."
+	return "%s usually says the clue directly. Look for what they want you to do next." % npc_name
 
 func _build_dialogue_hint_message(npc_name: String, default_message: String) -> String:
 	if npc_name.strip_edges().is_empty():
@@ -1059,6 +1059,7 @@ func _build_puzzle_suggestions(npc_name: String) -> Array[Dictionary]:
 	var puzzle_title := _get_current_puzzle_title()
 	var puzzle_hints := _get_current_puzzle_hints()
 	var next_hint := puzzle_hints[0] if not puzzle_hints.is_empty() else ""
+	var sequence_guide := _build_puzzle_sequence_guidance()
 
 	suggestions.append({
 		"label": "What is the goal?",
@@ -1067,26 +1068,60 @@ func _build_puzzle_suggestions(npc_name: String) -> Array[Dictionary]:
 	})
 	suggestions.append({
 		"label": "What should I do first?",
-		"detail": "A first-step reminder based on the puzzle hints.",
-		"message": next_hint if next_hint != "" else "Check the objective panel and start with the first listed command.",
+		"detail": "A clear first action and why it matters.",
+		"message": _build_puzzle_first_step_message(next_hint),
+	})
+	suggestions.append({
+		"label": "Show full command order",
+		"detail": "Step-by-step sequence with your current step marked.",
+		"message": sequence_guide,
 	})
 	suggestions.append({
 		"label": "What am I avoiding?",
-		"detail": "A reminder about wrong links or wrong commands.",
+		"detail": "Common mistakes for this puzzle.",
 		"message": _build_puzzle_avoidance_message(npc_name),
-	})
-	suggestions.append({
-		"label": "Show the next step",
-		"detail": "Tux repeats the most useful current hint.",
-		"message": next_hint if next_hint != "" else "Look for the next readable step in the objective panel.",
 	})
 
 	return suggestions
 
+func _build_puzzle_first_step_message(next_hint: String) -> String:
+	if next_hint.strip_edges() != "":
+		return "Step 1: %s" % next_hint
+	return "Step 1: Read the GOAL panel, then run the first command listed there."
+
+func _build_puzzle_sequence_guidance() -> String:
+	if not enemy_controller or not ("puzzle_data" in enemy_controller):
+		return "No command sequence loaded yet. Read the objective panel and follow each line in order."
+
+	var puzzle_data = enemy_controller.puzzle_data
+	if puzzle_data == null or not ("custom_data" in puzzle_data):
+		return "No command sequence loaded yet. Read the objective panel and follow each line in order."
+
+	var custom: Dictionary = puzzle_data.custom_data
+	if custom.has("expected_sequence"):
+		var expected_sequence: Array = custom.get("expected_sequence", [])
+		if expected_sequence.is_empty():
+			return "Sequence is empty. Use the objective panel for the next step."
+		var current_index := int(custom.get("current_index", 0))
+		var lines: Array[String] = ["Run commands in this order:"]
+		for i in range(expected_sequence.size()):
+			var marker := "[ ]"
+			if i < current_index:
+				marker = "[x]"
+			elif i == current_index:
+				marker = "[>]"
+			lines.append("%s %s" % [marker, str(expected_sequence[i])])
+		return _join_lines(lines)
+
+	if custom.has("required_fragments"):
+		return "Lost File order: find fragment -> restore fragment -> decrypt encrypted fragment -> cat to assemble -> compile final file."
+
+	return "Follow the objective panel in order. If a step fails, repeat that same step before moving on."
+
 func _build_puzzle_goal_message(puzzle_title: String) -> String:
 	if puzzle_title.strip_edges().is_empty():
-		return "Solve the current puzzle by following the objective panel and avoiding bad links."
-	return "Current puzzle: %s. Focus on the green path, the restored fragments, or the command sequence shown in the objective panel." % puzzle_title
+		return "Solve the current puzzle by following the objective panel step by step."
+	return "Current puzzle: %s. Focus on one step at a time from the objective panel." % puzzle_title
 
 func _build_puzzle_avoidance_message(npc_name: String) -> String:
 	var lower_name := npc_name.to_lower()
@@ -1100,7 +1135,7 @@ func _build_puzzle_avoidance_message(npc_name: String) -> String:
 		return "Avoid rushing the reset. Clear the jam, fix permissions, and rebuild the queue in order."
 	if lower_name.find("lost") != -1:
 		return "Avoid trying to compile too early. Find, restore, decrypt, assemble, then compile."
-	return "Avoid random commands. Follow the visible sequence and use Tux if the dialogue gave a clue."
+	return "Avoid random commands. Do one listed step at a time, then check output before the next step."
 
 func _get_current_puzzle_title() -> String:
 	if not enemy_controller:
@@ -1703,7 +1738,9 @@ func _on_timing_completed(result: TimingMinigame.TimingResult) -> void:
 	# Re-enable input
 	if command_input:
 		command_input.editable = true
-		command_input.call_deferred("grab_focus")
+	await get_tree().process_frame
+	if _can_restore_command_focus():
+		_claim_command_input_focus()
 	
 	# Route to appropriate handler based on context
 	if _current_timing_context == "puzzle":
@@ -1747,7 +1784,9 @@ func _on_timing_cancelled() -> void:
 	# Re-enable input
 	if command_input:
 		command_input.editable = true
-		command_input.call_deferred("grab_focus")
+	await get_tree().process_frame
+	if _can_restore_command_focus():
+		_claim_command_input_focus()
 	
 	# Treat as miss based on context
 	if _current_timing_context == "puzzle":
@@ -1788,7 +1827,8 @@ func _on_dependency_resolver_closed() -> void:
 	# Ensure terminal input is restored after close.
 	if command_input:
 		command_input.editable = true
-		command_input.call_deferred("grab_focus")
+	if _can_restore_command_focus():
+		_claim_command_input_focus()
 	if turn_indicator:
 		turn_indicator.text = "[ AWAITING INPUT ]"
 

@@ -24,10 +24,18 @@ elif SceneManager.quest_manager.is_quest_active("gatekeeper_proficiency"):
 		=> END
 else:
 	Gate Keeper: Halt. Access to the next zone is restricted by policy.
-	Gate Keeper: Bring me two Proficiency keys and I will open the way.
+	Gate Keeper: Authentication required. Bring me two Proficiency keys.
 	- What keys?
 		Gate Keeper: Broken Link in the Filesystem Forest holds the first.
-		Gate Keeper: The Printer boss in the Deamon Depths holds the second.
+		Gate Keeper: It guards knowledge of hard links and symbolic references.
+		Gate Keeper: The Printer Beast in Daemon Depths holds the second.
+		Gate Keeper: It controls understanding of daemon processes and resource slots.
+	- Tell me about access control?
+		Gate Keeper: In Linux, access is controlled by authentication and authorization.
+		Gate Keeper: Authentication: Who are you? (sudoers, SSH keys, passwords)
+		Gate Keeper: Authorization: What can you do? (file permissions, policy)
+		Gate Keeper: Both keys represent mastery of different subsystems.
+		Gate Keeper: You must prove you understand the cost before advancing.
 	- Understood.
 	set SceneManager.met_gate_keeper = true
 	do SceneManager.quest_manager.start_quest("gatekeeper_proficiency")

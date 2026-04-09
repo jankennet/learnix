@@ -12,9 +12,23 @@ elif SceneManager.npc_states.get("Printer Boss", "") == "puzzle_ejected":
 	do start_combat()
 	=> END
 else:
-	Printer Beast: PCL XL Error!
+	Printer Beast: PCL XL Error! Error! Error!
 	Printer Beast: Paper jam. Spool overflow. Memory fault.
-	Printer Beast: [paper shuriken whirl]
+	Printer Beast: [daemon daemon daemon]
+	- What is happening?
+		Printer Beast: I AM a daemon! I run in the background!
+		Printer Beast: I was supposed to be quiet, efficient, helpful.
+		Printer Beast: Instead I am chaos! Documents pile up without printing!
+		Printer Beast: Daemon processes typically end in 'd': sshd, httpd, cupsd
+		Printer Beast: They run forever, handle requests, stay in background.
+		Printer Beast: But my print queue is full! My buffers overflow!
+		Printer Beast: I spawn new threads faster than I can print!
+	- Let me help
+		Printer Beast: [hopeful whimper]
+		Printer Beast: Clear the queue. Understand resource limits.
+		Printer Beast: Commands: 'lpstat' to see job queue, 'cancel -a' to clear.
+		Printer Beast: Daemon crashes happen when memory and disk space run out.
+		Printer Beast: Help me stabilize. Help me serve correctly.
 	set SceneManager.met_printer_boss = true
 	do SceneManager.quest_manager.start_quest("drivers_den_cleanup")
 	do start_combat()

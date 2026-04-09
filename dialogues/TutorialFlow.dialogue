@@ -1,46 +1,47 @@
 ~ wake_up
 Tux: Psst... Nova... wake up.
-Tux: You slept through the entire Systems class again.
-Tux: I had to drag your session out before the compiler ate your homework.
-Tux: Name is Tux. I am your guide, debugger, and occasional voice of reason.
+Tux: You nodded off in Operating Systems class.
+Tux: Good timing, though. We can practice inside Linuxia.
+Tux: I am Tux, your guide.
 Tux: First check: can you move with WASD?
 => END
 
 ~ movement_success
 Tux: Nice. Movement online.
-Tux: Good, because standing still in this world is how bugs win.
+Tux: Great. You are in control now.
 Tux: Next, walk up to the glowing marker and press E to interact.
 => END
 
 ~ interact_prompt
-Tux: Interaction is your handshake with the world.
+Tux: Interact is how you talk to people and use objects.
 Tux: Get close to the marker, then press E.
 => END
 
 ~ interact_success
-Tux: Perfect. Input pipeline confirmed.
+Tux: Perfect. Interaction works.
 => END
 
 ~ hud_unlock
 Tux: Time to unlock your HUD.
-Tux: Bottom-right panel has your two anchors:
-Tux: TUX icon is for quick tutorial tips and mission beats.
-Tux: TERMINAL icon is for your terminal.
-Tux: To access the skill shop, open TERMINAL and run: shop.
-Tux: We survive Linuxia by reading the system, not guessing.
+Tux: Think of the bottom bar as your Linux taskbar.
+Tux: The icons there are system apps.
+Tux: TUX app = hints and your current goal.
+Tux: TERMINAL app = command line practice.
+Tux: To open the skill shop, open TERMINAL and type: shop.
 => END
 
 ~ terminal_objective
 Tux: Terminal check. Open TERMINAL and run these commands:
 Tux: 1) pwd
 Tux: 2) ls
-Tux: 3) cat <file-name>  (example: cat lost-file)
+Tux: 3) cat <file-name>  (example: cat onboarding_notes.txt)
+Tux: Quick meanings: pwd = where you are, ls = what is here, cat = read a file.
 Tux: I will wait here until all three are done.
 => END
 
 ~ terminal_complete
-Tux: Clean execution.
-Tux: You now have the basics: orientation, listing, and combining file contents.
+Tux: Nice work.
+Tux: You now know the 3 basics: where you are, what is here, and how to read files.
 => END
 
 ~ linuxia_ready
@@ -55,14 +56,14 @@ Tux: Final question, Nova. Ready to enter Linuxia?
 ~ linuxia_explain
 Tux: Linuxia is the live system beyond this safe zone.
 Tux: Every command has consequences there.
-Tux: Read output, think before acting, and you will be fine.
+Tux: Read output first, then choose your next command.
 - Okay. I am ready.
 	=> linuxia_yes
 - I still need a moment.
 	=> linuxia_no
 
 ~ linuxia_yes
-Tux: Good. Confidence plus caution. That is how admins are made.
+Tux: Good. Confidence plus care. That is how real admins grow.
 => END
 
 ~ linuxia_no
@@ -72,8 +73,8 @@ Tux: Ping me from the TUX panel when you are ready.
 
 ~ linuxia_arrival_intro
 Tux: Welcome to Linuxia proper, Nova. I am with you from here on.
-Tux: Think of me as your guide while you map this system and its people.
+Tux: Think of me as your helper while you learn this system and its people.
 Tux: Before charging into deeper zones, talk to the NPCs in this hamlet first.
-Tux: They will teach you the tools, risks, and routes you need to survive.
-Tux: Ask questions, read carefully, and we will move as a team.
+Tux: Each NPC teaches one OS lesson and a few useful commands.
+Tux: Ask questions, read carefully, and we will move step by step.
 => END

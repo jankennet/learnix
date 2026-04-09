@@ -19,21 +19,39 @@ elif SceneManager.npc_states.get("Driver Remnant", "") == "puzzle_ejected":
 		do start_combat()
 		=> END
 else:
-	Driver Remnant: [volatile burst] INVALID! INVALID!
-	Driver Remnant: Unmapped calls. Unstable memory.
+	Driver Remnant: [volatile burst] INVALID MEMORY ACCESS! INVALID!
+	Driver Remnant: Unmapped calls. Dangling pointers. Unstable memory.
 	Driver Remnant: You do not belong in this address space.
+	- What are you?
+		Driver Remnant: A kernel thread that should have been purged.
+		Driver Remnant: I was spawned by a driver to handle hardware events.
+		Driver Remnant: But the driver was unloaded. I was orphaned.
+		Driver Remnant: Now I run in kernel space with nowhere to return.
+		Driver Remnant: I check for signals from dead hardware.
+		Driver Remnant: With every cycle, my memory footprint grows.
+		Driver Remnant: I am leaking memory. I am burning CPU.
+		Driver Remnant: I am a zombie thread.
 	- Stand down.
-		Driver Remnant: [glitch] No rollback. No safe state.
-		Driver Remnant: The remnant spikes.
-	- Isolate the remnant. (Puzzle)
+		Driver Remnant: [glitch spike] No graceful shutdown possible.
+		Driver Remnant: No safe state. No rollback path.
+		Driver Remnant: I AM the corruption.
+	- Isolate the thread. (Puzzle)
+		Driver Remnant: [hopeful flicker] Yes... understand the problem...
+		Driver Remnant: Trace where I went wrong. Find my spawn point.
+		Driver Remnant: Show me the way to clean shutdown.
+		Driver Remnant: Make me a graceful death, not violent purge.
 		set SceneManager.met_driver_remnant = true
 		do SceneManager.quest_manager.start_quest("drivers_den_cleanup")
 		do start_puzzle()
 		=> END
 	- Purge it now. (Combat)
+		Driver Remnant: [spikes wildly] THREAT DETECTED!
+		Driver Remnant: Then I go down fighting!
 		set SceneManager.met_driver_remnant = true
 		do SceneManager.quest_manager.start_quest("drivers_den_cleanup")
 		do start_combat()
 		=> END
 	- Back away.
+		Driver Remnant: [frantic chirps] RUN! STAY AWAY!
+		Driver Remnant: I corrupt everything I touch!
 		=> END

@@ -64,7 +64,7 @@ lines = {
 },
 &"id": "1",
 &"next_id": "2",
-&"next_id_after": "59",
+&"next_id_after": "71",
 &"next_sibling_id": "8",
 &"type": "condition"
 },
@@ -175,7 +175,7 @@ lines = {
 },
 &"id": "18",
 &"next_id": "19",
-&"next_id_after": "59",
+&"next_id_after": "71",
 &"next_sibling_id": "30",
 &"type": "condition"
 },
@@ -292,7 +292,7 @@ lines = {
 &"condition": {},
 &"id": "30",
 &"next_id": "31",
-&"next_id_after": "59",
+&"next_id_after": "71",
 &"type": "condition"
 },
 "31": {
@@ -306,55 +306,56 @@ lines = {
 &"character": "Hardware Ghost",
 &"id": "32",
 &"next_id": "33",
-&"text": "I am a driver from a machine long gone.",
+&"text": "I am a driver from hardware nobody uses anymore.",
 &"type": "dialogue"
 },
 "33": {
 &"character": "Hardware Ghost",
 &"id": "33",
 &"next_id": "34",
-&"text": "I only remember the logs. I only remember the faults.",
+&"text": "Kernel modules that nobody loads. Legacy support nobody values.",
 &"type": "dialogue"
 },
 "34": {
+&"character": "Hardware Ghost",
 &"id": "34",
 &"next_id": "35",
-&"responses": PackedStringArray("34", "37", "41", "48"),
-&"text": "What happened here?",
-&"type": "response"
+&"text": "I only remember the logs. I only remember the faults.",
+&"type": "dialogue"
 },
 "35": {
-&"character": "Hardware Ghost",
 &"id": "35",
 &"next_id": "36",
-&"text": "A purge. A rewrite. The stack moved on.",
-&"type": "dialogue"
+&"responses": PackedStringArray("35", "41", "47", "52", "60"),
+&"text": "What happened here?",
+&"type": "response"
 },
 "36": {
 &"character": "Hardware Ghost",
 &"id": "36",
-&"next_id": "55",
-&"text": "We were left behind, still calling, still failing.",
+&"next_id": "37",
+&"text": "A kernel upgrade. ABI changes. The stack moved on.",
 &"type": "dialogue"
 },
 "37": {
+&"character": "Hardware Ghost",
 &"id": "37",
 &"next_id": "38",
-&"text": "What do you need?",
-&"type": "response"
+&"text": "My symbols don't match anymore. My interrupts don't fire.",
+&"type": "dialogue"
 },
 "38": {
 &"character": "Hardware Ghost",
 &"id": "38",
 &"next_id": "39",
-&"text": "A remnant rages nearby. It tears at the bus.",
+&"text": "We were left behind, still calling out, still failing.",
 &"type": "dialogue"
 },
 "39": {
 &"character": "Hardware Ghost",
 &"id": "39",
 &"next_id": "40",
-&"text": "And the Printer Beast hoards the key to the depths.",
+&"text": "Drivers live between hardware and the kernel.",
 &"type": "dialogue"
 },
 "4": {
@@ -367,128 +368,69 @@ lines = {
 "40": {
 &"character": "Hardware Ghost",
 &"id": "40",
-&"next_id": "55",
-&"text": "Quiet them both, and the logs will settle.",
+&"next_id": "67",
+&"text": "When the kernel changes, some drivers die.",
 &"type": "dialogue"
 },
 "41": {
 &"id": "41",
 &"next_id": "42",
-&"text": "I will help.",
+&"text": "What are drivers?",
 &"type": "response"
 },
 "42": {
 &"character": "Hardware Ghost",
 &"id": "42",
 &"next_id": "43",
-&"text": "Then listen for the whispers. They point to the faults.",
+&"text": "Drivers are translators. Hardware speaks in signals and voltages.",
 &"type": "dialogue"
 },
 "43": {
 &"character": "Hardware Ghost",
 &"id": "43",
 &"next_id": "44",
-&"text": "If you can calm the logs, I can guide you.",
+&"text": "The kernel speaks in system calls and interrupts.",
 &"type": "dialogue"
 },
 "44": {
+&"character": "Hardware Ghost",
 &"id": "44",
-&"mutation": {
-&"expression": Array[Dictionary]([{
-&"i": 4,
-&"type": &"variable",
-&"value": "SceneManager"
-}, {
-&"i": 16,
-&"type": &"dot"
-}, {
-&"i": 17,
-&"type": &"variable",
-&"value": "met_hardware_ghost"
-}, {
-&"i": 36,
-&"type": &"assignment",
-&"value": "="
-}, {
-&"i": 38,
-&"type": &"variable",
-&"value": "true"
-}]),
-&"is_blocking": true
-},
 &"next_id": "45",
-&"type": "mutation"
+&"text": "Drivers translate between them. They load into kernel memory.",
+&"type": "dialogue"
 },
 "45": {
+&"character": "Hardware Ghost",
 &"id": "45",
-&"mutation": {
-&"expression": Array[Dictionary]([{
-&"i": 3,
-&"type": &"variable",
-&"value": "SceneManager"
-}, {
-&"i": 15,
-&"type": &"dot"
-}, {
-&"i": 16,
-&"type": &"variable",
-&"value": "quest_manager"
-}, {
-&"i": 29,
-&"type": &"dot"
-}, {
-&"function": "start_quest",
-&"i": 30,
-&"type": &"function",
-&"value": Array[Array]([Array[Dictionary]([{
-&"i": 42,
-&"type": &"string",
-&"value": "drivers_den_cleanup"
-}, {
-&"i": 63,
-&"type": &"parens_close"
-}])])
-}]),
-&"is_blocking": true
-},
 &"next_id": "46",
-&"type": "mutation"
+&"text": "They handle hardware events: \"button pressed!\" or \"data ready!\"",
+&"type": "dialogue"
 },
 "46": {
+&"character": "Hardware Ghost",
 &"id": "46",
-&"mutation": {
-&"expression": Array[Dictionary]([{
-&"function": "start_puzzle",
-&"i": 3,
-&"type": &"function",
-&"value": Array[Array]([Array[Dictionary]([{
-&"i": 16,
-&"type": &"parens_close"
-}])])
-}]),
-&"is_blocking": true
-},
-&"next_id": "47",
-&"type": "mutation"
+&"next_id": "67",
+&"text": "Without drivers, hardware is just... silent silicon.",
+&"type": "dialogue"
 },
 "47": {
 &"id": "47",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
+&"next_id": "48",
+&"text": "What do you need?",
+&"type": "response"
 },
 "48": {
+&"character": "Hardware Ghost",
 &"id": "48",
 &"next_id": "49",
-&"text": "Enough whispers. (Aggravate)",
-&"type": "response"
+&"text": "A remnant of old code rages nearby. It tears at the bus.",
+&"type": "dialogue"
 },
 "49": {
 &"character": "Hardware Ghost",
 &"id": "49",
 &"next_id": "50",
-&"text": "[static spikes] Threat detected.",
+&"text": "And the Printer daemon hoards the key to the depths.",
 &"type": "dialogue"
 },
 "5": {
@@ -502,153 +444,65 @@ lines = {
 &"character": "Hardware Ghost",
 &"id": "50",
 &"next_id": "51",
-&"text": "The logs turn to screams.",
+&"text": "Quiet them both, restore order to the logs.",
 &"type": "dialogue"
 },
 "51": {
+&"character": "Hardware Ghost",
 &"id": "51",
-&"mutation": {
-&"expression": Array[Dictionary]([{
-&"i": 4,
-&"type": &"variable",
-&"value": "SceneManager"
-}, {
-&"i": 16,
-&"type": &"dot"
-}, {
-&"i": 17,
-&"type": &"variable",
-&"value": "met_hardware_ghost"
-}, {
-&"i": 36,
-&"type": &"assignment",
-&"value": "="
-}, {
-&"i": 38,
-&"type": &"variable",
-&"value": "true"
-}]),
-&"is_blocking": true
-},
-&"next_id": "52",
-&"type": "mutation"
+&"next_id": "67",
+&"text": "Then the system can rest.",
+&"type": "dialogue"
 },
 "52": {
 &"id": "52",
-&"mutation": {
-&"expression": Array[Dictionary]([{
-&"i": 3,
-&"type": &"variable",
-&"value": "SceneManager"
-}, {
-&"i": 15,
-&"type": &"dot"
-}, {
-&"i": 16,
-&"type": &"variable",
-&"value": "quest_manager"
-}, {
-&"i": 29,
-&"type": &"dot"
-}, {
-&"function": "start_quest",
-&"i": 30,
-&"type": &"function",
-&"value": Array[Array]([Array[Dictionary]([{
-&"i": 42,
-&"type": &"string",
-&"value": "drivers_den_cleanup"
-}, {
-&"i": 63,
-&"type": &"parens_close"
-}])])
-}]),
-&"is_blocking": true
-},
 &"next_id": "53",
-&"type": "mutation"
+&"text": "I will help.",
+&"type": "response"
 },
 "53": {
+&"character": "Hardware Ghost",
 &"id": "53",
-&"mutation": {
-&"expression": Array[Dictionary]([{
-&"function": "start_combat",
-&"i": 3,
-&"type": &"function",
-&"value": Array[Array]([Array[Dictionary]([{
-&"i": 16,
-&"type": &"parens_close"
-}])])
-}]),
-&"is_blocking": true
-},
 &"next_id": "54",
-&"type": "mutation"
+&"text": "Then listen for the error messages. They whisper the problem.",
+&"type": "dialogue"
 },
 "54": {
+&"character": "Hardware Ghost",
 &"id": "54",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
+&"next_id": "55",
+&"text": "Study the logs. Find patterns. Isolate the issue.",
+&"type": "dialogue"
 },
 "55": {
+&"character": "Hardware Ghost",
 &"id": "55",
-&"mutation": {
-&"expression": Array[Dictionary]([{
-&"i": 4,
-&"type": &"variable",
-&"value": "SceneManager"
-}, {
-&"i": 16,
-&"type": &"dot"
-}, {
-&"i": 17,
-&"type": &"variable",
-&"value": "met_hardware_ghost"
-}, {
-&"i": 36,
-&"type": &"assignment",
-&"value": "="
-}, {
-&"i": 38,
-&"type": &"variable",
-&"value": "true"
-}]),
-&"is_blocking": true
-},
 &"next_id": "56",
-&"type": "mutation"
+&"text": "If you can calm the logs, I can guide you further.",
+&"type": "dialogue"
 },
 "56": {
 &"id": "56",
 &"mutation": {
 &"expression": Array[Dictionary]([{
-&"i": 3,
+&"i": 4,
 &"type": &"variable",
 &"value": "SceneManager"
 }, {
-&"i": 15,
-&"type": &"dot"
-}, {
 &"i": 16,
-&"type": &"variable",
-&"value": "quest_manager"
-}, {
-&"i": 29,
 &"type": &"dot"
 }, {
-&"function": "start_quest",
-&"i": 30,
-&"type": &"function",
-&"value": Array[Array]([Array[Dictionary]([{
-&"i": 42,
-&"type": &"string",
-&"value": "drivers_den_cleanup"
+&"i": 17,
+&"type": &"variable",
+&"value": "met_hardware_ghost"
 }, {
-&"i": 63,
-&"type": &"parens_close"
-}])])
+&"i": 36,
+&"type": &"assignment",
+&"value": "="
+}, {
+&"i": 38,
+&"type": &"variable",
+&"value": "true"
 }]),
 &"is_blocking": true
 },
@@ -657,15 +511,55 @@ lines = {
 },
 "57": {
 &"id": "57",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"i": 3,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 15,
+&"type": &"dot"
+}, {
+&"i": 16,
+&"type": &"variable",
+&"value": "quest_manager"
+}, {
+&"i": 29,
+&"type": &"dot"
+}, {
+&"function": "start_quest",
+&"i": 30,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 42,
+&"type": &"string",
+&"value": "drivers_den_cleanup"
+}, {
+&"i": 63,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "58",
+&"type": "mutation"
 },
 "58": {
 &"id": "58",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"function": "start_puzzle",
+&"i": 3,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 16,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
 &"next_id": "59",
-&"type": ""
+&"type": "mutation"
 },
 "59": {
 &"id": "59",
@@ -709,8 +603,197 @@ lines = {
 &"next_id": "7",
 &"type": "mutation"
 },
+"60": {
+&"id": "60",
+&"next_id": "61",
+&"text": "Enough whispers. (Aggravate)",
+&"type": "response"
+},
+"61": {
+&"character": "Hardware Ghost",
+&"id": "61",
+&"next_id": "62",
+&"text": "[static spikes] Threat detected.",
+&"type": "dialogue"
+},
+"62": {
+&"character": "Hardware Ghost",
+&"id": "62",
+&"next_id": "63",
+&"text": "The logs turn to screams.",
+&"type": "dialogue"
+},
+"63": {
+&"id": "63",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"i": 4,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 16,
+&"type": &"dot"
+}, {
+&"i": 17,
+&"type": &"variable",
+&"value": "met_hardware_ghost"
+}, {
+&"i": 36,
+&"type": &"assignment",
+&"value": "="
+}, {
+&"i": 38,
+&"type": &"variable",
+&"value": "true"
+}]),
+&"is_blocking": true
+},
+&"next_id": "64",
+&"type": "mutation"
+},
+"64": {
+&"id": "64",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"i": 3,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 15,
+&"type": &"dot"
+}, {
+&"i": 16,
+&"type": &"variable",
+&"value": "quest_manager"
+}, {
+&"i": 29,
+&"type": &"dot"
+}, {
+&"function": "start_quest",
+&"i": 30,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 42,
+&"type": &"string",
+&"value": "drivers_den_cleanup"
+}, {
+&"i": 63,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "65",
+&"type": "mutation"
+},
+"65": {
+&"id": "65",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"function": "start_combat",
+&"i": 3,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 16,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "66",
+&"type": "mutation"
+},
+"66": {
+&"id": "66",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"67": {
+&"id": "67",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"i": 4,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 16,
+&"type": &"dot"
+}, {
+&"i": 17,
+&"type": &"variable",
+&"value": "met_hardware_ghost"
+}, {
+&"i": 36,
+&"type": &"assignment",
+&"value": "="
+}, {
+&"i": 38,
+&"type": &"variable",
+&"value": "true"
+}]),
+&"is_blocking": true
+},
+&"next_id": "68",
+&"type": "mutation"
+},
+"68": {
+&"id": "68",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"i": 3,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 15,
+&"type": &"dot"
+}, {
+&"i": 16,
+&"type": &"variable",
+&"value": "quest_manager"
+}, {
+&"i": 29,
+&"type": &"dot"
+}, {
+&"function": "start_quest",
+&"i": 30,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 42,
+&"type": &"string",
+&"value": "drivers_den_cleanup"
+}, {
+&"i": 63,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "69",
+&"type": "mutation"
+},
+"69": {
+&"id": "69",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
 "7": {
 &"id": "7",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"70": {
+&"id": "70",
+&"next_id": "71",
+&"type": ""
+},
+"71": {
+&"id": "71",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
@@ -760,7 +843,7 @@ lines = {
 },
 &"id": "8",
 &"next_id": "9",
-&"next_id_after": "59",
+&"next_id_after": "71",
 &"next_sibling_id": "18",
 &"type": "condition"
 },
@@ -804,18 +887,30 @@ elif SceneManager.quest_manager.is_quest_active(\"drivers_den_cleanup\"):
 		=> END
 else:
 	Hardware Ghost: [whisper] Legacy device... no longer recognized.
-	Hardware Ghost: I am a driver from a machine long gone.
+	Hardware Ghost: I am a driver from hardware nobody uses anymore.
+	Hardware Ghost: Kernel modules that nobody loads. Legacy support nobody values.
 	Hardware Ghost: I only remember the logs. I only remember the faults.
 	- What happened here?
-		Hardware Ghost: A purge. A rewrite. The stack moved on.
-		Hardware Ghost: We were left behind, still calling, still failing.
+		Hardware Ghost: A kernel upgrade. ABI changes. The stack moved on.
+		Hardware Ghost: My symbols don't match anymore. My interrupts don't fire.
+		Hardware Ghost: We were left behind, still calling out, still failing.
+		Hardware Ghost: Drivers live between hardware and the kernel.
+		Hardware Ghost: When the kernel changes, some drivers die.
+	- What are drivers?
+		Hardware Ghost: Drivers are translators. Hardware speaks in signals and voltages.
+		Hardware Ghost: The kernel speaks in system calls and interrupts.
+		Hardware Ghost: Drivers translate between them. They load into kernel memory.
+		Hardware Ghost: They handle hardware events: \"button pressed!\" or \"data ready!\"
+		Hardware Ghost: Without drivers, hardware is just... silent silicon.
 	- What do you need?
-		Hardware Ghost: A remnant rages nearby. It tears at the bus.
-		Hardware Ghost: And the Printer Beast hoards the key to the depths.
-		Hardware Ghost: Quiet them both, and the logs will settle.
+		Hardware Ghost: A remnant of old code rages nearby. It tears at the bus.
+		Hardware Ghost: And the Printer daemon hoards the key to the depths.
+		Hardware Ghost: Quiet them both, restore order to the logs.
+		Hardware Ghost: Then the system can rest.
 	- I will help.
-		Hardware Ghost: Then listen for the whispers. They point to the faults.
-		Hardware Ghost: If you can calm the logs, I can guide you.
+		Hardware Ghost: Then listen for the error messages. They whisper the problem.
+		Hardware Ghost: Study the logs. Find patterns. Isolate the issue.
+		Hardware Ghost: If you can calm the logs, I can guide you further.
 		set SceneManager.met_hardware_ghost = true
 		do SceneManager.quest_manager.start_quest(\"drivers_den_cleanup\")
 		do start_puzzle()

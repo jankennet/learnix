@@ -1,27 +1,46 @@
 ~ start
 Mount Whisperer: shh... the drives are sleeping with one eye open.
-Mount Whisperer: When a volume clicks awake, I hear its little bones sing.
-Mount Whisperer: The logs pretend to be boring, but they keep tiny obituaries.
+Mount Whisperer: When a volume spins awake, I hear its little bones sing.
+Mount Whisperer: The logs pretend to be boring, but they keep obituaries.
 
 - What do you hear?
-	Mount Whisperer: Soft mountpoints padding through the dark.
-	Mount Whisperer: A USB ghost asking whether it was ejected with love.
-	Mount Whisperer: Sometimes the answer is no, and the logs cry in hexadecimal.
+	Mount Whisperer: Soft mountpoints echoing through /mnt and /media.
+	Mount Whisperer: A USB ghost asking: was I ejected with sync? Or carelessly ripped away?
+	Mount Whisperer: The answer lives in /var/log/syslog. It always does.
+	Mount Whisperer: Sometimes it says: "clean eject." Sometimes: "corruption detected."
+	=> END
+- Teach me about mounting
+	Mount Whisperer: Mounting is how the kernel connects storage to the filesystem.
+	Mount Whisperer: Without mount, a drive is just... a foreign thing.
+	Mount Whisperer: With mount, it becomes /mnt/usb or /media/external.
+	Mount Whisperer: All storage becomes part of one unified tree.
+	Mount Whisperer: Commands: 'mount' to see what's connected, 'mount /dev/sda1 /mnt/drive'
+	Mount Whisperer: And 'umount /mnt/drive' to safely disconnect.
+	- Why need umount first?
+		Mount Whisperer: Because removing a mounted drive while it's in use is violence.
+		Mount Whisperer: The kernel might still be writing. Data in transit lost forever.
+		Mount Whisperer: Umount flushes buffers, closes files, says goodbye correctly.
+		Mount Whisperer: Without it? Corruption. Lost inodes. Broken filesystems.
 	=> END
 - Why read the logs?
-	Mount Whisperer: Because mounted things leave footprints.
-	Mount Whisperer: And unmounted things leave absence, which is louder.
-	Mount Whisperer: If you listen closely, every "device removed" sounds like a goodbye kiss through static.
+	Mount Whisperer: Because mounted devices leave footprints in syslog.
+	Mount Whisperer: Every mount is a handshake. Every umount is a farewell.
+	Mount Whisperer: If you listen closely, the timestamps tell a story.
+	Mount Whisperer: They whisper: "Device connected. Filesystem checked. All good."
+	Mount Whisperer: Or they scream: "Critical error on /dev/sdb. LOST+FOUND created."
 	=> END
 - That is unsettling.
 	Mount Whisperer: mm. Cute, though.
 	Mount Whisperer: Here, listen:
-	Mount Whisperer: "mount: clean attach."
-	Mount Whisperer: "umount: soft sigh."
-	Mount Whisperer: "kernel: something small waved from /var/log before it vanished."
+	Mount Whisperer: "[kernel] mount: /dev/sda1 at /mnt/backup, ext4, clean attach."
+	Mount Whisperer: "[systemd] umount: /mnt/backup soft sync."
+	Mount Whisperer: "[dmesg] something small disconnected. The logs already miss it."
 	=> END
 - Any advice for handling drives?
-	Mount Whisperer: Ask before you pull the soul from the socket.
-	Mount Whisperer: Unmount first. Always.
-	Mount Whisperer: Otherwise the logs have to tuck the fragments back into bed.
+	Mount Whisperer: Never. Just rip out a USB drive.
+	Mount Whisperer: Always umount first. Always use 'sync' to be safe.
+	Mount Whisperer: Even if the drive looks inactive, the kernel might be writing metadata.
+	Mount Whisperer: Check with 'lsof' if files are still open on the mount.
+	Mount Whisperer: Only then can you safely eject.
+	Mount Whisperer: Otherwise the logs cry, and filesystems shatter.
 	=> END

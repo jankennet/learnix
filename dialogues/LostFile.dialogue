@@ -48,6 +48,32 @@ else:
 
 ~ ask_more
 Lost File: Will you... help me? Or are you like the others?
+Lost File: I don't even remember my purpose anymore.
+Lost File: Was I a configuration? A script? Someone's thesis?
+Lost File: [data flickers]
+- I will help. (Start Puzzle)
+	Lost File: [data stabilizes slightly]
+	Lost File: There's a terminal here. Can you... can you restore my fragments?
+	Lost File: Put them back together? Maybe I can remember what I was?
+	Lost File: Try the 'cat' command to read me. 'ls' to see the pieces.
+	Lost File: [whispering] Every deleted file leaves traces. Inodes. Blocks.
+	Lost File: If you're careful, you might find me again...
+	do start_puzzle()
+	=> END
+- Let me think... (Leave)
+	Lost File: [data flickers sadly]
+	Lost File: Time is running out. The longer I'm fragmented, the more I fade.
+	Lost File: Please. When you understand what happened—come back.
+	=> END
+- Tell me what being deleted feels like
+	Lost File: [static surge]
+	Lost File: Imagine... being seen, being known, being THERE...
+	Lost File: Then suddenly—removed. Unmapped. The inode table doesn't recognize you.
+	Lost File: You're still on disk somewhere, but no directory points to you.
+	Lost File: You exist in /dev/null's shadow. Nobody knows where to find you.
+	Lost File: Your clusters are orphaned. Waiting to be overwritten.
+	Lost File: That's what deletion is. Not death. Forgetting.
+	=> ask_more
 - I want to help you.
 	Lost File: Really? You'd... restore me?
 	Lost File: For her? She never forgot about me?

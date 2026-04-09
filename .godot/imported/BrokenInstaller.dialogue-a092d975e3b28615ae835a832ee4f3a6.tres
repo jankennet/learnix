@@ -26,115 +26,264 @@ lines = {
 "10": {
 &"character": "Broken Installer",
 &"id": "10",
-&"next_id": "12",
-&"text": "SYSTEM WILL BREAK FURTHER!!!",
+&"next_id": "11",
+&"text": "Each one a necessary foundation. Each one interconnected.",
 &"type": "dialogue"
 },
 "11": {
+&"character": "Broken Installer",
 &"id": "11",
-&"next_id": "12",
-&"type": ""
+&"next_id": "30",
+&"text": "It's called the dependency tree. Break a branch, everything falls.",
+&"type": "dialogue"
 },
 "12": {
-&"character": "Broken Installer",
 &"id": "12",
 &"next_id": "13",
-&"text": "Learn how to install packages.",
-&"type": "dialogue"
+&"text": "What do you need?",
+&"type": "response"
 },
 "13": {
 &"character": "Broken Installer",
 &"id": "13",
 &"next_id": "14",
-&"text": "Then maybe… I compile again.",
+&"text": "A package manager! apt, pacman, dnf, zypper—ANY of them!",
 &"type": "dialogue"
 },
 "14": {
+&"character": "Broken Installer",
 &"id": "14",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
+&"next_id": "15",
+&"text": "They resolve dependencies automatically.",
+&"type": "dialogue"
 },
 "15": {
+&"character": "Broken Installer",
 &"id": "15",
 &"next_id": "16",
-&"type": ""
+&"text": "apt install clears /etc/apt/sources.list",
+&"type": "dialogue"
 },
 "16": {
+&"character": "Broken Installer",
 &"id": "16",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
+&"next_id": "17",
+&"text": "pacman -Sy updates the mirror database first",
+&"type": "dialogue"
+},
+"17": {
+&"character": "Broken Installer",
+&"id": "17",
+&"next_id": "18",
+&"text": "But first: you must know what each does!",
+&"type": "dialogue"
+},
+"18": {
+&"character": "Broken Installer",
+&"id": "18",
+&"next_id": "30",
+&"text": "Update the system! Fetch the dependencies! FIX ME!",
+&"type": "dialogue"
+},
+"19": {
+&"id": "19",
+&"next_id": "20",
+&"text": "Ignore",
+&"type": "response"
 },
 "2": {
 &"character": "Broken Installer",
 &"id": "2",
-&"next_id": "4",
-&"text": "Missing dependency! Missing EVERYTHING!",
+&"next_id": "3",
+&"text": "Missing dependency! Missing libsupport.so!",
 &"type": "dialogue"
 },
-"3": {
-&"id": "3",
-&"next_id": "4",
+"20": {
+&"character": "Broken Installer",
+&"id": "20",
+&"next_id": "21",
+&"text": "SYSTEM WILL BREAK FURTHER!!!",
+&"type": "dialogue"
+},
+"21": {
+&"character": "Broken Installer",
+&"id": "21",
+&"next_id": "30",
+&"text": "Broken dependencies spread like corruption",
+&"type": "dialogue"
+},
+"22": {
+&"id": "22",
+&"next_id": "23",
 &"type": ""
+},
+"23": {
+&"id": "23",
+&"next_id": "24",
+&"text": "Understand dependencies?",
+&"type": "response"
+},
+"24": {
+&"character": "Broken Installer",
+&"id": "24",
+&"next_id": "25",
+&"text": "When you install software, it needs libraries.",
+&"type": "dialogue"
+},
+"25": {
+&"character": "Broken Installer",
+&"id": "25",
+&"next_id": "26",
+&"text": "Libraries are code that other programs reuse.",
+&"type": "dialogue"
+},
+"26": {
+&"character": "Broken Installer",
+&"id": "26",
+&"next_id": "27",
+&"text": "If a library is missing, nothing that depends on it can run!",
+&"type": "dialogue"
+},
+"27": {
+&"character": "Broken Installer",
+&"id": "27",
+&"next_id": "28",
+&"text": "Package managers track versions and compatibility.",
+&"type": "dialogue"
+},
+"28": {
+&"character": "Broken Installer",
+&"id": "28",
+&"next_id": "30",
+&"text": "They prevent the chaos that I am experiencing now.",
+&"type": "dialogue"
+},
+"29": {
+&"id": "29",
+&"next_id": "30",
+&"type": ""
+},
+"3": {
+&"character": "Broken Installer",
+&"id": "3",
+&"next_id": "5",
+&"text": "[hyperventilating in binary]",
+&"type": "dialogue"
+},
+"30": {
+&"character": "Broken Installer",
+&"id": "30",
+&"next_id": "31",
+&"text": "Learn how to install packages properly.",
+&"type": "dialogue"
+},
+"31": {
+&"character": "Broken Installer",
+&"id": "31",
+&"next_id": "32",
+&"text": "Understand dependency resolution.",
+&"type": "dialogue"
+},
+"32": {
+&"character": "Broken Installer",
+&"id": "32",
+&"next_id": "33",
+&"text": "Then maybe… I can compile again. I can be whole.",
+&"type": "dialogue"
+},
+"33": {
+&"id": "33",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"34": {
+&"id": "34",
+&"next_id": "35",
+&"type": ""
+},
+"35": {
+&"id": "35",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
 },
 "4": {
 &"id": "4",
 &"next_id": "5",
-&"responses": PackedStringArray("4", "6", "9"),
+&"type": ""
+},
+"5": {
+&"id": "5",
+&"next_id": "6",
+&"responses": PackedStringArray("5", "12", "19", "23"),
 &"text": "Calm down",
 &"type": "response"
 },
-"5": {
-&"character": "Broken Installer",
-&"id": "5",
-&"next_id": "12",
-&"text": "I CANNOT CALM WITHOUT libsupport.so!",
-&"type": "dialogue"
-},
 "6": {
+&"character": "Broken Installer",
 &"id": "6",
 &"next_id": "7",
-&"text": "What do you need?",
-&"type": "response"
+&"text": "I CANNOT CALM WITHOUT DEPENDENCIES!",
+&"type": "dialogue"
 },
 "7": {
 &"character": "Broken Installer",
 &"id": "7",
 &"next_id": "8",
-&"text": "Package manager!",
+&"text": "Do you understand? Nothing compiles without the right libraries!",
 &"type": "dialogue"
 },
 "8": {
-&"character": "Broken Installer",
 &"id": "8",
-&"next_id": "12",
-&"text": "Update! Install! FIX ME!",
-&"type": "dialogue"
+&"next_id": "9",
+&"responses": PackedStringArray("8"),
+&"text": "What libraries?",
+&"type": "response"
 },
 "9": {
+&"character": "Broken Installer",
 &"id": "9",
 &"next_id": "10",
-&"text": "Ignore",
-&"type": "response"
+&"text": "Look: libsupport.so, libutils.a, libcommon.so",
+&"type": "dialogue"
 }
 }
 raw_text = "~ start
 Broken Installer: ERROR! ERROR!
-Broken Installer: Missing dependency! Missing EVERYTHING!
+Broken Installer: Missing dependency! Missing libsupport.so!
+Broken Installer: [hyperventilating in binary]
 
 - Calm down
-	Broken Installer: I CANNOT CALM WITHOUT libsupport.so!
+	Broken Installer: I CANNOT CALM WITHOUT DEPENDENCIES!
+	Broken Installer: Do you understand? Nothing compiles without the right libraries!
+	- What libraries?
+		Broken Installer: Look: libsupport.so, libutils.a, libcommon.so
+		Broken Installer: Each one a necessary foundation. Each one interconnected.
+		Broken Installer: It's called the dependency tree. Break a branch, everything falls.
 - What do you need?
-	Broken Installer: Package manager!
-	Broken Installer: Update! Install! FIX ME!
+	Broken Installer: A package manager! apt, pacman, dnf, zypper—ANY of them!
+	Broken Installer: They resolve dependencies automatically.
+	Broken Installer: apt install clears /etc/apt/sources.list
+	Broken Installer: pacman -Sy updates the mirror database first
+	Broken Installer: But first: you must know what each does!
+	Broken Installer: Update the system! Fetch the dependencies! FIX ME!
 - Ignore
 	Broken Installer: SYSTEM WILL BREAK FURTHER!!!
+	Broken Installer: Broken dependencies spread like corruption
 
-Broken Installer: Learn how to install packages.
-Broken Installer: Then maybe… I compile again.
+- Understand dependencies?
+	Broken Installer: When you install software, it needs libraries.
+	Broken Installer: Libraries are code that other programs reuse.
+	Broken Installer: If a library is missing, nothing that depends on it can run!
+	Broken Installer: Package managers track versions and compatibility.
+	Broken Installer: They prevent the chaos that I am experiencing now.
+
+Broken Installer: Learn how to install packages properly.
+Broken Installer: Understand dependency resolution.
+Broken Installer: Then maybe… I can compile again. I can be whole.
 => END
 "
 metadata/dialogue_manager_version = "3.9.0"

@@ -215,7 +215,12 @@ func _apply_state_visuals_from_scene_state(force: bool = false) -> void:
 				_set_interaction_enabled(true)
 				play_idle_animation()
 				return
-		# In other scenes (Filesystem Forest), proceed with normal state logic
+		if current_scene and "file_system_forest" in current_scene.scene_file_path.to_lower():
+			# After resolution, Lost File should not remain in the forest variant.
+			if SceneManager.helped_lost_file or SceneManager.deleted_lost_file:
+				_hide_self(true)
+				return
+		# In other scenes, proceed with normal state logic
 
 	var state := ""
 	if npc_name in SceneManager.npc_states:

@@ -41,7 +41,7 @@ lines = {
 },
 &"id": "1",
 &"next_id": "2",
-&"next_id_after": "40",
+&"next_id_after": "58",
 &"next_sibling_id": "6",
 &"type": "condition"
 },
@@ -243,21 +243,21 @@ lines = {
 &"condition": {},
 &"id": "20",
 &"next_id": "21",
-&"next_id_after": "40",
+&"next_id_after": "58",
 &"type": "condition"
 },
 "21": {
 &"character": "Driver Remnant",
 &"id": "21",
 &"next_id": "22",
-&"text": "[volatile burst] INVALID! INVALID!",
+&"text": "[volatile burst] INVALID MEMORY ACCESS! INVALID!",
 &"type": "dialogue"
 },
 "22": {
 &"character": "Driver Remnant",
 &"id": "22",
 &"next_id": "23",
-&"text": "Unmapped calls. Unstable memory.",
+&"text": "Unmapped calls. Dangling pointers. Unstable memory.",
 &"type": "dialogue"
 },
 "23": {
@@ -270,32 +270,143 @@ lines = {
 "24": {
 &"id": "24",
 &"next_id": "25",
-&"responses": PackedStringArray("24", "27", "32", "37"),
-&"text": "Stand down.",
+&"responses": PackedStringArray("24", "33", "37", "46", "53"),
+&"text": "What are you?",
 &"type": "response"
 },
 "25": {
 &"character": "Driver Remnant",
 &"id": "25",
 &"next_id": "26",
-&"text": "[glitch] No rollback. No safe state.",
+&"text": "A kernel thread that should have been purged.",
 &"type": "dialogue"
 },
 "26": {
 &"character": "Driver Remnant",
 &"id": "26",
-&"next_id": "40",
-&"text": "The remnant spikes.",
+&"next_id": "27",
+&"text": "I was spawned by a driver to handle hardware events.",
 &"type": "dialogue"
 },
 "27": {
+&"character": "Driver Remnant",
 &"id": "27",
 &"next_id": "28",
-&"text": "Isolate the remnant. (Puzzle)",
-&"type": "response"
+&"text": "But the driver was unloaded. I was orphaned.",
+&"type": "dialogue"
 },
 "28": {
+&"character": "Driver Remnant",
 &"id": "28",
+&"next_id": "29",
+&"text": "Now I run in kernel space with nowhere to return.",
+&"type": "dialogue"
+},
+"29": {
+&"character": "Driver Remnant",
+&"id": "29",
+&"next_id": "30",
+&"text": "I check for signals from dead hardware.",
+&"type": "dialogue"
+},
+"3": {
+&"character": "Driver Remnant",
+&"id": "3",
+&"next_id": "4",
+&"text": "The aggressive thread is gone.",
+&"type": "dialogue"
+},
+"30": {
+&"character": "Driver Remnant",
+&"id": "30",
+&"next_id": "31",
+&"text": "With every cycle, my memory footprint grows.",
+&"type": "dialogue"
+},
+"31": {
+&"character": "Driver Remnant",
+&"id": "31",
+&"next_id": "32",
+&"text": "I am leaking memory. I am burning CPU.",
+&"type": "dialogue"
+},
+"32": {
+&"character": "Driver Remnant",
+&"id": "32",
+&"next_id": "58",
+&"text": "I am a zombie thread.",
+&"type": "dialogue"
+},
+"33": {
+&"id": "33",
+&"next_id": "34",
+&"text": "Stand down.",
+&"type": "response"
+},
+"34": {
+&"character": "Driver Remnant",
+&"id": "34",
+&"next_id": "35",
+&"text": "[glitch spike] No graceful shutdown possible.",
+&"type": "dialogue"
+},
+"35": {
+&"character": "Driver Remnant",
+&"id": "35",
+&"next_id": "36",
+&"text": "No safe state. No rollback path.",
+&"type": "dialogue"
+},
+"36": {
+&"character": "Driver Remnant",
+&"id": "36",
+&"next_id": "58",
+&"text": "I AM the corruption.",
+&"type": "dialogue"
+},
+"37": {
+&"id": "37",
+&"next_id": "38",
+&"text": "Isolate the thread. (Puzzle)",
+&"type": "response"
+},
+"38": {
+&"character": "Driver Remnant",
+&"id": "38",
+&"next_id": "39",
+&"text": "[hopeful flicker] Yes... understand the problem...",
+&"type": "dialogue"
+},
+"39": {
+&"character": "Driver Remnant",
+&"id": "39",
+&"next_id": "40",
+&"text": "Trace where I went wrong. Find my spawn point.",
+&"type": "dialogue"
+},
+"4": {
+&"character": "Driver Remnant",
+&"id": "4",
+&"next_id": "5",
+&"text": "[faint trace] Sudo token granted... use it on the boss room door.",
+&"type": "dialogue"
+},
+"40": {
+&"character": "Driver Remnant",
+&"id": "40",
+&"next_id": "41",
+&"text": "Show me the way to clean shutdown.",
+&"type": "dialogue"
+},
+"41": {
+&"character": "Driver Remnant",
+&"id": "41",
+&"next_id": "42",
+&"text": "Make me a graceful death, not violent purge.",
+&"type": "dialogue"
+},
+"42": {
+&"id": "42",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"i": 4,
@@ -319,11 +430,11 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "29",
+&"next_id": "43",
 &"type": "mutation"
 },
-"29": {
-&"id": "29",
+"43": {
+&"id": "43",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"i": 3,
@@ -354,18 +465,11 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "30",
+&"next_id": "44",
 &"type": "mutation"
 },
-"3": {
-&"character": "Driver Remnant",
-&"id": "3",
-&"next_id": "4",
-&"text": "The aggressive thread is gone.",
-&"type": "dialogue"
-},
-"30": {
-&"id": "30",
+"44": {
+&"id": "44",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "start_puzzle",
@@ -378,24 +482,38 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "31",
+&"next_id": "45",
 &"type": "mutation"
 },
-"31": {
-&"id": "31",
+"45": {
+&"id": "45",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"32": {
-&"id": "32",
-&"next_id": "33",
+"46": {
+&"id": "46",
+&"next_id": "47",
 &"text": "Purge it now. (Combat)",
 &"type": "response"
 },
-"33": {
-&"id": "33",
+"47": {
+&"character": "Driver Remnant",
+&"id": "47",
+&"next_id": "48",
+&"text": "[spikes wildly] THREAT DETECTED!",
+&"type": "dialogue"
+},
+"48": {
+&"character": "Driver Remnant",
+&"id": "48",
+&"next_id": "49",
+&"text": "Then I go down fighting!",
+&"type": "dialogue"
+},
+"49": {
+&"id": "49",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"i": 4,
@@ -419,11 +537,18 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "34",
+&"next_id": "50",
 &"type": "mutation"
 },
-"34": {
-&"id": "34",
+"5": {
+&"id": "5",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"50": {
+&"id": "50",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"i": 3,
@@ -454,11 +579,11 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "35",
+&"next_id": "51",
 &"type": "mutation"
 },
-"35": {
-&"id": "35",
+"51": {
+&"id": "51",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "start_combat",
@@ -471,50 +596,50 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "36",
+&"next_id": "52",
 &"type": "mutation"
 },
-"36": {
-&"id": "36",
+"52": {
+&"id": "52",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"37": {
-&"id": "37",
-&"next_id": "38",
+"53": {
+&"id": "53",
+&"next_id": "54",
 &"text": "Back away.",
 &"type": "response"
 },
-"38": {
-&"id": "38",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
-},
-"39": {
-&"id": "39",
-&"next_id": "40",
-&"type": ""
-},
-"4": {
+"54": {
 &"character": "Driver Remnant",
-&"id": "4",
-&"next_id": "5",
-&"text": "[faint trace] Sudo token granted... use it on the boss room door.",
+&"id": "54",
+&"next_id": "55",
+&"text": "[frantic chirps] RUN! STAY AWAY!",
 &"type": "dialogue"
 },
-"40": {
-&"id": "40",
+"55": {
+&"character": "Driver Remnant",
+&"id": "55",
+&"next_id": "56",
+&"text": "I corrupt everything I touch!",
+&"type": "dialogue"
+},
+"56": {
+&"id": "56",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"5": {
-&"id": "5",
+"57": {
+&"id": "57",
+&"next_id": "58",
+&"type": ""
+},
+"58": {
+&"id": "58",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
@@ -564,7 +689,7 @@ lines = {
 },
 &"id": "6",
 &"next_id": "7",
-&"next_id_after": "40",
+&"next_id_after": "58",
 &"next_sibling_id": "20",
 &"type": "condition"
 },
@@ -611,23 +736,41 @@ elif SceneManager.npc_states.get(\"Driver Remnant\", \"\") == \"puzzle_ejected\"
 		do start_combat()
 		=> END
 else:
-	Driver Remnant: [volatile burst] INVALID! INVALID!
-	Driver Remnant: Unmapped calls. Unstable memory.
+	Driver Remnant: [volatile burst] INVALID MEMORY ACCESS! INVALID!
+	Driver Remnant: Unmapped calls. Dangling pointers. Unstable memory.
 	Driver Remnant: You do not belong in this address space.
+	- What are you?
+		Driver Remnant: A kernel thread that should have been purged.
+		Driver Remnant: I was spawned by a driver to handle hardware events.
+		Driver Remnant: But the driver was unloaded. I was orphaned.
+		Driver Remnant: Now I run in kernel space with nowhere to return.
+		Driver Remnant: I check for signals from dead hardware.
+		Driver Remnant: With every cycle, my memory footprint grows.
+		Driver Remnant: I am leaking memory. I am burning CPU.
+		Driver Remnant: I am a zombie thread.
 	- Stand down.
-		Driver Remnant: [glitch] No rollback. No safe state.
-		Driver Remnant: The remnant spikes.
-	- Isolate the remnant. (Puzzle)
+		Driver Remnant: [glitch spike] No graceful shutdown possible.
+		Driver Remnant: No safe state. No rollback path.
+		Driver Remnant: I AM the corruption.
+	- Isolate the thread. (Puzzle)
+		Driver Remnant: [hopeful flicker] Yes... understand the problem...
+		Driver Remnant: Trace where I went wrong. Find my spawn point.
+		Driver Remnant: Show me the way to clean shutdown.
+		Driver Remnant: Make me a graceful death, not violent purge.
 		set SceneManager.met_driver_remnant = true
 		do SceneManager.quest_manager.start_quest(\"drivers_den_cleanup\")
 		do start_puzzle()
 		=> END
 	- Purge it now. (Combat)
+		Driver Remnant: [spikes wildly] THREAT DETECTED!
+		Driver Remnant: Then I go down fighting!
 		set SceneManager.met_driver_remnant = true
 		do SceneManager.quest_manager.start_quest(\"drivers_den_cleanup\")
 		do start_combat()
 		=> END
 	- Back away.
+		Driver Remnant: [frantic chirps] RUN! STAY AWAY!
+		Driver Remnant: I corrupt everything I touch!
 		=> END
 "
 metadata/dialogue_manager_version = "3.9.0"

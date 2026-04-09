@@ -41,7 +41,7 @@ lines = {
 },
 &"id": "1",
 &"next_id": "2",
-&"next_id_after": "22",
+&"next_id_after": "36",
 &"next_sibling_id": "5",
 &"type": "condition"
 },
@@ -108,14 +108,14 @@ lines = {
 &"condition": {},
 &"id": "13",
 &"next_id": "14",
-&"next_id_after": "22",
+&"next_id_after": "36",
 &"type": "condition"
 },
 "14": {
 &"character": "Printer Beast",
 &"id": "14",
 &"next_id": "15",
-&"text": "PCL XL Error!",
+&"text": "PCL XL Error! Error! Error!",
 &"type": "dialogue"
 },
 "15": {
@@ -129,11 +129,122 @@ lines = {
 &"character": "Printer Beast",
 &"id": "16",
 &"next_id": "17",
-&"text": "[paper shuriken whirl]",
+&"text": "[daemon daemon daemon]",
 &"type": "dialogue"
 },
 "17": {
 &"id": "17",
+&"next_id": "18",
+&"responses": PackedStringArray("17", "25"),
+&"text": "What is happening?",
+&"type": "response"
+},
+"18": {
+&"character": "Printer Beast",
+&"id": "18",
+&"next_id": "19",
+&"text": "I AM a daemon! I run in the background!",
+&"type": "dialogue"
+},
+"19": {
+&"character": "Printer Beast",
+&"id": "19",
+&"next_id": "20",
+&"text": "I was supposed to be quiet, efficient, helpful.",
+&"type": "dialogue"
+},
+"2": {
+&"character": "Printer Beast",
+&"id": "2",
+&"next_id": "3",
+&"text": "[tray empty] ...",
+&"type": "dialogue"
+},
+"20": {
+&"character": "Printer Beast",
+&"id": "20",
+&"next_id": "21",
+&"text": "Instead I am chaos! Documents pile up without printing!",
+&"type": "dialogue"
+},
+"21": {
+&"character": "Printer Beast",
+&"id": "21",
+&"next_id": "22",
+&"text": "Daemon processes typically end in 'd': sshd, httpd, cupsd",
+&"type": "dialogue"
+},
+"22": {
+&"character": "Printer Beast",
+&"id": "22",
+&"next_id": "23",
+&"text": "They run forever, handle requests, stay in background.",
+&"type": "dialogue"
+},
+"23": {
+&"character": "Printer Beast",
+&"id": "23",
+&"next_id": "24",
+&"text": "But my print queue is full! My buffers overflow!",
+&"type": "dialogue"
+},
+"24": {
+&"character": "Printer Beast",
+&"id": "24",
+&"next_id": "31",
+&"text": "I spawn new threads faster than I can print!",
+&"type": "dialogue"
+},
+"25": {
+&"id": "25",
+&"next_id": "26",
+&"text": "Let me help",
+&"type": "response"
+},
+"26": {
+&"character": "Printer Beast",
+&"id": "26",
+&"next_id": "27",
+&"text": "[hopeful whimper]",
+&"type": "dialogue"
+},
+"27": {
+&"character": "Printer Beast",
+&"id": "27",
+&"next_id": "28",
+&"text": "Clear the queue. Understand resource limits.",
+&"type": "dialogue"
+},
+"28": {
+&"character": "Printer Beast",
+&"id": "28",
+&"next_id": "29",
+&"text": "Commands: 'lpstat' to see job queue, 'cancel -a' to clear.",
+&"type": "dialogue"
+},
+"29": {
+&"character": "Printer Beast",
+&"id": "29",
+&"next_id": "30",
+&"text": "Daemon crashes happen when memory and disk space run out.",
+&"type": "dialogue"
+},
+"3": {
+&"character": "Printer Beast",
+&"id": "3",
+&"next_id": "4",
+&"text": "The daemon is silent. The shuriken are gone.",
+&"type": "dialogue"
+},
+"30": {
+&"character": "Printer Beast",
+&"id": "30",
+&"next_id": "31",
+&"text": "Help me stabilize. Help me serve correctly.",
+&"type": "dialogue"
+},
+"31": {
+&"id": "31",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"i": 4,
@@ -157,11 +268,11 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "18",
+&"next_id": "32",
 &"type": "mutation"
 },
-"18": {
-&"id": "18",
+"32": {
+&"id": "32",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"i": 3,
@@ -192,11 +303,11 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "19",
+&"next_id": "33",
 &"type": "mutation"
 },
-"19": {
-&"id": "19",
+"33": {
+&"id": "33",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "start_combat",
@@ -209,41 +320,27 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "20",
+&"next_id": "34",
 &"type": "mutation"
 },
-"2": {
-&"character": "Printer Beast",
-&"id": "2",
-&"next_id": "3",
-&"text": "[tray empty] ...",
-&"type": "dialogue"
-},
-"20": {
-&"id": "20",
+"34": {
+&"id": "34",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"21": {
-&"id": "21",
-&"next_id": "22",
+"35": {
+&"id": "35",
+&"next_id": "36",
 &"type": ""
 },
-"22": {
-&"id": "22",
+"36": {
+&"id": "36",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
-},
-"3": {
-&"character": "Printer Beast",
-&"id": "3",
-&"next_id": "4",
-&"text": "The daemon is silent. The shuriken are gone.",
-&"type": "dialogue"
 },
 "4": {
 &"id": "4",
@@ -296,7 +393,7 @@ lines = {
 },
 &"id": "5",
 &"next_id": "6",
-&"next_id_after": "22",
+&"next_id_after": "36",
 &"next_sibling_id": "13",
 &"type": "condition"
 },
@@ -364,9 +461,23 @@ elif SceneManager.npc_states.get(\"Printer Boss\", \"\") == \"puzzle_ejected\":
 	do start_combat()
 	=> END
 else:
-	Printer Beast: PCL XL Error!
+	Printer Beast: PCL XL Error! Error! Error!
 	Printer Beast: Paper jam. Spool overflow. Memory fault.
-	Printer Beast: [paper shuriken whirl]
+	Printer Beast: [daemon daemon daemon]
+	- What is happening?
+		Printer Beast: I AM a daemon! I run in the background!
+		Printer Beast: I was supposed to be quiet, efficient, helpful.
+		Printer Beast: Instead I am chaos! Documents pile up without printing!
+		Printer Beast: Daemon processes typically end in 'd': sshd, httpd, cupsd
+		Printer Beast: They run forever, handle requests, stay in background.
+		Printer Beast: But my print queue is full! My buffers overflow!
+		Printer Beast: I spawn new threads faster than I can print!
+	- Let me help
+		Printer Beast: [hopeful whimper]
+		Printer Beast: Clear the queue. Understand resource limits.
+		Printer Beast: Commands: 'lpstat' to see job queue, 'cancel -a' to clear.
+		Printer Beast: Daemon crashes happen when memory and disk space run out.
+		Printer Beast: Help me stabilize. Help me serve correctly.
 	set SceneManager.met_printer_boss = true
 	do SceneManager.quest_manager.start_quest(\"drivers_den_cleanup\")
 	do start_combat()

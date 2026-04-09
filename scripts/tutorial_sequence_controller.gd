@@ -514,7 +514,7 @@ func _show_interact_canvas() -> void:
 func _show_hud_guide_canvas() -> void:
 	_show_hint_card(
 		"HUD Unlocked",
-		"Bottom-right quick menu:\nTUX icon = mission help\nTERMINAL icon = terminal\nShop = open TERMINAL and run: shop",
+		"Bottom bar = your Linux-style taskbar.\nTUX icon = helper app\nTERMINAL icon = command app\nShop = open TERMINAL and run: shop",
 		"Use these throughout Linuxia"
 	)
 
@@ -534,7 +534,7 @@ func _update_terminal_objective_canvas() -> void:
 
 	_show_hint_card(
 		"Terminal Objective",
-		pwd_done + " pwd\n" + ls_done + " ls\n" + cat_done + " cat <file_name>",
+		pwd_done + " pwd  (where am I?)\n" + ls_done + " ls  (what is here?)\n" + cat_done + " cat <file_name>  (read file)",
 		"Open TERMINAL and complete all commands"
 	)
 

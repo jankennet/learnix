@@ -15,86 +15,163 @@ const NPC_EXPLORER_ENTRIES := {
 		{
 			"folder": "Desktop",
 			"filename": "messy_directory.txt",
-			"title": "Messy Directory",
-			"content": "Guardian of scattered folders. Lesson: organize directories and keep backups before destructive commands.",
+			"title": "Messy Directory - File Organization",
+			"content": "LESSON: Organization prevents chaos and deletion accidents.\n\nKey Learning: Files get lost when not organized. Always know what matters.\n\nCore Commands:\n• ls - List files in directory\n• mkdir - Create new directories\n• cd - Navigate between directories\n• pwd - Show current working directory\n• mv - Move/rename files to organize\n\nBest Practices:\n• Organize by project: /projects/name\n• Keep backups: cp -r source backup/\n• Use meaningful filenames\n• Check before deleting: ls -la first\n\nTry: Guess what 'pwd' does in the commands above!",
+			"commands": [
+				{"cmd": "ls", "desc": "List directory contents", "difficulty": 1},
+				{"cmd": "pwd", "desc": "Print working directory path", "difficulty": 1},
+				{"cmd": "mkdir", "desc": "Create a new directory", "difficulty": 1},
+				{"cmd": "cd", "desc": "Change directory", "difficulty": 1},
+				{"cmd": "mv", "desc": "Move or rename files", "difficulty": 2},
+			],
 		},
 	],
 	"Elder Shell": [
 		{
 			"folder": "Desktop",
 			"filename": "elder_shell.txt",
-			"title": "Elder Shell",
-			"content": "A patient mentor process. Lesson: understand commands before executing them.",
+			"title": "Elder Shell - Filesystem Fundamentals",
+			"content": "LESSON: Understand the tree before climbing branches.\n\nFilesystem is organized like a tree with root (/) at top:\n\n/ (root)\n├── /home - User home directories\n├── /etc - System configuration files\n├── /bin - Essential commands\n├── /var - Logs and temporary data\n├── /usr - User programs and libraries\n├── /dev - Device files (hardware)\n├── /tmp - Temporary files (cleared on reboot)\n└── /root - Root user home\n\nCore Commands:\n• ls - List directory contents\n• ls -la - Show all files with permissions\n• pwd - Know where you are\n• man - Read command manual pages\n• help - Get quick command help\n\nNever run commands you don't understand!\nAlways read the manual first.",
+			"commands": [
+				{"cmd": "ls", "desc": "List directory contents", "difficulty": 1},
+				{"cmd": "ls -la", "desc": "List all files with details", "difficulty": 2},
+				{"cmd": "man", "desc": "Read manual for commands", "difficulty": 2},
+				{"cmd": "help", "desc": "Get help on shell commands", "difficulty": 1},
+				{"cmd": "pwd", "desc": "Print working directory", "difficulty": 1},
+			],
 		},
 	],
 	"Broken Installer": [
 		{
 			"folder": "Desktop",
 			"filename": "broken_installer.txt",
-			"title": "Broken Installer",
-			"content": "Dependency panic personified. Lesson: keep package indexes updated and verify missing dependencies.",
+			"title": "Broken Installer - Dependency Management",
+			"content": "LESSON: Dependencies must be satisfied in order.\n\nWhen installing software, libraries are required dependencies.\nA broken dependency cascade causes system failures.\n\nLibrary Types:\n• .so (shared objects) - Dynamic libraries loaded at runtime\n• .a (archives) - Static libraries compiled into programs\n• .dll/.dylib - Windows/Mac equivalents\n\nPackage Managers (by Linux distribution):\n• apt (Debian/Ubuntu) - apt update && apt install package\n• pacman (Arch) - pacman -S package\n• dnf (Fedora/RHEL) - dnf install package\n• zypper (openSUSE) - zypper install package\n\nCore Commands:\n• apt update - Refresh package list\n• apt install - Install packages\n• dpkg -l - List installed packages\n• apt search - Find packages\n• apt remove - Safely remove packages\n\nAlways update before installing: apt update!",
+			"commands": [
+				{"cmd": "apt update", "desc": "Refresh package database", "difficulty": 2},
+				{"cmd": "apt install", "desc": "Install a package", "difficulty": 2},
+				{"cmd": "dpkg -l", "desc": "List installed packages", "difficulty": 2},
+				{"cmd": "apt search", "desc": "Search for packages", "difficulty": 2},
+				{"cmd": "apt remove", "desc": "Remove a package safely", "difficulty": 3},
+			],
 		},
 	],
 	"Lost File": [
 		{
 			"folder": "Desktop",
 			"filename": "lost_file.txt",
-			"title": "Lost File",
-			"content": "A fragmented document searching for identity. Lesson: accidental deletes hurt; recovery and empathy matter.",
+			"title": "Lost File - Data Recovery Basics",
+			"content": "LESSON: Deleted files leave traces. Recovery is possible but urgent.\n\nHow Deletion Works in Linux:\n• File data stays on disk in 'clusters'\n• Directory entry (inode) is removed\n• File becomes 'orphaned' - lost but not destroyed\n• Disk reuse will eventually overwrite it\n\nRecovery Steps:\n1. find - Search for file fragments\n2. restore - Attempt to restore from disk\n3. cat - Read recovered file content\n4. compile/rebuild - Reconstruct if needed\n\nWhy Backups Matter:\n• rm -rf deletes instantly without confirmation\n• rm -f forces deletion, no trash/recovery\n• git prevents total loss with version history\n• Offline backups survive disasters\n\nCore Commands:\n• find /dir -name pattern - Search for files\n• cat file - Read file content\n• file - Determine file type\n• strings file - Extract readable text\n\nPrevention:\nAlways cp before rm. Version control saves lives.",
+			"commands": [
+				{"cmd": "find", "desc": "Search for files by name/type", "difficulty": 2},
+				{"cmd": "cat", "desc": "Display file contents", "difficulty": 1},
+				{"cmd": "file", "desc": "Determine file type", "difficulty": 2},
+				{"cmd": "strings", "desc": "Extract text from binary", "difficulty": 3},
+				{"cmd": "cp", "desc": "Copy before deleting", "difficulty": 1},
+			],
 		},
 		{
 			"folder": "Filesystem_Forest",
 			"filename": "lost_file_forest.txt",
-			"title": "Lost File (Forest)",
-			"content": "Recovered from unstable sectors in the forest. Lesson: locate, restore, decrypt, and verify data integrity.",
+			"title": "Lost File - Advanced Recovery",
+			"content": "LESSON: Multi-step recovery for fragmented digital remnants.\n\nAdvanced Recovery Workflow:\n1. Locate orphaned inodes (find, locate, updatedb)\n2. Restore partial data (recovery tools, dd)\n3. Decrypt if necessary (openssl, gpg)\n4. Rebuild/compile if corrupted\n5. Verify integrity (md5sum, sha256sum)\n\nTools for Recovery:\n• debugfs - Read ext filesystem internals\n• dvtm - Recover from device directly\n• strings - Extract readable strings\n• od/xxd - Hex dump analysis\n• file - Magic number identification\n\nCore Commands:\n• find -iname - Case-insensitive search\n• strings | grep - Extract patterns\n• md5sum - Verify file integrity\n• tar xf - Extract archived data\n• grep - Search within files\n\nPhilosophy:\nIn Linux, nothing truly disappears immediately.\nBut recovery window closes with each disk write.\nACT QUICKLY.",
+			"commands": [
+				{"cmd": "find -iname", "desc": "Case-insensitive file search", "difficulty": 2},
+				{"cmd": "strings", "desc": "Extract readable text from binary", "difficulty": 2},
+				{"cmd": "md5sum", "desc": "Verify file integrity checksum", "difficulty": 2},
+				{"cmd": "grep", "desc": "Search pattern in files", "difficulty": 2},
+				{"cmd": "tar xf", "desc": "Extract archive contents", "difficulty": 2},
+			],
 		},
 	],
 	"Gate Keeper": [
 		{
 			"folder": "Desktop",
 			"filename": "gate_keeper.txt",
-			"title": "Gate Keeper",
-			"content": "Policy-aware gate service. Lesson: access is earned through demonstrated system proficiency.",
+			"title": "Gate Keeper - Access Control & Permissions",
+			"content": "LESSON: Access is earned, not assumed.\n\nLinux Permission Model:\nEvery file has owner + group + permissions (rwx):\n\n-rw-r--r-- (644 in octal):\n• Owner: read + write\n• Group: read only\n• Others: read only\n\nPermission Symbols:\n• r (4) = read - View file/directory contents\n• w (2) = write - Modify file/directory\n• x (1) = execute - Run file or enter directory\n\nCore Commands:\n• ls -l - Show permissions\n• chmod - Change permissions\n• chown - Change owner\n• chmod 755 - rwxr-xr-x (executable by all)\n• chmod 644 - rw-r--r-- (read by all)\n\nSudo (Superuser Do):\n• Allows non-root users to run privileged commands\n• Requires authentication (password)\n• Logged in /var/log/auth.log\n• Never trust commands requiring sudo\n\nAuthentication Hierarchy:\n1. User login (password)\n2. Group membership (groups)\n3. Sudo policy (/etc/sudoers)\n4. File ownership (chown)\n\nSecurity Philosophy:\nLeast privilege: Only give needed access.",
+			"commands": [
+				{"cmd": "ls -l", "desc": "Show file permissions", "difficulty": 1},
+				{"cmd": "chmod", "desc": "Change file permissions", "difficulty": 2},
+				{"cmd": "chown", "desc": "Change file owner", "difficulty": 3},
+				{"cmd": "sudo", "desc": "Run as superuser", "difficulty": 3},
+				{"cmd": "groups", "desc": "Show user group membership", "difficulty": 1},
+			],
 		},
 	],
 	"Mount Whisperer": [
 		{
 			"folder": "Desktop",
 			"filename": "mount_whisperer.txt",
-			"title": "Mount Whisperer",
-			"content": "Sees ghosts in mounted drives. Lesson: mount cleanly, unmount before removal, and read logs like they remember everything.",
+			"title": "Mount Whisperer - Storage Management",
+			"content": "LESSON: Storage devices must be mounted to use. Unmount safely.\n\nHow Linux Handles Storage:\n• Without mount: device is foreign, inaccessible\n• With mount: device becomes part of filesystem tree\n• Mount points: /mnt/usb, /media/external, /mnt/backup\n\nMount Process:\n1. System identifies device (/dev/sda1, /dev/sdb1)\n2. Reads filesystem type (ext4, NTFS, FAT32)\n3. Attaches to mount point directory\n4. Syncs metadata to filesystem tree\n\nCore Commands:\n• mount - Show mounted devices or mount new one\n• mount /dev/sda1 /mnt/drive - Mount specific device\n• umount /mnt/drive - Safely unmount (flushes buffers)\n• lsblk - List block devices\n• df - Show mounted filesystem usage\n• fsck - Check filesystem integrity\n\nSafety Critical:\n• NEVER yank USB while mounted - causes corruption\n• Always umount first, wait for completion\n• Use sync before physical removal\n• Check 'lsof /mnt/drive' for open files\n\nLogging:\n• /var/log/syslog - Mount/unmount events\n• dmesg - Kernel device messages\n• systemd journal - Modern logging\n\nPhilosophy:\nStorage is precious. Treat ejection like surgery.",
+			"commands": [
+				{"cmd": "mount", "desc": "Show or mount devices", "difficulty": 2},
+				{"cmd": "umount", "desc": "Safely unmount device", "difficulty": 2},
+				{"cmd": "lsblk", "desc": "List block devices", "difficulty": 1},
+				{"cmd": "df", "desc": "Show disk space usage", "difficulty": 1},
+				{"cmd": "dmesg", "desc": "Show kernel messages", "difficulty": 2},
+			],
 		},
 	],
 	"Broken Link": [
 		{
 			"folder": "Filesystem_Forest",
 			"filename": "broken_link.txt",
-			"title": "Broken Link",
-			"content": "A corrupted shortcut node. Lesson: troubleshoot paths methodically and patch references safely.",
+			"title": "Broken Link - Symbolic Links & References",
+			"content": "LESSON: Links are shortcuts. Broken links point to nothing.\n\nTwo Types of Links in Linux:\n\nHard Links:\n• Multiple names for same inode\n• Deleting original doesn't break them\n• Can't cross filesystems\n• Command: ln target linkname\n\nSymbolic Links (Symlinks):\n• Text file containing target path\n• Break if target deleted or moved\n• Can cross filesystems\n• Command: ln -s target linkname\n• Show as: linkname -> /path/to/target\n\nBroken Symlink Symptoms:\n• 404 errors when accessed\n• ls shows: broken_link -> /invalid/path (red/broken)\n• cat broken_link fails with 'No such file'\n\nRecovery Steps:\n1. ls -l - See what link points to\n2. find - Search for actual file location\n3. Update symlink target\n4. ln -sf - Recreate link\n5. Verify with ls -l\n\nCore Commands:\n• ln -s target link - Create symbolic link\n• ls -l - Show link targets\n• unlink link - Remove link safely\n• readlink link - Show what link points to\n• find /path -type l - Find all symlinks\n\nCommon Use Cases:\n• /usr/bin programs - Link to /opt/app/bin\n• Config alternatives - /etc/hosts.d links\n• Version management - app -> app-v2.3\n\nDebugging:\nBroken links indicate missing files. Find them with find!",
+			"commands": [
+				{"cmd": "ln -s", "desc": "Create symbolic link", "difficulty": 2},
+				{"cmd": "ls -l", "desc": "Show link targets", "difficulty": 1},
+				{"cmd": "readlink", "desc": "Show symlink target", "difficulty": 2},
+				{"cmd": "unlink", "desc": "Remove symbolic link", "difficulty": 2},
+				{"cmd": "find -type l", "desc": "Find all symlinks", "difficulty": 2},
+			],
 		},
 	],
 	"Hardware Ghost": [
 		{
 			"folder": "Deamon_Depths",
 			"filename": "hardware_ghost.txt",
-			"title": "Hardware Ghost",
-			"content": "Echoes of legacy hardware layers. Lesson: old systems still shape modern runtime behavior.",
+			"title": "Hardware Ghost - Device Drivers & Firmware",
+			"content": "LESSON: Drivers translate between hardware and kernel.\n\nDriver Role in System:\n• Bridge: Hardware ↔ Kernel\n• Hardware speaks: Electrical signals, interrupts\n• Kernel speaks: System calls, memory operations\n• Driver translates between them\n\nKernel Modules (.ko files):\n• Loadable driver code\n• Compiled for specific kernel version\n• Loaded on demand or at boot\n• Live in /lib/modules/$(uname -r)/\n\nCommon Driver Issues:\n• Outdated drivers - kernel updated, drivers don't match\n• Missing drivers - hardware unsupported\n• Version mismatch - ABI incompatibility\n• Corrupted modules - filesystem errors\n\nCore Commands:\n• lsmod - List loaded kernel modules\n• modinfo module - Show module information\n• insmod - Load module (dangerous, manual)\n• rmmod - Remove module (requires no dependencies)\n• modprobe - Smart module load (resolve dependencies)\n• uname -r - Show kernel version\n• dmesg | grep -i error - Check for driver errors\n\nLegacy Hardware:\n• Old devices have drivers nobody maintains\n• Kernel changes break old drivers (ABI changes)\n• Solution: Compile old driver for new kernel\n• Or: Use modern equivalent device\n\nLogs to Check:\n• /var/log/syslog - Boot and device events\n• /boot/dmesg.old - Previous boot kernel messages\n• journalctl -b - Current boot journal\n\nWhen System Won't Boot:\nDriver issue likely. Check logs from BIOS/UEFI console.",
+			"commands": [
+				{"cmd": "lsmod", "desc": "List loaded kernel modules", "difficulty": 1},
+				{"cmd": "modinfo", "desc": "Show module details", "difficulty": 2},
+				{"cmd": "modprobe", "desc": "Load module with dependencies", "difficulty": 3},
+				{"cmd": "rmmod", "desc": "Remove kernel module", "difficulty": 3},
+				{"cmd": "dmesg", "desc": "Show kernel messages", "difficulty": 2},
+			],
 		},
 	],
 	"Driver Remnant": [
 		{
 			"folder": "Deamon_Depths",
 			"filename": "driver_remnant.txt",
-			"title": "Driver Remnant",
-			"content": "An unstable leftover driver process. Lesson: remove stale drivers and isolate failing components.",
+			"title": "Driver Remnant - Process Management & Cleanup",
+			"content": "LESSON: Orphaned processes consume resources forever.\n\nProcess Lifecycle in Linux:\n• Fork - Parent spawns child process\n• Exec - Child loads program code\n• Run - Process uses CPU and memory\n• Exit - Child terminates, parent must wait()\n\nZombie Processes:\n• Child exits but parent doesn't call wait()\n• Process table entry remains forever\n• Consumes 1 slot in process table (limit ~32k)\n• Will appear as [process_name] <defunct>\n\nOrphaned Threads:\n• Thread spawned by driver that was unloaded\n• No parent process to manage it\n• Runs in kernel space indefinitely\n• Wastes CPU cycles and memory\n\nCore Commands:\n• ps aux - List all processes\n• ps aux | grep defunct - Find zombies\n• kill -9 PID - Force kill process\n• killall name - Kill all processes by name\n• top - Monitor CPU/memory usage\n• watch - Repeatedly execute command\n• strace -p PID - Trace system calls\n\nDangerous Commands:\n• kill -9 - Can break things, use wisely\n• killall -9 - Can crash system if careless\n• rm /sys/* - Never do this\n\nProper Cleanup:\n1. Identify zombie with: ps aux | grep defunct\n2. Find parent with: ps -ef | grep PID\n3. Kill parent with: kill -TERM parent_pid\n4. Wait for grace period\n5. If still there: kill -9 parent_pid\n6. Reboot if needed (last resort)\n\nPrevention:\n• Write clean signal handlers\n• Don't spawn endless threads\n• Monitor with monitoring tools (prometheus, etc)\n\nEmergency Recovery:\nIf system becomes unresponsive, reboot.",
+			"commands": [
+				{"cmd": "ps aux", "desc": "List all running processes", "difficulty": 1},
+				{"cmd": "kill", "desc": "Send signal to process", "difficulty": 2},
+				{"cmd": "killall", "desc": "Kill processes by name", "difficulty": 2},
+				{"cmd": "top", "desc": "Monitor system resources", "difficulty": 1},
+				{"cmd": "strace", "desc": "Trace system calls", "difficulty": 3},
+			],
 		},
 	],
 	"Printer Boss": [
 		{
 			"folder": "Deamon_Depths",
 			"filename": "printer_beast.txt",
-			"title": "Printer Beast",
-			"content": "A queue-jamming daemon boss. Lesson: monitor services, permissions, and error logs under pressure.",
+			"title": "Printer Beast - Service Management & Queues",
+			"content": "LESSON: Services run in background. Manage them or they run wild.\n\nDaemon Services:\n• Background processes that run persistently\n• Named with 'd' suffix: sshd, httpd, cupsd (print)\n• Started at boot or on demand\n• Listen for requests and respond\n\nPrint System (CUPS - Common Unix Printing System):\n• cupsd - Main print daemon\n• Maintains print queue (spool directory)\n• Jobs wait for printer to be ready\n• Can jam when queue overflows\n\nQueue Problems & Solutions:\n• Too many jobs = memory exhaustion\n• Printer offline = jobs stuck in queue\n• Corrupted jobs = nothing prints\n• Solution: Clear queue and restart service\n\nCore Commands:\n• lpstat -p - List printers\n• lpstat -o - Show print jobs\n• lp -d printer file - Print document\n• cancel job_id - Cancel specific job\n• cancel -a - Cancel all jobs\n• systemctl status cups - Check service status\n• systemctl restart cups - Restart service\n\nService Management (Systemd):\n• systemctl start service - Start service\n• systemctl stop service - Stop service\n• systemctl restart service - Restart (stop then start)\n• systemctl reload service - Reload config\n• systemctl enable service - Start at boot\n• systemctl disable service - Don't start at boot\n\nDaemon Configuration:\n• /etc/cups/ - CUPS configuration\n• /etc/cups/cupsd.conf - Main config\n• /var/spool/cups/ - Print jobs queue\n• /var/log/cups/ - Print logs\n\nTroubleshooting:\n1. Check status: systemctl status cups\n2. View logs: journalctl -u cups\n3. Clear queue: cancel -a\n4. Restart: systemctl restart cups\n5. Check config: cupsd -t (test config)\n\nResource Limits:\n• Set MaxJobs to prevent infinite queue\n• Set Timeout to clean stale jobs\n• Monitor disk space in /var/spool/\n• Monitor memory usage with top",
+			"commands": [
+				{"cmd": "lpstat", "desc": "Show printer status and jobs", "difficulty": 1},
+				{"cmd": "lp", "desc": "Send document to printer", "difficulty": 2},
+				{"cmd": "cancel", "desc": "Cancel print jobs", "difficulty": 2},
+				{"cmd": "systemctl", "desc": "Manage system services", "difficulty": 2},
+				{"cmd": "journalctl", "desc": "View service logs", "difficulty": 2},
+			],
 		},
 	],
 }
@@ -145,6 +222,9 @@ var explorer_dragging := false
 var explorer_last_mouse_global := Vector2.ZERO
 var hovered_index := -1
 
+# Command identification mini-game system
+var explorer_quiz: ExplorerCommandQuiz = null
+
 var confirmation_dialog: ConfirmationDialog = null
 var confirmation_mode := ""
 var quit_main_menu_button: Button = null
@@ -182,6 +262,8 @@ func _ready() -> void:
 		captured_frame.visible = false
 	if file_explorer_window:
 		file_explorer_window.visible = false
+	# Initialize command quiz system
+	explorer_quiz = ExplorerCommandQuiz.new()
 	if explorer_close_button and not explorer_close_button.pressed.is_connected(_close_file_explorer):
 		explorer_close_button.pressed.connect(_close_file_explorer)
 	if explorer_top_bar and not explorer_top_bar.gui_input.is_connected(_on_explorer_top_bar_gui_input):
@@ -192,6 +274,8 @@ func _ready() -> void:
 		explorer_file_list.item_selected.connect(_on_explorer_item_selected)
 	if explorer_file_list and not explorer_file_list.item_activated.is_connected(_on_explorer_item_activated):
 		explorer_file_list.item_activated.connect(_on_explorer_item_activated)
+	if explorer_preview_label and not explorer_preview_label.meta_clicked.is_connected(_on_explorer_preview_meta_clicked):
+		explorer_preview_label.meta_clicked.connect(_on_explorer_preview_meta_clicked)
 	if explorer_top_bar:
 		explorer_top_bar.mouse_default_cursor_shape = Control.CURSOR_MOVE
 	if key_hint_vbox:
@@ -974,6 +1058,45 @@ func _on_explorer_item_activated(index: int) -> void:
 	# Check if this is an NPC file and show Tux dialogue
 	_maybe_show_npc_dialogue(index)
 
+func _on_explorer_preview_meta_clicked(meta: Variant) -> void:
+	"""Handle when player clicks on a command in the file preview."""
+	if not explorer_quiz:
+		return
+	
+	var meta_str := String(meta)
+	
+	# Check if this is a command click (format: cmd_command_name)
+	if meta_str.begins_with("cmd_"):
+		var command_name := meta_str.trim_prefix("cmd_").uri_decode()
+		var result := explorer_quiz.check_answer(command_name)
+		
+		if result.get("correct", false):
+			# Correct answer!
+			var reward: int = result.get("reward", 0)
+			if reward > 0 and SceneManager and SceneManager.has_method("award_data_bits"):
+				var source_file := "unknown_file"
+				if explorer_quiz and not explorer_quiz.current_file_entry.is_empty():
+					source_file = String(explorer_quiz.current_file_entry.get("filename", "unknown_file"))
+				SceneManager.call("award_data_bits", reward, "file_explorer_quiz:%s" % source_file)
+			_show_status("Correct! +%d DATA BITS" % reward)
+			
+			if result.get("complete", false):
+				# Quiz completed!
+				_show_status("Quiz Complete! Earned %d DATA BITS total!" % explorer_quiz.get_total_bits())
+		else:
+			# Wrong answer
+			if result.get("failed", false):
+				# Quiz failed - reset
+				_show_status("Quiz failed - 3 wrong answers. Starting over...")
+			else:
+				_show_status("Incorrect. Try again.")
+		
+		# Refresh preview to show updated progress
+		if not explorer_file_list or explorer_file_list.get_selected_items().is_empty():
+			return
+		var selected_item_index := explorer_file_list.get_selected_items()[0]
+		_show_explorer_preview_for_index(selected_item_index)
+
 func _activate_explorer_selected_item() -> void:
 	if not explorer_file_list:
 		return
@@ -1001,7 +1124,7 @@ func _activate_explorer_item(index: int) -> void:
 		return
 
 func _show_explorer_preview_for_index(index: int) -> void:
-	if not explorer_file_list or not explorer_preview_label:
+	if not explorer_file_list or not explorer_preview_label or not explorer_quiz:
 		return
 	if index < 0 or index >= explorer_file_list.item_count:
 		return
@@ -1014,7 +1137,38 @@ func _show_explorer_preview_for_index(index: int) -> void:
 	var title := String(entry.get("title", "File"))
 	var filename := String(entry.get("filename", "unknown.txt"))
 	var body := String(entry.get("content", "No notes."))
-	explorer_preview_label.text = "[b]%s[/b]\n%s\n\n%s" % [title, filename, body]
+
+	# Build the display with educational content
+	var display_text := "[b]%s[/b]\n%s" % [title, filename]
+	
+	# Add command learning mini-game section if commands are available
+	if entry.has("commands") and entry.get("commands", []).size() > 0:
+		# Keep progress for current file; only resets when opening a different lesson file.
+		explorer_quiz.load_lesson(entry)
+		display_text += "\n\n" + explorer_quiz.get_quiz_display()
+
+		var options: Array = explorer_quiz.get_command_options()
+		if not options.is_empty():
+			display_text += "\n\n[u]Choose one:[/u]"
+			for cmd_entry in options:
+				var cmd_info: Dictionary = cmd_entry as Dictionary
+				var cmd := String(cmd_info.get("cmd", "unknown"))
+				display_text += "\n[color=ffff99][url=cmd_%s][u]%s[/u][/url][/color]" % [cmd.uri_encode(), cmd]
+
+		display_text += "\n\n[b]Lesson Notes[/b]\n%s" % body
+	else:
+		# Reset quiz when showing non-lesson content
+		explorer_quiz.reset()
+		display_text += "\n\n%s" % body
+	
+	explorer_preview_label.text = display_text
+	explorer_preview_label.scroll_to_line(0)
+
+func get_difficulty_stars(diff: int, max_diff: int = 3) -> String:
+	var result := ""
+	for i in range(max_diff):
+		result += "★" if i < diff else "☆"
+	return result
 
 
 func _open_quest_from_entry(entry: Dictionary) -> void:
@@ -1103,12 +1257,23 @@ func _append_mapped_npc_entries(entries: Array[Dictionary], folder_name: String)
 		for npc_entry in npc_entries:
 			if String(npc_entry.get("folder", "")) != folder_name:
 				continue
-			_append_doc_entry_if_missing(
-				entries,
-				String(npc_entry.get("filename", "interaction_log.txt")),
+			var filename := String(npc_entry.get("filename", "interaction_log.txt"))
+			var already_exists := false
+			for existing in entries:
+				if String(existing.get("filename", "")) == filename:
+					already_exists = true
+					break
+			if already_exists:
+				continue
+
+			var mapped_entry := _doc_entry(
+				filename,
 				String(npc_entry.get("title", npc_name)),
 				String(npc_entry.get("content", "Interaction recorded."))
 			)
+			if npc_entry.has("commands"):
+				mapped_entry["commands"] = npc_entry.get("commands", [])
+			entries.append(mapped_entry)
 
 func _append_generic_interaction_entries(entries: Array[Dictionary]) -> void:
 	if not SceneManager:
@@ -1121,7 +1286,7 @@ func _append_generic_interaction_entries(entries: Array[Dictionary]) -> void:
 			entries,
 			"%s.txt" % slug,
 			npc_name,
-			"Interaction log recorded for %s. Lesson: every system actor leaves clues once you stop and inspect them." % npc_name
+			"Lesson: every system actor leaves clues when you slow down and inspect. Commands used: talk/interact, help, ls, cat."
 		)
 
 func _append_doc_entry_if_missing(entries: Array[Dictionary], filename: String, title: String, content: String) -> void:
@@ -1227,3 +1392,5 @@ func _is_title_scene_active() -> bool:
 	if not current_scene:
 		return false
 	return current_scene.scene_file_path == TITLE_SCENE
+
+

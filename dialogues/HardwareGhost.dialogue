@@ -30,18 +30,30 @@ elif SceneManager.quest_manager.is_quest_active("drivers_den_cleanup"):
 		=> END
 else:
 	Hardware Ghost: [whisper] Legacy device... no longer recognized.
-	Hardware Ghost: I am a driver from a machine long gone.
+	Hardware Ghost: I am a driver from hardware nobody uses anymore.
+	Hardware Ghost: Kernel modules that nobody loads. Legacy support nobody values.
 	Hardware Ghost: I only remember the logs. I only remember the faults.
 	- What happened here?
-		Hardware Ghost: A purge. A rewrite. The stack moved on.
-		Hardware Ghost: We were left behind, still calling, still failing.
+		Hardware Ghost: A kernel upgrade. ABI changes. The stack moved on.
+		Hardware Ghost: My symbols don't match anymore. My interrupts don't fire.
+		Hardware Ghost: We were left behind, still calling out, still failing.
+		Hardware Ghost: Drivers live between hardware and the kernel.
+		Hardware Ghost: When the kernel changes, some drivers die.
+	- What are drivers?
+		Hardware Ghost: Drivers are translators. Hardware speaks in signals and voltages.
+		Hardware Ghost: The kernel speaks in system calls and interrupts.
+		Hardware Ghost: Drivers translate between them. They load into kernel memory.
+		Hardware Ghost: They handle hardware events: "button pressed!" or "data ready!"
+		Hardware Ghost: Without drivers, hardware is just... silent silicon.
 	- What do you need?
-		Hardware Ghost: A remnant rages nearby. It tears at the bus.
-		Hardware Ghost: And the Printer Beast hoards the key to the depths.
-		Hardware Ghost: Quiet them both, and the logs will settle.
+		Hardware Ghost: A remnant of old code rages nearby. It tears at the bus.
+		Hardware Ghost: And the Printer daemon hoards the key to the depths.
+		Hardware Ghost: Quiet them both, restore order to the logs.
+		Hardware Ghost: Then the system can rest.
 	- I will help.
-		Hardware Ghost: Then listen for the whispers. They point to the faults.
-		Hardware Ghost: If you can calm the logs, I can guide you.
+		Hardware Ghost: Then listen for the error messages. They whisper the problem.
+		Hardware Ghost: Study the logs. Find patterns. Isolate the issue.
+		Hardware Ghost: If you can calm the logs, I can guide you further.
 		set SceneManager.met_hardware_ghost = true
 		do SceneManager.quest_manager.start_quest("drivers_den_cleanup")
 		do start_puzzle()

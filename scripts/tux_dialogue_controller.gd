@@ -4,6 +4,7 @@ const DialogueResourceRes = preload("res://addons/dialogue_manager/dialogue_reso
 const DMConstantsRes = preload("res://addons/dialogue_manager/constants.gd")
 const HUD_DIALOGUE_PATH := "res://dialogues/TuxHUD.dialogue"
 const FALLBACK_HAMLET_SCENE_PATH := "res://Scenes/Levels/fallback_hamlet.tscn"
+const POST_ENDING_HAMLET_GREETING_META_KEY := "post_ending_hamlet_greeting_shown"
 
 var dm: Node = null
 var sm: Node = null
@@ -21,8 +22,10 @@ var _hud_dialogue_busy: bool = false
 var _hud_selected_topic: String = ""
 var _last_scene_path_seen: String = ""
 var _post_ending_greeting_shown_for_scene: bool = false
+var _recent_tux_lines: Dictionary = {}
 
 const TUX_LINE_GAP_SECONDS := 1.25
+const TUX_LINE_DEDUP_WINDOW_SECONDS := 6.0
 
 const ITEM_FLAGS: Array[String] = [
 	"gatekeeper_pass_granted",
@@ -221,6 +224,9 @@ func _maybe_show_post_ending_greeting(scene_path: String) -> void:
 		return
 	if sm == null:
 		return
+	if bool(sm.get_meta(POST_ENDING_HAMLET_GREETING_META_KEY, false)):
+		_post_ending_greeting_shown_for_scene = true
+		return
 	if not bool(sm.get_meta("evil_tux_boss_cleared", false)):
 		return
 	if bool(sm.get_meta("hide_all_npcs_post_evil_tux", false)):
@@ -231,6 +237,7 @@ func _maybe_show_post_ending_greeting(scene_path: String) -> void:
 		return
 
 	_post_ending_greeting_shown_for_scene = true
+	sm.set_meta(POST_ENDING_HAMLET_GREETING_META_KEY, true)
 	_show_tux_line("Hey there, savior. Good to see you back in Fallback Hamlet.")
 
 # Helper to reduce code duplication for flag checking
@@ -272,14 +279,9 @@ func _handle_npc_defeated(defeat_flag: String) -> void:
 		current_state = str(sm.npc_states.get(npc_name, ""))
 
 	if current_state == "helped":
-		var helped_tpl: Dictionary = NPC_TEMPLATES.get(npc_name, NPC_TEMPLATES["default"])
-		var helped_template: String = helped_tpl.get("helped", NPC_TEMPLATES["default"]["helped"])
-		var helped_text: String = helped_template
-		if "%" in helped_template:
-			helped_text = helped_template % npc_name
+		# Helped state text is handled by _handle_npc_state_change().
+		# Do not enqueue a second line from defeat flag transitions.
 		print("[TuxDialogueController] Defeat flag %s ignored because %s is helped" % [defeat_flag, npc_name])
-		await get_tree().create_timer(2.0).timeout
-		_show_tux_line(helped_text)
 		return
 
 	var karma: String = str(sm.player_karma) if sm else "neutral"
@@ -612,12 +614,33 @@ func _show_tux_line(text: String) -> void:
 		return
 	if text.strip_edges().is_empty():
 		return
+	if _is_recent_duplicate_tux_line(text):
+		return
 
 	_tux_line_queue.append(text)
 	if _draining_tux_lines:
 		return
 	_draining_tux_lines = true
 	call_deferred("_drain_tux_line_queue")
+
+func _is_recent_duplicate_tux_line(text: String) -> bool:
+	var normalized := text.strip_edges().to_lower()
+	if normalized.is_empty():
+		return true
+
+	var now_seconds := Time.get_ticks_msec() / 1000.0
+	var last_seen := float(_recent_tux_lines.get(normalized, -1000.0))
+	_recent_tux_lines[normalized] = now_seconds
+
+	# Clean stale entries so dictionary doesn't grow forever.
+	var stale_keys: Array[String] = []
+	for key in _recent_tux_lines.keys():
+		if now_seconds - float(_recent_tux_lines[key]) > (TUX_LINE_DEDUP_WINDOW_SECONDS * 4.0):
+			stale_keys.append(String(key))
+	for key in stale_keys:
+		_recent_tux_lines.erase(key)
+
+	return (now_seconds - last_seen) < TUX_LINE_DEDUP_WINDOW_SECONDS
 
 func _drain_tux_line_queue() -> void:
 	while not _tux_line_queue.is_empty():

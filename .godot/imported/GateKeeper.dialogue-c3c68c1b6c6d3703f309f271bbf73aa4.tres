@@ -6,7 +6,7 @@
 script = ExtResource("1_xwbkm")
 using_states = PackedStringArray()
 titles = {
-"reminder": "36",
+"reminder": "44",
 "start": "1"
 }
 character_names = PackedStringArray("Gate Keeper")
@@ -65,7 +65,7 @@ lines = {
 },
 &"id": "1",
 &"next_id": "2",
-&"next_id_after": "35",
+&"next_id_after": "43",
 &"next_sibling_id": "12",
 &"type": "condition"
 },
@@ -130,7 +130,7 @@ lines = {
 },
 &"id": "12",
 &"next_id": "13",
-&"next_id_after": "35",
+&"next_id_after": "43",
 &"next_sibling_id": "15",
 &"type": "condition"
 },
@@ -196,7 +196,7 @@ lines = {
 },
 &"id": "15",
 &"next_id": "16",
-&"next_id_after": "35",
+&"next_id_after": "43",
 &"next_sibling_id": "18",
 &"type": "condition"
 },
@@ -246,7 +246,7 @@ lines = {
 },
 &"id": "18",
 &"next_id": "19",
-&"next_id_after": "35",
+&"next_id_after": "43",
 &"next_sibling_id": "24",
 &"type": "condition"
 },
@@ -274,7 +274,7 @@ lines = {
 "21": {
 &"id": "21",
 &"is_snippet": false,
-&"next_id": "36",
+&"next_id": "44",
 &"next_id_after": "",
 &"type": "goto"
 },
@@ -295,7 +295,7 @@ lines = {
 &"condition": {},
 &"id": "24",
 &"next_id": "25",
-&"next_id_after": "35",
+&"next_id_after": "43",
 &"type": "condition"
 },
 "25": {
@@ -309,13 +309,13 @@ lines = {
 &"character": "Gate Keeper",
 &"id": "26",
 &"next_id": "27",
-&"text": "Bring me two Proficiency keys and I will open the way.",
+&"text": "Authentication required. Bring me two Proficiency keys.",
 &"type": "dialogue"
 },
 "27": {
 &"id": "27",
 &"next_id": "28",
-&"responses": PackedStringArray("27", "30"),
+&"responses": PackedStringArray("27", "32", "38"),
 &"text": "What keys?",
 &"type": "response"
 },
@@ -329,8 +329,8 @@ lines = {
 "29": {
 &"character": "Gate Keeper",
 &"id": "29",
-&"next_id": "31",
-&"text": "The Printer boss in the Deamon Depths holds the second.",
+&"next_id": "30",
+&"text": "It guards knowledge of hard links and symbolic references.",
 &"type": "dialogue"
 },
 "3": {
@@ -341,13 +341,68 @@ lines = {
 &"type": "dialogue"
 },
 "30": {
+&"character": "Gate Keeper",
 &"id": "30",
 &"next_id": "31",
+&"text": "The Printer Beast in Daemon Depths holds the second.",
+&"type": "dialogue"
+},
+"31": {
+&"character": "Gate Keeper",
+&"id": "31",
+&"next_id": "39",
+&"text": "It controls understanding of daemon processes and resource slots.",
+&"type": "dialogue"
+},
+"32": {
+&"id": "32",
+&"next_id": "33",
+&"text": "Tell me about access control?",
+&"type": "response"
+},
+"33": {
+&"character": "Gate Keeper",
+&"id": "33",
+&"next_id": "34",
+&"text": "In Linux, access is controlled by authentication and authorization.",
+&"type": "dialogue"
+},
+"34": {
+&"character": "Gate Keeper",
+&"id": "34",
+&"next_id": "35",
+&"text": "Authentication: Who are you? (sudoers, SSH keys, passwords)",
+&"type": "dialogue"
+},
+"35": {
+&"character": "Gate Keeper",
+&"id": "35",
+&"next_id": "36",
+&"text": "Authorization: What can you do? (file permissions, policy)",
+&"type": "dialogue"
+},
+"36": {
+&"character": "Gate Keeper",
+&"id": "36",
+&"next_id": "37",
+&"text": "Both keys represent mastery of different subsystems.",
+&"type": "dialogue"
+},
+"37": {
+&"character": "Gate Keeper",
+&"id": "37",
+&"next_id": "39",
+&"text": "You must prove you understand the cost before advancing.",
+&"type": "dialogue"
+},
+"38": {
+&"id": "38",
+&"next_id": "39",
 &"text": "Understood.",
 &"type": "response"
 },
-"31": {
-&"id": "31",
+"39": {
+&"id": "39",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"i": 4,
@@ -371,86 +426,8 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "32",
-&"type": "mutation"
-},
-"32": {
-&"id": "32",
-&"mutation": {
-&"expression": Array[Dictionary]([{
-&"i": 3,
-&"type": &"variable",
-&"value": "SceneManager"
-}, {
-&"i": 15,
-&"type": &"dot"
-}, {
-&"i": 16,
-&"type": &"variable",
-&"value": "quest_manager"
-}, {
-&"i": 29,
-&"type": &"dot"
-}, {
-&"function": "start_quest",
-&"i": 30,
-&"type": &"function",
-&"value": Array[Array]([Array[Dictionary]([{
-&"i": 42,
-&"type": &"string",
-&"value": "gatekeeper_proficiency"
-}, {
-&"i": 66,
-&"type": &"parens_close"
-}])])
-}]),
-&"is_blocking": true
-},
-&"next_id": "33",
-&"type": "mutation"
-},
-"33": {
-&"id": "33",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
-},
-"34": {
-&"id": "34",
-&"next_id": "35",
-&"type": ""
-},
-"35": {
-&"id": "35",
-&"next_id": "36",
-&"type": "title"
-},
-"36": {
-&"character": "Gate Keeper",
-&"id": "36",
-&"next_id": "37",
-&"text": "Broken Link in the Filesystem Forest holds one key.",
-&"type": "dialogue"
-},
-"37": {
-&"character": "Gate Keeper",
-&"id": "37",
-&"next_id": "38",
-&"text": "The Printer boss in the Deamon Depths holds the other.",
-&"type": "dialogue"
-},
-"38": {
-&"id": "38",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
-},
-"39": {
-&"id": "39",
 &"next_id": "40",
-&"type": ""
+&"type": "mutation"
 },
 "4": {
 &"id": "4",
@@ -482,6 +459,84 @@ lines = {
 },
 "40": {
 &"id": "40",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"i": 3,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 15,
+&"type": &"dot"
+}, {
+&"i": 16,
+&"type": &"variable",
+&"value": "quest_manager"
+}, {
+&"i": 29,
+&"type": &"dot"
+}, {
+&"function": "start_quest",
+&"i": 30,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 42,
+&"type": &"string",
+&"value": "gatekeeper_proficiency"
+}, {
+&"i": 66,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "41",
+&"type": "mutation"
+},
+"41": {
+&"id": "41",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"42": {
+&"id": "42",
+&"next_id": "43",
+&"type": ""
+},
+"43": {
+&"id": "43",
+&"next_id": "44",
+&"type": "title"
+},
+"44": {
+&"character": "Gate Keeper",
+&"id": "44",
+&"next_id": "45",
+&"text": "Broken Link in the Filesystem Forest holds one key.",
+&"type": "dialogue"
+},
+"45": {
+&"character": "Gate Keeper",
+&"id": "45",
+&"next_id": "46",
+&"text": "The Printer boss in the Deamon Depths holds the other.",
+&"type": "dialogue"
+},
+"46": {
+&"id": "46",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"47": {
+&"id": "47",
+&"next_id": "48",
+&"type": ""
+},
+"48": {
+&"id": "48",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
@@ -587,10 +642,18 @@ elif SceneManager.quest_manager.is_quest_active(\"gatekeeper_proficiency\"):
 		=> END
 else:
 	Gate Keeper: Halt. Access to the next zone is restricted by policy.
-	Gate Keeper: Bring me two Proficiency keys and I will open the way.
+	Gate Keeper: Authentication required. Bring me two Proficiency keys.
 	- What keys?
 		Gate Keeper: Broken Link in the Filesystem Forest holds the first.
-		Gate Keeper: The Printer boss in the Deamon Depths holds the second.
+		Gate Keeper: It guards knowledge of hard links and symbolic references.
+		Gate Keeper: The Printer Beast in Daemon Depths holds the second.
+		Gate Keeper: It controls understanding of daemon processes and resource slots.
+	- Tell me about access control?
+		Gate Keeper: In Linux, access is controlled by authentication and authorization.
+		Gate Keeper: Authentication: Who are you? (sudoers, SSH keys, passwords)
+		Gate Keeper: Authorization: What can you do? (file permissions, policy)
+		Gate Keeper: Both keys represent mastery of different subsystems.
+		Gate Keeper: You must prove you understand the cost before advancing.
 	- Understood.
 	set SceneManager.met_gate_keeper = true
 	do SceneManager.quest_manager.start_quest(\"gatekeeper_proficiency\")

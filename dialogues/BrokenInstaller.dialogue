@@ -1,15 +1,34 @@
 ~ start
 Broken Installer: ERROR! ERROR!
-Broken Installer: Missing dependency! Missing EVERYTHING!
+Broken Installer: Missing dependency! Missing libsupport.so!
+Broken Installer: [hyperventilating in binary]
 
 - Calm down
-	Broken Installer: I CANNOT CALM WITHOUT libsupport.so!
+	Broken Installer: I CANNOT CALM WITHOUT DEPENDENCIES!
+	Broken Installer: Do you understand? Nothing compiles without the right libraries!
+	- What libraries?
+		Broken Installer: Look: libsupport.so, libutils.a, libcommon.so
+		Broken Installer: Each one a necessary foundation. Each one interconnected.
+		Broken Installer: It's called the dependency tree. Break a branch, everything falls.
 - What do you need?
-	Broken Installer: Package manager!
-	Broken Installer: Update! Install! FIX ME!
+	Broken Installer: A package manager! apt, pacman, dnf, zypper—ANY of them!
+	Broken Installer: They resolve dependencies automatically.
+	Broken Installer: apt install clears /etc/apt/sources.list
+	Broken Installer: pacman -Sy updates the mirror database first
+	Broken Installer: But first: you must know what each does!
+	Broken Installer: Update the system! Fetch the dependencies! FIX ME!
 - Ignore
 	Broken Installer: SYSTEM WILL BREAK FURTHER!!!
+	Broken Installer: Broken dependencies spread like corruption
 
-Broken Installer: Learn how to install packages.
-Broken Installer: Then maybe… I compile again.
+- Understand dependencies?
+	Broken Installer: When you install software, it needs libraries.
+	Broken Installer: Libraries are code that other programs reuse.
+	Broken Installer: If a library is missing, nothing that depends on it can run!
+	Broken Installer: Package managers track versions and compatibility.
+	Broken Installer: They prevent the chaos that I am experiencing now.
+
+Broken Installer: Learn how to install packages properly.
+Broken Installer: Understand dependency resolution.
+Broken Installer: Then maybe… I can compile again. I can be whole.
 => END

@@ -6,9 +6,9 @@
 script = ExtResource("1_w0pvj")
 using_states = PackedStringArray()
 titles = {
-"already_open": "7",
+"already_open": "10",
 "needs_sudo_token": "1",
-"unlocked": "12"
+"unlocked": "16"
 }
 character_names = PackedStringArray("Door Console")
 first_title = "0"
@@ -26,47 +26,70 @@ lines = {
 &"type": "dialogue"
 },
 "10": {
+&"character": "Door Console",
 &"id": "10",
 &"next_id": "11",
-&"type": ""
+&"text": "ACCESS GRANTED.",
+&"type": "dialogue"
 },
 "11": {
+&"character": "Door Console",
 &"id": "11",
 &"next_id": "12",
-&"type": "title"
+&"text": "Boss room lock is already disengaged.",
+&"type": "dialogue"
 },
 "12": {
 &"character": "Door Console",
 &"id": "12",
 &"next_id": "13",
-&"text": "AUTHENTICATION ACCEPTED.",
+&"text": "The privilege gate remains open.",
 &"type": "dialogue"
 },
 "13": {
-&"character": "Door Console",
 &"id": "13",
-&"next_id": "14",
-&"text": "Boss room lock disengaged.",
-&"type": "dialogue"
-},
-"14": {
-&"id": "14",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
+},
+"14": {
+&"id": "14",
+&"next_id": "15",
+&"type": ""
 },
 "15": {
 &"id": "15",
 &"next_id": "16",
-&"type": ""
+&"type": "title"
 },
 "16": {
+&"character": "Door Console",
 &"id": "16",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
+&"next_id": "17",
+&"text": "AUTHENTICATION ACCEPTED.",
+&"type": "dialogue"
+},
+"17": {
+&"character": "Door Console",
+&"id": "17",
+&"next_id": "18",
+&"text": "Sudo token verified and consumed.",
+&"type": "dialogue"
+},
+"18": {
+&"character": "Door Console",
+&"id": "18",
+&"next_id": "19",
+&"text": "Boss room lock disengaged.",
+&"type": "dialogue"
+},
+"19": {
+&"character": "Door Console",
+&"id": "19",
+&"next_id": "20",
+&"text": "Privilege escalation successful. Proceed with caution.",
+&"type": "dialogue"
 },
 "2": {
 &"character": "Door Console",
@@ -75,66 +98,91 @@ lines = {
 &"text": "Elevated privileges required.",
 &"type": "dialogue"
 },
+"20": {
+&"id": "20",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"21": {
+&"id": "21",
+&"next_id": "22",
+&"type": ""
+},
+"22": {
+&"id": "22",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
 "3": {
 &"character": "Door Console",
 &"id": "3",
 &"next_id": "4",
-&"text": "A sudo token from Driver Remnant is required.",
+&"text": "This room is protected by sudo policy.",
 &"type": "dialogue"
 },
 "4": {
+&"character": "Door Console",
 &"id": "4",
+&"next_id": "5",
+&"text": "A sudo token from Driver Remnant is required.",
+&"type": "dialogue"
+},
+"5": {
+&"character": "Door Console",
+&"id": "5",
+&"next_id": "6",
+&"text": "[Educational context: sudo lets non-root users run commands as root]",
+&"type": "dialogue"
+},
+"6": {
+&"character": "Door Console",
+&"id": "6",
+&"next_id": "7",
+&"text": "[The token represents verified understanding of privilege escalation]",
+&"type": "dialogue"
+},
+"7": {
+&"id": "7",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"5": {
-&"id": "5",
-&"next_id": "6",
-&"type": ""
-},
-"6": {
-&"id": "6",
-&"next_id": "7",
-&"type": "title"
-},
-"7": {
-&"character": "Door Console",
-&"id": "7",
-&"next_id": "8",
-&"text": "ACCESS GRANTED.",
-&"type": "dialogue"
-},
 "8": {
-&"character": "Door Console",
 &"id": "8",
 &"next_id": "9",
-&"text": "Boss room lock is already disengaged.",
-&"type": "dialogue"
+&"type": ""
 },
 "9": {
 &"id": "9",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
+&"next_id": "10",
+&"type": "title"
 }
 }
 raw_text = "~ needs_sudo_token
 Door Console: ACCESS DENIED.
 Door Console: Elevated privileges required.
+Door Console: This room is protected by sudo policy.
 Door Console: A sudo token from Driver Remnant is required.
+Door Console: [Educational context: sudo lets non-root users run commands as root]
+Door Console: [The token represents verified understanding of privilege escalation]
 => END
 
 ~ already_open
 Door Console: ACCESS GRANTED.
 Door Console: Boss room lock is already disengaged.
+Door Console: The privilege gate remains open.
 => END
 
 ~ unlocked
 Door Console: AUTHENTICATION ACCEPTED.
+Door Console: Sudo token verified and consumed.
 Door Console: Boss room lock disengaged.
+Door Console: Privilege escalation successful. Proceed with caution.
 => END
 "
 metadata/dialogue_manager_version = "3.9.0"

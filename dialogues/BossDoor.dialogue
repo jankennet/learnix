@@ -1,15 +1,21 @@
 ~ needs_sudo_token
 Door Console: ACCESS DENIED.
 Door Console: Elevated privileges required.
+Door Console: This room is protected by sudo policy.
 Door Console: A sudo token from Driver Remnant is required.
+Door Console: [Educational context: sudo lets non-root users run commands as root]
+Door Console: [The token represents verified understanding of privilege escalation]
 => END
 
 ~ already_open
 Door Console: ACCESS GRANTED.
 Door Console: Boss room lock is already disengaged.
+Door Console: The privilege gate remains open.
 => END
 
 ~ unlocked
 Door Console: AUTHENTICATION ACCEPTED.
+Door Console: Sudo token verified and consumed.
 Door Console: Boss room lock disengaged.
+Door Console: Privilege escalation successful. Proceed with caution.
 => END

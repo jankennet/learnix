@@ -13,15 +13,24 @@ if SceneManager.met_elder_shell == true:
 else:
 	Elder Shell: Ah… a new process enters the loop.
 	Elder Shell: Sit, Nova. Observe before you execute.
-	Elder Shell: Linux rewards patience.
+	Elder Shell: Linux rewards patience. The shell is your teacher.
 	- Teach me
 		Elder Shell: Begin with understanding structure.
-		Elder Shell: Files live in directories. Order brings stability.
-		Elder Shell: Speak to the Messy Directory. She knows loss.
+		Elder Shell: The filesystem is organized like a tree - root (/) at the top.
+		Elder Shell: Directories: /home for users, /etc for configs, /bin for commands.
+		Elder Shell: Everything in Linux is a file or a process.
+		Elder Shell: Files have ownership: user, group, and permissions (rwx).
+		Elder Shell: Use 'ls -la' to see permissions. Know who can do what.
+		Elder Shell: Speak to Messy Directory. She learned the price of carelessness.
 	- What happened here?
-		Elder Shell: Files were deleted in haste.
-		Elder Shell: Some deserved removal. Others did not.
+		Elder Shell: Files were deleted in haste. Rm -rf is a dangerous command.
+		Elder Shell: Some files deserved removal. Others were innocents caught in the blast.
+		Elder Shell: The Lost File was a critical document. Someone thought it was junk.
 	- Any advice?
 		Elder Shell: Never run a command you do not understand.
+		Elder Shell: Always preview what you're deleting: 'ls' before 'rm'.
+		Elder Shell: Consider using trash systems instead of permanent deletion.
+		Elder Shell: And remember: root access is power. Use it wisely, or not at all.
+		Elder Shell: The oldest shells have seen empires fall on a single typo.
 	set SceneManager.met_elder_shell = true
 	=> END

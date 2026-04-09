@@ -25,139 +25,222 @@ lines = {
 },
 "10": {
 &"id": "10",
-&"next_id": "11",
-&"text": "Why read the logs?",
-&"type": "response"
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
 },
 "11": {
-&"character": "Mount Whisperer",
 &"id": "11",
 &"next_id": "12",
-&"text": "Because mounted things leave footprints.",
-&"type": "dialogue"
+&"text": "Teach me about mounting",
+&"type": "response"
 },
 "12": {
 &"character": "Mount Whisperer",
 &"id": "12",
 &"next_id": "13",
-&"text": "And unmounted things leave absence, which is louder.",
+&"text": "Mounting is how the kernel connects storage to the filesystem.",
 &"type": "dialogue"
 },
 "13": {
 &"character": "Mount Whisperer",
 &"id": "13",
 &"next_id": "14",
-&"text": "If you listen closely, every \"device removed\" sounds like a goodbye kiss through static.",
+&"text": "Without mount, a drive is just... a foreign thing.",
 &"type": "dialogue"
 },
 "14": {
+&"character": "Mount Whisperer",
 &"id": "14",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
+&"next_id": "15",
+&"text": "With mount, it becomes /mnt/usb or /media/external.",
+&"type": "dialogue"
 },
 "15": {
+&"character": "Mount Whisperer",
 &"id": "15",
 &"next_id": "16",
-&"text": "That is unsettling.",
-&"type": "response"
+&"text": "All storage becomes part of one unified tree.",
+&"type": "dialogue"
 },
 "16": {
 &"character": "Mount Whisperer",
 &"id": "16",
 &"next_id": "17",
-&"text": "mm. Cute, though.",
+&"text": "Commands: 'mount' to see what's connected, 'mount /dev/sda1 /mnt/drive'",
 &"type": "dialogue"
 },
 "17": {
 &"character": "Mount Whisperer",
 &"id": "17",
 &"next_id": "18",
-&"text": "Here, listen:",
+&"text": "And 'umount /mnt/drive' to safely disconnect.",
 &"type": "dialogue"
 },
 "18": {
-&"character": "Mount Whisperer",
 &"id": "18",
 &"next_id": "19",
-&"text": "\"mount: clean attach.\"",
-&"type": "dialogue"
+&"responses": PackedStringArray("18"),
+&"text": "Why need umount first?",
+&"type": "response"
 },
 "19": {
 &"character": "Mount Whisperer",
 &"id": "19",
 &"next_id": "20",
-&"text": "\"umount: soft sigh.\"",
+&"text": "Because removing a mounted drive while it's in use is violence.",
 &"type": "dialogue"
 },
 "2": {
 &"character": "Mount Whisperer",
 &"id": "2",
 &"next_id": "3",
-&"text": "When a volume clicks awake, I hear its little bones sing.",
+&"text": "When a volume spins awake, I hear its little bones sing.",
 &"type": "dialogue"
 },
 "20": {
 &"character": "Mount Whisperer",
 &"id": "20",
 &"next_id": "21",
-&"text": "\"kernel: something small waved from /var/log before it vanished.\"",
+&"text": "The kernel might still be writing. Data in transit lost forever.",
 &"type": "dialogue"
 },
 "21": {
+&"character": "Mount Whisperer",
 &"id": "21",
+&"next_id": "22",
+&"text": "Umount flushes buffers, closes files, says goodbye correctly.",
+&"type": "dialogue"
+},
+"22": {
+&"character": "Mount Whisperer",
+&"id": "22",
+&"next_id": "23",
+&"text": "Without it? Corruption. Lost inodes. Broken filesystems.",
+&"type": "dialogue"
+},
+"23": {
+&"id": "23",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"22": {
-&"id": "22",
-&"next_id": "23",
-&"text": "Any advice for handling drives?",
-&"type": "response"
-},
-"23": {
-&"character": "Mount Whisperer",
-&"id": "23",
-&"next_id": "24",
-&"text": "Ask before you pull the soul from the socket.",
-&"type": "dialogue"
-},
 "24": {
-&"character": "Mount Whisperer",
 &"id": "24",
 &"next_id": "25",
-&"text": "Unmount first. Always.",
-&"type": "dialogue"
+&"text": "Why read the logs?",
+&"type": "response"
 },
 "25": {
 &"character": "Mount Whisperer",
 &"id": "25",
 &"next_id": "26",
-&"text": "Otherwise the logs have to tuck the fragments back into bed.",
+&"text": "Because mounted devices leave footprints in syslog.",
 &"type": "dialogue"
 },
 "26": {
+&"character": "Mount Whisperer",
 &"id": "26",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
+&"next_id": "27",
+&"text": "Every mount is a handshake. Every umount is a farewell.",
+&"type": "dialogue"
 },
 "27": {
+&"character": "Mount Whisperer",
 &"id": "27",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
+&"next_id": "28",
+&"text": "If you listen closely, the timestamps tell a story.",
+&"type": "dialogue"
+},
+"28": {
+&"character": "Mount Whisperer",
+&"id": "28",
+&"next_id": "29",
+&"text": "They whisper: \"Device connected. Filesystem checked. All good.\"",
+&"type": "dialogue"
+},
+"29": {
+&"character": "Mount Whisperer",
+&"id": "29",
+&"next_id": "30",
+&"text": "Or they scream: \"Critical error on /dev/sdb. LOST+FOUND created.\"",
+&"type": "dialogue"
 },
 "3": {
 &"character": "Mount Whisperer",
 &"id": "3",
 &"next_id": "5",
-&"text": "The logs pretend to be boring, but they keep tiny obituaries.",
+&"text": "The logs pretend to be boring, but they keep obituaries.",
+&"type": "dialogue"
+},
+"30": {
+&"id": "30",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"31": {
+&"id": "31",
+&"next_id": "32",
+&"text": "That is unsettling.",
+&"type": "response"
+},
+"32": {
+&"character": "Mount Whisperer",
+&"id": "32",
+&"next_id": "33",
+&"text": "mm. Cute, though.",
+&"type": "dialogue"
+},
+"33": {
+&"character": "Mount Whisperer",
+&"id": "33",
+&"next_id": "34",
+&"text": "Here, listen:",
+&"type": "dialogue"
+},
+"34": {
+&"character": "Mount Whisperer",
+&"id": "34",
+&"next_id": "35",
+&"text": "\"[kernel] mount: /dev/sda1 at /mnt/backup, ext4, clean attach.\"",
+&"type": "dialogue"
+},
+"35": {
+&"character": "Mount Whisperer",
+&"id": "35",
+&"next_id": "36",
+&"text": "\"[systemd] umount: /mnt/backup soft sync.\"",
+&"type": "dialogue"
+},
+"36": {
+&"character": "Mount Whisperer",
+&"id": "36",
+&"next_id": "37",
+&"text": "\"[dmesg] something small disconnected. The logs already miss it.\"",
+&"type": "dialogue"
+},
+"37": {
+&"id": "37",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"38": {
+&"id": "38",
+&"next_id": "39",
+&"text": "Any advice for handling drives?",
+&"type": "response"
+},
+"39": {
+&"character": "Mount Whisperer",
+&"id": "39",
+&"next_id": "40",
+&"text": "Never. Just rip out a USB drive.",
 &"type": "dialogue"
 },
 "4": {
@@ -165,10 +248,59 @@ lines = {
 &"next_id": "5",
 &"type": ""
 },
+"40": {
+&"character": "Mount Whisperer",
+&"id": "40",
+&"next_id": "41",
+&"text": "Always umount first. Always use 'sync' to be safe.",
+&"type": "dialogue"
+},
+"41": {
+&"character": "Mount Whisperer",
+&"id": "41",
+&"next_id": "42",
+&"text": "Even if the drive looks inactive, the kernel might be writing metadata.",
+&"type": "dialogue"
+},
+"42": {
+&"character": "Mount Whisperer",
+&"id": "42",
+&"next_id": "43",
+&"text": "Check with 'lsof' if files are still open on the mount.",
+&"type": "dialogue"
+},
+"43": {
+&"character": "Mount Whisperer",
+&"id": "43",
+&"next_id": "44",
+&"text": "Only then can you safely eject.",
+&"type": "dialogue"
+},
+"44": {
+&"character": "Mount Whisperer",
+&"id": "44",
+&"next_id": "45",
+&"text": "Otherwise the logs cry, and filesystems shatter.",
+&"type": "dialogue"
+},
+"45": {
+&"id": "45",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"46": {
+&"id": "46",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
 "5": {
 &"id": "5",
 &"next_id": "6",
-&"responses": PackedStringArray("5", "10", "15", "22"),
+&"responses": PackedStringArray("5", "11", "24", "31", "38"),
 &"text": "What do you hear?",
 &"type": "response"
 },
@@ -176,56 +308,75 @@ lines = {
 &"character": "Mount Whisperer",
 &"id": "6",
 &"next_id": "7",
-&"text": "Soft mountpoints padding through the dark.",
+&"text": "Soft mountpoints echoing through /mnt and /media.",
 &"type": "dialogue"
 },
 "7": {
 &"character": "Mount Whisperer",
 &"id": "7",
 &"next_id": "8",
-&"text": "A USB ghost asking whether it was ejected with love.",
+&"text": "A USB ghost asking: was I ejected with sync? Or carelessly ripped away?",
 &"type": "dialogue"
 },
 "8": {
 &"character": "Mount Whisperer",
 &"id": "8",
 &"next_id": "9",
-&"text": "Sometimes the answer is no, and the logs cry in hexadecimal.",
+&"text": "The answer lives in /var/log/syslog. It always does.",
 &"type": "dialogue"
 },
 "9": {
+&"character": "Mount Whisperer",
 &"id": "9",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
+&"next_id": "10",
+&"text": "Sometimes it says: \"clean eject.\" Sometimes: \"corruption detected.\"",
+&"type": "dialogue"
 }
 }
 raw_text = "~ start
 Mount Whisperer: shh... the drives are sleeping with one eye open.
-Mount Whisperer: When a volume clicks awake, I hear its little bones sing.
-Mount Whisperer: The logs pretend to be boring, but they keep tiny obituaries.
+Mount Whisperer: When a volume spins awake, I hear its little bones sing.
+Mount Whisperer: The logs pretend to be boring, but they keep obituaries.
 
 - What do you hear?
-	Mount Whisperer: Soft mountpoints padding through the dark.
-	Mount Whisperer: A USB ghost asking whether it was ejected with love.
-	Mount Whisperer: Sometimes the answer is no, and the logs cry in hexadecimal.
+	Mount Whisperer: Soft mountpoints echoing through /mnt and /media.
+	Mount Whisperer: A USB ghost asking: was I ejected with sync? Or carelessly ripped away?
+	Mount Whisperer: The answer lives in /var/log/syslog. It always does.
+	Mount Whisperer: Sometimes it says: \"clean eject.\" Sometimes: \"corruption detected.\"
+	=> END
+- Teach me about mounting
+	Mount Whisperer: Mounting is how the kernel connects storage to the filesystem.
+	Mount Whisperer: Without mount, a drive is just... a foreign thing.
+	Mount Whisperer: With mount, it becomes /mnt/usb or /media/external.
+	Mount Whisperer: All storage becomes part of one unified tree.
+	Mount Whisperer: Commands: 'mount' to see what's connected, 'mount /dev/sda1 /mnt/drive'
+	Mount Whisperer: And 'umount /mnt/drive' to safely disconnect.
+	- Why need umount first?
+		Mount Whisperer: Because removing a mounted drive while it's in use is violence.
+		Mount Whisperer: The kernel might still be writing. Data in transit lost forever.
+		Mount Whisperer: Umount flushes buffers, closes files, says goodbye correctly.
+		Mount Whisperer: Without it? Corruption. Lost inodes. Broken filesystems.
 	=> END
 - Why read the logs?
-	Mount Whisperer: Because mounted things leave footprints.
-	Mount Whisperer: And unmounted things leave absence, which is louder.
-	Mount Whisperer: If you listen closely, every \"device removed\" sounds like a goodbye kiss through static.
+	Mount Whisperer: Because mounted devices leave footprints in syslog.
+	Mount Whisperer: Every mount is a handshake. Every umount is a farewell.
+	Mount Whisperer: If you listen closely, the timestamps tell a story.
+	Mount Whisperer: They whisper: \"Device connected. Filesystem checked. All good.\"
+	Mount Whisperer: Or they scream: \"Critical error on /dev/sdb. LOST+FOUND created.\"
 	=> END
 - That is unsettling.
 	Mount Whisperer: mm. Cute, though.
 	Mount Whisperer: Here, listen:
-	Mount Whisperer: \"mount: clean attach.\"
-	Mount Whisperer: \"umount: soft sigh.\"
-	Mount Whisperer: \"kernel: something small waved from /var/log before it vanished.\"
+	Mount Whisperer: \"[kernel] mount: /dev/sda1 at /mnt/backup, ext4, clean attach.\"
+	Mount Whisperer: \"[systemd] umount: /mnt/backup soft sync.\"
+	Mount Whisperer: \"[dmesg] something small disconnected. The logs already miss it.\"
 	=> END
 - Any advice for handling drives?
-	Mount Whisperer: Ask before you pull the soul from the socket.
-	Mount Whisperer: Unmount first. Always.
-	Mount Whisperer: Otherwise the logs have to tuck the fragments back into bed.
+	Mount Whisperer: Never. Just rip out a USB drive.
+	Mount Whisperer: Always umount first. Always use 'sync' to be safe.
+	Mount Whisperer: Even if the drive looks inactive, the kernel might be writing metadata.
+	Mount Whisperer: Check with 'lsof' if files are still open on the mount.
+	Mount Whisperer: Only then can you safely eject.
+	Mount Whisperer: Otherwise the logs cry, and filesystems shatter.
 	=> END"
 metadata/dialogue_manager_version = "3.9.0"

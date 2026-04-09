@@ -13,6 +13,14 @@ var _visibility_poll_timer := 0.0
 var _last_scene_path := ""
 var _last_should_hide := {}
 
+func _is_lost_file_quest_completed() -> bool:
+	if not SceneManager or not SceneManager.quest_manager:
+		return false
+	var quest = SceneManager.quest_manager.get_quest(QUEST_ID)
+	if not quest:
+		return false
+	return String(quest.status) == "completed"
+
 func _ready():
 	if SceneManager and SceneManager.quest_manager:
 		SceneManager.quest_manager.quest_completed.connect(_on_quest_completed)
@@ -149,7 +157,7 @@ func _process(_delta: float) -> void:
 	if LOST_FILE_IN_HAMLET in current_scene.scene_file_path:
 		var lost_file_hamlet = current_scene.get_node_or_null("NPC/Lost File")
 		if lost_file_hamlet:
-			if SceneManager.helped_lost_file:
+			if SceneManager.helped_lost_file and _is_lost_file_quest_completed():
 				if not lost_file_hamlet.visible:
 					_set_npc_hidden_if_changed(current_scene, "NPC/Lost File", false)
 			else:

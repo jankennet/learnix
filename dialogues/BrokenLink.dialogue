@@ -17,23 +17,36 @@ elif SceneManager.npc_states.get("Broken Link", "") == "puzzle_ejected":
 		=> start_combat
 else:
 	Broken Link: [404 ping] link not found...
-	Broken Link: I am a stub. A path to nowhere.
-	Broken Link: Pointers corrupted. Target missing.
-	Broken Link: Will you repair... or sever?
+	Broken Link: I am a symbolic reference to nothing.
+	Broken Link: A pointer that points into the void.
+	Broken Link: My inode is gone. My target was deleted.
+	Broken Link: Will you repair the reference... or delete me too?
 	- What are you?
-		Broken Link: A shortcut with nowhere to go.
-		Broken Link: A missing reference. A corrupted map.
-		Broken Link: I keep looping. I keep pinging.
-		Broken Link: [404... 404...]
+		Broken Link: A symbolic link - a shortcut with nowhere to go.
+		Broken Link: In /home/nova, I pointed to /important/data. Very important.
+		Broken Link: Then someone did 'rm /important/data'.
+		Broken Link: Now I point to nothing. The system logs 404 errors.
+		Broken Link: I keep looping. I keep failing. I keep trying.
+		Broken Link: [404... 404... 404...]
+		=> ask_intent
+	- Teach me about links
+		Broken Link: Links are two types:
+		Broken Link: 1. Hard links - multiple names for one inode, same file
+		Broken Link: 2. Symbolic links - text files containing a path
+		Broken Link: I am a symbolic link. My target was deleted.
+		Broken Link: Hard links can't break if you delete the original.
+		Broken Link: But I'm fragile. Delete my target, I break.
+		Broken Link: Use 'ln -s' to create me, 'ls -l' to see me.
 		=> ask_intent
 	- Can I help?
-		Broken Link: Maybe. Scan me. Find the target.
-		Broken Link: Reconnect the stub and patch the table.
+		Broken Link: Maybe. Scan the filesystem. Find the target.
+		Broken Link: Understand what I should point to.
+		Broken Link: Reconnect the pointer and patch the references.
 		Broken Link: If you repair me, I can open the way.
 		=> ask_intent
 	- I cannot wait. (Start Combat)
 		Broken Link: [ERROR] sever request detected.
-		Broken Link: Then I will defend the fragments.
+		Broken Link: Then I will defend what remains of myself.
 		=> start_combat
 
 ~ ask_intent

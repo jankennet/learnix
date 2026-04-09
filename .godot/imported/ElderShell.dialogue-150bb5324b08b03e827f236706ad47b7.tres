@@ -41,7 +41,7 @@ lines = {
 },
 &"id": "1",
 &"next_id": "2",
-&"next_id_after": "28",
+&"next_id_after": "37",
 &"next_sibling_id": "12",
 &"type": "condition"
 },
@@ -49,7 +49,7 @@ lines = {
 &"condition": {},
 &"id": "10",
 &"next_id": "11",
-&"next_id_after": "28",
+&"next_id_after": "37",
 &"type": "condition"
 },
 "11": {
@@ -63,7 +63,7 @@ lines = {
 &"condition": {},
 &"id": "12",
 &"next_id": "13",
-&"next_id_after": "28",
+&"next_id_after": "37",
 &"type": "condition"
 },
 "13": {
@@ -84,13 +84,13 @@ lines = {
 &"character": "Elder Shell",
 &"id": "15",
 &"next_id": "16",
-&"text": "Linux rewards patience.",
+&"text": "Linux rewards patience. The shell is your teacher.",
 &"type": "dialogue"
 },
 "16": {
 &"id": "16",
 &"next_id": "17",
-&"responses": PackedStringArray("16", "20", "23"),
+&"responses": PackedStringArray("16", "24", "28"),
 &"text": "Teach me",
 &"type": "response"
 },
@@ -105,14 +105,14 @@ lines = {
 &"character": "Elder Shell",
 &"id": "18",
 &"next_id": "19",
-&"text": "Files live in directories. Order brings stability.",
+&"text": "The filesystem is organized like a tree - root (/) at the top.",
 &"type": "dialogue"
 },
 "19": {
 &"character": "Elder Shell",
 &"id": "19",
-&"next_id": "25",
-&"text": "Speak to the Messy Directory. She knows loss.",
+&"next_id": "20",
+&"text": "Directories: /home for users, /etc for configs, /bin for commands.",
 &"type": "dialogue"
 },
 "2": {
@@ -123,84 +123,72 @@ lines = {
 &"type": "dialogue"
 },
 "20": {
+&"character": "Elder Shell",
 &"id": "20",
 &"next_id": "21",
-&"text": "What happened here?",
-&"type": "response"
+&"text": "Everything in Linux is a file or a process.",
+&"type": "dialogue"
 },
 "21": {
 &"character": "Elder Shell",
 &"id": "21",
 &"next_id": "22",
-&"text": "Files were deleted in haste.",
+&"text": "Files have ownership: user, group, and permissions (rwx).",
 &"type": "dialogue"
 },
 "22": {
 &"character": "Elder Shell",
 &"id": "22",
-&"next_id": "25",
-&"text": "Some deserved removal. Others did not.",
+&"next_id": "23",
+&"text": "Use 'ls -la' to see permissions. Know who can do what.",
 &"type": "dialogue"
 },
 "23": {
-&"id": "23",
-&"next_id": "24",
-&"text": "Any advice?",
-&"type": "response"
-},
-"24": {
 &"character": "Elder Shell",
-&"id": "24",
-&"next_id": "25",
-&"text": "Never run a command you do not understand.",
+&"id": "23",
+&"next_id": "34",
+&"text": "Speak to Messy Directory. She learned the price of carelessness.",
 &"type": "dialogue"
 },
-"25": {
-&"id": "25",
-&"mutation": {
-&"expression": Array[Dictionary]([{
-&"i": 4,
-&"type": &"variable",
-&"value": "SceneManager"
-}, {
-&"i": 16,
-&"type": &"dot"
-}, {
-&"i": 17,
-&"type": &"variable",
-&"value": "met_elder_shell"
-}, {
-&"i": 33,
-&"type": &"assignment",
-&"value": "="
-}, {
-&"i": 35,
-&"type": &"variable",
-&"value": "true"
-}]),
-&"is_blocking": true
+"24": {
+&"id": "24",
+&"next_id": "25",
+&"text": "What happened here?",
+&"type": "response"
 },
+"25": {
+&"character": "Elder Shell",
+&"id": "25",
 &"next_id": "26",
-&"type": "mutation"
+&"text": "Files were deleted in haste. Rm -rf is a dangerous command.",
+&"type": "dialogue"
 },
 "26": {
+&"character": "Elder Shell",
 &"id": "26",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
+&"next_id": "27",
+&"text": "Some files deserved removal. Others were innocents caught in the blast.",
+&"type": "dialogue"
 },
 "27": {
+&"character": "Elder Shell",
 &"id": "27",
-&"next_id": "28",
-&"type": ""
+&"next_id": "34",
+&"text": "The Lost File was a critical document. Someone thought it was junk.",
+&"type": "dialogue"
 },
 "28": {
 &"id": "28",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
+&"next_id": "29",
+&"text": "Any advice?",
+&"type": "response"
+},
+"29": {
+&"character": "Elder Shell",
+&"id": "29",
+&"next_id": "30",
+&"text": "Never run a command you do not understand.",
+&"type": "dialogue"
 },
 "3": {
 &"condition": {
@@ -227,9 +215,84 @@ lines = {
 },
 &"id": "3",
 &"next_id": "4",
-&"next_id_after": "28",
+&"next_id_after": "37",
 &"next_sibling_id": "10",
 &"type": "condition"
+},
+"30": {
+&"character": "Elder Shell",
+&"id": "30",
+&"next_id": "31",
+&"text": "Always preview what you're deleting: 'ls' before 'rm'.",
+&"type": "dialogue"
+},
+"31": {
+&"character": "Elder Shell",
+&"id": "31",
+&"next_id": "32",
+&"text": "Consider using trash systems instead of permanent deletion.",
+&"type": "dialogue"
+},
+"32": {
+&"character": "Elder Shell",
+&"id": "32",
+&"next_id": "33",
+&"text": "And remember: root access is power. Use it wisely, or not at all.",
+&"type": "dialogue"
+},
+"33": {
+&"character": "Elder Shell",
+&"id": "33",
+&"next_id": "34",
+&"text": "The oldest shells have seen empires fall on a single typo.",
+&"type": "dialogue"
+},
+"34": {
+&"id": "34",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"i": 4,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 16,
+&"type": &"dot"
+}, {
+&"i": 17,
+&"type": &"variable",
+&"value": "met_elder_shell"
+}, {
+&"i": 33,
+&"type": &"assignment",
+&"value": "="
+}, {
+&"i": 35,
+&"type": &"variable",
+&"value": "true"
+}]),
+&"is_blocking": true
+},
+&"next_id": "35",
+&"type": "mutation"
+},
+"35": {
+&"id": "35",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"36": {
+&"id": "36",
+&"next_id": "37",
+&"type": ""
+},
+"37": {
+&"id": "37",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
 },
 "4": {
 &"id": "4",
@@ -255,7 +318,7 @@ lines = {
 "7": {
 &"character": "Elder Shell",
 &"id": "7",
-&"next_id": "28",
+&"next_id": "37",
 &"text": "Respect the function, and the function respects you.",
 &"type": "dialogue"
 },
@@ -288,16 +351,25 @@ if SceneManager.met_elder_shell == true:
 else:
 	Elder Shell: Ah… a new process enters the loop.
 	Elder Shell: Sit, Nova. Observe before you execute.
-	Elder Shell: Linux rewards patience.
+	Elder Shell: Linux rewards patience. The shell is your teacher.
 	- Teach me
 		Elder Shell: Begin with understanding structure.
-		Elder Shell: Files live in directories. Order brings stability.
-		Elder Shell: Speak to the Messy Directory. She knows loss.
+		Elder Shell: The filesystem is organized like a tree - root (/) at the top.
+		Elder Shell: Directories: /home for users, /etc for configs, /bin for commands.
+		Elder Shell: Everything in Linux is a file or a process.
+		Elder Shell: Files have ownership: user, group, and permissions (rwx).
+		Elder Shell: Use 'ls -la' to see permissions. Know who can do what.
+		Elder Shell: Speak to Messy Directory. She learned the price of carelessness.
 	- What happened here?
-		Elder Shell: Files were deleted in haste.
-		Elder Shell: Some deserved removal. Others did not.
+		Elder Shell: Files were deleted in haste. Rm -rf is a dangerous command.
+		Elder Shell: Some files deserved removal. Others were innocents caught in the blast.
+		Elder Shell: The Lost File was a critical document. Someone thought it was junk.
 	- Any advice?
 		Elder Shell: Never run a command you do not understand.
+		Elder Shell: Always preview what you're deleting: 'ls' before 'rm'.
+		Elder Shell: Consider using trash systems instead of permanent deletion.
+		Elder Shell: And remember: root access is power. Use it wisely, or not at all.
+		Elder Shell: The oldest shells have seen empires fall on a single typo.
 	set SceneManager.met_elder_shell = true
 	=> END
 "

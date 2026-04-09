@@ -7,26 +7,26 @@ script = ExtResource("1_gdwxk")
 using_states = PackedStringArray()
 titles = {
 "nova_where": "1",
-"q1": "36",
-"q10": "135",
-"q11": "146",
-"q12": "157",
-"q13": "168",
-"q14": "179",
-"q15": "190",
-"q2": "47",
-"q3": "58",
-"q4": "69",
-"q5": "80",
-"q6": "91",
-"q7": "102",
-"q8": "113",
-"q9": "124",
-"quiz_pass": "201",
-"quiz_wrong": "207",
+"q1": "39",
+"q10": "138",
+"q11": "149",
+"q12": "160",
+"q13": "171",
+"q14": "182",
+"q15": "193",
+"q2": "50",
+"q3": "61",
+"q4": "72",
+"q5": "83",
+"q6": "94",
+"q7": "105",
+"q8": "116",
+"q9": "127",
+"quiz_pass": "204",
+"quiz_wrong": "210",
 "sage_intro": "12",
 "sage_rules": "5",
-"sage_skill_check": "18"
+"sage_skill_check": "21"
 }
 character_names = PackedStringArray("Nova", "Sage")
 first_title = "0"
@@ -50,37 +50,57 @@ lines = {
 },
 "100": {
 &"id": "100",
-&"next_id": "101",
-&"type": ""
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
 },
 "101": {
 &"id": "101",
 &"next_id": "102",
-&"type": "title"
+&"text": "A second proficiency key",
+&"type": "response"
 },
 "102": {
-&"character": "Sage",
 &"id": "102",
-&"next_id": "103",
-&"text": "How many fragments was Lost File split into?",
-&"type": "dialogue"
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
 },
 "103": {
 &"id": "103",
 &"next_id": "104",
-&"responses": PackedStringArray("103", "107", "109"),
+&"type": ""
+},
+"104": {
+&"id": "104",
+&"next_id": "105",
+&"type": "title"
+},
+"105": {
+&"character": "Sage",
+&"id": "105",
+&"next_id": "106",
+&"text": "How many fragments was Lost File split into?",
+&"type": "dialogue"
+},
+"106": {
+&"id": "106",
+&"next_id": "107",
+&"responses": PackedStringArray("106", "110", "112"),
 &"text": "Multiple encrypted pieces",
 &"type": "response"
 },
-"104": {
+"107": {
 &"character": "Sage",
-&"id": "104",
-&"next_id": "105",
+&"id": "107",
+&"next_id": "108",
 &"text": "Correct.",
 &"type": "dialogue"
 },
-"105": {
-&"id": "105",
+"108": {
+&"id": "108",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "show_next_question",
@@ -93,34 +113,15 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "106",
+&"next_id": "109",
 &"type": "mutation"
 },
-"106": {
-&"id": "106",
+"109": {
+&"id": "109",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
-},
-"107": {
-&"id": "107",
-&"next_id": "108",
-&"text": "Just one hidden file",
-&"type": "response"
-},
-"108": {
-&"id": "108",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
-},
-"109": {
-&"id": "109",
-&"next_id": "110",
-&"text": "Seven parts exactly",
-&"type": "response"
 },
 "11": {
 &"id": "11",
@@ -129,44 +130,63 @@ lines = {
 },
 "110": {
 &"id": "110",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
+&"next_id": "111",
+&"text": "Just one hidden file",
+&"type": "response"
 },
 "111": {
 &"id": "111",
-&"next_id": "112",
-&"type": ""
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
 },
 "112": {
 &"id": "112",
 &"next_id": "113",
-&"type": "title"
+&"text": "Seven parts exactly",
+&"type": "response"
 },
 "113": {
-&"character": "Sage",
 &"id": "113",
-&"next_id": "114",
-&"text": "What's the goal of debugging Broken Link?",
-&"type": "dialogue"
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
 },
 "114": {
 &"id": "114",
 &"next_id": "115",
-&"responses": PackedStringArray("114", "118", "120"),
+&"type": ""
+},
+"115": {
+&"id": "115",
+&"next_id": "116",
+&"type": "title"
+},
+"116": {
+&"character": "Sage",
+&"id": "116",
+&"next_id": "117",
+&"text": "What's the goal of debugging Broken Link?",
+&"type": "dialogue"
+},
+"117": {
+&"id": "117",
+&"next_id": "118",
+&"responses": PackedStringArray("117", "121", "123"),
 &"text": "Restore it to working condition and earn trust",
 &"type": "response"
 },
-"115": {
+"118": {
 &"character": "Sage",
-&"id": "115",
-&"next_id": "116",
+&"id": "118",
+&"next_id": "119",
 &"text": "Correct.",
 &"type": "dialogue"
 },
-"116": {
-&"id": "116",
+"119": {
+&"id": "119",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "show_next_question",
@@ -179,28 +199,8 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "117",
+&"next_id": "120",
 &"type": "mutation"
-},
-"117": {
-&"id": "117",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
-},
-"118": {
-&"id": "118",
-&"next_id": "119",
-&"text": "Delete it completely",
-&"type": "response"
-},
-"119": {
-&"id": "119",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
 },
 "12": {
 &"character": "Sage",
@@ -211,138 +211,77 @@ lines = {
 },
 "120": {
 &"id": "120",
-&"next_id": "121",
-&"text": "Ignore it entirely",
-&"type": "response"
-},
-"121": {
-&"id": "121",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
-},
-"122": {
-&"id": "122",
-&"next_id": "123",
-&"type": ""
-},
-"123": {
-&"id": "123",
-&"next_id": "124",
-&"type": "title"
-},
-"124": {
-&"character": "Sage",
-&"id": "124",
-&"next_id": "125",
-&"text": "What proves Broken Link was helped?",
-&"type": "dialogue"
-},
-"125": {
-&"id": "125",
-&"next_id": "126",
-&"responses": PackedStringArray("125", "129", "131"),
-&"text": "Proficiency key from Broken Link",
-&"type": "response"
-},
-"126": {
-&"character": "Sage",
-&"id": "126",
-&"next_id": "127",
-&"text": "Correct.",
-&"type": "dialogue"
-},
-"127": {
-&"id": "127",
-&"mutation": {
-&"expression": Array[Dictionary]([{
-&"function": "show_next_question",
-&"i": 3,
-&"type": &"function",
-&"value": Array[Array]([Array[Dictionary]([{
-&"i": 22,
-&"type": &"parens_close"
-}])])
-}]),
-&"is_blocking": true
-},
-&"next_id": "128",
-&"type": "mutation"
-},
-"128": {
-&"id": "128",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
+"121": {
+&"id": "121",
+&"next_id": "122",
+&"text": "Delete it completely",
+&"type": "response"
+},
+"122": {
+&"id": "122",
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
+},
+"123": {
+&"id": "123",
+&"next_id": "124",
+&"text": "Ignore it entirely",
+&"type": "response"
+},
+"124": {
+&"id": "124",
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
+},
+"125": {
+&"id": "125",
+&"next_id": "126",
+&"type": ""
+},
+"126": {
+&"id": "126",
+&"next_id": "127",
+&"type": "title"
+},
+"127": {
+&"character": "Sage",
+&"id": "127",
+&"next_id": "128",
+&"text": "What proves Broken Link was helped?",
+&"type": "dialogue"
+},
+"128": {
+&"id": "128",
+&"next_id": "129",
+&"responses": PackedStringArray("128", "132", "134"),
+&"text": "Proficiency key from Broken Link",
+&"type": "response"
+},
 "129": {
+&"character": "Sage",
 &"id": "129",
 &"next_id": "130",
-&"text": "Fragmented key only",
-&"type": "response"
+&"text": "Correct.",
+&"type": "dialogue"
 },
 "13": {
 &"character": "Sage",
 &"id": "13",
 &"next_id": "14",
-&"text": "I guard boot protocols.",
+&"text": "I guard the most fundamental layer - the boot protocols.",
 &"type": "dialogue"
 },
 "130": {
 &"id": "130",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
-},
-"131": {
-&"id": "131",
-&"next_id": "132",
-&"text": "Sudo token",
-&"type": "response"
-},
-"132": {
-&"id": "132",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
-},
-"133": {
-&"id": "133",
-&"next_id": "134",
-&"type": ""
-},
-"134": {
-&"id": "134",
-&"next_id": "135",
-&"type": "title"
-},
-"135": {
-&"character": "Sage",
-&"id": "135",
-&"next_id": "136",
-&"text": "Who grants the sudo token path?",
-&"type": "dialogue"
-},
-"136": {
-&"id": "136",
-&"next_id": "137",
-&"responses": PackedStringArray("136", "140", "142"),
-&"text": "Driver Remnant",
-&"type": "response"
-},
-"137": {
-&"character": "Sage",
-&"id": "137",
-&"next_id": "138",
-&"text": "Correct.",
-&"type": "dialogue"
-},
-"138": {
-&"id": "138",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "show_next_question",
@@ -355,82 +294,170 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "139",
+&"next_id": "131",
 &"type": "mutation"
 },
-"139": {
-&"id": "139",
+"131": {
+&"id": "131",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
+},
+"132": {
+&"id": "132",
+&"next_id": "133",
+&"text": "Fragmented key only",
+&"type": "response"
+},
+"133": {
+&"id": "133",
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
+},
+"134": {
+&"id": "134",
+&"next_id": "135",
+&"text": "Sudo token",
+&"type": "response"
+},
+"135": {
+&"id": "135",
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
+},
+"136": {
+&"id": "136",
+&"next_id": "137",
+&"type": ""
+},
+"137": {
+&"id": "137",
+&"next_id": "138",
+&"type": "title"
+},
+"138": {
+&"character": "Sage",
+&"id": "138",
+&"next_id": "139",
+&"text": "Who grants the sudo token path?",
+&"type": "dialogue"
+},
+"139": {
+&"id": "139",
+&"next_id": "140",
+&"responses": PackedStringArray("139", "143", "145"),
+&"text": "Driver Remnant",
+&"type": "response"
 },
 "14": {
 &"character": "Sage",
 &"id": "14",
 &"next_id": "15",
-&"text": "Quick check—show me what you’ve learned.",
+&"text": "BIOS is the firmware that initializes hardware before OS loads.",
 &"type": "dialogue"
 },
 "140": {
+&"character": "Sage",
 &"id": "140",
 &"next_id": "141",
-&"text": "Printer Beast",
-&"type": "response"
+&"text": "Correct.",
+&"type": "dialogue"
 },
 "141": {
 &"id": "141",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"function": "show_next_question",
+&"i": 3,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 22,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "142",
+&"type": "mutation"
 },
 "142": {
 &"id": "142",
-&"next_id": "143",
-&"text": "Hardware Ghost",
-&"type": "response"
-},
-"143": {
-&"id": "143",
 &"is_snippet": false,
-&"next_id": "207",
+&"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
+"143": {
+&"id": "143",
+&"next_id": "144",
+&"text": "Printer Beast",
+&"type": "response"
+},
 "144": {
 &"id": "144",
-&"next_id": "145",
-&"type": ""
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
 },
 "145": {
 &"id": "145",
 &"next_id": "146",
-&"type": "title"
+&"text": "Hardware Ghost",
+&"type": "response"
 },
 "146": {
-&"character": "Sage",
 &"id": "146",
-&"next_id": "147",
-&"text": "What's the role of Elder Shell?",
-&"type": "dialogue"
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
 },
 "147": {
 &"id": "147",
 &"next_id": "148",
-&"responses": PackedStringArray("147", "151", "153"),
+&"type": ""
+},
+"148": {
+&"id": "148",
+&"next_id": "149",
+&"type": "title"
+},
+"149": {
+&"character": "Sage",
+&"id": "149",
+&"next_id": "150",
+&"text": "What's the role of Elder Shell?",
+&"type": "dialogue"
+},
+"15": {
+&"character": "Sage",
+&"id": "15",
+&"next_id": "16",
+&"text": "It sets the foundation for everything the kernel will do.",
+&"type": "dialogue"
+},
+"150": {
+&"id": "150",
+&"next_id": "151",
+&"responses": PackedStringArray("150", "154", "156"),
 &"text": "Guardian of wisdom, grants access if respected",
 &"type": "response"
 },
-"148": {
+"151": {
 &"character": "Sage",
-&"id": "148",
-&"next_id": "149",
+&"id": "151",
+&"next_id": "152",
 &"text": "Correct.",
 &"type": "dialogue"
 },
-"149": {
-&"id": "149",
+"152": {
+&"id": "152",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "show_next_question",
@@ -443,87 +470,82 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "150",
+&"next_id": "153",
 &"type": "mutation"
-},
-"15": {
-&"id": "15",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
-},
-"150": {
-&"id": "150",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
-},
-"151": {
-&"id": "151",
-&"next_id": "152",
-&"text": "Direct enemy blocking progress",
-&"type": "response"
-},
-"152": {
-&"id": "152",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
 },
 "153": {
 &"id": "153",
-&"next_id": "154",
-&"text": "Irrelevant to the main path",
-&"type": "response"
-},
-"154": {
-&"id": "154",
 &"is_snippet": false,
-&"next_id": "207",
+&"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
+"154": {
+&"id": "154",
+&"next_id": "155",
+&"text": "Direct enemy blocking progress",
+&"type": "response"
+},
 "155": {
 &"id": "155",
-&"next_id": "156",
-&"type": ""
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
 },
 "156": {
 &"id": "156",
 &"next_id": "157",
-&"type": "title"
+&"text": "Irrelevant to the main path",
+&"type": "response"
 },
 "157": {
-&"character": "Sage",
 &"id": "157",
-&"next_id": "158",
-&"text": "How does reputation affect combat?",
-&"type": "dialogue"
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
 },
 "158": {
 &"id": "158",
 &"next_id": "159",
-&"responses": PackedStringArray("158", "162", "164"),
+&"type": ""
+},
+"159": {
+&"id": "159",
+&"next_id": "160",
+&"type": "title"
+},
+"16": {
+&"character": "Sage",
+&"id": "16",
+&"next_id": "17",
+&"text": "I am here to verify that you understand this system's core.",
+&"type": "dialogue"
+},
+"160": {
+&"character": "Sage",
+&"id": "160",
+&"next_id": "161",
+&"text": "How does reputation affect combat?",
+&"type": "dialogue"
+},
+"161": {
+&"id": "161",
+&"next_id": "162",
+&"responses": PackedStringArray("161", "165", "167"),
 &"text": "Good karma makes some encounters optional",
 &"type": "response"
 },
-"159": {
+"162": {
 &"character": "Sage",
-&"id": "159",
-&"next_id": "160",
+&"id": "162",
+&"next_id": "163",
 &"text": "Correct.",
 &"type": "dialogue"
 },
-"16": {
-&"id": "16",
-&"next_id": "17",
-&"type": ""
-},
-"160": {
-&"id": "160",
+"163": {
+&"id": "163",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "show_next_question",
@@ -536,80 +558,82 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "161",
+&"next_id": "164",
 &"type": "mutation"
 },
-"161": {
-&"id": "161",
+"164": {
+&"id": "164",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"162": {
-&"id": "162",
-&"next_id": "163",
+"165": {
+&"id": "165",
+&"next_id": "166",
 &"text": "Reputation doesn't matter",
 &"type": "response"
 },
-"163": {
-&"id": "163",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
-},
-"164": {
-&"id": "164",
-&"next_id": "165",
-&"text": "Bad reputation gives you special powers",
-&"type": "response"
-},
-"165": {
-&"id": "165",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
-},
 "166": {
 &"id": "166",
-&"next_id": "167",
-&"type": ""
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
 },
 "167": {
 &"id": "167",
 &"next_id": "168",
-&"type": "title"
+&"text": "Bad reputation gives you special powers",
+&"type": "response"
 },
 "168": {
-&"character": "Sage",
 &"id": "168",
-&"next_id": "169",
-&"text": "What do Messy Directory's fragments track?",
-&"type": "dialogue"
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
 },
 "169": {
 &"id": "169",
 &"next_id": "170",
-&"responses": PackedStringArray("169", "173", "175"),
+&"type": ""
+},
+"17": {
+&"character": "Sage",
+&"id": "17",
+&"next_id": "18",
+&"text": "Let's begin with a knowledge check.",
+&"type": "dialogue"
+},
+"170": {
+&"id": "170",
+&"next_id": "171",
+&"type": "title"
+},
+"171": {
+&"character": "Sage",
+&"id": "171",
+&"next_id": "172",
+&"text": "What do Messy Directory's fragments track?",
+&"type": "dialogue"
+},
+"172": {
+&"id": "172",
+&"next_id": "173",
+&"responses": PackedStringArray("172", "176", "178"),
 &"text": "System disorganization and corruption patterns",
 &"type": "response"
 },
-"17": {
-&"id": "17",
-&"next_id": "18",
-&"type": "title"
-},
-"170": {
+"173": {
 &"character": "Sage",
-&"id": "170",
-&"next_id": "171",
+&"id": "173",
+&"next_id": "174",
 &"text": "Correct.",
 &"type": "dialogue"
 },
-"171": {
-&"id": "171",
+"174": {
+&"id": "174",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "show_next_question",
@@ -622,61 +646,288 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "172",
+&"next_id": "175",
 &"type": "mutation"
 },
-"172": {
-&"id": "172",
+"175": {
+&"id": "175",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"173": {
-&"id": "173",
-&"next_id": "174",
+"176": {
+&"id": "176",
+&"next_id": "177",
 &"text": "Player progress only",
 &"type": "response"
 },
-"174": {
-&"id": "174",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
-},
-"175": {
-&"id": "175",
-&"next_id": "176",
-&"text": "Gate Keeper's location",
-&"type": "response"
-},
-"176": {
-&"id": "176",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
-},
 "177": {
 &"id": "177",
-&"next_id": "178",
-&"type": ""
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
 },
 "178": {
 &"id": "178",
 &"next_id": "179",
-&"type": "title"
+&"text": "Gate Keeper's location",
+&"type": "response"
 },
 "179": {
-&"character": "Sage",
 &"id": "179",
-&"next_id": "180",
-&"text": "What's the safest trust path through the Vault?",
-&"type": "dialogue"
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
 },
 "18": {
 &"id": "18",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"180": {
+&"id": "180",
+&"next_id": "181",
+&"type": ""
+},
+"181": {
+&"id": "181",
+&"next_id": "182",
+&"type": "title"
+},
+"182": {
+&"character": "Sage",
+&"id": "182",
+&"next_id": "183",
+&"text": "What's the safest trust path through the Vault?",
+&"type": "dialogue"
+},
+"183": {
+&"id": "183",
+&"next_id": "184",
+&"responses": PackedStringArray("183", "187", "189"),
+&"text": "Help causes, ignore hostile options, gather keys",
+&"type": "response"
+},
+"184": {
+&"character": "Sage",
+&"id": "184",
+&"next_id": "185",
+&"text": "Correct.",
+&"type": "dialogue"
+},
+"185": {
+&"id": "185",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"function": "show_next_question",
+&"i": 3,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 22,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "186",
+&"type": "mutation"
+},
+"186": {
+&"id": "186",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"187": {
+&"id": "187",
+&"next_id": "188",
+&"text": "Maximize combat encounters for profit",
+&"type": "response"
+},
+"188": {
+&"id": "188",
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
+},
+"189": {
+&"id": "189",
+&"next_id": "190",
+&"text": "Trust no one, delete everything",
+&"type": "response"
+},
+"19": {
+&"id": "19",
+&"next_id": "20",
+&"type": ""
+},
+"190": {
+&"id": "190",
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
+},
+"191": {
+&"id": "191",
+&"next_id": "192",
+&"type": ""
+},
+"192": {
+&"id": "192",
+&"next_id": "193",
+&"type": "title"
+},
+"193": {
+&"character": "Sage",
+&"id": "193",
+&"next_id": "194",
+&"text": "What's the meta-challenge of the Vault?",
+&"type": "dialogue"
+},
+"194": {
+&"id": "194",
+&"next_id": "195",
+&"responses": PackedStringArray("194", "198", "200"),
+&"text": "Balancing system integrity with survival",
+&"type": "response"
+},
+"195": {
+&"character": "Sage",
+&"id": "195",
+&"next_id": "196",
+&"text": "Correct.",
+&"type": "dialogue"
+},
+"196": {
+&"id": "196",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"function": "show_next_question",
+&"i": 3,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 22,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "197",
+&"type": "mutation"
+},
+"197": {
+&"id": "197",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"198": {
+&"id": "198",
+&"next_id": "199",
+&"text": "Maximizing combat encounters",
+&"type": "response"
+},
+"199": {
+&"id": "199",
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
+},
+"2": {
+&"id": "2",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"20": {
+&"id": "20",
+&"next_id": "21",
+&"type": "title"
+},
+"200": {
+&"id": "200",
+&"next_id": "201",
+&"text": "Breaking all established rules",
+&"type": "response"
+},
+"201": {
+&"id": "201",
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
+},
+"202": {
+&"id": "202",
+&"next_id": "203",
+&"type": ""
+},
+"203": {
+&"id": "203",
+&"next_id": "204",
+&"type": "title"
+},
+"204": {
+&"character": "Sage",
+&"id": "204",
+&"next_id": "205",
+&"text": "Nice. You pass.",
+&"type": "dialogue"
+},
+"205": {
+&"character": "Sage",
+&"id": "205",
+&"next_id": "206",
+&"text": "Access posture updated to trusted.",
+&"type": "dialogue"
+},
+"206": {
+&"id": "206",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"function": "mark_sage_quiz_passed",
+&"i": 3,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 25,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "207",
+&"type": "mutation"
+},
+"207": {
+&"id": "207",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"208": {
+&"id": "208",
+&"next_id": "209",
+&"type": ""
+},
+"209": {
+&"id": "209",
+&"next_id": "210",
+&"type": "title"
+},
+"21": {
+&"id": "21",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "reset_sage_quiz_attempts",
@@ -689,84 +940,137 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "19",
+&"next_id": "22",
 &"type": "mutation"
 },
-"180": {
-&"id": "180",
-&"next_id": "181",
-&"responses": PackedStringArray("180", "184", "186"),
-&"text": "Help causes, ignore hostile options, gather keys",
-&"type": "response"
-},
-"181": {
-&"character": "Sage",
-&"id": "181",
-&"next_id": "182",
-&"text": "Correct.",
-&"type": "dialogue"
-},
-"182": {
-&"id": "182",
+"210": {
+&"id": "210",
 &"mutation": {
 &"expression": Array[Dictionary]([{
-&"function": "show_next_question",
+&"function": "register_sage_quiz_fail",
 &"i": 3,
 &"type": &"function",
 &"value": Array[Array]([Array[Dictionary]([{
-&"i": 22,
+&"i": 27,
 &"type": &"parens_close"
 }])])
 }]),
 &"is_blocking": true
 },
-&"next_id": "183",
+&"next_id": "211",
 &"type": "mutation"
 },
-"183": {
-&"id": "183",
+"211": {
+&"condition": {
+&"expression": Array[Dictionary]([{
+&"i": 3,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 15,
+&"type": &"dot"
+}, {
+&"i": 16,
+&"type": &"variable",
+&"value": "sage_force_combat"
+}, {
+&"i": 34,
+&"type": &"comparison",
+&"value": "=="
+}, {
+&"i": 37,
+&"type": &"variable",
+&"value": "true"
+}])
+},
+&"id": "211",
+&"next_id": "212",
+&"next_id_after": "226",
+&"next_sibling_id": "216",
+&"type": "condition"
+},
+"212": {
+&"character": "Sage",
+&"id": "212",
+&"next_id": "213",
+&"text": "Three wrong answers logged.",
+&"type": "dialogue"
+},
+"213": {
+&"character": "Sage",
+&"id": "213",
+&"next_id": "214",
+&"text": "Combat verification begins now.",
+&"type": "dialogue"
+},
+"214": {
+&"id": "214",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"function": "start_sage_combat",
+&"i": 3,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 21,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "215",
+&"type": "mutation"
+},
+"215": {
+&"id": "215",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"184": {
-&"id": "184",
-&"next_id": "185",
-&"text": "Maximize combat encounters for profit",
+"216": {
+&"condition": {},
+&"id": "216",
+&"next_id": "217",
+&"next_id_after": "226",
+&"type": "condition"
+},
+"217": {
+&"character": "Sage",
+&"id": "217",
+&"next_id": "218",
+&"text": "Not quite.",
+&"type": "dialogue"
+},
+"218": {
+&"character": "Sage",
+&"id": "218",
+&"next_id": "219",
+&"text": "Wrong count: {{SceneManager.sage_quiz_fail_count}} / 3.",
+&"text_replacements": Array[Dictionary]([{
+&"expression": Array[Dictionary]([{
+&"i": 22,
+&"type": &"variable",
+&"value": "SceneManager"
+}, {
+&"i": 34,
+&"type": &"dot"
+}, {
+&"i": 35,
+&"type": &"variable",
+&"value": "sage_quiz_fail_count"
+}]),
+&"value_in_text": "{{SceneManager.sage_quiz_fail_count}}"
+}]),
+&"type": "dialogue"
+},
+"219": {
+&"id": "219",
+&"next_id": "220",
+&"responses": PackedStringArray("219", "222"),
+&"text": "Try next question.",
 &"type": "response"
 },
-"185": {
-&"id": "185",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
-},
-"186": {
-&"id": "186",
-&"next_id": "187",
-&"text": "Trust no one, delete everything",
-&"type": "response"
-},
-"187": {
-&"id": "187",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
-},
-"188": {
-&"id": "188",
-&"next_id": "189",
-&"type": ""
-},
-"189": {
-&"id": "189",
-&"next_id": "190",
-&"type": "title"
-},
-"19": {
+"22": {
 &"condition": {
 &"expression": Array[Dictionary]([{
 &"i": 3,
@@ -812,345 +1116,21 @@ lines = {
 &"value": "true"
 }])
 },
-&"id": "19",
-&"next_id": "20",
-&"next_id_after": "35",
-&"next_sibling_id": "24",
-&"type": "condition"
-},
-"190": {
-&"character": "Sage",
-&"id": "190",
-&"next_id": "191",
-&"text": "What's the meta-challenge of the Vault?",
-&"type": "dialogue"
-},
-"191": {
-&"id": "191",
-&"next_id": "192",
-&"responses": PackedStringArray("191", "195", "197"),
-&"text": "Balancing system integrity with survival",
-&"type": "response"
-},
-"192": {
-&"character": "Sage",
-&"id": "192",
-&"next_id": "193",
-&"text": "Correct.",
-&"type": "dialogue"
-},
-"193": {
-&"id": "193",
-&"mutation": {
-&"expression": Array[Dictionary]([{
-&"function": "show_next_question",
-&"i": 3,
-&"type": &"function",
-&"value": Array[Array]([Array[Dictionary]([{
-&"i": 22,
-&"type": &"parens_close"
-}])])
-}]),
-&"is_blocking": true
-},
-&"next_id": "194",
-&"type": "mutation"
-},
-"194": {
-&"id": "194",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
-},
-"195": {
-&"id": "195",
-&"next_id": "196",
-&"text": "Maximizing combat encounters",
-&"type": "response"
-},
-"196": {
-&"id": "196",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
-},
-"197": {
-&"id": "197",
-&"next_id": "198",
-&"text": "Breaking all established rules",
-&"type": "response"
-},
-"198": {
-&"id": "198",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
-},
-"199": {
-&"id": "199",
-&"next_id": "200",
-&"type": ""
-},
-"2": {
-&"id": "2",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
-},
-"20": {
-&"character": "Sage",
-&"id": "20",
-&"next_id": "21",
-&"text": "Your log reads hostile.",
-&"type": "dialogue"
-},
-"200": {
-&"id": "200",
-&"next_id": "201",
-&"type": "title"
-},
-"201": {
-&"character": "Sage",
-&"id": "201",
-&"next_id": "202",
-&"text": "Nice. You pass.",
-&"type": "dialogue"
-},
-"202": {
-&"character": "Sage",
-&"id": "202",
-&"next_id": "203",
-&"text": "Access posture updated to trusted.",
-&"type": "dialogue"
-},
-"203": {
-&"id": "203",
-&"mutation": {
-&"expression": Array[Dictionary]([{
-&"function": "mark_sage_quiz_passed",
-&"i": 3,
-&"type": &"function",
-&"value": Array[Array]([Array[Dictionary]([{
-&"i": 25,
-&"type": &"parens_close"
-}])])
-}]),
-&"is_blocking": true
-},
-&"next_id": "204",
-&"type": "mutation"
-},
-"204": {
-&"id": "204",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
-},
-"205": {
-&"id": "205",
-&"next_id": "206",
-&"type": ""
-},
-"206": {
-&"id": "206",
-&"next_id": "207",
-&"type": "title"
-},
-"207": {
-&"id": "207",
-&"mutation": {
-&"expression": Array[Dictionary]([{
-&"function": "register_sage_quiz_fail",
-&"i": 3,
-&"type": &"function",
-&"value": Array[Array]([Array[Dictionary]([{
-&"i": 27,
-&"type": &"parens_close"
-}])])
-}]),
-&"is_blocking": true
-},
-&"next_id": "208",
-&"type": "mutation"
-},
-"208": {
-&"condition": {
-&"expression": Array[Dictionary]([{
-&"i": 3,
-&"type": &"variable",
-&"value": "SceneManager"
-}, {
-&"i": 15,
-&"type": &"dot"
-}, {
-&"i": 16,
-&"type": &"variable",
-&"value": "sage_force_combat"
-}, {
-&"i": 34,
-&"type": &"comparison",
-&"value": "=="
-}, {
-&"i": 37,
-&"type": &"variable",
-&"value": "true"
-}])
-},
-&"id": "208",
-&"next_id": "209",
-&"next_id_after": "223",
-&"next_sibling_id": "213",
-&"type": "condition"
-},
-"209": {
-&"character": "Sage",
-&"id": "209",
-&"next_id": "210",
-&"text": "Three wrong answers logged.",
-&"type": "dialogue"
-},
-"21": {
-&"character": "Sage",
-&"id": "21",
-&"next_id": "22",
-&"text": "No quiz. Combat verification only.",
-&"type": "dialogue"
-},
-"210": {
-&"character": "Sage",
-&"id": "210",
-&"next_id": "211",
-&"text": "Combat verification begins now.",
-&"type": "dialogue"
-},
-"211": {
-&"id": "211",
-&"mutation": {
-&"expression": Array[Dictionary]([{
-&"function": "start_sage_combat",
-&"i": 3,
-&"type": &"function",
-&"value": Array[Array]([Array[Dictionary]([{
-&"i": 21,
-&"type": &"parens_close"
-}])])
-}]),
-&"is_blocking": true
-},
-&"next_id": "212",
-&"type": "mutation"
-},
-"212": {
-&"id": "212",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
-},
-"213": {
-&"condition": {},
-&"id": "213",
-&"next_id": "214",
-&"next_id_after": "223",
-&"type": "condition"
-},
-"214": {
-&"character": "Sage",
-&"id": "214",
-&"next_id": "215",
-&"text": "Not quite.",
-&"type": "dialogue"
-},
-"215": {
-&"character": "Sage",
-&"id": "215",
-&"next_id": "216",
-&"text": "Wrong count: {{SceneManager.sage_quiz_fail_count}} / 3.",
-&"text_replacements": Array[Dictionary]([{
-&"expression": Array[Dictionary]([{
-&"i": 22,
-&"type": &"variable",
-&"value": "SceneManager"
-}, {
-&"i": 34,
-&"type": &"dot"
-}, {
-&"i": 35,
-&"type": &"variable",
-&"value": "sage_quiz_fail_count"
-}]),
-&"value_in_text": "{{SceneManager.sage_quiz_fail_count}}"
-}]),
-&"type": "dialogue"
-},
-"216": {
-&"id": "216",
-&"next_id": "217",
-&"responses": PackedStringArray("216", "219"),
-&"text": "Try next question.",
-&"type": "response"
-},
-"217": {
-&"id": "217",
-&"mutation": {
-&"expression": Array[Dictionary]([{
-&"function": "show_next_question",
-&"i": 3,
-&"type": &"function",
-&"value": Array[Array]([Array[Dictionary]([{
-&"i": 22,
-&"type": &"parens_close"
-}])])
-}]),
-&"is_blocking": true
-},
-&"next_id": "218",
-&"type": "mutation"
-},
-"218": {
-&"id": "218",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
-},
-"219": {
-&"id": "219",
-&"next_id": "220",
-&"text": "Skip to combat.",
-&"type": "response"
-},
-"22": {
 &"id": "22",
-&"mutation": {
-&"expression": Array[Dictionary]([{
-&"function": "start_sage_combat",
-&"i": 3,
-&"type": &"function",
-&"value": Array[Array]([Array[Dictionary]([{
-&"i": 21,
-&"type": &"parens_close"
-}])])
-}]),
-&"is_blocking": true
-},
 &"next_id": "23",
-&"type": "mutation"
+&"next_id_after": "38",
+&"next_sibling_id": "27",
+&"type": "condition"
 },
 "220": {
 &"id": "220",
 &"mutation": {
 &"expression": Array[Dictionary]([{
-&"function": "start_sage_combat",
+&"function": "show_next_question",
 &"i": 3,
 &"type": &"function",
 &"value": Array[Array]([Array[Dictionary]([{
-&"i": 21,
+&"i": 22,
 &"type": &"parens_close"
 }])])
 }]),
@@ -1169,23 +1149,84 @@ lines = {
 "222": {
 &"id": "222",
 &"next_id": "223",
-&"type": ""
+&"text": "Skip to combat.",
+&"type": "response"
 },
 "223": {
 &"id": "223",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"function": "start_sage_combat",
+&"i": 3,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 21,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "224",
+&"type": "mutation"
+},
+"224": {
+&"id": "224",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"225": {
+&"id": "225",
+&"next_id": "226",
+&"type": ""
+},
+"226": {
+&"id": "226",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
 "23": {
+&"character": "Sage",
 &"id": "23",
+&"next_id": "24",
+&"text": "Your log reads hostile.",
+&"type": "dialogue"
+},
+"24": {
+&"character": "Sage",
+&"id": "24",
+&"next_id": "25",
+&"text": "No quiz. Combat verification only.",
+&"type": "dialogue"
+},
+"25": {
+&"id": "25",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"function": "start_sage_combat",
+&"i": 3,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 21,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "26",
+&"type": "mutation"
+},
+"26": {
+&"id": "26",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"24": {
+"27": {
 &"condition": {
 &"expression": Array[Dictionary]([{
 &"i": 5,
@@ -1231,28 +1272,33 @@ lines = {
 &"value": "true"
 }])
 },
-&"id": "24",
-&"next_id": "25",
-&"next_id_after": "35",
-&"next_sibling_id": "29",
+&"id": "27",
+&"next_id": "28",
+&"next_id_after": "38",
+&"next_sibling_id": "32",
 &"type": "condition"
 },
-"25": {
+"28": {
 &"character": "Sage",
-&"id": "25",
-&"next_id": "26",
+&"id": "28",
+&"next_id": "29",
 &"text": "You broke the link instead of repairing it.",
 &"type": "dialogue"
 },
-"26": {
+"29": {
 &"character": "Sage",
-&"id": "26",
-&"next_id": "27",
+&"id": "29",
+&"next_id": "30",
 &"text": "Combat verification only.",
 &"type": "dialogue"
 },
-"27": {
-&"id": "27",
+"3": {
+&"id": "3",
+&"next_id": "4",
+&"type": ""
+},
+"30": {
+&"id": "30",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "start_sage_combat",
@@ -1265,37 +1311,32 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "28",
+&"next_id": "31",
 &"type": "mutation"
 },
-"28": {
-&"id": "28",
+"31": {
+&"id": "31",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"29": {
+"32": {
 &"condition": {},
-&"id": "29",
-&"next_id": "30",
-&"next_id_after": "35",
+&"id": "32",
+&"next_id": "33",
+&"next_id_after": "38",
 &"type": "condition"
 },
-"3": {
-&"id": "3",
-&"next_id": "4",
-&"type": ""
-},
-"30": {
+"33": {
 &"character": "Sage",
-&"id": "30",
-&"next_id": "31",
+&"id": "33",
+&"next_id": "34",
 &"text": "Quiz commencing. 15 questions ahead. Answers shuffle each time.",
 &"type": "dialogue"
 },
-"31": {
-&"id": "31",
+"34": {
+&"id": "34",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "shuffle_quiz_questions",
@@ -1308,11 +1349,11 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "32",
+&"next_id": "35",
 &"type": "mutation"
 },
-"32": {
-&"id": "32",
+"35": {
+&"id": "35",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "show_next_question",
@@ -1325,63 +1366,32 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "33",
+&"next_id": "36",
 &"type": "mutation"
 },
-"33": {
-&"id": "33",
+"36": {
+&"id": "36",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"34": {
-&"id": "34",
-&"next_id": "35",
-&"type": ""
-},
-"35": {
-&"id": "35",
-&"next_id": "36",
-&"type": "title"
-},
-"36": {
-&"character": "Sage",
-&"id": "36",
-&"next_id": "37",
-&"text": "First step for Broken Link?",
-&"type": "dialogue"
-},
 "37": {
 &"id": "37",
 &"next_id": "38",
-&"responses": PackedStringArray("37", "41", "43"),
-&"text": "scan broken_link",
-&"type": "response"
+&"type": ""
 },
 "38": {
-&"character": "Sage",
 &"id": "38",
 &"next_id": "39",
-&"text": "Correct.",
-&"type": "dialogue"
+&"type": "title"
 },
 "39": {
+&"character": "Sage",
 &"id": "39",
-&"mutation": {
-&"expression": Array[Dictionary]([{
-&"function": "show_next_question",
-&"i": 3,
-&"type": &"function",
-&"value": Array[Array]([Array[Dictionary]([{
-&"i": 22,
-&"type": &"parens_close"
-}])])
-}]),
-&"is_blocking": true
-},
 &"next_id": "40",
-&"type": "mutation"
+&"text": "First step for Broken Link?",
+&"type": "dialogue"
 },
 "4": {
 &"id": "4",
@@ -1390,67 +1400,77 @@ lines = {
 },
 "40": {
 &"id": "40",
+&"next_id": "41",
+&"responses": PackedStringArray("40", "44", "46"),
+&"text": "scan broken_link",
+&"type": "response"
+},
+"41": {
+&"character": "Sage",
+&"id": "41",
+&"next_id": "42",
+&"text": "Correct.",
+&"type": "dialogue"
+},
+"42": {
+&"id": "42",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"function": "show_next_question",
+&"i": 3,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 22,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "43",
+&"type": "mutation"
+},
+"43": {
+&"id": "43",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"41": {
-&"id": "41",
-&"next_id": "42",
+"44": {
+&"id": "44",
+&"next_id": "45",
 &"text": "kill broken_link",
 &"type": "response"
 },
-"42": {
-&"id": "42",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
-},
-"43": {
-&"id": "43",
-&"next_id": "44",
-&"text": "compile link_map",
-&"type": "response"
-},
-"44": {
-&"id": "44",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
-},
 "45": {
 &"id": "45",
-&"next_id": "46",
-&"type": ""
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
 },
 "46": {
 &"id": "46",
 &"next_id": "47",
-&"type": "title"
+&"text": "compile link_map",
+&"type": "response"
 },
 "47": {
-&"character": "Sage",
 &"id": "47",
-&"next_id": "48",
-&"text": "Which Lost File fragment was encrypted?",
-&"type": "dialogue"
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
 },
 "48": {
 &"id": "48",
 &"next_id": "49",
-&"responses": PackedStringArray("48", "52", "54"),
-&"text": ".fragment_003",
-&"type": "response"
+&"type": ""
 },
 "49": {
-&"character": "Sage",
 &"id": "49",
 &"next_id": "50",
-&"text": "Correct.",
-&"type": "dialogue"
+&"type": "title"
 },
 "5": {
 &"character": "Sage",
@@ -1460,7 +1480,28 @@ lines = {
 &"type": "dialogue"
 },
 "50": {
+&"character": "Sage",
 &"id": "50",
+&"next_id": "51",
+&"text": "Which Lost File fragment was encrypted?",
+&"type": "dialogue"
+},
+"51": {
+&"id": "51",
+&"next_id": "52",
+&"responses": PackedStringArray("51", "55", "57"),
+&"text": ".fragment_003",
+&"type": "response"
+},
+"52": {
+&"character": "Sage",
+&"id": "52",
+&"next_id": "53",
+&"text": "Correct.",
+&"type": "dialogue"
+},
+"53": {
+&"id": "53",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "show_next_question",
@@ -1473,65 +1514,46 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "51",
+&"next_id": "54",
 &"type": "mutation"
 },
-"51": {
-&"id": "51",
+"54": {
+&"id": "54",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"52": {
-&"id": "52",
-&"next_id": "53",
+"55": {
+&"id": "55",
+&"next_id": "56",
 &"text": ".fragment_001",
 &"type": "response"
 },
-"53": {
-&"id": "53",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
-},
-"54": {
-&"id": "54",
-&"next_id": "55",
-&"text": "recovered_file",
-&"type": "response"
-},
-"55": {
-&"id": "55",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
-},
 "56": {
 &"id": "56",
-&"next_id": "57",
-&"type": ""
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
 },
 "57": {
 &"id": "57",
 &"next_id": "58",
-&"type": "title"
+&"text": "recovered_file",
+&"type": "response"
 },
 "58": {
-&"character": "Sage",
 &"id": "58",
-&"next_id": "59",
-&"text": "Who held the Deamon Depths proficiency key?",
-&"type": "dialogue"
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
 },
 "59": {
 &"id": "59",
 &"next_id": "60",
-&"responses": PackedStringArray("59", "63", "65"),
-&"text": "Printer Beast",
-&"type": "response"
+&"type": ""
 },
 "6": {
 &"character": "Sage",
@@ -1541,14 +1563,33 @@ lines = {
 &"type": "dialogue"
 },
 "60": {
-&"character": "Sage",
 &"id": "60",
 &"next_id": "61",
+&"type": "title"
+},
+"61": {
+&"character": "Sage",
+&"id": "61",
+&"next_id": "62",
+&"text": "Who held the Deamon Depths proficiency key?",
+&"type": "dialogue"
+},
+"62": {
+&"id": "62",
+&"next_id": "63",
+&"responses": PackedStringArray("62", "66", "68"),
+&"text": "Printer Beast",
+&"type": "response"
+},
+"63": {
+&"character": "Sage",
+&"id": "63",
+&"next_id": "64",
 &"text": "Correct.",
 &"type": "dialogue"
 },
-"61": {
-&"id": "61",
+"64": {
+&"id": "64",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "show_next_question",
@@ -1561,58 +1602,41 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "62",
+&"next_id": "65",
 &"type": "mutation"
 },
-"62": {
-&"id": "62",
+"65": {
+&"id": "65",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"63": {
-&"id": "63",
-&"next_id": "64",
+"66": {
+&"id": "66",
+&"next_id": "67",
 &"text": "Driver Remnant",
 &"type": "response"
 },
-"64": {
-&"id": "64",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
-},
-"65": {
-&"id": "65",
-&"next_id": "66",
-&"text": "Hardware Ghost",
-&"type": "response"
-},
-"66": {
-&"id": "66",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
-},
 "67": {
 &"id": "67",
-&"next_id": "68",
-&"type": ""
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
 },
 "68": {
 &"id": "68",
 &"next_id": "69",
-&"type": "title"
+&"text": "Hardware Ghost",
+&"type": "response"
 },
 "69": {
-&"character": "Sage",
 &"id": "69",
-&"next_id": "70",
-&"text": "What do you get from scanning Broken Link?",
-&"type": "dialogue"
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
 },
 "7": {
 &"character": "Sage",
@@ -1624,19 +1648,36 @@ lines = {
 "70": {
 &"id": "70",
 &"next_id": "71",
-&"responses": PackedStringArray("70", "74", "76"),
+&"type": ""
+},
+"71": {
+&"id": "71",
+&"next_id": "72",
+&"type": "title"
+},
+"72": {
+&"character": "Sage",
+&"id": "72",
+&"next_id": "73",
+&"text": "What do you get from scanning Broken Link?",
+&"type": "dialogue"
+},
+"73": {
+&"id": "73",
+&"next_id": "74",
+&"responses": PackedStringArray("73", "77", "79"),
 &"text": "Diagnostic data and a key fragment",
 &"type": "response"
 },
-"71": {
+"74": {
 &"character": "Sage",
-&"id": "71",
-&"next_id": "72",
+&"id": "74",
+&"next_id": "75",
 &"text": "Correct.",
 &"type": "dialogue"
 },
-"72": {
-&"id": "72",
+"75": {
+&"id": "75",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "show_next_question",
@@ -1649,51 +1690,34 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "73",
+&"next_id": "76",
 &"type": "mutation"
 },
-"73": {
-&"id": "73",
+"76": {
+&"id": "76",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"74": {
-&"id": "74",
-&"next_id": "75",
+"77": {
+&"id": "77",
+&"next_id": "78",
 &"text": "Only a sudo token",
 &"type": "response"
 },
-"75": {
-&"id": "75",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
-},
-"76": {
-&"id": "76",
-&"next_id": "77",
-&"text": "A direct path to Gate Keeper",
-&"type": "response"
-},
-"77": {
-&"id": "77",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
-},
 "78": {
 &"id": "78",
-&"next_id": "79",
-&"type": ""
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
 },
 "79": {
 &"id": "79",
 &"next_id": "80",
-&"type": "title"
+&"text": "A direct path to Gate Keeper",
+&"type": "response"
 },
 "8": {
 &"character": "Sage",
@@ -1703,28 +1727,45 @@ lines = {
 &"type": "dialogue"
 },
 "80": {
-&"character": "Sage",
 &"id": "80",
-&"next_id": "81",
-&"text": "Which NPC dwells in the isolated terminals?",
-&"type": "dialogue"
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
 },
 "81": {
 &"id": "81",
 &"next_id": "82",
-&"responses": PackedStringArray("81", "85", "87"),
+&"type": ""
+},
+"82": {
+&"id": "82",
+&"next_id": "83",
+&"type": "title"
+},
+"83": {
+&"character": "Sage",
+&"id": "83",
+&"next_id": "84",
+&"text": "Which NPC dwells in the isolated terminals?",
+&"type": "dialogue"
+},
+"84": {
+&"id": "84",
+&"next_id": "85",
+&"responses": PackedStringArray("84", "88", "90"),
 &"text": "Lost File",
 &"type": "response"
 },
-"82": {
+"85": {
 &"character": "Sage",
-&"id": "82",
-&"next_id": "83",
+&"id": "85",
+&"next_id": "86",
 &"text": "Correct.",
 &"type": "dialogue"
 },
-"83": {
-&"id": "83",
+"86": {
+&"id": "86",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "show_next_question",
@@ -1737,46 +1778,28 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "84",
+&"next_id": "87",
 &"type": "mutation"
 },
-"84": {
-&"id": "84",
+"87": {
+&"id": "87",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"85": {
-&"id": "85",
-&"next_id": "86",
+"88": {
+&"id": "88",
+&"next_id": "89",
 &"text": "Messy Directory",
 &"type": "response"
 },
-"86": {
-&"id": "86",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
-},
-"87": {
-&"id": "87",
-&"next_id": "88",
-&"text": "Elder Shell",
-&"type": "response"
-},
-"88": {
-&"id": "88",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
-},
 "89": {
 &"id": "89",
-&"next_id": "90",
-&"type": ""
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
 },
 "9": {
 &"id": "9",
@@ -1788,31 +1811,49 @@ lines = {
 "90": {
 &"id": "90",
 &"next_id": "91",
-&"type": "title"
+&"text": "Elder Shell",
+&"type": "response"
 },
 "91": {
-&"character": "Sage",
 &"id": "91",
-&"next_id": "92",
-&"text": "What does the sudo token grant?",
-&"type": "dialogue"
+&"is_snippet": false,
+&"next_id": "210",
+&"next_id_after": "",
+&"type": "goto"
 },
 "92": {
 &"id": "92",
 &"next_id": "93",
-&"responses": PackedStringArray("92", "96", "98"),
+&"type": ""
+},
+"93": {
+&"id": "93",
+&"next_id": "94",
+&"type": "title"
+},
+"94": {
+&"character": "Sage",
+&"id": "94",
+&"next_id": "95",
+&"text": "What does the sudo token grant?",
+&"type": "dialogue"
+},
+"95": {
+&"id": "95",
+&"next_id": "96",
+&"responses": PackedStringArray("95", "99", "101"),
 &"text": "Alternate path to Gate Keeper",
 &"type": "response"
 },
-"93": {
+"96": {
 &"character": "Sage",
-&"id": "93",
-&"next_id": "94",
+&"id": "96",
+&"next_id": "97",
 &"text": "Correct.",
 &"type": "dialogue"
 },
-"94": {
-&"id": "94",
+"97": {
+&"id": "97",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "show_next_question",
@@ -1825,41 +1866,21 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "95",
+&"next_id": "98",
 &"type": "mutation"
 },
-"95": {
-&"id": "95",
+"98": {
+&"id": "98",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"96": {
-&"id": "96",
-&"next_id": "97",
-&"text": "Full system access",
-&"type": "response"
-},
-"97": {
-&"id": "97",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
-},
-"98": {
-&"id": "98",
-&"next_id": "99",
-&"text": "A second proficiency key",
-&"type": "response"
-},
 "99": {
 &"id": "99",
-&"is_snippet": false,
-&"next_id": "207",
-&"next_id_after": "",
-&"type": "goto"
+&"next_id": "100",
+&"text": "Full system access",
+&"type": "response"
 }
 }
 raw_text = "~ nova_where
@@ -1875,8 +1896,11 @@ Sage: Ready?
 
 ~ sage_intro
 Sage: Welcome to the BIOS Vault.
-Sage: I guard boot protocols.
-Sage: Quick check—show me what you’ve learned.
+Sage: I guard the most fundamental layer - the boot protocols.
+Sage: BIOS is the firmware that initializes hardware before OS loads.
+Sage: It sets the foundation for everything the kernel will do.
+Sage: I am here to verify that you understand this system's core.
+Sage: Let's begin with a knowledge check.
 => END
 
 ~ sage_skill_check

@@ -24,6 +24,7 @@ const QUALITY_SCALES: Array[float] = [0.67, 0.85, 1.0]
 @onready var subtitle_label: Label = $CenterContainer/MainColumn/SubtitleLabel
 @onready var menu_vbox: VBoxContainer = $CenterContainer/MainColumn/MenuVBox
 @onready var menu_labels: Array = $CenterContainer/MainColumn/MenuVBox.get_children()
+@onready var background_anim: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
 
 @onready var settings_overlay: Control = $SettingsOverlay
 @onready var settings_list: ItemList = $SettingsOverlay/MainMargin/MainVBox/SettingsList
@@ -53,6 +54,12 @@ var quit_confirm_dialog: ConfirmationDialog = null
 func _ready() -> void:
 	_set_global_ui_visibility(false)
 	_cleanup_gameplay_ui_artifacts()
+	if background_anim:
+		background_anim.play("default")
+		_fit_background_to_viewport()
+		var viewport: Viewport = get_viewport()
+		if viewport and not viewport.size_changed.is_connected(_on_viewport_size_changed):
+			viewport.size_changed.connect(_on_viewport_size_changed)
 	logo_label.text = ASCII_LOGO
 	subtitle_label.text = "A LINUX BUILDER RPG"
 	
@@ -402,7 +409,7 @@ func _update_menu_visuals() -> void:
 			continue
 		label.show()
 		label.text = ("> " if i == display_index else "  ") + items[i]
-		label.modulate = Color(0.92, 0.92, 0.92) if i == display_index else Color(0.55, 0.55, 0.55)
+		label.modulate = Color(1.0, 1.0, 1.0, 1.0) if i == display_index else Color(0.82, 0.82, 0.82, 1.0)
 
 func _get_active_menu_items() -> Array[String]:
 	if SceneManager and SceneManager.has_method("has_save_game") and SceneManager.has_save_game():
@@ -413,6 +420,26 @@ func _set_global_ui_visibility(state: bool) -> void:
 	for node_path in ["/root/ControlsHelp", "/root/InteractionPrompt"]:
 		var n = get_node_or_null(node_path)
 		if n: n.visible = state
+
+func _on_viewport_size_changed() -> void:
+	_fit_background_to_viewport()
+
+func _fit_background_to_viewport() -> void:
+	if not background_anim or background_anim.sprite_frames == null:
+		return
+
+	var frame_texture: Texture2D = background_anim.sprite_frames.get_frame_texture("default", 0)
+	if frame_texture == null:
+		return
+
+	var viewport_size: Vector2 = get_viewport_rect().size
+	var frame_size: Vector2 = frame_texture.get_size()
+	if frame_size.x <= 0.0 or frame_size.y <= 0.0:
+		return
+
+	var scale_factor: float = max(viewport_size.x / frame_size.x, viewport_size.y / frame_size.y)
+	background_anim.scale = Vector2.ONE * scale_factor
+	background_anim.position = viewport_size * 0.5
 
 
 ### Mouse signal handlers ###

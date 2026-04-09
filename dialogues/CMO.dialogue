@@ -1,24 +1,41 @@
 ~ start
 if SceneManager.proficiency_key_printer == true:
 	CMO: ...
-	CMO: You read the noise. Good.
+	CMO: You understand daemon processes now. Very good.
 	CMO: I am CMO. Quiet by default. Cute by accident.
-	CMO: Underrated Linux truth: directories are memory palaces.
-	CMO: In Learnix, paths are routes. Routes are survival.
-	CMO: Open terminal and use "cd" to travel between locations.
-	CMO: Try: cd /fallback_hamlet
-	CMO: Try: cd /deamon_depths
-	CMO: And cd .. to step one level back.
-	CMO: Small command. Big world.
+	CMO: I represent a profound Linux truth: silence is powerful.
+	- Tell me about the filesystem
+		CMO: The filesystem is everything. Life. Meaning. Structure.
+		CMO: Directories are memory palaces. Each folder contains worlds.
+		CMO: The root directory / contains everything else.
+		CMO: /home - where users keep their files
+		CMO: /etc - system configuration, the rulebook
+		CMO: /var - logs, temp files, the system's diary
+		CMO: /bin - essential commands, the tools
+		CMO: /usr/bin - user commands, more tools
+		CMO: /dev - device files, hardware interfaces
+		CMO: Every file is a path. Every path is a story.
+	- How to navigate?
+		CMO: 'pwd' tells you where you are in the tree.
+		CMO: 'cd /absolute/path' - go to exact location
+		CMO: 'cd relative/path' - go relative to current directory
+		CMO: 'cd ..' - go up one level to parent
+		CMO: 'ls' shows what's in current directory
+		CMO: Practice until the paths become intuition.
 	=> END
 else if SceneManager.printer_beast_defeated == true:
 	CMO: ...
-	CMO: I am CMO.
-	CMO: Interesting...
-	CMO: Open terminal and use "cd" to travel between locations.
-	CMO: Try: cd /fallback_hamlet
-	CMO: Try: cd /deamon_depths
-	CMO: And cd .. to step one level back.
+	CMO: The daemon is quieter now. You did well.
+	- Teach me to navigate
+		CMO: The filesystem is everything. Learn to move through it.
+		CMO: 'cd' - change directory. Move between folders.
+		CMO: Absolute paths start with /: cd /fallback_hamlet
+		CMO: Relative paths are local: cd .., go up one level.
+		CMO: 'pwd' shows where you are. Never get lost.
+		CMO: The root directory / is at the top of everything.
+		CMO: /home is where users live. /etc holds system config.
+		CMO: /var holds logs and temp data. /bin holds commands.
+		CMO: Learn these paths. They are the map of Learnix.
 	=> END
 else:
 	CMO: ...

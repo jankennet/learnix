@@ -11,8 +11,11 @@ Sage: Ready?
 
 ~ sage_intro
 Sage: Welcome to the BIOS Vault.
-Sage: I guard boot protocols.
-Sage: Quick check—show me what you’ve learned.
+Sage: I guard the most fundamental layer - the boot protocols.
+Sage: BIOS is the firmware that initializes hardware before OS loads.
+Sage: It sets the foundation for everything the kernel will do.
+Sage: I am here to verify that you understand this system's core.
+Sage: Let's begin with a knowledge check.
 => END
 
 ~ sage_skill_check
