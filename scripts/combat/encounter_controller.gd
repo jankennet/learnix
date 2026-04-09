@@ -26,14 +26,13 @@ var combat_ui: Control  # CombatTerminalUI - type not available at compile time
 var enemy_controller: Node
 var is_active: bool = false
 var _encounter_resolved: bool = false
+var _defeat_overlay: CanvasLayer = null
+var _defeat_prompt_active: bool = false
 #endregion
 
 func _ready() -> void:
 	# Create combat manager
-	combat_manager = TurnCombatManager.new()
-	add_child(combat_manager)
-	if combat_manager.has_signal("combat_ended") and not combat_manager.combat_ended.is_connected(_on_combat_manager_ended):
-		combat_manager.combat_ended.connect(_on_combat_manager_ended)
+	_create_combat_manager()
 	
 	# Load combat UI
 	if combat_ui_scene:
@@ -52,6 +51,8 @@ func _ready() -> void:
 		add_child(canvas)
 		canvas.add_child(combat_ui)
 		combat_ui.hide()
+		if combat_ui.has_method("set_defeat_auto_close_enabled"):
+			combat_ui.call("set_defeat_auto_close_enabled", encounter_id == "evil_tux")
 	
 	# Create enemy controller based on encounter_id
 	_create_enemy_controller()
@@ -99,6 +100,8 @@ func start_encounter() -> void:
 	if is_active:
 		return
 	
+	_cleanup_defeat_overlay()
+	_defeat_prompt_active = false
 	is_active = true
 	_encounter_resolved = false
 	encounter_started.emit(encounter_id)
@@ -106,6 +109,10 @@ func start_encounter() -> void:
 	# Check if we should start in puzzle mode or combat mode
 	var start_in_puzzle: bool = has_meta("start_in_puzzle") and get_meta("start_in_puzzle") == true
 	var start_in_combat: bool = has_meta("start_in_combat") and get_meta("start_in_combat") == true
+	if has_meta("start_in_puzzle"):
+		remove_meta("start_in_puzzle")
+	if has_meta("start_in_combat"):
+		remove_meta("start_in_combat")
 	
 	# Check if player previously fled combat with this enemy - restore has_attacked state
 	if enemy_controller and "enemy_name" in enemy_controller:
@@ -155,6 +162,8 @@ func _on_encounter_ended(method: String) -> void:
 	if _encounter_resolved:
 		return
 	_encounter_resolved = true
+	_cleanup_defeat_overlay()
+	_defeat_prompt_active = false
 	is_active = false
 	if method == "puzzle_solved":
 		_award_puzzle_data_bits()
@@ -228,7 +237,17 @@ func _award_puzzle_data_bits() -> void:
 			combat_ui._print_terminal("[color=#66f266]Recovered %d Data Bits from %s.[/color]\n" % [total_bits, enemy_name])
 
 func _on_combat_manager_ended(victory: bool, _enemy_data) -> void:
-	if _encounter_resolved or not victory:
+	if _encounter_resolved:
+		return
+
+	if not victory:
+		if encounter_id == "evil_tux":
+			return
+		if _defeat_prompt_active:
+			return
+		_defeat_prompt_active = true
+		is_active = false
+		_show_defeat_overlay()
 		return
 
 	if enemy_controller and enemy_controller.has_method("_resolve_encounter"):
@@ -242,6 +261,126 @@ func reset_encounter() -> void:
 	if enemy_controller:
 		enemy_controller.queue_free()
 	_create_enemy_controller()
+
+func _create_combat_manager() -> void:
+	combat_manager = TurnCombatManager.new()
+	add_child(combat_manager)
+	if combat_manager.has_signal("combat_ended") and not combat_manager.combat_ended.is_connected(_on_combat_manager_ended):
+		combat_manager.combat_ended.connect(_on_combat_manager_ended)
+
+func _recreate_combat_manager() -> void:
+	if combat_manager:
+		if combat_manager.has_signal("combat_ended") and combat_manager.combat_ended.is_connected(_on_combat_manager_ended):
+			combat_manager.combat_ended.disconnect(_on_combat_manager_ended)
+		combat_manager.queue_free()
+	_create_combat_manager()
+
+func _show_defeat_overlay() -> void:
+	_cleanup_defeat_overlay()
+
+	if combat_ui and combat_ui.has_method("_print_terminal"):
+		combat_ui.call("_print_terminal", "\n[color=#f2e066]Encounter unresolved. Retry now or leave and recover.[/color]\n")
+
+	_defeat_overlay = CanvasLayer.new()
+	_defeat_overlay.layer = 220
+	_defeat_overlay.process_mode = Node.PROCESS_MODE_ALWAYS
+	get_tree().root.add_child(_defeat_overlay)
+
+	var backdrop := ColorRect.new()
+	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	backdrop.color = Color(0, 0, 0, 0.8)
+	backdrop.mouse_filter = Control.MOUSE_FILTER_STOP
+	_defeat_overlay.add_child(backdrop)
+
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_defeat_overlay.add_child(center)
+
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(720, 280)
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	center.add_child(panel)
+
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 14)
+	panel.add_child(vbox)
+
+	var title := Label.new()
+	title.text = "System integrity compromised."
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 24)
+	vbox.add_child(title)
+
+	var body := Label.new()
+	body.text = "Retry this encounter immediately, or leave and come back when you are ready."
+	body.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	body.custom_minimum_size = Vector2(650, 90)
+	vbox.add_child(body)
+
+	var button_row := HBoxContainer.new()
+	button_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	button_row.add_theme_constant_override("separation", 18)
+	vbox.add_child(button_row)
+
+	var retry_button := Button.new()
+	retry_button.text = "Retry"
+	retry_button.custom_minimum_size = Vector2(220, 48)
+	retry_button.pressed.connect(_on_defeat_retry_pressed)
+	button_row.add_child(retry_button)
+
+	var leave_button := Button.new()
+	leave_button.text = "Leave"
+	leave_button.custom_minimum_size = Vector2(220, 48)
+	leave_button.pressed.connect(_on_defeat_leave_pressed)
+	button_row.add_child(leave_button)
+
+	retry_button.grab_focus()
+
+func _cleanup_defeat_overlay() -> void:
+	if _defeat_overlay and is_instance_valid(_defeat_overlay):
+		_defeat_overlay.queue_free()
+	_defeat_overlay = null
+
+func _on_defeat_retry_pressed() -> void:
+	call_deferred("_retry_after_defeat")
+
+func _retry_after_defeat() -> void:
+	_cleanup_defeat_overlay()
+	_defeat_prompt_active = false
+
+	if enemy_controller and "enemy_name" in enemy_controller:
+		var npc_name := String(enemy_controller.enemy_name)
+		var combat_state_key := _combat_state_meta_key(npc_name)
+		if SceneManager.has_meta(combat_state_key):
+			SceneManager.remove_meta(combat_state_key)
+
+	if combat_ui:
+		combat_ui.close_combat_ui()
+
+	_recreate_combat_manager()
+	reset_encounter()
+	set_meta("start_in_combat", true)
+	start_encounter()
+
+func _on_defeat_leave_pressed() -> void:
+	call_deferred("_leave_after_defeat")
+
+func _leave_after_defeat() -> void:
+	_cleanup_defeat_overlay()
+	_defeat_prompt_active = false
+
+	if enemy_controller and "enemy_name" in enemy_controller:
+		var npc_name := String(enemy_controller.enemy_name)
+		SceneManager.npc_states[npc_name] = "fled_combat"
+		SceneManager.set_meta(_combat_state_meta_key(npc_name), {"has_attacked": true})
+
+	if combat_ui:
+		combat_ui.close_combat_ui()
+
+	encounter_ended.emit("defeat_leave")
+	state_changed.emit("ended")
+	queue_free()
 
 func _combat_state_meta_key(npc_name: String) -> String:
 	var sanitized_name := ""

@@ -47,6 +47,7 @@ signal tutorial_popup_closed
 var combat_manager: Node = null
 var enemy_controller: Node = null
 var is_open: bool = false
+var defeat_auto_close_enabled: bool = true
 var timing_minigame: TimingMinigame = null
 var dependency_minigame: DependencyResolverMinigame = null
 var _puzzle_minigame_pending: bool = false
@@ -304,6 +305,9 @@ func setup_combat(manager: Node, enemy: Node) -> void:
 	_update_hp_displays()
 	_update_side_help_for_mode()
 	_refresh_terminal_visuals(true)
+
+func set_defeat_auto_close_enabled(enabled: bool) -> void:
+	defeat_auto_close_enabled = enabled
 
 ## Show the combat UI
 func open_combat_ui() -> void:
@@ -677,6 +681,9 @@ func _on_combat_ended(victory: bool, _enemy_data) -> void:
 	else:
 		_print_terminal("\n[color=#f26666]═══ DEFEAT ═══[/color]\n")
 		_print_terminal("[color=#f26666]System integrity compromised.[/color]\n")
+		if not defeat_auto_close_enabled:
+			_print_terminal("\n[color=#f2e066]Choose Retry or Leave to continue.[/color]\n")
+			return
 	
 	_print_terminal("\n[color=#f2e066]Terminal closing in 3 seconds...[/color]\n")
 	_print_terminal("[color=#aaaaaa](Type 'quit' or press the Exit button to close immediately)[/color]\n")
