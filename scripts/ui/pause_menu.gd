@@ -1232,10 +1232,18 @@ func _build_folder_entries(folder_name: String) -> Array[Dictionary]:
 		"Filesystem_Forest":
 			if SceneManager and SceneManager.proficiency_key_forest:
 				_append_doc_entry_if_missing(entries, "proficiency_key_forest.txt", "Forest Proficiency Key", "Reward for repairing systems in the Filesystem Forest. Grants one half of gate access.")
+			var forest_readme := "Filesystem Forest is a branching archive. Follow structure, not noise."
+			if SceneManager and SceneManager.has_method("get_area_readme_text"):
+				forest_readme = String(SceneManager.call("get_area_readme_text", "res://Scenes/Levels/file_system_forest.tscn"))
+			_append_doc_entry_if_missing(entries, "readme.txt", "readme.txt", forest_readme)
 
 		"Deamon_Depths":
 			if SceneManager and SceneManager.proficiency_key_printer:
 				_append_doc_entry_if_missing(entries, "proficiency_key_printer.txt", "Depths Proficiency Key", "Reward for stabilizing Deamon Depths. Completes the gate key pair with the forest key.")
+			var depths_readme := "Deamon Depths is a service maze. Check status, clear the blockage, then restart carefully."
+			if SceneManager and SceneManager.has_method("get_area_readme_text"):
+				depths_readme = String(SceneManager.call("get_area_readme_text", "res://Scenes/Levels/deamon_depths.tscn"))
+			_append_doc_entry_if_missing(entries, "readme.txt", "readme.txt", depths_readme)
 
 		"Bios_Vault":
 			_append_doc_entry_if_missing(entries, "sage_lessons.txt", "Sage Assessment", "The Sage evaluates command fluency and consistency. Lesson: precise fundamentals beat rushed execution.")
@@ -1347,10 +1355,14 @@ func _npc_interacted(npc_name: String) -> bool:
 func _is_bios_vault_unlocked() -> bool:
 	if not SceneManager:
 		return false
+	if bool(SceneManager.get_meta("evil_tux_boss_cleared", false)):
+		return false
 	return SceneManager.gatekeeper_pass_granted or SceneManager.deamon_depths_boss_door_unlocked or bool(SceneManager.get_meta("bios_vault_sage_quiz_passed", false))
 
 func _is_proprietary_citadel_unlocked() -> bool:
 	if not SceneManager:
+		return false
+	if bool(SceneManager.get_meta("evil_tux_boss_cleared", false)):
 		return false
 	return bool(SceneManager.get_meta("bios_vault_sage_quiz_passed", false))
 

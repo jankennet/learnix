@@ -6,6 +6,7 @@ extends Node3D
 @export var sage_combat_encounter_id: String = "sage"
 @export var bios_vault_camera_path: NodePath = "Camera3D"
 @export var pre_citadel_cutscene_duration: float = 4.0
+@export var nova_where_tux_delay: float = 0.85
 
 const PROPRIETARY_CITADEL_SCENE_PATH := "res://Scenes/Levels/proprietary_citadel.tscn"
 const PROPRIETARY_CITADEL_SPAWN := "Spawn_BVTPC"
@@ -83,6 +84,9 @@ func _show_spawn_dialogue() -> void:
 
 	if SceneManager:
 		SceneManager.input_locked = true
+
+	if nova_where_tux_delay > 0.0:
+		await get_tree().create_timer(nova_where_tux_delay).timeout
 
 	await _show_hud_dialogue("hud_bios_tux_missing", [])
 

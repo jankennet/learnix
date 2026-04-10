@@ -90,24 +90,21 @@ static func create_lost_file_puzzle() -> PuzzleData:
 	puzzle.puzzle_type = PuzzleType.FILE_RECOVERY
 	puzzle.title = "Recover the Lost File"
 	puzzle.description = """
-A fragmented file has been scattered across the filesystem.
-Its pieces are corrupted and need to be recovered in the correct order.
+A fragmented file has been scattered across the current directory.
+The pieces are corrupted and need to be recovered in the correct order.
 
 Fragments detected:
-  .fragment_001  (corrupted - in /tmp)
-  .fragment_002  (scattered - location unknown)
-  .fragment_003  (encrypted - needs decryption)
+  .fragment_001  (corrupted)
+  .fragment_002  (scattered)
+  .fragment_003  (encrypted)
 
-Use filesystem commands to locate, recover, and reconstruct the file.
+Use local directory clues to locate, recover, and reconstruct the file.
 """
 	
 	puzzle.hints = [
-		"Start with 'ls' to see what fragments you have.",
-		"Use 'find .fragment' to locate all scattered fragments.",
-		"The encrypted fragment_003 needs 'decrypt .fragment_003' before restoring.",
-		"Use 'restore' on each fragment, e.g. 'restore .fragment_001'.",
-		"After restoring all fragments, use 'cat fragments' to combine them.",
-		"Final step: 'compile recovered_file' to verify integrity.",
+		"Discovery: check which orphaned blocks are visible in the current directory.",
+		"Analysis: read the fragment clues, then focus on the encrypted piece.",
+		"Execution: recover each fragment, combine the pieces, and verify the file.",
 	]
 	
 	# Unlimited attempts (-1) - we want new Linux users to learn, not get frustrated
@@ -133,9 +130,9 @@ Use filesystem commands to locate, recover, and reconstruct the file.
 		"file_compiled": false,
 		"timing_critical_hits": 0,
 		"fragment_locations": {
-			".fragment_001": "/tmp",
-			".fragment_002": "/var/lost+found",
-			".fragment_003": "/home/.cache"
+			".fragment_001": "fragment_slot_a",
+			".fragment_002": "fragment_slot_b",
+			".fragment_003": "fragment_slot_c"
 		},
 		"required_fragments": [".fragment_001", ".fragment_002", ".fragment_003"],
 	}
@@ -158,22 +155,17 @@ static func create_broken_link_puzzle() -> PuzzleData:
 	puzzle.puzzle_type = PuzzleType.SEQUENCE
 	puzzle.title = "Repair the Broken Link"
 	puzzle.description = """
-A corrupted link stub is looping through the Filesystem Forest.
-The target path is missing, and the stub keeps emitting 404 signals.
+A corrupted link stub is looping in the current directory.
+The target reference is missing, and the stub keeps emitting 404 signals.
 
-Repair the link by scanning, locating the target, unlinking the stub,
-reconnecting it to the correct path, fixing permissions, and patching the link table.
+Repair the link by scanning, locating the target note, unlinking the stub,
+reconnecting it to the correct local target, fixing permissions, and patching the link table.
 """
 
 	puzzle.hints = [
-		"Start with 'ls -l stub' to inspect the broken symlink.",
-		"Use 'find /forest/target' to locate the missing path.",
-		"Unlink the stub with 'unlink stub'.",
-		"Reconnect with 'ln -s /forest/target stub'.",
-		"Fix permissions: 'chmod link_table 644'.",
-		"Rebuild the table with 'cat /forest/target > link_table'.",
-		"Verify with 'cat link_table'.",
-		"Finalize with 'make link_map'.",
+		"Discovery: inspect the stub and identify which reference is missing.",
+		"Analysis: read the target note, then clear the broken connection.",
+		"Execution: rebuild the link and verify the repaired route.",
 	]
 
 	# Unlimited attempts - this is a learning encounter
@@ -182,14 +174,14 @@ reconnecting it to the correct path, fixing permissions, and patching the link t
 	puzzle.custom_data = {
 		"expected_sequence": [
 			"ls -l stub",
-			"find /forest/target",
+			"find target_note",
 			"unlink stub",
-			"ln -s /forest/target stub",
+			"ln -s target_note stub",
 			"chmod link_table 644",
-			"cat /forest/target > link_table",
 			"cat link_table",
 			"make link_map",
 		],
+		"clue_files": ["stub", "target_note", "link_table", "link_map.plan"],
 		"current_index": 0,
 		"reset_on_fail": false,
 		"timing_critical_hits": 0,
@@ -223,23 +215,22 @@ Follow a calming repair sequence to quiet the phantom and stabilize the bus.
 """
 
 	puzzle.hints = [
-		"Start with 'cat /var/log/legacy_bus.log' to read the fault stream.",
-		"Locate the driver table with 'find /drivers/legacy'.",
-		"Use 'cat /var/log/ghost_echo.log' to isolate the echo.",
-		"Patch permissions with 'chmod driver_table 644'.",
-		"Finalize the map with 'make driver_map'.",
+		"Discovery: read the first fault log and identify the repeating pattern.",
+		"Analysis: inspect the driver table and isolate the echo source.",
+		"Execution: normalize the table and rebuild the map.",
 	]
 
 	puzzle.max_attempts = -1
 
 	puzzle.custom_data = {
 		"expected_sequence": [
-			"cat /var/log/legacy_bus.log",
-			"find /drivers/legacy",
-			"cat /var/log/ghost_echo.log",
+			"cat legacy_bus.log",
+			"find driver_table",
+			"cat ghost_echo.log",
 			"chmod driver_table 644",
 			"make driver_map",
 		],
+		"clue_files": ["legacy_bus.log", "ghost_echo.log", "driver_table", "driver_map.plan"],
 		"current_index": 0,
 		"reset_on_fail": false,
 		"timing_critical_hits": 0,
@@ -272,24 +263,23 @@ and restoring stability to the interrupt table.
 """
 
 	puzzle.hints = [
-		"Start with 'cat /proc/driver/remnant' to capture the rogue signature.",
-		"Trace the interrupt line with 'find /irq/line'.",
-		"Terminate the remnant using 'kill driver_remnant'.",
-		"Disconnect the faulty interrupt with 'unlink irq_line'.",
-		"Stabilize with 'chmod interrupt_table 644' and 'make stability_map'.",
+		"Discovery: read the remnant signature in the current directory.",
+		"Analysis: trace the interrupt line and isolate the unstable route.",
+		"Execution: terminate the remnant, clear the line, and stabilize the table.",
 	]
 
 	puzzle.max_attempts = -1
 
 	puzzle.custom_data = {
 		"expected_sequence": [
-			"cat /proc/driver/remnant",
-			"find /irq/line",
+			"cat remnant.sig",
+			"find irq_line",
 			"kill driver_remnant",
 			"unlink irq_line",
 			"chmod interrupt_table 644",
 			"make stability_map",
 		],
+		"clue_files": ["remnant.sig", "irq_line", "interrupt_table", "stability_map.plan"],
 		"current_index": 0,
 		"reset_on_fail": false,
 		"timing_critical_hits": 0,
@@ -322,25 +312,23 @@ Clear the spool, fix permissions, and restart the queue to quiet the daemon.
 """
 
 	puzzle.hints = [
-		"Start with 'ls /var/spool/print' to read the queue state.",
-		"Find the jam location with 'find /var/spool/print'.",
-		"Remove the jammed page with 'rm jam_page'.",
-		"Fix spool permissions: 'chmod spool 644'.",
-		"Rebuild the spool index with 'cat spool > spool_index'.",
-		"Finalize with 'make print_queue'.",
+		"Discovery: inspect the spool state in the current directory.",
+		"Analysis: identify the jammed page and the queue index.",
+		"Execution: clear the jam, repair the spool, and rebuild the queue.",
 	]
 
 	puzzle.max_attempts = -1
 
 	puzzle.custom_data = {
 		"expected_sequence": [
-			"ls /var/spool/print",
-			"find /var/spool/print",
+			"ls spool",
+			"find jam_page",
 			"rm jam_page",
 			"chmod spool 644",
-			"cat spool > spool_index",
+			"cat spool_index",
 			"make print_queue",
 		],
+		"clue_files": ["spool", "jam_page", "spool_index", "print_queue.plan"],
 		"current_index": 0,
 		"reset_on_fail": false,
 		"timing_critical_hits": 0,
@@ -702,6 +690,21 @@ static func _process_sequence(puzzle: PuzzleData, command: CommandParser.Command
 	var expected_lower := expected_cmd.to_lower().strip_edges()
 	var is_final_compile_step := command.command_type == CommandParser.CommandType.COMPILE and current_index == expected_sequence.size() - 1
 	is_final_compile_step = is_final_compile_step or expected_lower.begins_with("compile ") or expected_lower.begins_with("make ")
+
+	# Discovery commands should help the player orient, not fail progression.
+	if command.command_type == CommandParser.CommandType.LIST:
+		result.success = true
+		result.progress_made = false
+		result.message = _build_sequence_directory_snapshot(puzzle, current_index)
+		result.progress_percent = (float(data.get("current_index", 0)) / float(expected_sequence.size())) * 100.0
+		return result
+
+	if command.command_type == CommandParser.CommandType.HELP or command.command_type == CommandParser.CommandType.SCAN:
+		result.success = true
+		result.progress_made = false
+		result.message = _build_sequence_guidance_message(puzzle, expected_cmd, current_index, expected_sequence.size())
+		result.progress_percent = (float(data.get("current_index", 0)) / float(expected_sequence.size())) * 100.0
+		return result
 	
 	# Check if command matches expected (fuzzy)
 	if expected_cmd in input_cmd or input_cmd in expected_cmd:
@@ -734,7 +737,7 @@ static func _process_sequence(puzzle: PuzzleData, command: CommandParser.Command
 				puzzle.state = PuzzleState.SOLVED
 				result.message += "\nSequence complete!"
 	else:
-		result.message = "Wrong command. Expected something related to: %s" % expected_cmd
+		result.message = _build_wrong_sequence_command_message(puzzle, expected_cmd, current_index, expected_sequence.size())
 		# Optionally reset sequence
 		if data.get("reset_on_fail", false):
 			data["current_index"] = 0
@@ -742,6 +745,95 @@ static func _process_sequence(puzzle: PuzzleData, command: CommandParser.Command
 	
 	result.progress_percent = (float(data.get("current_index", 0)) / float(expected_sequence.size())) * 100.0
 	return result
+
+static func _build_sequence_directory_snapshot(puzzle: PuzzleData, current_index: int) -> String:
+	var clue_files: Array = puzzle.custom_data.get("clue_files", [])
+	if clue_files.is_empty():
+		return "Directory listing unavailable. Use scan for guidance."
+
+	var lines: Array[String] = ["=== Local Directory Snapshot ==="]
+	for i in range(clue_files.size()):
+		var clue := str(clue_files[i])
+		if i == current_index:
+			lines.append("* %s  [current clue]" % clue)
+		else:
+			lines.append("- %s" % clue)
+	var expected_sequence: Array = puzzle.custom_data.get("expected_sequence", [])
+	if current_index >= 0 and current_index < expected_sequence.size():
+		var expected_cmd := str(expected_sequence[current_index]).strip_edges()
+		var verbs := _verb_family_for_expected(expected_cmd)
+		if not verbs.is_empty():
+			lines.append("Verb family now: %s" % ", ".join(verbs))
+	lines.append("Tip: read the current clue file first, then use one verb from the family above.")
+	return "\n".join(lines)
+
+static func _build_sequence_guidance_message(_puzzle: PuzzleData, expected_cmd: String, current_index: int, total_steps: int) -> String:
+	var lower := expected_cmd.to_lower().strip_edges()
+	var noun := _extract_expected_noun(expected_cmd)
+	var verbs := _verb_family_for_expected(expected_cmd)
+	var phase := _phase_from_expected_command(expected_cmd)
+	var header := "TUX GUIDANCE // %s PHASE (%d/%d)" % [phase, current_index + 1, maxi(1, total_steps)]
+	var verb_line := "Try verbs: %s" % (", ".join(verbs) if not verbs.is_empty() else "scan, ls, help")
+	var noun_line := "Current noun from clues: %s" % noun
+
+	if lower.begins_with("cat"):
+		return "%s\n%s\n%s\nUse a read-only command on the clue file to inspect state." % [header, noun_line, verb_line]
+	if lower.begins_with("find"):
+		return "%s\n%s\n%s\nSearch for the noun/token shown by logs or file text." % [header, noun_line, verb_line]
+	if lower.begins_with("kill"):
+		return "%s\n%s\n%s\nUse a process-termination verb on the unstable target." % [header, noun_line, verb_line]
+	if lower.begins_with("unlink"):
+		return "%s\n%s\n%s\nDetach stale links before rebuilding routes." % [header, noun_line, verb_line]
+	if lower.begins_with("chmod"):
+		return "%s\n%s\n%s\nNormalize permissions before the final rebuild action." % [header, noun_line, verb_line]
+	if lower.begins_with("make") or lower.begins_with("compile"):
+		return "%s\n%s\n%s\nFinal step: rebuild and validate to finish the encounter." % [header, noun_line, verb_line]
+	return "%s\n%s\n%s\nUse SCAN -> ANALYZE -> EXECUTE. If stuck, run ls and read the current clue file." % [header, noun_line, verb_line]
+
+static func _build_wrong_sequence_command_message(puzzle: PuzzleData, expected_cmd: String, current_index: int, total_steps: int) -> String:
+	var clue_files: Array = puzzle.custom_data.get("clue_files", [])
+	var noun := _extract_expected_noun(expected_cmd)
+	if current_index >= 0 and current_index < clue_files.size():
+		noun = str(clue_files[current_index])
+	var verbs := _verb_family_for_expected(expected_cmd)
+	var phase := _phase_from_expected_command(expected_cmd)
+	return "Wrong command.\nPhase: %s (%d/%d)\nNoun: %s\nUse one verb from: %s\nTip: type ls to view clue files or scan for guidance." % [phase, current_index + 1, maxi(1, total_steps), noun, ", ".join(verbs)]
+
+static func _extract_expected_noun(expected_cmd: String) -> String:
+	var tokens := expected_cmd.strip_edges().split(" ", false)
+	if tokens.size() >= 2:
+		return str(tokens[1]).strip_edges()
+	return "current_clue"
+
+static func _phase_from_expected_command(expected_cmd: String) -> String:
+	var lower := expected_cmd.to_lower().strip_edges()
+	if lower.begins_with("cat") or lower.begins_with("ls"):
+		return "SCAN"
+	if lower.begins_with("find"):
+		return "ANALYZE"
+	return "EXECUTE"
+
+static func _verb_family_for_expected(expected_cmd: String) -> Array[String]:
+	var lower := expected_cmd.to_lower().strip_edges()
+	if lower.begins_with("ls"):
+		return ["ls", "dir", "list"]
+	if lower.begins_with("cat"):
+		return ["cat", "read", "open"]
+	if lower.begins_with("find"):
+		return ["find", "search", "locate"]
+	if lower.begins_with("kill"):
+		return ["kill", "terminate"]
+	if lower.begins_with("unlink"):
+		return ["unlink", "disconnect"]
+	if lower.begins_with("ln"):
+		return ["ln", "link", "connect"]
+	if lower.begins_with("rm"):
+		return ["rm", "delete", "remove"]
+	if lower.begins_with("chmod"):
+		return ["chmod", "permissions"]
+	if lower.begins_with("make") or lower.begins_with("compile"):
+		return ["make", "build", "compile"]
+	return ["scan", "help"]
 #endregion
 #region Timing Minigame Integration
 
@@ -756,18 +848,18 @@ static func apply_timing_to_puzzle(puzzle: PuzzleData, original_result: PuzzleRe
 	match zone:
 		2:  # CRITICAL - Perfect execution
 			data["timing_critical_hits"] = int(data.get("timing_critical_hits", 0)) + 1
-			result.message = "⭐ PERFECT TIMING!\n"
+			result.message = "PERFECT TIMING!\n"
 			_apply_critical_timing(puzzle, result, data)
 		1:  # NORMAL - Success with chance
 			if randf() < success_chance:
-				result.message = "✓ Good timing!\n"
+				result.message = "Good timing!\n"
 				_apply_normal_timing(puzzle, result, data)
 			else:
-				result.message = "✗ Timing was off... Command partially failed.\n"
+				result.message = "Timing was off... Command partially failed.\n"
 				result.success = false
 				result.progress_made = false
 		0, _:  # MISS - Command fails
-			result.message = "✗ MISS! Command failed to execute.\n"
+			result.message = "MISS! Command failed to execute.\n"
 			result.success = false
 			result.progress_made = false
 			result.puzzle_complete = false
@@ -811,7 +903,7 @@ Checking integrity... PERFECT
 Verifying checksums... VERIFIED
 Rebuilding index... OPTIMIZED
 
-[⭐ PERFECT SUCCESS] File fully recovered with bonus integrity!
+[PERFECT SUCCESS] File fully recovered with bonus integrity!
 
 The Lost File has been restored to its original state.
 It remembers who it once was... and is grateful for your skill."""

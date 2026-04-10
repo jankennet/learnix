@@ -53,7 +53,8 @@ else:
 Broken Link: Choose.
 - I will repair the link.
 	Broken Link: [static softens] ...help...
-	Broken Link: Start with a scan. Then find the target.
+	Broken Link: Start simple: ls, then cat clues, then scan.
+	Broken Link: After that, run repair actions one by one.
 	Broken Link: Reconnect. Patch. Verify.
 	=> offer_puzzle
 - I will destroy the corruption. (Start Combat)
@@ -63,15 +64,10 @@ Broken Link: Choose.
 
 ~ offer_puzzle
 Broken Link: The repair sequence is short but precise.
-Broken Link: scan broken_link
-Broken Link: find /forest/target
-Broken Link: disconnect stub
-Broken Link: connect stub /forest/target
-Broken Link: chmod link_table 644
-Broken Link: patch link_table
-Broken Link: scan link_table
-Broken Link: compile link_map
-Broken Link: [Puzzle mode will begin - type commands to solve]
+Broken Link: Use ls/cat/scan first to confirm what is broken.
+Broken Link: Then apply the repair commands in the order the clues imply.
+Broken Link: If stuck, use help. If needed, type fight to return to combat.
+Broken Link: [Puzzle mode ready - use terminal commands]
 do start_puzzle()
 => END
 

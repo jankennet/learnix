@@ -15,6 +15,7 @@ var _prev_defeated_flags: Dictionary = {}
 var _prev_item_flags: Dictionary = {}
 var _sage_quiz_announced: bool = false
 var _ready_check_prompted: Dictionary = {}
+var _announced_npc_outcomes: Dictionary = {}
 var _tux_line_queue: Array[String] = []
 var _draining_tux_lines: bool = false
 var _hud_dialogue_resource: Resource = null
@@ -151,6 +152,8 @@ func refresh_state_snapshot(clear_pending_lines: bool = false) -> void:
 		var qid := String(quest_id)
 		_ready_check_prompted[qid] = _is_quest_ready_to_check(qid)
 
+	_announced_npc_outcomes.clear()
+
 	if clear_pending_lines:
 		_tux_line_queue.clear()
 
@@ -254,6 +257,11 @@ func _check_boolean_flags(flag_list: Array[String], storage: Dictionary, callbac
 
 func _handle_npc_state_change(npc_name: String, old_state: Variant, new_state: Variant) -> void:
 	if str(new_state) == "helped" and str(old_state) != "helped":
+		var helped_key := "helped:%s" % npc_name
+		if bool(_announced_npc_outcomes.get(helped_key, false)):
+			return
+		_announced_npc_outcomes[helped_key] = true
+
 		var tpl: Dictionary = NPC_TEMPLATES.get(npc_name, NPC_TEMPLATES["default"])
 		var template: String = tpl.get("helped", NPC_TEMPLATES["default"]["helped"])
 		var text: String = template
@@ -286,6 +294,10 @@ func _handle_npc_defeated(defeat_flag: String) -> void:
 
 	var karma: String = str(sm.player_karma) if sm else "neutral"
 	var tpl: Dictionary = NPC_TEMPLATES.get(npc_name, NPC_TEMPLATES["default"])
+	var defeat_key := "defeated:%s" % npc_name
+	if bool(_announced_npc_outcomes.get(defeat_key, false)):
+		return
+	_announced_npc_outcomes[defeat_key] = true
 
 	var msg_key := "killed_neutral"
 	match karma:

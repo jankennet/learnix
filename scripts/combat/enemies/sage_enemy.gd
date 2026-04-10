@@ -44,7 +44,34 @@ func _initialize_enemy_data() -> void:
 
 func _initialize_puzzle_data() -> void:
 	# Sage fight is combat-only for this story beat.
+	allow_puzzle_solution = false
 	puzzle_data = PuzzleStateHandler.create_printer_beast_puzzle()
+
+func _handle_combat_input(input: String) -> Dictionary:
+	var result := {"handled": true, "message": "", "mode_changed": false, "encounter_ended": false}
+
+	if input in ["puzzle", "help", "clear", "restore"]:
+		result.message = "[Sage: This trial is combat-only. No restore path here.]"
+		return result
+
+	var cmd := CommandParser.parse(input)
+	if not cmd.success:
+		result.message = cmd.error_message
+		return result
+
+	if cmd.command_type == CommandParser.CommandType.ATTACK or cmd.command_type == CommandParser.CommandType.DELETE:
+		has_attacked = true
+
+	if cmd.command_type == CommandParser.CommandType.PATCH:
+		has_attacked = true
+		result.message = _handle_patch_in_combat()
+		return result
+
+	if combat_manager:
+		combat_manager.process_input(input)
+		result.handled = true
+
+	return result
 
 func _start_quest_if_needed() -> void:
 	# No quest side effects for Sage combat.

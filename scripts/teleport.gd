@@ -2,7 +2,7 @@ extends Area3D
 
 @export var target_scene: String
 @export var spawn_name: String
-@export var location_name: String = "Unknown Location"
+@export var location_name: String = ""
 @export var delay: float = 1.0
 
 var can_teleport := true
@@ -15,6 +15,7 @@ func _ready():
 	body_entered.connect(_on_enter)
 	body_exited.connect(_on_exit)
 	_scene_manager = get_node_or_null("/root/SceneManager")
+	_resolve_location_name()
 	print("[Teleporter] ready - signals connected")
 	set_process(false)
 
@@ -155,3 +156,25 @@ func _find_node_recursive(node: Node, node_name: String) -> Node:
 		if found:
 			return found
 	return null
+
+func _resolve_location_name() -> void:
+	if location_name.strip_edges() != "" and location_name != "Unknown Location":
+		return
+
+	if _scene_manager and _scene_manager.has_method("get_scene_display_name") and target_scene.strip_edges() != "":
+		location_name = String(_scene_manager.call("get_scene_display_name", target_scene))
+		if location_name.strip_edges() != "" and location_name != "Unknown Area":
+			return
+
+	match target_scene:
+		"res://Scenes/Levels/file_system_forest.tscn":
+			location_name = "Filesystem Forest"
+		"res://Scenes/Levels/deamon_depths.tscn":
+			location_name = "Deamon Depths"
+		"res://Scenes/Levels/bios_vault.tscn", "res://Scenes/Levels/bios_vault_.tscn":
+			location_name = "Bios Vault"
+		"res://Scenes/Levels/fallback_hamlet.tscn":
+			location_name = "Fallback Hamlet"
+		_:
+			if location_name.strip_edges() == "":
+				location_name = "Travel"

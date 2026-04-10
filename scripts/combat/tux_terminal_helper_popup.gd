@@ -67,7 +67,7 @@ func show_helper(context: Dictionary) -> void:
 		summary_label.text = summary_text
 		summary_label.visible = not summary_text.is_empty()
 	if footer_label:
-		footer_label.text = str(context.get("footer", "Pick a question, then follow terminal output if you need exact commands."))
+		footer_label.text = str(context.get("footer", "Pick a doc entry, then compare it against the Investigation Log."))
 	if response_label:
 		response_label.visible = false
 	_build_suggestion_buttons(context.get("suggestions", []))
@@ -101,7 +101,7 @@ func _apply_layout_mode(show_sprite: bool) -> void:
 		summary_label.custom_minimum_size = Vector2(0.0, 84.0) if show_sprite else Vector2(0.0, 52.0)
 
 	if suggestion_label:
-		suggestion_label.text = "SUGGESTIONS" if show_sprite else "TUX ASKS"
+		suggestion_label.text = "COMMAND DOCS" if show_sprite else "TUX DOCS"
 
 func hide_helper() -> void:
 	visible = false

@@ -4,9 +4,13 @@ const SAVE_FILE_PATH := "user://savegame.json"
 const SAVE_FORMAT_VERSION := 1
 const TUTORIAL_SCENE_PATH := "res://Scenes/Levels/tutorial - Copy.tscn"
 const FALLBACK_HAMLET_SCENE_PATH := "res://Scenes/Levels/fallback_hamlet.tscn"
+const FILESYSTEM_FOREST_SCENE_PATH := "res://Scenes/Levels/file_system_forest.tscn"
+const DEAMON_DEPTHS_SCENE_PATH := "res://Scenes/Levels/deamon_depths.tscn"
 const TUTORIAL_CONTROLLER_SCRIPT_PATH := "res://scripts/tutorial_sequence_controller.gd"
 const TUTORIAL_DIALOGUE_PATH := "res://dialogues/TutorialFlow.dialogue"
 const TUTORIAL_POST_TELEPORT_LABEL := "linuxia_arrival_intro"
+const FILESYSTEM_FOREST_POST_TELEPORT_LABEL := "filesystem_forest_architecture_intro"
+const DEAMON_DEPTHS_POST_TELEPORT_LABEL := "deamon_depths_architecture_intro"
 const PLAYER_FOLLOW_TUX_NODE_NAME := "Tux"
 const WORLD_MAIN_SCENE_PATH := "res://Scenes/world_main.tscn"
 const MAIN_HUD_SCENE_PATH := "res://Scenes/ui/MainHUD.tscn"
@@ -22,6 +26,8 @@ const EVIL_TUX_RETURN_SCENE_META_KEY := "evil_tux_return_scene_path"
 const EVIL_TUX_RETURN_SPAWN_META_KEY := "evil_tux_return_spawn_name"
 const TERMINAL_EXPLORED_META_KEY := "terminal_explored_locations"
 const BIOS_VAULT_SAGE_META_KEY := "bios_vault_sage_quiz_passed"
+const FILESYSTEM_FOREST_ARRIVAL_META_KEY := "filesystem_forest_arrival_intro_shown"
+const DEAMON_DEPTHS_ARRIVAL_META_KEY := "deamon_depths_arrival_intro_shown"
 const PENDING_REWARD_META_KEY := "pending_reward_popup_key"
 const SKILL_UNLOCK_RECEIPTS_META_KEY := "skill_unlock_receipts"
 
@@ -365,6 +371,27 @@ func _describe_scene_path(scene_path: String) -> String:
 		return "Unknown Area"
 	return scene_path.get_file().get_basename().replace("_", " ").capitalize()
 
+func get_scene_display_name(scene_path: String) -> String:
+	return _describe_scene_path(scene_path)
+
+func get_area_readme_text(scene_path: String) -> String:
+	match scene_path:
+		FILESYSTEM_FOREST_SCENE_PATH:
+			return "Filesystem Forest is a branching archive. Paths split, shortcuts hide, and the wrong turn can look convincing. Follow structure, not noise.\n\nThink like a directory tree: read the clues, confirm the branch, then move one step at a time."
+		DEAMON_DEPTHS_SCENE_PATH:
+			return "Deamon Depths is a service maze. Background processes, queues, and daemons keep everything moving, but one jam can stall the whole floor.\n\nTreat it like an operating room: check status, clear the blockage, then restart carefully."
+		_:
+			return "No area notes available yet."
+
+func get_area_intro_dialogue_label(scene_path: String) -> String:
+	match scene_path:
+		FILESYSTEM_FOREST_SCENE_PATH:
+			return FILESYSTEM_FOREST_POST_TELEPORT_LABEL
+		DEAMON_DEPTHS_SCENE_PATH:
+			return DEAMON_DEPTHS_POST_TELEPORT_LABEL
+		_:
+			return ""
+
 func _format_unix_timestamp(unix_ts: int) -> String:
 	if unix_ts <= 0:
 		return "Unknown time"
@@ -475,6 +502,8 @@ func _persistent_meta_keys() -> Array[String]:
 	var keys: Array[String] = [
 		TERMINAL_EXPLORED_META_KEY,
 		BIOS_VAULT_SAGE_META_KEY,
+		FILESYSTEM_FOREST_ARRIVAL_META_KEY,
+		DEAMON_DEPTHS_ARRIVAL_META_KEY,
 		EVIL_TUX_BOSS_CLEARED_META_KEY,
 		EVIL_TUX_ENDGAME_META_KEY,
 		EVIL_TUX_HIDE_NPCS_META_KEY,
@@ -867,7 +896,15 @@ func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.
 		active_player.set_process_input(true)
 		active_player.set_process_unhandled_input(true)
 
+	if loading_ui and loading_ui.has_method("set_loading_progress"):
+		loading_ui.set_loading_progress(1.0)
+
+	# Give the new scene a full frame/physics tick to settle while still covered.
+	await get_tree().process_frame
+	await get_tree().physics_frame
+
 	await _hide_loading_screen()
+	await _run_first_visit_arrival_sequence(scene_path)
 	if preserve_gameplay_nodes and active_player:
 		await _run_post_tutorial_arrival_sequence(previous_scene_path, scene_path, active_player)
 
@@ -1329,3 +1366,23 @@ func _play_dialogue_sequence(dialogue_path: String, start_label: String, context
 	if dialogue_manager.has_signal("dialogue_ended"):
 		await dialogue_manager.dialogue_ended
 	input_locked = previous_input_lock
+
+func _run_first_visit_arrival_sequence(target_scene_path: String) -> void:
+	var intro_key := ""
+	match target_scene_path:
+		FILESYSTEM_FOREST_SCENE_PATH:
+			intro_key = FILESYSTEM_FOREST_ARRIVAL_META_KEY
+		DEAMON_DEPTHS_SCENE_PATH:
+			intro_key = DEAMON_DEPTHS_ARRIVAL_META_KEY
+		_:
+			return
+
+	if intro_key == "" or bool(get_meta(intro_key, false)):
+		return
+
+	set_meta(intro_key, true)
+	var dialogue_label := get_area_intro_dialogue_label(target_scene_path)
+	if dialogue_label == "":
+		return
+
+	await _play_dialogue_sequence("res://dialogues/TuxHUD.dialogue", dialogue_label, [self])

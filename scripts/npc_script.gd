@@ -178,6 +178,12 @@ func _ready():
 
 func _process(_delta: float) -> void:
 	_apply_state_visuals_from_scene_state()
+	if npc_name == "Driver Remnant" and SceneManager and npc_name in SceneManager.npc_states:
+		if str(SceneManager.npc_states[npc_name]) == "defeated":
+			if _interaction_enabled:
+				_set_interaction_enabled(false)
+			if root_node and root_node.visible:
+				_hide_self(true)
 
 func _is_encounter_npc() -> bool:
 	if encounter_id.strip_edges() != "":
@@ -301,7 +307,6 @@ func play_idle_animation():
 		anim_to_play = resolved
 
 	sprite.play(anim_to_play)
-	print("%s is now playing %s" % [npc_name, anim_to_play])
 
 func on_scene_activated():
 	# Called by scene manager / teleporter when level becomes active
@@ -452,6 +457,10 @@ func _call_scene_controller(method_name: String) -> void:
 func _run_bios_vault_transfer() -> void:
 	var target_scene_path := "res://Scenes/Levels/bios_vault.tscn"
 	var spawn_name := "Spawn_BV"
+
+	if SceneManager and bool(SceneManager.get_meta("evil_tux_boss_cleared", false)):
+		_gatekeeper_transfer_running = false
+		return
 
 	if SceneManager:
 		SceneManager.input_locked = true

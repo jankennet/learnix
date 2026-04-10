@@ -6,6 +6,11 @@ if SceneManager.proficiency_key_printer == true and SceneManager.driver_remnant_
 	Hardware Ghost: Take this gratitude. It is all I have left.
 	do SceneManager.quest_manager.complete_quest("drivers_den_cleanup")
 	=> END
+elif SceneManager.npc_states.get("Hardware Ghost", "") == "helped" or SceneManager.npc_states.get("Hardware Ghost", "") == "solved":
+	Hardware Ghost: [soft static] The logs are calm now.
+	Hardware Ghost: You already helped me stabilize the errors.
+	Hardware Ghost: Thank you again, traveler.
+	=> END
 elif SceneManager.npc_states.get("Hardware Ghost", "") == "puzzle_ejected":
 	Hardware Ghost: [flicker] The terminal threw you out.
 	Hardware Ghost: Too many unstable fixes in one run.
@@ -21,6 +26,7 @@ elif SceneManager.quest_manager.is_quest_active("drivers_den_cleanup"):
 	Hardware Ghost: The printer daemon still screams.
 	Hardware Ghost: Please, end the errors.
 	- I will calm the logs. (Puzzle)
+		Hardware Ghost: Start with ls/cat/scan, then follow the log clues.
 		do start_puzzle()
 		=> END
 	- I am done listening. (Combat)
@@ -52,7 +58,7 @@ else:
 		Hardware Ghost: Then the system can rest.
 	- I will help.
 		Hardware Ghost: Then listen for the error messages. They whisper the problem.
-		Hardware Ghost: Study the logs. Find patterns. Isolate the issue.
+		Hardware Ghost: Study the logs. Start with ls/cat/scan. Then isolate the issue.
 		Hardware Ghost: If you can calm the logs, I can guide you further.
 		set SceneManager.met_hardware_ghost = true
 		do SceneManager.quest_manager.start_quest("drivers_den_cleanup")

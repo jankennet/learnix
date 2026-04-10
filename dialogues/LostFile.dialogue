@@ -55,7 +55,7 @@ Lost File: [data flickers]
 	Lost File: [data stabilizes slightly]
 	Lost File: There's a terminal here. Can you... can you restore my fragments?
 	Lost File: Put them back together? Maybe I can remember what I was?
-	Lost File: Try the 'cat' command to read me. 'ls' to see the pieces.
+	Lost File: Start with 'ls', then use 'cat' and 'scan' to read clues.
 	Lost File: [whispering] Every deleted file leaves traces. Inodes. Blocks.
 	Lost File: If you're careful, you might find me again...
 	do start_puzzle()
@@ -126,11 +126,11 @@ Lost File: Here's what I remember about my pieces:
 Lost File: .fragment_001 - In /tmp, partially corrupted
 Lost File: .fragment_002 - Scattered, location unknown
 Lost File: .fragment_003 - Encrypted, hidden in /home/.cache
-Lost File: Use 'find' to locate them. 'restore' to recover them.
-Lost File: .fragment_003 needs 'decrypt' before restoration.
-Lost File: When all are found, use 'cat' then 'compile'.
+Lost File: Use 'find' to locate them. Use 'restore' to recover each fragment.
+Lost File: If one is locked, use 'decrypt' first.
+Lost File: When all are recovered, run 'cat fragments' then 'compile recovered_file'.
 Lost File: Hurry... my mother is waiting for me.
-Lost File: [Puzzle mode will begin - type commands to solve]
+Lost File: [Puzzle mode ready - use terminal commands]
 do start_puzzle()
 => END
 

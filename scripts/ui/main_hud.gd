@@ -652,6 +652,8 @@ func _is_terminal_location_unlocked(location_key: String) -> bool:
 		TUTORIAL_LOCATION:
 			return true
 		"bios_vault":
+			if SceneManager and bool(SceneManager.get_meta("evil_tux_boss_cleared", false)):
+				return false
 			return SceneManager.gatekeeper_pass_granted or SceneManager.deamon_depths_boss_door_unlocked or SceneManager.get_meta("bios_vault_sage_quiz_passed", false) == true
 		"deamon_depths":
 			return SceneManager.proficiency_key_forest or SceneManager.broken_link_fragmented_key or _has_explored_location("deamon_depths")

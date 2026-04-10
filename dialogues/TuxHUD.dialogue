@@ -87,6 +87,18 @@ Tux: Depths pressure people into bad decisions.
 Tux: Slow down and check each action before you commit.
 => END
 
+~ filesystem_forest_architecture_intro
+Tux: First landing in Filesystem Forest.
+Tux: Think of it as a living directory tree. Branches split, shortcuts hide, and the wrong path can look convincing.
+Tux: Read the clues, confirm the route, then move one step at a time.
+=> END
+
+~ deamon_depths_architecture_intro
+Tux: First landing in Deamon Depths.
+Tux: This place is built around background services, queues, and jams. One stuck process can slow the whole floor.
+Tux: Check status, clear the blockage, then restart carefully.
+=> END
+
 ~ hud_location_vault_a
 Tux: BIOS Vault is precision country.
 Tux: One careful action beats three rushed ones.

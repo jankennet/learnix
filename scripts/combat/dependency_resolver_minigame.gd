@@ -83,8 +83,6 @@ var _metadata_tooltip_label: Label
 var _mono_font: Font
 var _breadcrumb_label: Label
 var _preflight_label: Label
-var _saved_mouse_mode: int = Input.MOUSE_MODE_VISIBLE
-var _mouse_mode_saved := false
 var _flow_phase := 0.0
 var _app_visual_refresh_accum := 0.0
 var _hovered_node_id := -1
@@ -168,9 +166,6 @@ func open_minigame() -> void:
 	show()
 	move_to_front()
 	_is_active = true
-	if not _mouse_mode_saved:
-		_saved_mouse_mode = Input.mouse_mode
-		_mouse_mode_saved = true
 	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
 
 func close_minigame() -> void:
@@ -181,9 +176,7 @@ func close_minigame() -> void:
 	_hovered_node_id = -1
 	if _metadata_tooltip:
 		_metadata_tooltip.visible = false
-	if _mouse_mode_saved:
-		Input.mouse_mode = _saved_mouse_mode as Input.MouseMode
-		_mouse_mode_saved = false
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	resolver_closed.emit()
 
 func configure_for_encounter(profile: String) -> void:
@@ -746,9 +739,9 @@ func _process(delta: float) -> void:
 				_draw_overlay.queue_redraw()
 
 	if _workspace:
-		_build_cursor = _workspace.get_local_mouse_position()
-		_build_cursor.x = clampf(_build_cursor.x, 16.0, _workspace.size.x - 16.0)
-		_build_cursor.y = clampf(_build_cursor.y, 16.0, _workspace.size.y - 16.0)
+		_build_cursor = get_local_mouse_position()
+		_build_cursor.x = clampf(_build_cursor.x, 8.0, size.x - 8.0)
+		_build_cursor.y = clampf(_build_cursor.y, 8.0, size.y - 8.0)
 
 	if _metadata_tooltip and _metadata_tooltip.visible and _hovered_node_id >= 0:
 		_update_metadata_tooltip_position(_hovered_node_id)
@@ -825,7 +818,7 @@ func _on_overlay_redraw() -> void:
 		y += grid_step
 
 	# Cursor reticle
-	var cursor := ws_pos + _build_cursor
+	var cursor := _build_cursor
 	o.draw_circle(cursor, 8.5, Color(0.38, 1.0, 0.95, 0.2))
 	o.draw_arc(cursor, 12.0, 0, TAU, 28, Color(0.5, 1.0, 0.95, 0.85), 2.0)
 	o.draw_line(cursor + Vector2(-16, 0), cursor + Vector2(-8, 0), Color(0.5, 1.0, 0.95, 0.8), 2)
@@ -1147,7 +1140,7 @@ func _on_workspace_gui_input(event: InputEvent) -> void:
 		return
 
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		_build_cursor = _workspace.get_local_mouse_position()
+		_build_cursor = get_local_mouse_position()
 		if _selected_template_id != "":
 			_spawn_library(_selected_template_id, _workspace.get_local_mouse_position() - NODE_SIZE * 0.5)
 			_hint_label.text = "Placed. Connect nodes."
@@ -1203,7 +1196,7 @@ func _on_build_arrow_pressed(direction: String) -> void:
 			_on_repository_item_pressed(_template_order[_template_cursor_index])
 		"up":
 			if _selected_template_id != "":
-				_spawn_library(_selected_template_id, _build_cursor - NODE_SIZE * 0.5)
+				_spawn_library(_selected_template_id, _cursor_workspace_position() - NODE_SIZE * 0.5)
 				_hint_label.text = "Placed: %s" % _templates[_selected_template_id]["label"]
 		"down":
 			_toggle_link_mode()
@@ -1270,6 +1263,16 @@ func _spawn_core_nodes() -> void:
 		"secure_socket_only_arm": false
 	}, Vector2(ws_size.x * 0.72, ws_size.y * 0.18))
 	_setup_watchdog_patrol()
+
+func _cursor_workspace_position() -> Vector2:
+	if _workspace == null:
+		return _build_cursor
+
+	var ws_origin := _workspace.global_position - global_position
+	var workspace_cursor := _build_cursor - ws_origin
+	workspace_cursor.x = clampf(workspace_cursor.x, 16.0, _workspace.size.x - 16.0)
+	workspace_cursor.y = clampf(workspace_cursor.y, 16.0, _workspace.size.y - 16.0)
+	return workspace_cursor
 
 func _spawn_library(template_id: String, pos: Vector2) -> void:
 	if not _templates.has(template_id):

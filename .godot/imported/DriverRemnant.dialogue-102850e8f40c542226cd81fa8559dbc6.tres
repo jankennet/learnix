@@ -41,7 +41,7 @@ lines = {
 },
 &"id": "1",
 &"next_id": "2",
-&"next_id_after": "58",
+&"next_id_after": "59",
 &"next_sibling_id": "6",
 &"type": "condition"
 },
@@ -243,7 +243,7 @@ lines = {
 &"condition": {},
 &"id": "20",
 &"next_id": "21",
-&"next_id_after": "58",
+&"next_id_after": "59",
 &"type": "condition"
 },
 "21": {
@@ -270,7 +270,7 @@ lines = {
 "24": {
 &"id": "24",
 &"next_id": "25",
-&"responses": PackedStringArray("24", "33", "37", "46", "53"),
+&"responses": PackedStringArray("24", "33", "37", "47", "54"),
 &"text": "What are you?",
 &"type": "response"
 },
@@ -333,7 +333,7 @@ lines = {
 "32": {
 &"character": "Driver Remnant",
 &"id": "32",
-&"next_id": "58",
+&"next_id": "59",
 &"text": "I am a zombie thread.",
 &"type": "dialogue"
 },
@@ -360,7 +360,7 @@ lines = {
 "36": {
 &"character": "Driver Remnant",
 &"id": "36",
-&"next_id": "58",
+&"next_id": "59",
 &"text": "I AM the corruption.",
 &"type": "dialogue"
 },
@@ -395,18 +395,25 @@ lines = {
 &"character": "Driver Remnant",
 &"id": "40",
 &"next_id": "41",
-&"text": "Show me the way to clean shutdown.",
+&"text": "Start with ls/cat/scan, then isolate and stabilize.",
 &"type": "dialogue"
 },
 "41": {
 &"character": "Driver Remnant",
 &"id": "41",
 &"next_id": "42",
-&"text": "Make me a graceful death, not violent purge.",
+&"text": "Show me the way to clean shutdown.",
 &"type": "dialogue"
 },
 "42": {
+&"character": "Driver Remnant",
 &"id": "42",
+&"next_id": "43",
+&"text": "Make me a graceful death, not violent purge.",
+&"type": "dialogue"
+},
+"43": {
+&"id": "43",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"i": 4,
@@ -430,11 +437,11 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "43",
+&"next_id": "44",
 &"type": "mutation"
 },
-"43": {
-&"id": "43",
+"44": {
+&"id": "44",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"i": 3,
@@ -465,11 +472,11 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "44",
+&"next_id": "45",
 &"type": "mutation"
 },
-"44": {
-&"id": "44",
+"45": {
+&"id": "45",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "start_puzzle",
@@ -482,38 +489,45 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "45",
+&"next_id": "46",
 &"type": "mutation"
 },
-"45": {
-&"id": "45",
+"46": {
+&"id": "46",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"46": {
-&"id": "46",
-&"next_id": "47",
-&"text": "Purge it now. (Combat)",
-&"type": "response"
-},
 "47": {
-&"character": "Driver Remnant",
 &"id": "47",
 &"next_id": "48",
-&"text": "[spikes wildly] THREAT DETECTED!",
-&"type": "dialogue"
+&"text": "Purge it now. (Combat)",
+&"type": "response"
 },
 "48": {
 &"character": "Driver Remnant",
 &"id": "48",
 &"next_id": "49",
-&"text": "Then I go down fighting!",
+&"text": "[spikes wildly] THREAT DETECTED!",
 &"type": "dialogue"
 },
 "49": {
+&"character": "Driver Remnant",
 &"id": "49",
+&"next_id": "50",
+&"text": "Then I go down fighting!",
+&"type": "dialogue"
+},
+"5": {
+&"id": "5",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"50": {
+&"id": "50",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"i": 4,
@@ -537,18 +551,11 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "50",
+&"next_id": "51",
 &"type": "mutation"
 },
-"5": {
-&"id": "5",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
-},
-"50": {
-&"id": "50",
+"51": {
+&"id": "51",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"i": 3,
@@ -579,11 +586,11 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "51",
+&"next_id": "52",
 &"type": "mutation"
 },
-"51": {
-&"id": "51",
+"52": {
+&"id": "52",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"function": "start_combat",
@@ -596,50 +603,50 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "52",
+&"next_id": "53",
 &"type": "mutation"
 },
-"52": {
-&"id": "52",
+"53": {
+&"id": "53",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"53": {
-&"id": "53",
-&"next_id": "54",
-&"text": "Back away.",
-&"type": "response"
-},
 "54": {
-&"character": "Driver Remnant",
 &"id": "54",
 &"next_id": "55",
-&"text": "[frantic chirps] RUN! STAY AWAY!",
-&"type": "dialogue"
+&"text": "Back away.",
+&"type": "response"
 },
 "55": {
 &"character": "Driver Remnant",
 &"id": "55",
 &"next_id": "56",
-&"text": "I corrupt everything I touch!",
+&"text": "[frantic chirps] RUN! STAY AWAY!",
 &"type": "dialogue"
 },
 "56": {
+&"character": "Driver Remnant",
 &"id": "56",
+&"next_id": "57",
+&"text": "I corrupt everything I touch!",
+&"type": "dialogue"
+},
+"57": {
+&"id": "57",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"57": {
-&"id": "57",
-&"next_id": "58",
-&"type": ""
-},
 "58": {
 &"id": "58",
+&"next_id": "59",
+&"type": ""
+},
+"59": {
+&"id": "59",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
@@ -689,7 +696,7 @@ lines = {
 },
 &"id": "6",
 &"next_id": "7",
-&"next_id_after": "58",
+&"next_id_after": "59",
 &"next_sibling_id": "20",
 &"type": "condition"
 },
@@ -755,6 +762,7 @@ else:
 	- Isolate the thread. (Puzzle)
 		Driver Remnant: [hopeful flicker] Yes... understand the problem...
 		Driver Remnant: Trace where I went wrong. Find my spawn point.
+		Driver Remnant: Start with ls/cat/scan, then isolate and stabilize.
 		Driver Remnant: Show me the way to clean shutdown.
 		Driver Remnant: Make me a graceful death, not violent purge.
 		set SceneManager.met_driver_remnant = true

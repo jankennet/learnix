@@ -9,6 +9,8 @@ extends CharacterBody3D
 @export var hint_interval_seconds: float = 18.0
 @export var stuck_hint_delay_seconds: float = 10.0
 @export var vertical_follow_speed: float = 16.0
+@export var show_floating_hints: bool = false
+@export var min_vertical_offset: float = 0.35
 
 @export var mentor_lines: Array[String] = [
 	"One step at a time, Nova. Even root starts with a prompt.",
@@ -38,11 +40,12 @@ func _ready() -> void:
 
 	if _player:
 		_last_player_position = _player.global_position
-		_vertical_offset = global_position.y - _player.global_position.y
+		_vertical_offset = maxf(min_vertical_offset, global_position.y - _player.global_position.y)
 
 	collision_layer = 0
 	collision_mask = 0
-	_create_speech_label()
+	if show_floating_hints:
+		_create_speech_label()
 
 
 func _physics_process(delta: float) -> void:
@@ -124,6 +127,9 @@ func _update_animation() -> void:
 
 
 func _update_guidance(delta: float) -> void:
+	if not show_floating_hints:
+		return
+
 	_hint_timer += delta
 
 	if _player.global_position.distance_to(_last_player_position) < 0.06:
@@ -170,6 +176,9 @@ func _create_speech_label() -> void:
 
 
 func _show_line(line: String) -> void:
+	if not show_floating_hints:
+		return
+
 	if _speech_label == null:
 		return
 

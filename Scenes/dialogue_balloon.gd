@@ -277,7 +277,7 @@ func apply_dialogue_line() -> void:
 	dialogue_label.modulate = Color(1, 1, 1, 1)
 
 	responses_menu.hide()
-	responses_menu.responses = dialogue_line.responses
+	responses_menu.responses = _get_display_responses(dialogue_line)
 
 	# Show our balloon
 	balloon.show()
@@ -390,6 +390,19 @@ func _get_npc_alignment_variant(character_name: String) -> String:
 		return "bad"
 
 	return ""
+
+
+func _get_display_responses(line: DialogueLine) -> Array:
+	var responses: Array = line.responses.duplicate()
+	if responses.size() <= 1:
+		return responses
+
+	# Shuffle only Sage quiz question options, keep all other choices stable.
+	var is_sage_question := _normalize_character_key(line.character) == "sage" and line.id.begins_with("q")
+	if is_sage_question:
+		responses.shuffle()
+
+	return responses
 
 
 func _get_npc_state_for_character(scene_manager: Node, character_name: String) -> String:

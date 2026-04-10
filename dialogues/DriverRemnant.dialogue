@@ -38,6 +38,7 @@ else:
 	- Isolate the thread. (Puzzle)
 		Driver Remnant: [hopeful flicker] Yes... understand the problem...
 		Driver Remnant: Trace where I went wrong. Find my spawn point.
+		Driver Remnant: Start with ls/cat/scan, then isolate and stabilize.
 		Driver Remnant: Show me the way to clean shutdown.
 		Driver Remnant: Make me a graceful death, not violent purge.
 		set SceneManager.met_driver_remnant = true

@@ -64,6 +64,7 @@ const TUTORIAL_META_TIMING_INTRO := "combat_timing_intro_seen_v2"
 const TUTORIAL_META_DEPENDENCY_INTRO := "combat_dependency_intro_seen_v2"
 const TUTORIAL_POPUP_SCENE_PATH := "res://Scenes/combat/combat_tutorial_popup.tscn"
 const TUX_HELPER_POPUP_SCENE_PATH := "res://Scenes/combat/tux_terminal_helper_popup.tscn"
+const PUZZLE_INTEL_LIBRARY = preload("res://scripts/combat/puzzle_intel_library.gd")
 const SKILL_UNLOCK_RECEIPTS_META_KEY := "skill_unlock_receipts"
 const COMMAND_FOCUS_GUARD_INTERVAL := 0.1
 const NPC_REVEAL_SHADER_PATH := "res://shaders/ui/npc_reveal_wipe.gdshader"
@@ -867,54 +868,17 @@ func _show_contextual_help() -> void:
 			_print_terminal("  escape, flee  - Attempt to flee\n")
 		
 		2:  # PUZZLE
-			var enemy_label := ""
-			if enemy_controller and "enemy_name" in enemy_controller:
-				enemy_label = str(enemy_controller.enemy_name).to_lower()
-			elif enemy_controller and "enemy_data" in enemy_controller and enemy_controller.enemy_data and "id" in enemy_controller.enemy_data:
-				enemy_label = str(enemy_controller.enemy_data.id).to_lower()
-			if enemy_label.find("broken") != -1 and enemy_label.find("link") != -1:
-				_print_terminal("[color=#66f266]HELP - PUZZLE MODE (Broken Link Repair)[/color]\n\n")
-				_print_terminal("  ls -l stub - Inspect the broken symlink\n")
-				_print_terminal("  find       - Locate the missing target path\n")
-				_print_terminal("  unlink     - Remove the broken stub\n")
-				_print_terminal("  ln -s      - Reattach stub to /forest/target\n")
-				_print_terminal("  chmod      - Fix permissions on link_table\n")
-				_print_terminal("  cat        - Rebuild or verify link_table\n")
-				_print_terminal("  make       - Finalize link_map\n")
-				_print_terminal("  fight      - Return to combat\n")
-			elif enemy_label.find("ghost") != -1:
-				_print_terminal("[color=#66f266]HELP - PUZZLE MODE (Hardware Ghost Logs)[/color]\n\n")
-				_print_terminal("  cat        - Read legacy bus and ghost logs\n")
-				_print_terminal("  find       - Locate the legacy driver table\n")
-				_print_terminal("  chmod      - Calm/fix driver table permissions\n")
-				_print_terminal("  make       - Finalize the driver map\n")
-				_print_terminal("  fight      - Return to combat\n")
-			elif enemy_label.find("remnant") != -1:
-				_print_terminal("[color=#66f266]HELP - PUZZLE MODE (Driver Remnant Isolation)[/color]\n\n")
-				_print_terminal("  cat        - Capture the rogue signature\n")
-				_print_terminal("  find       - Trace the interrupt line\n")
-				_print_terminal("  kill       - Terminate the remnant\n")
-				_print_terminal("  unlink     - Isolate the irq line\n")
-				_print_terminal("  chmod      - Stabilize interrupt table permissions\n")
-				_print_terminal("  make       - Rebuild the stability map\n")
-				_print_terminal("  fight      - Return to combat\n")
-			elif enemy_label.find("printer") != -1:
-				_print_terminal("[color=#66f266]HELP - PUZZLE MODE (Printer Beast Reset)[/color]\n\n")
-				_print_terminal("  ls         - Read spool queue status\n")
-				_print_terminal("  find       - Locate the jam in /var/spool/print\n")
-				_print_terminal("  rm         - Remove jammed pages\n")
-				_print_terminal("  chmod      - Fix spool permissions\n")
-				_print_terminal("  cat        - Rebuild spool index\n")
-				_print_terminal("  make       - Rebuild the print queue\n")
-				_print_terminal("  fight      - Return to combat\n")
-			else:
-				_print_terminal("[color=#66f266]HELP - PUZZLE MODE (Lost File Recovery)[/color]\n\n")
-				_print_terminal("  find       - Search for file fragments\n")
-				_print_terminal("  restore    - Recover a found fragment\n")
-				_print_terminal("  decrypt    - Decode encrypted data\n")
-				_print_terminal("  cat        - Read fragment contents\n")
-				_print_terminal("  compile    - Reassemble all fragments\n")
-				_print_terminal("  fight      - Return to combat\n")
+			_print_terminal("[color=#66f266]HELP - PUZZLE MODE (Investigation Log)[/color]\n\n")
+			_print_terminal("  ls         - list files in the current directory\n")
+			_print_terminal("  cat <file> - read the clue file named in the log\n")
+			_print_terminal("  find <n>   - search the current directory for a clue\n")
+			_print_terminal("  scan       - ask Tux for a plain-language clue\n")
+			_print_terminal("  fight      - return to combat\n")
+			_print_terminal("\n[color=#f2e066]Start here: LS -> CAT clue -> SCAN -> act.[/color]\n")
+			var puzzle_data = enemy_controller.puzzle_data if enemy_controller and ("puzzle_data" in enemy_controller) else null
+			var enemy_id := _get_current_enemy_id()
+			for help_line in PUZZLE_INTEL_LIBRARY.get_context_help_lines(enemy_id, puzzle_data):
+				_print_terminal("  %s\n" % str(help_line))
 		
 		_:  # RESOLVED or unknown
 			_print_terminal("[color=#66f266]Encounter resolved.[/color]\n")
@@ -1055,94 +1019,65 @@ func _build_dialogue_hint_message(npc_name: String, default_message: String) -> 
 	return "%s: %s." % [npc_name, default_message.capitalize()]
 
 func _build_puzzle_summary() -> String:
-	if dependency_minigame and dependency_minigame.has_method("_objective_short_text"):
-		return str(dependency_minigame.call("_objective_short_text"))
-
-	var lines := _build_puzzle_objective_lines()
-	return _join_lines(lines)
+	var puzzle_data = enemy_controller.puzzle_data if enemy_controller and ("puzzle_data" in enemy_controller) else null
+	return PUZZLE_INTEL_LIBRARY.get_tux_doc_summary(_get_current_enemy_id(), puzzle_data)
 
 func _build_puzzle_suggestions(npc_name: String) -> Array[Dictionary]:
-	var suggestions: Array[Dictionary] = []
-	var puzzle_title := _get_current_puzzle_title()
-	var puzzle_hints := _get_current_puzzle_hints()
-	var next_hint := puzzle_hints[0] if not puzzle_hints.is_empty() else ""
-	var sequence_guide := _build_puzzle_sequence_guidance()
+	var _unused_npc_name := npc_name
+	var puzzle_data = enemy_controller.puzzle_data if enemy_controller and ("puzzle_data" in enemy_controller) else null
+	return PUZZLE_INTEL_LIBRARY.get_tux_doc_suggestions(_get_current_enemy_id(), puzzle_data)
 
-	suggestions.append({
-		"label": "What is the goal?",
-		"detail": "Tux turns the puzzle into a short objective.",
-		"message": _build_puzzle_goal_message(puzzle_title),
-	})
-	suggestions.append({
-		"label": "What should I do first?",
-		"detail": "A clear first action and why it matters.",
-		"message": _build_puzzle_first_step_message(next_hint),
-	})
-	suggestions.append({
-		"label": "Show full command order",
-		"detail": "Step-by-step sequence with your current step marked.",
-		"message": sequence_guide,
-	})
-	suggestions.append({
-		"label": "What am I avoiding?",
-		"detail": "Common mistakes for this puzzle.",
-		"message": _build_puzzle_avoidance_message(npc_name),
-	})
+func _build_puzzle_progress_snapshot() -> String:
+	var puzzle_data = enemy_controller.puzzle_data if enemy_controller and ("puzzle_data" in enemy_controller) else null
+	return PUZZLE_INTEL_LIBRARY.get_status_snapshot(_get_current_enemy_id(), puzzle_data)
 
-	return suggestions
+func _build_conversation_recap(npc_name: String) -> String:
+	var _unused_npc_name := npc_name
+	var puzzle_data = enemy_controller.puzzle_data if enemy_controller and ("puzzle_data" in enemy_controller) else null
+	return PUZZLE_INTEL_LIBRARY.get_terminal_history(_get_current_enemy_id(), puzzle_data)
 
 func _build_puzzle_first_step_message(next_hint: String) -> String:
 	if next_hint.strip_edges() != "":
-		return "Step 1: %s" % next_hint
-	return "Step 1: Read the GOAL panel, then run the first command listed there."
+		return "TUX // First move: use this clue to narrow the current sub-goal."
+	return "TUX // First move: read GOAL, then infer the next sub-goal from the NPC's clue."
 
 func _build_puzzle_sequence_guidance() -> String:
 	if not enemy_controller or not ("puzzle_data" in enemy_controller):
-		return "No command sequence loaded yet. Read the objective panel and follow each line in order."
+		return "No clue chain loaded yet. Start with the current sub-goal and compare the output before moving on."
 
 	var puzzle_data = enemy_controller.puzzle_data
 	if puzzle_data == null or not ("custom_data" in puzzle_data):
-		return "No command sequence loaded yet. Read the objective panel and follow each line in order."
+		return "No clue chain loaded yet. Start with the current sub-goal and compare the output before moving on."
 
 	var custom: Dictionary = puzzle_data.custom_data
 	if custom.has("expected_sequence"):
-		var expected_sequence: Array = custom.get("expected_sequence", [])
-		if expected_sequence.is_empty():
-			return "Sequence is empty. Use the objective panel for the next step."
-		var current_index := int(custom.get("current_index", 0))
-		var lines: Array[String] = ["Run commands in this order:"]
-		for i in range(expected_sequence.size()):
-			var marker := "[ ]"
-			if i < current_index:
-				marker = "[x]"
-			elif i == current_index:
-				marker = "[>]"
-			lines.append("%s %s" % [marker, str(expected_sequence[i])])
-		return _join_lines(lines)
+		if custom.get("expected_sequence", []).is_empty():
+			return "The clue chain is empty. Use the objective panel for the next sub-goal."
+		return "Follow the clue chain one sub-goal at a time. Read the output before you decide the next move."
 
 	if custom.has("required_fragments"):
-		return "Lost File order: find fragment -> restore fragment -> decrypt encrypted fragment -> cat to assemble -> compile final file."
+		return "Lost File chain: locate the fragment, recover it, reveal the lock, then rebuild the whole."
 
-	return "Follow the objective panel in order. If a step fails, repeat that same step before moving on."
+	return "Follow the objective panel in order. If a step fails, re-evaluate the current sub-goal before moving on."
 
 func _build_puzzle_goal_message(puzzle_title: String) -> String:
 	if puzzle_title.strip_edges().is_empty():
-		return "Solve the current puzzle by following the objective panel step by step."
-	return "Current puzzle: %s. Focus on one step at a time from the objective panel." % puzzle_title
+		return "Objective: solve the current puzzle by clearing one sub-goal at a time."
+	return "Objective: %s. Clear one sub-goal at a time from the objective panel." % puzzle_title
 
 func _build_puzzle_avoidance_message(npc_name: String) -> String:
 	var lower_name := npc_name.to_lower()
 	if lower_name.find("link") != -1:
-		return "Avoid red links and broken stubs. Build a full green path from Kernel to App."
+		return "Avoid red links and broken stubs. Build a clean route by following the clues in order."
 	if lower_name.find("ghost") != -1:
-		return "Avoid skipping the log-reading steps. The ghost puzzle usually wants a calm, ordered sequence."
+		return "Avoid skipping the log-reading steps. Calm, ordered actions are safer than brute force."
 	if lower_name.find("remnant") != -1:
-		return "Avoid leaving the remnant active. Trace it, isolate it, then finish the stability steps."
+		return "Avoid leaving the remnant active. Trace it, isolate it, then finish the stability chain."
 	if lower_name.find("printer") != -1:
-		return "Avoid rushing the reset. Clear the jam, fix permissions, and rebuild the queue in order."
+		return "Avoid rushing the reset. Clear the jam, stabilize access, then rebuild the queue."
 	if lower_name.find("lost") != -1:
-		return "Avoid trying to compile too early. Find, restore, decrypt, assemble, then compile."
-	return "Avoid random commands. Do one listed step at a time, then check output before the next step."
+		return "Avoid rebuilding too early. Recover the pieces, reveal the lock, then assemble the whole."
+	return "Avoid random actions. Solve one sub-goal, read the result, then continue."
 
 func _get_current_puzzle_title() -> String:
 	if not enemy_controller:
@@ -1178,6 +1113,28 @@ func _get_current_npc_name() -> String:
 		if display_name != "":
 			return display_name
 	return "NPC"
+
+func _get_current_enemy_id() -> String:
+	if enemy_controller:
+		if "enemy_data" in enemy_controller and enemy_controller.enemy_data and "id" in enemy_controller.enemy_data:
+			var enemy_id := str(enemy_controller.enemy_data.id).strip_edges().to_lower()
+			if enemy_id != "":
+				return enemy_id
+		if "enemy_name" in enemy_controller:
+			var enemy_name := str(enemy_controller.enemy_name).strip_edges().to_lower()
+			if enemy_name.find("broken") != -1 and enemy_name.find("link") != -1:
+				return "broken_link"
+			if enemy_name.find("lost") != -1:
+				return "lost_file"
+			if enemy_name.find("ghost") != -1:
+				return "hardware_ghost"
+			if enemy_name.find("remnant") != -1:
+				return "driver_remnant"
+			if enemy_name.find("printer") != -1:
+				return "printer_beast"
+			if enemy_name.find("tux") != -1:
+				return "evil_tux"
+	return "default"
 
 func _get_current_mode() -> int:
 	if enemy_controller and "current_mode" in enemy_controller:
@@ -1428,10 +1385,20 @@ func _show_tutorial_popup(title: String, body: String, footer: String, visual_ki
 	if _tutorial_popup_ui == null:
 		return
 
+	var restore_dependency_mouse_filter := false
+	var previous_dependency_mouse_filter := Control.MOUSE_FILTER_STOP
+	if dependency_minigame and dependency_minigame.visible:
+		previous_dependency_mouse_filter = dependency_minigame.mouse_filter
+		dependency_minigame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		restore_dependency_mouse_filter = true
+
 	_tutorial_popup_visible = true
+	_tutorial_popup_ui.move_to_front()
 	_tutorial_popup_ui.show_popup(title, body, footer, visual_kind)
 	await _tutorial_popup_ui.closed
 	_tutorial_popup_visible = false
+	if restore_dependency_mouse_filter and dependency_minigame:
+		dependency_minigame.mouse_filter = previous_dependency_mouse_filter
 	tutorial_popup_closed.emit()
 
 func _hide_tutorial_popup() -> void:
@@ -1599,7 +1566,7 @@ func _update_side_help_for_mode() -> void:
 				"escape: use flee if you need a reset",
 			]
 		2:
-			objective_title = "GOAL // PUZZLE"
+			objective_title = "INVESTIGATION LOG"
 			lines = _build_puzzle_objective_lines()
 		_:
 			objective_title = "GOAL"
@@ -1612,69 +1579,8 @@ func _update_side_help_for_mode() -> void:
 	_refresh_terminal_visuals()
 
 func _build_puzzle_objective_lines() -> Array[String]:
-	if _dependency_objective_active:
-		return [
-			"goal: build a full green Kernel -> App path",
-			"next: place the correct nodes and links",
-			"avoid: red links, red nodes, and dead ends",
-			"reset: use [EXIT] only if you need to start over",
-		]
-
-	if not enemy_controller or not ("puzzle_data" in enemy_controller):
-		return ["Type help for puzzle command list"]
-
-	var puzzle_data = enemy_controller.puzzle_data
-	if puzzle_data == null or not ("custom_data" in puzzle_data):
-		return ["Type help for puzzle command list"]
-
-	var custom: Dictionary = puzzle_data.custom_data
-	if custom.has("expected_sequence"):
-		var expected_sequence: Array = custom.get("expected_sequence", [])
-		var current_index := int(custom.get("current_index", 0))
-		var seq_lines: Array[String] = []
-		seq_lines.append("goal: follow the command sequence in order")
-		var start_index := maxi(0, current_index - 1)
-		var end_index := mini(expected_sequence.size(), current_index + 3)
-		for i in range(start_index, end_index):
-			var command_text := str(expected_sequence[i])
-			var prefix := "[ ] "
-			if i < current_index:
-				prefix = "[X] "
-			elif i == current_index:
-				prefix = "[>] "
-			seq_lines.append(prefix + command_text)
-		if seq_lines.is_empty() and expected_sequence.size() > 0:
-			seq_lines.append("[X] sequence complete")
-		return seq_lines
-
-	if custom.has("required_fragments"):
-		var found: Array = custom.get("fragments_found", [])
-		var restored: Array = custom.get("fragments_restored", [])
-		var decrypted: Array = custom.get("fragments_decrypted", [])
-		var required: Array = custom.get("required_fragments", [])
-		var fragment_lines: Array[String] = []
-		for fragment in required:
-			var fragment_name := str(fragment)
-			var marker := "[ ]"
-			if fragment in restored:
-				marker = "[X]"
-			elif fragment == ".fragment_003" and fragment in decrypted:
-				marker = "[~]"
-			fragment_lines.append("%s restore %s" % [marker, fragment_name])
-		fragment_lines.insert(0, "goal: recover each fragment before compiling")
-
-		if found.size() < required.size():
-			fragment_lines.append("next: find .fragment")
-		elif ".fragment_003" in found and ".fragment_003" not in decrypted:
-			fragment_lines.append("next: decrypt .fragment_003")
-		elif not bool(custom.get("file_assembled", false)):
-			fragment_lines.append("next: cat fragments")
-		elif not bool(custom.get("file_compiled", false)):
-			fragment_lines.append("next: compile recovered_file")
-
-		return fragment_lines
-
-	return ["Type help for puzzle command list"]
+	var puzzle_data = enemy_controller.puzzle_data if enemy_controller and ("puzzle_data" in enemy_controller) else null
+	return PUZZLE_INTEL_LIBRARY.get_objective_lines(_get_current_enemy_id(), puzzle_data, _dependency_objective_active)
 
 func _join_lines(lines: Array[String]) -> String:
 	var output := ""
@@ -2133,6 +2039,10 @@ func _get_npc_visual_progress() -> float:
 	if current_mode == 1:
 		return 0.0
 	if current_mode == 3:
+		if enemy_controller and "encounter_result" in enemy_controller:
+			var outcome := str(enemy_controller.encounter_result)
+			if outcome == "combat_victory":
+				return 0.0
 		return 1.0
 	if current_mode != 2 and not _dependency_objective_active:
 		return 0.0

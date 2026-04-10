@@ -1,4 +1,8 @@
 ~ start
+if SceneManager.get_meta("evil_tux_boss_cleared", false) == true:
+	Gate Keeper: Passage is sealed. The old route is no longer available.
+	Gate Keeper: Your journey is complete. There is nowhere else for me to send you.
+	=> END
 if SceneManager.proficiency_key_forest == true and SceneManager.proficiency_key_printer == true:
 	Gate Keeper: Your credentials are verified.
 	Gate Keeper: You have earned passage to the next zone.

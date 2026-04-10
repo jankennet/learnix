@@ -187,11 +187,12 @@ func play_teleport_transition(scene_path: String, spawn_name: String, message_ov
 
 func play_lines_teleport_transition(lines: Array[String], per_line_duration: float, scene_path: String, spawn_name: String, teleport_delay: float = 0.5) -> void:
 	await play_lines(lines, per_line_duration, true)
-	await fade_out_only()
 
 	var scene_manager := get_node_or_null("/root/SceneManager")
 	if scene_manager and scene_manager.has_method("teleport_to_scene"):
 		await scene_manager.teleport_to_scene(scene_path, spawn_name, teleport_delay)
+
+	await fade_out_only()
 
 	finished.emit()
 	queue_free()
