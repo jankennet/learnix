@@ -233,7 +233,7 @@ static func _current_phase(enemy_id: String, puzzle_data) -> String:
 
 	return "scan"
 
-static func _scan_doc(enemy_id: String, phase: String, noun_hint: String) -> String:
+static func _scan_doc(_enemy_id: String, phase: String, noun_hint: String) -> String:
 	var scan_lines: Array[String] = []
 	scan_lines.append("TUX // SCAN")
 	scan_lines.append("Phase: %s" % phase.to_upper())

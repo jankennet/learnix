@@ -688,26 +688,13 @@ static func _process_sequence(puzzle: PuzzleData, command: CommandParser.Command
 	var expected_cmd: String = expected_sequence[current_index]
 	var input_cmd := command.raw_input.to_lower().strip_edges()
 	var expected_lower := expected_cmd.to_lower().strip_edges()
+	var command_matches_expected := expected_cmd in input_cmd or input_cmd in expected_cmd
 	var is_final_compile_step := command.command_type == CommandParser.CommandType.COMPILE and current_index == expected_sequence.size() - 1
 	is_final_compile_step = is_final_compile_step or expected_lower.begins_with("compile ") or expected_lower.begins_with("make ")
 
-	# Discovery commands should help the player orient, not fail progression.
-	if command.command_type == CommandParser.CommandType.LIST:
-		result.success = true
-		result.progress_made = false
-		result.message = _build_sequence_directory_snapshot(puzzle, current_index)
-		result.progress_percent = (float(data.get("current_index", 0)) / float(expected_sequence.size())) * 100.0
-		return result
-
-	if command.command_type == CommandParser.CommandType.HELP or command.command_type == CommandParser.CommandType.SCAN:
-		result.success = true
-		result.progress_made = false
-		result.message = _build_sequence_guidance_message(puzzle, expected_cmd, current_index, expected_sequence.size())
-		result.progress_percent = (float(data.get("current_index", 0)) / float(expected_sequence.size())) * 100.0
-		return result
-	
-	# Check if command matches expected (fuzzy)
-	if expected_cmd in input_cmd or input_cmd in expected_cmd:
+	# If the player's command matches the expected step, resolve progression first,
+	# even for commands like LIST that are otherwise treated as informational.
+	if command_matches_expected:
 		var timing_steps: Array = data.get("timing_steps", [])
 		if is_final_compile_step:
 			result.requires_timing = true
@@ -731,17 +718,36 @@ static func _process_sequence(puzzle: PuzzleData, command: CommandParser.Command
 			result.success = true
 			result.progress_made = true
 			result.message = "Step %d/%d complete." % [current_index + 1, expected_sequence.size()]
-			
+
 			if current_index + 1 >= expected_sequence.size():
 				result.puzzle_complete = true
 				puzzle.state = PuzzleState.SOLVED
 				result.message += "\nSequence complete!"
-	else:
-		result.message = _build_wrong_sequence_command_message(puzzle, expected_cmd, current_index, expected_sequence.size())
-		# Optionally reset sequence
-		if data.get("reset_on_fail", false):
-			data["current_index"] = 0
-			result.message += "\nSequence reset."
+
+		result.progress_percent = (float(data.get("current_index", 0)) / float(expected_sequence.size())) * 100.0
+		return result
+
+	# Discovery commands should help the player orient, not fail progression.
+	if command.command_type == CommandParser.CommandType.LIST:
+		result.success = true
+		result.progress_made = false
+		result.message = _build_sequence_directory_snapshot(puzzle, current_index)
+		result.progress_percent = (float(data.get("current_index", 0)) / float(expected_sequence.size())) * 100.0
+		return result
+
+	if command.command_type == CommandParser.CommandType.HELP or command.command_type == CommandParser.CommandType.SCAN:
+		result.success = true
+		result.progress_made = false
+		result.message = _build_sequence_guidance_message(puzzle, expected_cmd, current_index, expected_sequence.size())
+		result.progress_percent = (float(data.get("current_index", 0)) / float(expected_sequence.size())) * 100.0
+		return result
+	
+	# No match and not an informational command: show guided mismatch feedback.
+	result.message = _build_wrong_sequence_command_message(puzzle, expected_cmd, current_index, expected_sequence.size())
+	# Optionally reset sequence
+	if data.get("reset_on_fail", false):
+		data["current_index"] = 0
+		result.message += "\nSequence reset."
 	
 	result.progress_percent = (float(data.get("current_index", 0)) / float(expected_sequence.size())) * 100.0
 	return result

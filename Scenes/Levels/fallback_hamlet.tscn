@@ -696,6 +696,24 @@ sky_mode = 1
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_rlcwv")
 
+[node name="vfxPortal3" type="Node3D" parent="."]
+transform = Transform3D(1.9046685, 0, -0.03554058, 0, 1.905, 0, 0.03554058, 0, 1.9046685, 1.7860527, -0.67072225, -7.319826)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="vfxPortal3"]
+transform = Transform3D(2.2341986, 0, 0.05983132, 0, 2.235, 0, -0.05983132, 0, 2.2341986, -1.3828831, 1.5928686, -7.2555866)
+material_override = SubResource("ShaderMaterial_4dmxy")
+mesh = SubResource("QuadMesh_6u78u")
+skeleton = NodePath("../../Dungeon/StaticBody3D")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="vfxPortal3"]
+transform = Transform3D(1.2400001, 0, 4.4703484e-08, 0, 1.24, 0, -4.4703484e-08, 0, 1.2400001, -1.2124555, 1.3835163, -7.237114)
+material_override = SubResource("StandardMaterial3D_5wvr2")
+amount = 150
+trail_enabled = true
+trail_lifetime = 0.5
+process_material = SubResource("ParticleProcessMaterial_v6to1")
+draw_pass_1 = SubResource("RibbonTrailMesh_eulos")
+
 [node name="vfxPortal" type="Node3D" parent="."]
 transform = Transform3D(0.18962668, 0, -0.9818563, 0, 1, 0, 0.9818563, 0, 0.18962668, 15.485214, 0, -0.6506252)
 
