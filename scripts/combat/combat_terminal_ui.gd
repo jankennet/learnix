@@ -843,13 +843,21 @@ func _print_terminal(bbcode_text: String) -> void:
 		terminal_output.append_text(bbcode_text)
 
 func _show_contextual_help() -> void:
+	if _is_tutorial_scene_active():
+		_print_terminal("\n")
+		_print_terminal("[color=#66f266]TUTORIAL HELP[/color]\n\n")
+		_print_terminal("  pwd         - show your current location\n")
+		_print_terminal("  ls          - list files\n")
+		_print_terminal("  cat <file>  - read a file\n\n")
+		_print_terminal("[color=#f2e066]Try typing pwd[/color]\n\n")
+		return
+
 	# Get current mode from enemy controller
 	var current_mode := 0  # Default to dialogue
 	if enemy_controller and "current_mode" in enemy_controller:
 		current_mode = enemy_controller.current_mode
 	
 	_print_terminal("\n")
-	
 	match current_mode:
 		0:  # DIALOGUE
 			_print_terminal("[color=#66f266]HELP - DIALOGUE MODE[/color]\n\n")
@@ -884,6 +892,12 @@ func _show_contextual_help() -> void:
 			_print_terminal("[color=#66f266]Encounter resolved.[/color]\n")
 	
 	_print_terminal("\n")
+
+func _is_tutorial_scene_active() -> bool:
+	var scene := get_tree().current_scene
+	if scene == null:
+		return false
+	return String(scene.scene_file_path) == "res://Scenes/Levels/tutorial - Copy.tscn"
 
 func _on_tux_help_button_pressed() -> void:
 	_toggle_tux_helper_popup()
@@ -1309,9 +1323,9 @@ func _show_terminal_intro_tutorial_if_needed() -> void:
 		return
 
 	await _show_tutorial_popup(
-		"Combat Terminal Overview",
-		"This terminal is your command console during encounters.\nType commands in the input row, then press [ENTER] to run them.\nOutput appears in the large console area above.",
-		"Tip: watch the right-side objective panel for the next command goals.",
+		"Step A: Combat Terminal",
+		"This is your battle command box.\nType in the bottom input, then press ENTER.\nRead the result in the big text area.",
+		"Trivia: terminal means a text place where commands run.",
 		"terminal"
 	)
 	_mark_tutorial_seen(TUTORIAL_META_TERMINAL_INTRO)
@@ -1321,9 +1335,9 @@ func _show_timing_intro_tutorial_if_needed() -> void:
 		return
 
 	await _show_tutorial_popup(
-		"Timing Challenge",
-		"Press SPACE while the marker moves across the bar.\nGreen = hit but can still fail.\nRed = complete miss.\nYellow = critical success.",
-		"Better timing gives stronger command results.",
+		"Step B: Timing Bar",
+		"Press SPACE when the moving marker is in the good zone.\nGreen = good. Yellow = super good. Red = miss.",
+		"Trivia: timing games test rhythm and focus.",
 		"timing"
 	)
 	_mark_tutorial_seen(TUTORIAL_META_TIMING_INTRO)
@@ -1333,9 +1347,9 @@ func _show_dependency_intro_tutorial_if_needed() -> void:
 		return
 
 	await _show_tutorial_popup(
-		"Connecting Nodes Puzzle",
-		"Place nodes and connect links until you build a clean path from Kernel to App.\nGreen links are stable, red links are broken/conflicting.\nWin by producing one valid green route.",
-		"Build carefully: every bad reset risks terminal integrity.",
+		"Step C: Connect The Path",
+		"Connect nodes from Kernel to App.\nGreen links are safe. Red links are broken.",
+		"Trivia: dependencies are parts that other parts need.",
 		"nodes"
 	)
 	_mark_tutorial_seen(TUTORIAL_META_DEPENDENCY_INTRO)

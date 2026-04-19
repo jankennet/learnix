@@ -129,6 +129,11 @@ var _cached_quest_list: CanvasItem = null
 var _terminal_history: Array[String] = []
 var _terminal_history_index := -1
 var _terminal_history_draft := ""
+var _tutorial_terminal_progress := {
+	"pwd": false,
+	"ls": false,
+	"cat": false,
+}
 var _shop_panel: Control = null
 var _shutdown_confirm_dialog: ConfirmationDialog = null
 var _shutdown_main_menu_button: Button = null
@@ -379,6 +384,10 @@ func _open_terminal() -> void:
 	if terminal_output and terminal_output.get_parsed_text().is_empty():
 		_print_terminal_line("NOVA SHELL ready. Type help to list commands.")
 		_print_terminal_line("Current directory: %s" % _terminal_pwd())
+	if _is_tutorial_terminal_guided_mode():
+		if _is_tutorial_terminal_progress_empty():
+			_reset_tutorial_terminal_progress()
+		_print_terminal_line("Tutorial mode: we only need 3 commands for now -> pwd, ls, cat <file-name>")
 	if terminal_input:
 		terminal_input.call_deferred("grab_focus")
 
@@ -422,22 +431,26 @@ func _process_terminal_command(raw_command: String) -> void:
 	var parts := text.split(" ", false)
 	var command := parts[0].to_lower()
 	var args := parts.slice(1)
+	_track_tutorial_terminal_progress(command, args)
 	emit_signal("terminal_command_executed", command, args)
 
 	match command:
 		"help", "?":
-			var help_text = "Commands: help, map, pwd, ls, cat <file>, explorer, history, shop, save, quit, clear"
-			if _is_cd_command_unlocked():
-				help_text += ", cd <location>, cd .."
-			help_text += ", echo <text>, whoami, date, uname, touch <file>, mkdir <dir>, rm <file>, sudo shutdown, wget <url>"
-			_print_terminal_line(help_text)
-			if _is_cli_history_unlocked():
-				_print_terminal_line("Tip: use [Up Key] / [Down Key] for command history.")
+			if _is_tutorial_terminal_guided_mode():
+				_print_tutorial_help_guidance()
 			else:
-				_print_terminal_line("Tip: unlock CLI history with wget learnix://skills/cli_history.unlock")
-			var help_locations := _help_location_labels()
-			if not help_locations.is_empty():
-				_print_terminal_line("Locations: %s" % ", ".join(help_locations))
+				var help_text = "Commands: help, map, pwd, ls, cat <file>, explorer, history, shop, save, quit, clear"
+				if _is_cd_command_unlocked():
+					help_text += ", cd <location>, cd .."
+				help_text += ", echo <text>, whoami, date, uname, touch <file>, mkdir <dir>, rm <file>, sudo shutdown, wget <url>"
+				_print_terminal_line(help_text)
+				if _is_cli_history_unlocked():
+					_print_terminal_line("Tip: use [Up Key] / [Down Key] for command history.")
+				else:
+					_print_terminal_line("Tip: unlock CLI history with wget learnix://skills/cli_history.unlock")
+				var help_locations := _help_location_labels()
+				if not help_locations.is_empty():
+					_print_terminal_line("Locations: %s" % ", ".join(help_locations))
 		"map":
 			_print_location_map()
 		"pwd":
@@ -504,8 +517,12 @@ func _process_terminal_command(raw_command: String) -> void:
 			if terminal_output:
 				terminal_output.clear()
 		_:
-			_print_terminal_line("Unknown command: %s" % command)
-			_print_terminal_line("Try `help`.")
+			if _is_tutorial_terminal_guided_mode():
+				_print_terminal_line("Let's keep it simple for tutorial: try pwd, ls, or cat <file-name>.")
+				_print_tutorial_help_guidance()
+			else:
+				_print_terminal_line("Unknown command: %s" % command)
+				_print_terminal_line("Try `help`.")
 
 	_maybe_print_fun_fact()
 
@@ -924,6 +941,49 @@ func _terminal_home_location() -> String:
 
 func _is_tutorial_scene_active() -> bool:
 	return _get_current_location_key() == TUTORIAL_LOCATION
+
+func _is_tutorial_terminal_guided_mode() -> bool:
+	if _is_tutorial_scene_active():
+		return true
+	return _current_terminal_path == TUTORIAL_LOCATION
+
+func _reset_tutorial_terminal_progress() -> void:
+	_tutorial_terminal_progress["pwd"] = false
+	_tutorial_terminal_progress["ls"] = false
+	_tutorial_terminal_progress["cat"] = false
+
+func _track_tutorial_terminal_progress(command: String, args: Array) -> void:
+	if not _is_tutorial_terminal_guided_mode():
+		return
+	match command:
+		"pwd":
+			_tutorial_terminal_progress["pwd"] = true
+		"ls", "dir":
+			_tutorial_terminal_progress["ls"] = true
+		"cat":
+			if not args.is_empty():
+				_tutorial_terminal_progress["cat"] = true
+
+func _print_tutorial_help_guidance() -> void:
+	if not bool(_tutorial_terminal_progress.get("pwd", false)):
+		_print_terminal_line("Try typing pwd")
+		return
+	if not bool(_tutorial_terminal_progress.get("ls", false)):
+		_print_terminal_line("Great. Now try typing ls")
+		return
+	if not bool(_tutorial_terminal_progress.get("cat", false)):
+		_print_terminal_line("Nice. Now try: cat onboarding_notes.txt")
+		return
+	_print_terminal_line("Great job. Tutorial commands: pwd, ls, cat <file-name>")
+
+func _is_tutorial_terminal_progress_empty() -> bool:
+	if bool(_tutorial_terminal_progress.get("pwd", false)):
+		return false
+	if bool(_tutorial_terminal_progress.get("ls", false)):
+		return false
+	if bool(_tutorial_terminal_progress.get("cat", false)):
+		return false
+	return true
 
 func _invoke_scene_manager_method(method_name: String) -> bool:
 	if SceneManager and SceneManager.has_method(method_name):

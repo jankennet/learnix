@@ -157,6 +157,7 @@ var lost_file_spawner: Node
 var _load_in_progress := false
 
 func _ready() -> void:
+
 	quest_manager = QuestManager.new()
 	add_child(quest_manager)
 	quest_definitions.register_all_quests(quest_manager)
@@ -869,7 +870,10 @@ func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.
 
 	# Spawn Resolution
 	if preserve_gameplay_nodes:
+		await get_tree().process_frame
 		var spawn := new_scene.get_node_or_null(spawn_name)
+		if spawn == null:
+			spawn = _find_node_recursive(new_scene, spawn_name.get_file())
 		if spawn:
 			_apply_spawn_transform(transfer_node, active_player, spawn.global_transform)
 		else:
@@ -921,6 +925,22 @@ func _get_player_transfer_root(active_player: CharacterBody3D) -> Node:
 		return active_player_parent
 
 	return active_player
+
+func _find_node_recursive(node: Node, node_name: String) -> Node:
+	if node == null or node_name.strip_edges() == "":
+		return null
+
+	if node.name == node_name:
+		return node
+
+	for child in node.get_children():
+		if not (child is Node):
+			continue
+		var found := _find_node_recursive(child as Node, node_name)
+		if found:
+			return found
+
+	return null
 
 func _ensure_player_visible(active_player: CharacterBody3D) -> void:
 	if active_player == null:

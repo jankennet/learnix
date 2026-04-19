@@ -14,17 +14,25 @@ signal closed
 @onready var marker_layer: Control = get_node_or_null("Panel/Margin/VBox/ReferenceFrame/MarkerLayer") as Control
 @onready var footer_label: Label = $Panel/Margin/VBox/Footer
 @onready var continue_button: Button = $Panel/Margin/VBox/ContinueButton
+var _placeholder_texture: Texture2D = null
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	visible = false
+	_placeholder_texture = _build_placeholder_texture()
 	_ensure_marker_layer()
+	if overlay and not overlay.gui_input.is_connected(_on_overlay_gui_input):
+		overlay.gui_input.connect(_on_overlay_gui_input)
 	if reference_image:
 		reference_image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		reference_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	if continue_button and not continue_button.pressed.is_connected(_on_continue_pressed):
+		continue_button.focus_mode = Control.FOCUS_NONE
+		continue_button.action_mode = BaseButton.ACTION_MODE_BUTTON_PRESS
 		continue_button.pressed.connect(_on_continue_pressed)
+	if continue_button and not continue_button.gui_input.is_connected(_on_continue_gui_input):
+		continue_button.gui_input.connect(_on_continue_gui_input)
 
 func show_popup(title: String, body: String, footer: String, visual_kind: String) -> void:
 	title_label.text = title
@@ -39,13 +47,26 @@ func hide_popup() -> void:
 	visible = false
 
 func _texture_for_kind(kind: String) -> Texture2D:
+	var resolved: Texture2D = null
 	match kind:
 		"timing":
-			return timing_reference_image
+			resolved = timing_reference_image
 		"nodes":
-			return nodes_reference_image
+			resolved = nodes_reference_image
 		_:
-			return terminal_reference_image
+			resolved = terminal_reference_image
+	if resolved != null:
+		return resolved
+	return _placeholder_texture
+
+func _build_placeholder_texture() -> Texture2D:
+	var image := Image.create(64, 64, false, Image.FORMAT_RGBA8)
+	image.fill(Color(0.13, 0.16, 0.2, 1.0))
+	for x in range(0, 64, 8):
+		for y in range(0, 64, 8):
+			if int((x + y) / 8) % 2 == 0:
+				image.set_pixel(x, y, Color(0.3, 0.36, 0.42, 1.0))
+	return ImageTexture.create_from_image(image)
 
 func _populate_visual_cues(kind: String) -> void:
 	_ensure_marker_layer()
@@ -57,6 +78,8 @@ func _populate_visual_cues(kind: String) -> void:
 		child.queue_free()
 
 	match kind:
+		"placeholder":
+			_add_cue("IMAGE PLACEHOLDER", Vector2(0.50, 0.50), Vector2(-68, -18), Color(0.78, 0.62, 0.26, 0.95))
 		"timing":
 			_add_cue("YELLOW: hit (can fail)", Vector2(0.20, 0.70), Vector2(-70, -42), Color(0.95, 0.78, 0.2, 0.95))
 			_add_cue("GREEN: critical", Vector2(0.50, 0.70), Vector2(-62, -42), Color(0.24, 0.72, 0.24, 0.95))
@@ -71,6 +94,9 @@ func _populate_visual_cues(kind: String) -> void:
 			_add_cue("Terminal Output", Vector2(0.33, 0.40), Vector2(-64, -42), Color(0.16, 0.42, 0.2, 0.95))
 			_add_cue("Input", Vector2(0.33, 0.92), Vector2(-28, -42), Color(0.16, 0.3, 0.48, 0.95))
 			_add_cue("Objectives", Vector2(0.89, 0.42), Vector2(-46, -42), Color(0.48, 0.38, 0.16, 0.95))
+
+	if reference_image.texture == _placeholder_texture:
+		_add_cue("IMAGE PLACEHOLDER", Vector2(0.5, 0.12), Vector2(-70, -18), Color(0.8, 0.54, 0.2, 0.95))
 
 func _add_cue(text: String, normalized_anchor: Vector2, offset: Vector2, cue_color: Color) -> void:
 	if marker_layer == null:
@@ -141,8 +167,38 @@ func _ensure_marker_layer() -> void:
 	marker_layer = created
 
 func _on_continue_pressed() -> void:
+	if not visible:
+		return
 	hide_popup()
 	closed.emit()
+
+func _on_continue_gui_input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_on_continue_pressed()
+		accept_event()
+
+func _on_overlay_gui_input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_on_continue_pressed()
+		get_viewport().set_input_as_handled()
+
+func _gui_input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_on_continue_pressed()
+		accept_event()
+
+func _input(event: InputEvent) -> void:
+	if not visible:
+		return
+	if event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_cancel"):
+		_on_continue_pressed()
+		get_viewport().set_input_as_handled()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not visible:

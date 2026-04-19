@@ -328,7 +328,7 @@ _limits = [-2.0, 2.0, 0.0, 1.0]
 _data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
 point_count = 2
 
-[sub_resource type="CurveXYZTexture" id="CurveXYZTexture_qo7kh"]
+[sub_resource type="CurveXYZTexture" id="CurveXYZTexture_1okqw"]
 curve_x = SubResource("Curve_tuulv")
 curve_y = SubResource("Curve_4cv53")
 curve_z = SubResource("Curve_qo7kh")
@@ -342,7 +342,7 @@ emission_ring_inner_radius = 1.1
 emission_ring_cone_angle = 90.0
 orbit_velocity_min = 0.2000001
 orbit_velocity_max = 0.2000001
-orbit_velocity_curve = SubResource("CurveXYZTexture_qo7kh")
+orbit_velocity_curve = SubResource("CurveXYZTexture_1okqw")
 radial_velocity_min = 0.19997764
 radial_velocity_max = 0.49997765
 gravity = Vector3(0, 0, 0)
@@ -515,12 +515,6 @@ draw_pass_1 = SubResource("RibbonTrailMesh_tuulv")
 
 [node name="vfxPortal2" type="Node3D" parent="."]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 0.91854715, 0, -3.790647)
-
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="vfxPortal2"]
-transform = Transform3D(-2.2392445, 0, -4.7257473e-07, 0, 2.3705053, 0, 1.9576098e-07, 0, -5.405625, -4.2209573, 2.2044914, -7.8068995)
-material_override = SubResource("ShaderMaterial_o18mp")
-mesh = SubResource("QuadMesh_o18mp")
-skeleton = NodePath("../../Dungeon/StaticBody3D")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="vfxPortal2"]
 transform = Transform3D(2.325, 0, 0, 0, 2.325, 0, 0, 0, 2.325, -4.0156813, 2.1248496, -6.4302883)

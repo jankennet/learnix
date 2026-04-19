@@ -16,6 +16,8 @@ const MAIN_CAMERA_FOV := 75.0
 const TUTORIAL_TUX_NODE_NAME := "Tux_tutorial"
 const PLAYER_FOLLOW_TUX_NODE_NAME := "Tux"
 const TUTORIAL_TUX_ACTOR_SCRIPT_PATH := "res://scripts/tutorial_tux_actor.gd"
+const COMBAT_TUTORIAL_POPUP_SCENE_PATH := "res://Scenes/combat/combat_tutorial_popup.tscn"
+const TERMINAL_ARROW_TEXTURE := preload("res://Assets/arrow.png")
 const PRE_TUTORIAL_INTRO_LINES: Array[String] = [
 	"Operating Systems, period three.",
 	"Professor Shell is explaining process scheduling and memory paging.",
@@ -29,10 +31,14 @@ var _dialogue_resource: Resource = null
 var _dialogue_manager: Node = null
 var _hud: Control = null
 var _tutorial_canvas: CanvasLayer = null
+var _combat_tutorial_canvas: CanvasLayer = null
 var _tutorial_panel: PanelContainer = null
 var _tutorial_title: Label = null
 var _tutorial_body: Label = null
+var _tutorial_visual_label: Label = null
+var _tutorial_trivia: Label = null
 var _tutorial_footer: Label = null
+var _combat_tutorial_popup_ui: CombatTutorialPopup = null
 var _hint_dismissible: bool = false
 var _tux: Node3D = null
 var _using_tutorial_tux_actor: bool = false
@@ -45,6 +51,11 @@ var _last_response_text: String = ""
 var _last_viewport_size: Vector2 = Vector2.ZERO
 var _last_terminal_visible: bool = false
 var _force_hide_hud: bool = false
+var _terminal_arrow: TextureRect = null
+var _terminal_arrow_active: bool = false
+var _terminal_arrow_time: float = 0.0
+var _terminal_intro_popup_shown: bool = false
+var _last_terminal_feedback: String = ""
 
 func setup(active_player: CharacterBody3D) -> void:
 	_player = active_player
@@ -76,11 +87,14 @@ func _play_pre_tutorial_cutscene() -> void:
 	if is_instance_valid(cutscene):
 		cutscene.queue_free()
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if _force_hide_hud:
 		_resolve_hud()
 		if _hud != null and is_instance_valid(_hud):
 			_hud.visible = false
+
+	if _terminal_arrow_active:
+		_update_terminal_arrow(delta)
 
 	if _tutorial_panel == null or not is_instance_valid(_tutorial_panel):
 		return
@@ -121,16 +135,20 @@ func _run_tutorial() -> void:
 	_force_hide_hud = true
 	_hide_hud()
 	_lock_input(true)
-	_show_hint_card(
-		"Tux Boot Sequence",
-		"Welcome to Linuxia onboarding.\nFollow each checkpoint and keep your eyes on prompts.",
-		"Press [E] or LMB to continue in dialogue"
+	await _show_combat_tutorial_popup(
+		"Step 1: Press E or Left Click To Continue",
+		"When dialogue appears, press [E] or [LMB] to keep going.\nYou can also left-click.",
+		"Big goal: keep pressing [E] or [LMB] until Tux is done.",
+		"placeholder"
 	)
+	_show_hint_card("Press E or Left Click", "Press E or Left Click to continue dialogue.", "", "", "", false)
 	await _show_dialogue("wake_up", [self])
 	await _section_pause(0.2)
+	_hide_hint_card()
 
 	_lock_input(false)
-	_show_wasd_canvas()
+	await _show_wasd_canvas()
+	_show_hint_card("Move", "Use WASD on your keyboard to walk.", "", "", "", false)
 	await _movement_checkpoint()
 	_hide_hint_card()
 
@@ -141,18 +159,18 @@ func _run_tutorial() -> void:
 
 	_lock_input(false)
 	_spawn_interact_beacon()
-	_show_interact_canvas()
+	await _show_interact_canvas()
+	_show_hint_card("Talk to Tux", "Walk up to Tux, then press E.", "", "", "", false)
 	await _show_dialogue("interact_prompt", [self])
 	await _interact_checkpoint()
 	_hide_hint_card()
 	_cleanup_beacon()
 
 	_lock_input(true)
-	_show_hud_guide_canvas()
 	_show_hud()
 	await _show_dialogue("hud_unlock", [self])
 	await _section_pause(0.25)
-	_hide_hint_card()
+	await _show_hud_guide_canvas()
 
 	_lock_input(false)
 	await _terminal_checkpoint()
@@ -238,11 +256,35 @@ func _interact_checkpoint() -> void:
 
 func _terminal_checkpoint() -> void:
 	_required_terminal_commands.clear()
+	_terminal_intro_popup_shown = false
+	_last_terminal_feedback = ""
 	for command_name in REQUIRED_TERMINAL_COMMANDS:
 		_required_terminal_commands[command_name] = false
 
 	await _show_dialogue("terminal_objective", [self])
-	_show_terminal_objective_canvas()
+	await _show_combat_tutorial_popup(
+		"Terminal Time",
+		"Tap the terminal icon.",
+		"Arrow shows the way.",
+		"placeholder"
+	)
+	_show_hint_card("Opening Terminal", "Tap it now.", "", "", "", false)
+	_show_terminal_arrow()
+	while not _is_terminal_open():
+		await get_tree().process_frame
+	_hide_terminal_arrow()
+	_hide_hint_card()
+
+	if not _terminal_intro_popup_shown:
+		_terminal_intro_popup_shown = true
+		await _show_combat_tutorial_popup(
+			"Try These Commands",
+			"pwd\nls\ncat onboarding_notes.txt",
+			"",
+			"placeholder"
+		)
+		await _section_pause(0.45)
+		_update_terminal_objective_canvas()
 
 	while _hud == null or not _hud.has_signal("terminal_command_executed"):
 		_resolve_hud()
@@ -266,12 +308,26 @@ func _on_terminal_command_executed(command: String, args: Array) -> void:
 	var normalized := command.to_lower()
 	match normalized:
 		"pwd":
-			_required_terminal_commands["pwd"] = true
+			if args.is_empty():
+				if not bool(_required_terminal_commands.get("pwd", false)):
+					_last_terminal_feedback = "Type `ls` next."
+					_required_terminal_commands["pwd"] = true
+			else:
+				_last_terminal_feedback = "Use `pwd` by itself."
 		"ls", "dir":
-			_required_terminal_commands["ls"] = true
+			if args.is_empty():
+				if not bool(_required_terminal_commands.get("ls", false)):
+					_last_terminal_feedback = "Type `cat onboarding_notes.txt` next."
+					_required_terminal_commands["ls"] = true
+			else:
+				_last_terminal_feedback = "Use `ls` by itself."
 		"cat":
-			if args.size() > 0:
-				_required_terminal_commands["cat"] = true
+			if args.size() > 0 and String(args[0]).to_lower() == "onboarding_notes.txt":
+				if not bool(_required_terminal_commands.get("cat", false)):
+					_last_terminal_feedback = "All commands learned!"
+					_required_terminal_commands["cat"] = true
+			else:
+				_last_terminal_feedback = "Use `cat onboarding_notes.txt`."
 	_update_terminal_objective_canvas()
 
 func _all_terminal_commands_seen() -> bool:
@@ -353,9 +409,11 @@ func _wait_for_tux_ready_interact() -> void:
 func _roam_until_player_ready() -> void:
 	while true:
 		_show_hint_card(
-			"Roam Mode Enabled",
-			"Explore first. You will not be teleported automatically.\nReturn to Tux and press [E] to confirm when ready.",
-			"Click this card to hide it while exploring",
+			"Wait Here",
+			"Explore if you want. Come back to Tux and press E when ready.",
+			"",
+			"",
+			"",
 			true
 		)
 		await _wait_for_tux_ready_interact()
@@ -413,7 +471,7 @@ func _ensure_tutorial_canvas() -> void:
 
 	_tutorial_canvas = CanvasLayer.new()
 	_tutorial_canvas.name = "TutorialCanvas"
-	_tutorial_canvas.layer = 30
+	_tutorial_canvas.layer = 250
 	scene_root.add_child(_tutorial_canvas)
 
 	_tutorial_panel = PanelContainer.new()
@@ -429,50 +487,64 @@ func _ensure_tutorial_canvas() -> void:
 	panel_style.corner_radius_top_right = 16
 	panel_style.corner_radius_bottom_left = 16
 	panel_style.corner_radius_bottom_right = 16
-	panel_style.border_width_left = 3
-	panel_style.border_width_top = 3
-	panel_style.border_width_right = 3
-	panel_style.border_width_bottom = 3
-	panel_style.border_color = Color(0.94, 0.77, 0.33, 1.0)
-	panel_style.shadow_size = 10
-	panel_style.shadow_color = Color(0.0, 0.0, 0.0, 0.45)
+	panel_style.border_width_left = 2
+	panel_style.border_width_top = 2
+	panel_style.border_width_right = 2
+	panel_style.border_width_bottom = 2
+	panel_style.border_color = Color(0.92, 0.78, 0.36, 0.9)
+	panel_style.shadow_size = 6
+	panel_style.shadow_color = Color(0.0, 0.0, 0.0, 0.3)
 	_tutorial_panel.add_theme_stylebox_override("panel", panel_style)
 
 	var margin := MarginContainer.new()
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	margin.add_theme_constant_override("margin_left", 22)
-	margin.add_theme_constant_override("margin_top", 16)
-	margin.add_theme_constant_override("margin_right", 22)
-	margin.add_theme_constant_override("margin_bottom", 14)
+	margin.add_theme_constant_override("margin_left", 16)
+	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_right", 16)
+	margin.add_theme_constant_override("margin_bottom", 10)
 	_tutorial_panel.add_child(margin)
 
 	var vbox := VBoxContainer.new()
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.add_theme_constant_override("separation", 8)
+	vbox.add_theme_constant_override("separation", 4)
 	margin.add_child(vbox)
 
 	_tutorial_title = Label.new()
 	_tutorial_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_tutorial_title.add_theme_font_size_override("font_size", 26)
-	_tutorial_title.add_theme_color_override("font_color", Color(0.98, 0.92, 0.76, 1.0))
+	_tutorial_title.add_theme_font_size_override("font_size", 20)
+	_tutorial_title.add_theme_color_override("font_color", Color(0.98, 0.93, 0.79, 1.0))
 	vbox.add_child(_tutorial_title)
 
 	_tutorial_body = Label.new()
 	_tutorial_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_tutorial_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_tutorial_body.add_theme_font_size_override("font_size", 17)
+	_tutorial_body.add_theme_font_size_override("font_size", 14)
 	_tutorial_body.add_theme_color_override("font_color", Color(0.88, 0.93, 0.97, 1.0))
 	vbox.add_child(_tutorial_body)
 
+	_tutorial_visual_label = Label.new()
+	_tutorial_visual_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_tutorial_visual_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_tutorial_visual_label.add_theme_font_size_override("font_size", 12)
+	_tutorial_visual_label.add_theme_color_override("font_color", Color(0.96, 0.86, 0.54, 1.0))
+	vbox.add_child(_tutorial_visual_label)
+
+	_tutorial_trivia = Label.new()
+	_tutorial_trivia.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_tutorial_trivia.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_tutorial_trivia.add_theme_font_size_override("font_size", 12)
+	_tutorial_trivia.add_theme_color_override("font_color", Color(0.62, 0.89, 0.85, 1.0))
+	vbox.add_child(_tutorial_trivia)
+
 	_tutorial_footer = Label.new()
 	_tutorial_footer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_tutorial_footer.add_theme_font_size_override("font_size", 14)
+	_tutorial_footer.add_theme_font_size_override("font_size", 12)
 	_tutorial_footer.add_theme_color_override("font_color", Color(0.97, 0.84, 0.45, 1.0))
 	vbox.add_child(_tutorial_footer)
 
 	_apply_responsive_tutorial_layout()
 
-func _show_hint_card(title: String, body: String, footer: String = "", dismissible: bool = false) -> void:
+func _show_hint_card(title: String, body: String, footer: String = "", visual_placeholder: String = "", trivia_text: String = "", dismissible: bool = false) -> void:
 	_ensure_tutorial_canvas()
 	if _tutorial_panel == null:
 		return
@@ -480,6 +552,12 @@ func _show_hint_card(title: String, body: String, footer: String = "", dismissib
 	_tutorial_panel.mouse_filter = Control.MOUSE_FILTER_STOP if dismissible else Control.MOUSE_FILTER_IGNORE
 	_tutorial_title.text = title
 	_tutorial_body.text = body
+	if _tutorial_visual_label:
+		_tutorial_visual_label.visible = visual_placeholder != ""
+		_tutorial_visual_label.text = "[Image Placeholder: %s]" % visual_placeholder if visual_placeholder != "" else ""
+	if _tutorial_trivia:
+		_tutorial_trivia.visible = trivia_text != ""
+		_tutorial_trivia.text = trivia_text
 	_tutorial_footer.text = footer
 	_tutorial_panel.visible = true
 
@@ -498,45 +576,83 @@ func _on_tutorial_panel_gui_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func _show_wasd_canvas() -> void:
-	_show_hint_card(
-		"Movement Checkpoint",
+	await _show_combat_tutorial_popup(
+		"Step 2: Move With WASD",
 		"Use WASD to move in all four directions.\n\n  [W]\n[A] [S] [D]",
-		"Finish all directions to continue"
+		"Try each key once: W, A, S, and D.",
+		"placeholder"
 	)
 
 func _show_interact_canvas() -> void:
-	_show_hint_card(
-		"Talk To Tux",
+	await _show_combat_tutorial_popup(
+		"Step 3: Press E Near Tux",
 		"Move to Tux and the glowing marker, then press [E] to interact.",
-		"Action key: E"
+		"Action key: E",
+		"placeholder"
 	)
 
 func _show_hud_guide_canvas() -> void:
-	_show_hint_card(
-		"HUD Unlocked",
-		"Bottom bar = your Linux-style taskbar.\nTUX icon = helper app\nTERMINAL icon = command app\nShop = open TERMINAL and run: shop",
-		"Use these throughout Linuxia"
+	await _show_combat_tutorial_popup(
+		"Step 4: MainHUD Unlocked",
+		"Bottom bar is your quick menu.\nTUX icon helps you.\nTERMINAL icon opens commands.",
+		"You will use this bar throughout Linuxia.",
+		"placeholder"
 	)
 
 func _show_terminal_objective_canvas() -> void:
-	_update_terminal_objective_canvas()
+	await _show_combat_tutorial_popup(
+		"Step 6: Terminal Practice",
+		"Type the three basics in order.\n[ ] pwd  (where am I?)\n[ ] ls  (what is here?)\n[ ] cat <file_name>  (read a file)",
+		"Complete all 3 checks to finish terminal training.\n" + _last_terminal_feedback,
+		"placeholder"
+	)
 
 func _update_terminal_objective_canvas() -> void:
-	var pwd_done := "[ ]"
-	var ls_done := "[ ]"
-	var cat_done := "[ ]"
-	if bool(_required_terminal_commands.get("pwd", false)):
-		pwd_done = "[x]"
-	if bool(_required_terminal_commands.get("ls", false)):
-		ls_done = "[x]"
-	if bool(_required_terminal_commands.get("cat", false)):
-		cat_done = "[x]"
+	var pwd_mark := "[x]" if bool(_required_terminal_commands.get("pwd", false)) else "[ ]"
+	var ls_mark := "[x]" if bool(_required_terminal_commands.get("ls", false)) else "[ ]"
+	var cat_mark := "[x]" if bool(_required_terminal_commands.get("cat", false)) else "[ ]"
+	var checklist_body := "%s pwd\n%s ls\n%s cat onboarding_notes.txt" % [pwd_mark, ls_mark, cat_mark]
+	_show_hint_card("Terminal Tasks", checklist_body, _last_terminal_feedback, "", "", false)
 
-	_show_hint_card(
-		"Terminal Objective",
-		pwd_done + " pwd  (where am I?)\n" + ls_done + " ls  (what is here?)\n" + cat_done + " cat <file_name>  (read file)",
-		"Open TERMINAL and complete all commands"
-	)
+func _show_combat_tutorial_popup(title: String, body: String, footer: String, visual_kind: String = "placeholder") -> void:
+	_ensure_combat_tutorial_popup_ui()
+	if _combat_tutorial_popup_ui == null:
+		return
+	_combat_tutorial_popup_ui.move_to_front()
+	_combat_tutorial_popup_ui.show_popup(title, body, footer, visual_kind)
+	await _combat_tutorial_popup_ui.closed
+
+func _ensure_combat_tutorial_popup_ui() -> void:
+	if _combat_tutorial_popup_ui != null and is_instance_valid(_combat_tutorial_popup_ui):
+		return
+
+	var popup_scene := load(COMBAT_TUTORIAL_POPUP_SCENE_PATH) as PackedScene
+	if popup_scene == null:
+		push_warning("Combat tutorial popup scene not found: " + COMBAT_TUTORIAL_POPUP_SCENE_PATH)
+		return
+
+	var popup_instance := popup_scene.instantiate()
+	if not (popup_instance is CombatTutorialPopup):
+		push_warning("Combat tutorial popup scene root must be CombatTutorialPopup.")
+		if popup_instance:
+			popup_instance.queue_free()
+		return
+
+	_combat_tutorial_popup_ui = popup_instance as CombatTutorialPopup
+	_combat_tutorial_popup_ui.name = "TutorialBootPopup"
+
+	if _combat_tutorial_canvas == null or not is_instance_valid(_combat_tutorial_canvas):
+		_combat_tutorial_canvas = CanvasLayer.new()
+		_combat_tutorial_canvas.name = "TutorialPopupCanvas"
+		_combat_tutorial_canvas.layer = 260
+		var scene_root := get_tree().current_scene
+		if scene_root != null:
+			scene_root.add_child(_combat_tutorial_canvas)
+		else:
+			get_tree().root.add_child(_combat_tutorial_canvas)
+
+	_combat_tutorial_popup_ui.z_index = 1
+	_combat_tutorial_canvas.add_child(_combat_tutorial_popup_ui)
 
 func _hide_hud() -> void:
 	_resolve_hud()
@@ -679,24 +795,24 @@ func _apply_responsive_tutorial_layout() -> void:
 		return
 
 	var terminal_open := _is_terminal_open()
-	var width_ratio := 0.56
-	var height_ratio := 0.28
+	var width_ratio := 0.34
+	var height_ratio := 0.13
 	if terminal_open:
-		width_ratio = 0.44
-		height_ratio = 0.22
+		width_ratio = 0.30
+		height_ratio = 0.12
 
-	var panel_width := clampf(viewport_size.x * width_ratio, 380.0, 860.0)
-	var panel_height := clampf(viewport_size.y * height_ratio, 150.0, 300.0)
+	var panel_width := clampf(viewport_size.x * width_ratio, 280.0, 460.0)
+	var panel_height := clampf(viewport_size.y * height_ratio, 92.0, 140.0)
 	_tutorial_panel.anchor_left = 0.5
 	_tutorial_panel.anchor_right = 0.5
 	_tutorial_panel.offset_left = -panel_width * 0.5
 	_tutorial_panel.offset_right = panel_width * 0.5
-	_tutorial_panel.offset_top = 16.0
-	_tutorial_panel.offset_bottom = 16.0 + panel_height
+	_tutorial_panel.offset_top = 12.0
+	_tutorial_panel.offset_bottom = 12.0 + panel_height
 
-	var title_size := int(clampf(viewport_size.y * 0.042, 20.0, 34.0))
-	var body_size := int(clampf(viewport_size.y * 0.028, 14.0, 22.0))
-	var footer_size := int(clampf(viewport_size.y * 0.022, 12.0, 18.0))
+	var title_size := int(clampf(viewport_size.y * 0.027, 17.0, 22.0))
+	var body_size := int(clampf(viewport_size.y * 0.019, 12.0, 16.0))
+	var footer_size := int(clampf(viewport_size.y * 0.016, 10.0, 14.0))
 	_tutorial_title.add_theme_font_size_override("font_size", title_size)
 	_tutorial_body.add_theme_font_size_override("font_size", body_size)
 	_tutorial_footer.add_theme_font_size_override("font_size", footer_size)
@@ -705,10 +821,68 @@ func _is_terminal_open() -> bool:
 	_resolve_hud()
 	if _hud == null:
 		return false
+
+	# MainHUD spawns terminal panel dynamically on /root.
+	var runtime_terminal : Variant = _hud.get("terminal_panel")
+	if runtime_terminal is Control and is_instance_valid(runtime_terminal):
+		return (runtime_terminal as Control).visible
+
 	var terminal_node := _hud.get_node_or_null("TerminalPanel")
-	if terminal_node is Control:
+	if terminal_node is Control and is_instance_valid(terminal_node):
 		return (terminal_node as Control).visible
 	return false
+
+func _show_terminal_arrow() -> void:
+	_ensure_tutorial_canvas()
+	if _tutorial_canvas == null:
+		return
+	if _terminal_arrow == null or not is_instance_valid(_terminal_arrow):
+		_terminal_arrow = TextureRect.new()
+		_terminal_arrow.name = "TerminalGuideArrow"
+		_terminal_arrow.texture = TERMINAL_ARROW_TEXTURE
+		_terminal_arrow.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		_terminal_arrow.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+		_terminal_arrow.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		_terminal_arrow.size = Vector2(250.0, 250.0)
+		_terminal_arrow.modulate = Color(1, 1, 1, 0.98)
+		_tutorial_canvas.add_child(_terminal_arrow)
+	_terminal_arrow.visible = true
+	_terminal_arrow_active = true
+	_terminal_arrow_time = 0.0
+
+func _hide_terminal_arrow() -> void:
+	_terminal_arrow_active = false
+	if _terminal_arrow != null and is_instance_valid(_terminal_arrow):
+		_terminal_arrow.visible = false
+
+func _update_terminal_arrow(delta: float) -> void:
+	if _terminal_arrow == null or not is_instance_valid(_terminal_arrow):
+		return
+	if not _terminal_arrow_active:
+		return
+
+	_resolve_hud()
+	if _hud == null:
+		return
+
+	var terminal_button := _hud.get_node_or_null("TopRight/MenuStack/MessagesItem") as Control
+	if terminal_button == null:
+		return
+
+	_terminal_arrow_time += delta
+	var wave := sin(_terminal_arrow_time * 4.0) * 6.0
+	var pulse := 0.78 + (0.22 * (0.5 + 0.5 * sin(_terminal_arrow_time * 6.0)))
+	var rect := terminal_button.get_global_rect()
+	var arrow_size := _terminal_arrow.size
+	var target := Vector2(
+		rect.position.x + (rect.size.x * 0.5) - (arrow_size.x * 0.5),
+		rect.position.y - arrow_size.y - 20.0 + wave
+	)
+	var viewport_size := get_viewport().get_visible_rect().size
+	target.x = clampf(target.x, 8.0, viewport_size.x - arrow_size.x - 8.0)
+	target.y = clampf(target.y, 8.0, viewport_size.y - arrow_size.y - 8.0)
+	_terminal_arrow.modulate.a = pulse
+	_terminal_arrow.global_position = target
 
 func _place_tux_for_interaction() -> void:
 	if _tux == null or _player == null:
@@ -736,6 +910,7 @@ func _cleanup_beacon() -> void:
 	_enable_tux_follow(true)
 
 func _start_main_gameplay() -> void:
+	_hide_terminal_arrow()
 	_hide_hint_card()
 	call_deferred("_transition_to_main_gameplay")
 
