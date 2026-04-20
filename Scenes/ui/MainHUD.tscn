@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://dff8b3gde762a"]
+[gd_scene load_steps=15 format=3 uid="uid://dff8b3gde762a"]
 
 [ext_resource type="FontFile" uid="uid://lqtbary7gh5r" path="res://Assets/fonts/PressStart2P-Regular.ttf" id="1_font"]
 [ext_resource type="Script" uid="uid://mqkv64skk1kd" path="res://scripts/ui/main_hud.gd" id="2_mainhud"]
@@ -6,7 +6,8 @@
 [ext_resource type="Texture2D" uid="uid://bjc51rva8ysea" path="res://Assets/mainHUD_Icons_File.png" id="3_wpdjs"]
 [ext_resource type="Shader" uid="uid://cmh6cx1xegkl0" path="res://Scenes/combat/crt_effect.gdshader" id="4_crt_shader"]
 [ext_resource type="Texture2D" uid="uid://b1pfxsi5467pn" path="res://Assets/mainHUD_Icons_Terminal.png" id="4_qm6ji"]
-[ext_resource type="Texture2D" uid="uid://bvbsrdib0cx5f" path="res://Assets/mainHUD_Icons_Tux.png" id="5_gcg6u"]
+[ext_resource type="Texture2D" uid="uid://7fewxymqksne" path="res://Assets/mainHUD_Icons_Quests.png" id="5_gcg6u"]
+[ext_resource type="Texture2D" uid="uid://bvbsrdib0cx5f" path="res://Assets/mainHUD_Icons_Tux.png" id="6_gcg6u"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_dock"]
 content_margin_left = 10.0
@@ -137,6 +138,33 @@ layout_mode = 2
 theme_override_constants/separation = 10
 alignment = 2
 
+[node name="BagItem2" type="PanelContainer" parent="TopRight/MenuStack"]
+custom_minimum_size = Vector2(72, 52)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_menu_item")
+
+[node name="BagIcon" type="PanelContainer" parent="TopRight/MenuStack/BagItem2"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_menu_icon")
+
+[node name="Label" type="Label" parent="TopRight/MenuStack/BagItem2/BagIcon"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.972549, 0.976471, 0.992157, 1)
+theme_override_fonts/font = ExtResource("1_font")
+theme_override_font_sizes/font_size = 10
+text = "FILE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="FILE" type="TextureRect" parent="TopRight/MenuStack/BagItem2/BagIcon"]
+layout_mode = 2
+texture = ExtResource("3_wpdjs")
+expand_mode = 1
+stretch_mode = 5
+
 [node name="BagItem" type="PanelContainer" parent="TopRight/MenuStack"]
 custom_minimum_size = Vector2(72, 52)
 layout_mode = 2
@@ -158,9 +186,9 @@ text = "FILE"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="TextureRect" type="TextureRect" parent="TopRight/MenuStack/BagItem/BagIcon"]
+[node name="QUEST" type="TextureRect" parent="TopRight/MenuStack/BagItem/BagIcon"]
 layout_mode = 2
-texture = ExtResource("3_wpdjs")
+texture = ExtResource("5_gcg6u")
 expand_mode = 1
 stretch_mode = 5
 
@@ -174,7 +202,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_menu_item")
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_menu_icon")
 
-[node name="TextureRect" type="TextureRect" parent="TopRight/MenuStack/MessagesItem/MailIcon"]
+[node name="TERMINAL" type="TextureRect" parent="TopRight/MenuStack/MessagesItem/MailIcon"]
 layout_mode = 2
 texture = ExtResource("4_qm6ji")
 stretch_mode = 5
@@ -204,13 +232,13 @@ layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.886275, 0.654902, 1)
 theme_override_fonts/font = ExtResource("1_font")
 theme_override_font_sizes/font_size = 10
-text = "TUX"
+text = "QUEST"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="TextureRect" type="TextureRect" parent="TopRight/MenuStack/QuestItem/HatIcon"]
+[node name="TUXAPP" type="TextureRect" parent="TopRight/MenuStack/QuestItem/HatIcon"]
 layout_mode = 2
-texture = ExtResource("5_gcg6u")
+texture = ExtResource("6_gcg6u")
 expand_mode = 1
 stretch_mode = 5
 

@@ -6,6 +6,15 @@ signal closed
 @export var terminal_reference_image: Texture2D
 @export var timing_reference_image: Texture2D
 @export var nodes_reference_image: Texture2D
+@export var step1_reference_image: Texture2D
+@export var step2_reference_image: Texture2D
+@export var step3_1_reference_image: Texture2D
+@export var step4_1_reference_image: Texture2D
+@export var step5_reference_image: Texture2D
+@export var step6_reference_image: Texture2D
+@export var map_navigation_reference_image: Texture2D
+@export var talking_npc_reference_image: Texture2D
+@export var quest_notes_reference_image: Texture2D
 
 @onready var overlay: ColorRect = $Overlay
 @onready var title_label: Label = $Panel/Margin/VBox/Title
@@ -22,6 +31,8 @@ func _ready() -> void:
 	visible = false
 	_placeholder_texture = _build_placeholder_texture()
 	_ensure_marker_layer()
+	if marker_layer:
+		marker_layer.visible = false
 	if overlay and not overlay.gui_input.is_connected(_on_overlay_gui_input):
 		overlay.gui_input.connect(_on_overlay_gui_input)
 	if reference_image:
@@ -40,7 +51,6 @@ func show_popup(title: String, body: String, footer: String, visual_kind: String
 	footer_label.text = footer
 	reference_image.texture = _texture_for_kind(visual_kind)
 	visible = true
-	call_deferred("_populate_visual_cues", visual_kind)
 	continue_button.call_deferred("grab_focus")
 
 func hide_popup() -> void:
@@ -49,6 +59,24 @@ func hide_popup() -> void:
 func _texture_for_kind(kind: String) -> Texture2D:
 	var resolved: Texture2D = null
 	match kind:
+		"step1":
+			resolved = step1_reference_image
+		"step2":
+			resolved = step2_reference_image
+		"step3_1":
+			resolved = step3_1_reference_image
+		"step4_1":
+			resolved = step4_1_reference_image
+		"step5":
+			resolved = step5_reference_image
+		"step6":
+			resolved = step6_reference_image
+		"map_navigation":
+			resolved = map_navigation_reference_image
+		"talking_npc":
+			resolved = talking_npc_reference_image
+		"quest_notes":
+			resolved = quest_notes_reference_image
 		"timing":
 			resolved = timing_reference_image
 		"nodes":
@@ -68,35 +96,13 @@ func _build_placeholder_texture() -> Texture2D:
 				image.set_pixel(x, y, Color(0.3, 0.36, 0.42, 1.0))
 	return ImageTexture.create_from_image(image)
 
-func _populate_visual_cues(kind: String) -> void:
+func _populate_visual_cues(_kind: String) -> void:
 	_ensure_marker_layer()
 	if marker_layer == null:
 		return
-	marker_layer.move_to_front()
-
+	marker_layer.visible = false
 	for child in marker_layer.get_children():
 		child.queue_free()
-
-	match kind:
-		"placeholder":
-			_add_cue("IMAGE PLACEHOLDER", Vector2(0.50, 0.50), Vector2(-68, -18), Color(0.78, 0.62, 0.26, 0.95))
-		"timing":
-			_add_cue("YELLOW: hit (can fail)", Vector2(0.20, 0.70), Vector2(-70, -42), Color(0.95, 0.78, 0.2, 0.95))
-			_add_cue("GREEN: critical", Vector2(0.50, 0.70), Vector2(-62, -42), Color(0.24, 0.72, 0.24, 0.95))
-			_add_cue("RED: miss", Vector2(0.84, 0.70), Vector2(-44, -42), Color(0.7, 0.22, 0.22, 0.95))
-		"nodes":
-			_add_cue("Find nodes here", Vector2(0.13, 0.22), Vector2(-56, -42), Color(0.25, 0.84, 0.66, 0.95))
-			_add_cue("Place nodes here", Vector2(0.47, 0.53), Vector2(-66, -42), Color(0.2, 0.78, 0.94, 0.95))
-			_add_cue("Kernel start", Vector2(0.18, 0.74), Vector2(-52, -42), Color(0.26, 0.56, 0.7, 0.95))
-			_add_cue("App goal", Vector2(0.78, 0.18), Vector2(-42, -42), Color(0.56, 0.7, 0.26, 0.95))
-			_add_cue("Build controls", Vector2(0.64, 0.87), Vector2(-56, -42), Color(0.96, 0.74, 0.22, 0.95))
-		_:
-			_add_cue("Terminal Output", Vector2(0.33, 0.40), Vector2(-64, -42), Color(0.16, 0.42, 0.2, 0.95))
-			_add_cue("Input", Vector2(0.33, 0.92), Vector2(-28, -42), Color(0.16, 0.3, 0.48, 0.95))
-			_add_cue("Objectives", Vector2(0.89, 0.42), Vector2(-46, -42), Color(0.48, 0.38, 0.16, 0.95))
-
-	if reference_image.texture == _placeholder_texture:
-		_add_cue("IMAGE PLACEHOLDER", Vector2(0.5, 0.12), Vector2(-70, -18), Color(0.8, 0.54, 0.2, 0.95))
 
 func _add_cue(text: String, normalized_anchor: Vector2, offset: Vector2, cue_color: Color) -> void:
 	if marker_layer == null:

@@ -165,7 +165,10 @@ func _run_final_end_sequence() -> void:
 			if SceneManager.has_meta(EVIL_TUX_HIDE_NPCS_META_KEY):
 				SceneManager.remove_meta(EVIL_TUX_HIDE_NPCS_META_KEY)
 		SceneManager.save_game()
-	get_tree().change_scene_to_file(TITLE_MENU_SCENE_PATH)
+	if SceneManager and SceneManager.has_method("transition_to_scene"):
+		await SceneManager.transition_to_scene(TITLE_MENU_SCENE_PATH, 0.35)
+	else:
+		get_tree().change_scene_to_file(TITLE_MENU_SCENE_PATH)
 
 func _run_defeat_retry_sequence() -> void:
 	if SceneManager:

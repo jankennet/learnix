@@ -479,7 +479,10 @@ func _run_bios_vault_transfer() -> void:
 
 		SceneManager.input_locked = false
 	else:
-		get_tree().change_scene_to_file(target_scene_path)
+		if SceneManager and SceneManager.has_method("transition_to_scene"):
+			await SceneManager.transition_to_scene(target_scene_path, 0.1)
+		else:
+			get_tree().change_scene_to_file(target_scene_path)
 
 	_gatekeeper_transfer_running = false
 

@@ -5,6 +5,51 @@ signal terminal_command_executed(command: String, args: Array)
 const COMBAT_UI_NODE_NAME := "CombatTerminalUI"
 const QUEST_LIST_NODE_NAME := "QuestList"
 const VISIBILITY_CHECK_INTERVAL := 0.15
+const WORLD_MAP_TEXTURES := {
+	"fallback_hamlet": preload("res://Assets/mapFallbackHamlet.png"),
+	"filesystem_forest": preload("res://Assets/MapFilesystemForest.png"),
+	"deamon_depths": preload("res://Assets/mapDeamonDepths.png"),
+}
+const WORLD_MAP_CALIBRATION := {
+	"fallback_hamlet": {
+		"world": [
+			Vector2(-0.20590734, -0.334015), # first_spawn global (includes Fallback_Hamlet_Final offset)
+			Vector2(-0.54760587, -15.414007), # Spawn_BVTFM global
+			Vector2(22.168148, -3.200876), # DungeonTP global
+			Vector2(-27.623053, -6.726576), # ForestTP global
+		],
+		"pixel": [
+			Vector2(221.0, 283.0),
+			Vector2(309.0, 102.0),
+			Vector2(422.0, 295.0),
+			Vector2(81.0, 116.0),
+		],
+	},
+	"filesystem_forest": {
+		"world": [
+			Vector2(60.546188, 87.101807), # Spawn_FSF global
+			Vector2(32.5080575, 73.40864), # Lost File global
+			Vector2(60.382047, 39.141709), # Broken Link global
+		],
+		"pixel": [
+			Vector2(423.0, 364.0),
+			Vector2(154.0, 327.0),
+			Vector2(309.0, 128.0),
+		],
+	},
+	"deamon_depths": {
+		"world": [
+			Vector2(-3.9448755, -22.513244), # Spawn_DD global
+			Vector2(16.54037, -8.205072), # Boss room marker global
+			Vector2(-7.7873116, 23.523928), # Hardware Ghost global
+		],
+		"pixel": [
+			Vector2(85.0, 130.0),
+			Vector2(274.0, 157.0),
+			Vector2(303.0, 338.0),
+		],
+	},
+}
 const TERMINAL_ROOT_PATH := "/home/nova"
 const TUTORIAL_LOCATION := "tutorial_boot"
 const DEFAULT_HUB_LOCATION := "fallback_hamlet"
@@ -104,9 +149,10 @@ const TERMINAL_FUN_FACTS := [
 ]
 
 var _check_timer := 0.0
-@onready var file_item: Control = $TopRight/MenuStack/BagItem
+@onready var file_item: Control = $TopRight/MenuStack/BagItem2
 @onready var term_item: Control = $TopRight/MenuStack/MessagesItem
-@onready var quest_item: Control = $TopRight/MenuStack/QuestItem
+@onready var quest_item: Control = $TopRight/MenuStack/BagItem
+@onready var tux_item: Control = $TopRight/MenuStack/QuestItem
 
 var terminal_panel: TerminalPanel = null
 var terminal_output: RichTextLabel = null
@@ -137,6 +183,10 @@ var _tutorial_terminal_progress := {
 var _shop_panel: Control = null
 var _shutdown_confirm_dialog: ConfirmationDialog = null
 var _shutdown_main_menu_button: Button = null
+var _world_map_root: PanelContainer = null
+var _world_map_texture_rect: TextureRect = null
+var _world_map_player_dot_outer: PanelContainer = null
+var _world_map_player_dot_inner: ColorRect = null
 
 func _ready() -> void:
 	# Instantiate TerminalPanel scene
@@ -166,6 +216,8 @@ func _ready() -> void:
 		term_item.gui_input.connect(_on_term_item_gui_input)
 	if quest_item and not quest_item.gui_input.is_connected(_on_quest_item_gui_input):
 		quest_item.gui_input.connect(_on_quest_item_gui_input)
+	if tux_item and not tux_item.gui_input.is_connected(_on_tux_item_gui_input):
+		tux_item.gui_input.connect(_on_tux_item_gui_input)
 	if run_command_button and not run_command_button.pressed.is_connected(_on_run_command_pressed):
 		run_command_button.pressed.connect(_on_run_command_pressed)
 	if terminal_input and not terminal_input.text_submitted.is_connected(_on_terminal_text_submitted):
@@ -179,18 +231,19 @@ func _ready() -> void:
 	
 	_record_current_location_explored()
 	randomize()
+	_setup_world_map_widget()
 	_update_visibility()
+	_update_world_map_visibility(visible)
 	_setup_shutdown_confirm_dialog()
 
-	# Ensure a side quest button exists (exclamation on screen edge)
-	if get_tree().get_root().find_child("QuestSideButton", true, false) == null:
-		var QuestSideScene := preload("res://Scenes/ui/QuestSideButton.tscn")
-		if QuestSideScene:
-			var side_btn: QuestSideButton = QuestSideScene.instantiate() as QuestSideButton
-			get_tree().get_root().add_child(side_btn)
+	# Taskbar quest icon replaces the side exclamation marker.
+	var side_btn := get_tree().get_root().find_child("QuestSideButton", true, false)
+	if side_btn and is_instance_valid(side_btn):
+		side_btn.queue_free()
 
 func _process(delta: float) -> void:
 	_restore_terminal_focus_if_needed()
+	_update_world_map_player_marker()
 	_check_timer -= delta
 	if _check_timer > 0.0:
 		return
@@ -201,7 +254,7 @@ func _process(delta: float) -> void:
 func _input(event: InputEvent) -> void:
 	if not visible or get_tree().paused:
 		return
-	if file_item == null and term_item == null and quest_item == null:
+	if file_item == null and term_item == null and quest_item == null and tux_item == null:
 		return
 
 	if _terminal_is_open and event.is_action_pressed("ui_cancel"):
@@ -248,10 +301,13 @@ func _input(event: InputEvent) -> void:
 		if file_item and file_item.get_global_rect().has_point(click.position):
 			_open_file_explorer_from_hud()
 			return
+		if quest_item and quest_item.get_global_rect().has_point(click.position):
+			_open_quest_window_or_toggle_list()
+			return
 		if term_item and term_item.get_global_rect().has_point(click.position):
 			_open_terminal()
 			return
-		if quest_item and quest_item.get_global_rect().has_point(click.position):
+		if tux_item and tux_item.get_global_rect().has_point(click.position):
 			_open_tux_helper_from_hud()
 
 func _unhandled_input(_event: InputEvent) -> void:
@@ -262,11 +318,307 @@ func _update_visibility() -> void:
 	var should_show := not _is_combat_ui_visible()
 	visible = should_show
 	_set_quest_list_visible(should_show)
+	_update_world_map_visibility(should_show)
 	# Hide file item until file explorer is unlocked.
 	if file_item:
 		file_item.visible = should_show and _is_file_explorer_unlocked()
 	if not should_show and _terminal_is_open:
 		_close_terminal()
+
+func _setup_world_map_widget() -> void:
+	if _world_map_root != null and is_instance_valid(_world_map_root):
+		return
+
+	_world_map_root = PanelContainer.new()
+	_world_map_root.name = "WorldMapFrame"
+	_world_map_root.anchor_left = 0.0
+	_world_map_root.anchor_top = 0.0
+	_world_map_root.anchor_right = 0.0
+	_world_map_root.anchor_bottom = 0.0
+	_world_map_root.offset_left = 12.0
+	_world_map_root.offset_top = 12.0
+	_world_map_root.offset_right = 188.0
+	_world_map_root.offset_bottom = 188.0
+	_world_map_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_world_map_root)
+
+	var frame_style := StyleBoxFlat.new()
+	frame_style.bg_color = Color(0.03, 0.05, 0.08, 0.55)
+	frame_style.border_color = Color(0.93, 0.74, 0.39, 0.95)
+	frame_style.border_width_left = 2
+	frame_style.border_width_top = 2
+	frame_style.border_width_right = 2
+	frame_style.border_width_bottom = 2
+	frame_style.corner_radius_top_left = 14
+	frame_style.corner_radius_top_right = 14
+	frame_style.corner_radius_bottom_right = 14
+	frame_style.corner_radius_bottom_left = 14
+	_world_map_root.add_theme_stylebox_override("panel", frame_style)
+
+	var margin := MarginContainer.new()
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_theme_constant_override("margin_left", 6)
+	margin.add_theme_constant_override("margin_top", 6)
+	margin.add_theme_constant_override("margin_right", 6)
+	margin.add_theme_constant_override("margin_bottom", 6)
+	_world_map_root.add_child(margin)
+
+	_world_map_texture_rect = TextureRect.new()
+	_world_map_texture_rect.name = "WorldMapTexture"
+	_world_map_texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_world_map_texture_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_world_map_texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_world_map_texture_rect.stretch_mode = TextureRect.STRETCH_SCALE
+	margin.add_child(_world_map_texture_rect)
+
+	_world_map_player_dot_outer = PanelContainer.new()
+	_world_map_player_dot_outer.name = "WorldMapPlayerDotOuter"
+	_world_map_player_dot_outer.size = Vector2(12.0, 12.0)
+	_world_map_player_dot_outer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_world_map_player_dot_outer.z_index = 3
+	var dot_outer_style := StyleBoxFlat.new()
+	dot_outer_style.bg_color = Color(1, 1, 1, 0.95)
+	dot_outer_style.corner_radius_top_left = 6
+	dot_outer_style.corner_radius_top_right = 6
+	dot_outer_style.corner_radius_bottom_right = 6
+	dot_outer_style.corner_radius_bottom_left = 6
+	_world_map_player_dot_outer.add_theme_stylebox_override("panel", dot_outer_style)
+	_world_map_texture_rect.add_child(_world_map_player_dot_outer)
+
+	_world_map_player_dot_inner = ColorRect.new()
+	_world_map_player_dot_inner.name = "WorldMapPlayerDotInner"
+	_world_map_player_dot_inner.size = Vector2(8.0, 8.0)
+	_world_map_player_dot_inner.position = Vector2(2.0, 2.0)
+	_world_map_player_dot_inner.color = Color(0.94, 0.14, 0.14, 1.0)
+	_world_map_player_dot_inner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var dot_inner_style := StyleBoxFlat.new()
+	dot_inner_style.bg_color = Color(0.94, 0.14, 0.14, 1.0)
+	dot_inner_style.corner_radius_top_left = 4
+	dot_inner_style.corner_radius_top_right = 4
+	dot_inner_style.corner_radius_bottom_right = 4
+	dot_inner_style.corner_radius_bottom_left = 4
+	_world_map_player_dot_inner.add_theme_stylebox_override("panel", dot_inner_style)
+	_world_map_player_dot_outer.add_child(_world_map_player_dot_inner)
+	_world_map_player_dot_outer.visible = false
+
+func _update_world_map_visibility(should_show: bool) -> void:
+	if _world_map_root == null or not is_instance_valid(_world_map_root):
+		return
+
+	if not should_show or _is_shop_open():
+		_world_map_root.visible = false
+		return
+
+	var location_key := _get_current_location_key()
+	var texture: Texture2D = WORLD_MAP_TEXTURES.get(location_key, null)
+	if texture == null:
+		_world_map_root.visible = false
+		return
+
+	if _world_map_texture_rect:
+		_world_map_texture_rect.texture = texture
+	_world_map_root.visible = true
+
+func _is_shop_open() -> bool:
+	return _shop_panel != null and is_instance_valid(_shop_panel) and _shop_panel.visible
+
+func _update_world_map_player_marker() -> void:
+	if _world_map_root == null or not is_instance_valid(_world_map_root):
+		return
+	if _world_map_texture_rect == null or not is_instance_valid(_world_map_texture_rect):
+		return
+	if _world_map_player_dot_outer == null or not is_instance_valid(_world_map_player_dot_outer):
+		return
+	if not _world_map_root.visible or _world_map_texture_rect.texture == null:
+		_world_map_player_dot_outer.visible = false
+		return
+
+	var player_pos: Variant = _get_player_world_xz()
+	if player_pos == null:
+		_world_map_player_dot_outer.visible = false
+		return
+
+	var location_key: String = _get_current_location_key()
+	var pixel_pos: Variant = _world_to_map_pixel(location_key, player_pos)
+	if pixel_pos == null:
+		_world_map_player_dot_outer.visible = false
+		return
+
+	var tex := _world_map_texture_rect.texture
+	var tex_size := tex.get_size()
+	if tex_size.x <= 0.0 or tex_size.y <= 0.0:
+		_world_map_player_dot_outer.visible = false
+		return
+
+	var rect_size := _world_map_texture_rect.get_size()
+	if rect_size.x <= 0.0 or rect_size.y <= 0.0:
+		_world_map_player_dot_outer.visible = false
+		return
+
+	var uv := Vector2(pixel_pos.x / tex_size.x, pixel_pos.y / tex_size.y)
+	uv.x = clampf(uv.x, 0.0, 1.0)
+	uv.y = clampf(uv.y, 0.0, 1.0)
+
+	var local_pos := Vector2(uv.x * rect_size.x, uv.y * rect_size.y)
+	var dot_size := _world_map_player_dot_outer.size
+	_world_map_player_dot_outer.position = Vector2(local_pos.x - dot_size.x * 0.5, local_pos.y - dot_size.y * 0.5)
+	_world_map_player_dot_outer.visible = true
+
+func _get_player_world_xz() -> Variant:
+	var player_node := get_tree().get_first_node_in_group("player")
+	if not (player_node is Node3D):
+		return null
+	var player_3d := player_node as Node3D
+	var g := player_3d.global_position
+	return Vector2(g.x, g.z)
+
+func _world_to_map_pixel(location_key: String, world_pos_xz: Variant) -> Variant:
+	if not (world_pos_xz is Vector2):
+		return null
+	if not WORLD_MAP_CALIBRATION.has(location_key):
+		return null
+
+	var calibration: Dictionary = WORLD_MAP_CALIBRATION[location_key]
+	if calibration.has("world") and calibration.has("pixel"):
+		var world_points: Array = calibration.get("world", [])
+		var pixel_points: Array = calibration.get("pixel", [])
+		if world_points.size() == 4 and pixel_points.size() == 4:
+			var mapped_homography : Variant = _map_world_to_pixel_homography(world_points, pixel_points, world_pos_xz as Vector2)
+			if mapped_homography != null:
+				return mapped_homography
+
+	if calibration.has("bounds") and calibration.has("pixel_bounds"):
+		var bounds: Rect2 = calibration["bounds"]
+		var pixel_bounds: Rect2 = calibration["pixel_bounds"]
+		if bounds.size.x <= 0.0 or bounds.size.y <= 0.0:
+			return null
+
+		var bounds_local_world := (world_pos_xz as Vector2) - bounds.position
+		var normalized := Vector2(bounds_local_world.x / bounds.size.x, bounds_local_world.y / bounds.size.y)
+		normalized.x = clampf(normalized.x, 0.0, 1.0)
+		normalized.y = clampf(normalized.y, 0.0, 1.0)
+		if bool(calibration.get("flip_y", false)):
+			normalized.y = 1.0 - normalized.y
+		var bounds_mapped := Vector2(
+			pixel_bounds.position.x + normalized.x * pixel_bounds.size.x,
+			pixel_bounds.position.y + normalized.y * pixel_bounds.size.y
+		)
+		return bounds_mapped
+
+	var world_points_3: Array = calibration.get("world", [])
+	var pixel_points_3: Array = calibration.get("pixel", [])
+	if world_points_3.size() < 3 or pixel_points_3.size() < 3:
+		return null
+
+	var w1 := world_points_3[0] as Vector2
+	var w2 := world_points_3[1] as Vector2
+	var w3 := world_points_3[2] as Vector2
+	var p1 := pixel_points_3[0] as Vector2
+	var p2 := pixel_points_3[1] as Vector2
+	var p3 := pixel_points_3[2] as Vector2
+
+	var world_mat := Transform2D(w2 - w1, w3 - w1, Vector2.ZERO)
+	var det := world_mat.determinant()
+	if absf(det) < 0.00001:
+		return null
+
+	var world_inv := world_mat.affine_inverse()
+	var local_world := (world_pos_xz as Vector2) - w1
+	var bary_uv := world_inv * local_world
+	var pixel_mat := Transform2D(p2 - p1, p3 - p1, Vector2.ZERO)
+	var mapped := p1 + (pixel_mat * bary_uv)
+	return mapped
+
+func _map_world_to_pixel_homography(world_points: Array, pixel_points: Array, world_pos: Vector2) -> Variant:
+	if world_points.size() != 4 or pixel_points.size() != 4:
+		return null
+
+	var matrix: Array = []
+	for idx in range(8):
+		var row: Array = []
+		for col in range(9):
+			row.append(0.0)
+		matrix.append(row)
+
+	for i in range(4):
+		var wp := world_points[i] as Vector2
+		var pp := pixel_points[i] as Vector2
+		var row_a: Array = matrix[i * 2]
+		var row_b: Array = matrix[i * 2 + 1]
+		row_a[0] = wp.x
+		row_a[1] = wp.y
+		row_a[2] = 1.0
+		row_a[6] = -wp.x * pp.x
+		row_a[7] = -wp.y * pp.x
+		row_a[8] = pp.x
+
+		row_b[3] = wp.x
+		row_b[4] = wp.y
+		row_b[5] = 1.0
+		row_b[6] = -wp.x * pp.y
+		row_b[7] = -wp.y * pp.y
+		row_b[8] = pp.y
+
+	var solved := _solve_augmented_system(matrix)
+	if solved.is_empty() or solved.size() < 8:
+		return null
+
+	var h1: float = float(solved[0])
+	var h2: float = float(solved[1])
+	var h3: float = float(solved[2])
+	var h4: float = float(solved[3])
+	var h5: float = float(solved[4])
+	var h6: float = float(solved[5])
+	var h7: float = float(solved[6])
+	var h8: float = float(solved[7])
+	var denom := (h7 * world_pos.x) + (h8 * world_pos.y) + 1.0
+	if absf(denom) < 0.00001:
+		return null
+	return Vector2(
+		((h1 * world_pos.x) + (h2 * world_pos.y) + h3) / denom,
+		((h4 * world_pos.x) + (h5 * world_pos.y) + h6) / denom
+	)
+
+func _solve_augmented_system(matrix: Array) -> Array:
+	var rows := matrix.size()
+	if rows == 0:
+		return []
+	var cols := (matrix[0] as Array).size()
+	if cols != rows + 1:
+		return []
+
+	for pivot_col in range(rows):
+		var pivot_row := pivot_col
+		var pivot_abs := absf(float((matrix[pivot_row] as Array)[pivot_col]))
+		for candidate_row in range(pivot_col + 1, rows):
+			var candidate_abs := absf(float((matrix[candidate_row] as Array)[pivot_col]))
+			if candidate_abs > pivot_abs:
+				pivot_abs = candidate_abs
+				pivot_row = candidate_row
+		if pivot_abs < 0.000001:
+			return []
+		if pivot_row != pivot_col:
+			var tmp: Array = matrix[pivot_col]
+			matrix[pivot_col] = matrix[pivot_row]
+			matrix[pivot_row] = tmp
+
+		var pivot := float((matrix[pivot_col] as Array)[pivot_col])
+		for col in range(pivot_col, cols):
+			(matrix[pivot_col] as Array)[col] = float((matrix[pivot_col] as Array)[col]) / pivot
+
+		for row in range(rows):
+			if row == pivot_col:
+				continue
+			var factor := float((matrix[row] as Array)[pivot_col])
+			if absf(factor) < 0.000001:
+				continue
+			for col in range(pivot_col, cols):
+				(matrix[row] as Array)[col] = float((matrix[row] as Array)[col]) - (factor * float((matrix[pivot_col] as Array)[col]))
+
+	var result: Array = []
+	for row in range(rows):
+		result.append(float((matrix[row] as Array)[rows]))
+	return result
 
 func _set_quest_list_visible(should_show: bool) -> void:
 	var quest_list := _get_quest_list_node()
@@ -306,6 +658,13 @@ func _on_term_item_gui_input(event: InputEvent) -> void:
 
 
 func _on_quest_item_gui_input(event: InputEvent) -> void:
+	if not visible or get_tree().paused:
+		return
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_open_quest_window_or_toggle_list()
+
+
+func _on_tux_item_gui_input(event: InputEvent) -> void:
 	if not visible or get_tree().paused:
 		return
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
@@ -895,7 +1254,10 @@ func _on_shutdown_custom_action(action: StringName) -> void:
 	_print_terminal_line("Returning to main menu...")
 	_close_terminal()
 	if get_tree():
-		get_tree().change_scene_to_file("res://Scenes/ui/title_menu.tscn")
+		if SceneManager and SceneManager.has_method("transition_to_scene"):
+			SceneManager.call_deferred("transition_to_scene", "res://Scenes/ui/title_menu.tscn", 0.35)
+		else:
+			get_tree().change_scene_to_file("res://Scenes/ui/title_menu.tscn")
 
 func _print_location_map() -> void:
 	_print_terminal_line("Location map:")

@@ -1,9 +1,18 @@
-[gd_scene load_steps=5 format=3 uid="uid://ntxf4b6r0ccj"]
+[gd_scene load_steps=14 format=3 uid="uid://ntxf4b6r0ccj"]
 
 [ext_resource type="Script" uid="uid://duq8yc24f2l7s" path="res://scripts/combat/combat_tutorial_popup.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://dkn65j1w4mubb" path="res://Assets/referenceTerminalUI.png" id="2_wi56y"]
 [ext_resource type="Texture2D" uid="uid://d0ccc1ppt0xyq" path="res://Assets/referenceTimingUI.png" id="3_bq25e"]
 [ext_resource type="Texture2D" uid="uid://d3b7uwl7tl3ef" path="res://Assets/referenceDependencyUI.png" id="4_ln4gi"]
+[ext_resource type="Texture2D" path="res://Assets/referenceStep1.png" id="5_step1"]
+[ext_resource type="Texture2D" path="res://Assets/referenceStep2.png" id="6_step2"]
+[ext_resource type="Texture2D" path="res://Assets/referenceStep3.1.png" id="7_step31"]
+[ext_resource type="Texture2D" path="res://Assets/referenceStep4.1.png" id="8_step41"]
+[ext_resource type="Texture2D" path="res://Assets/referenceStep5.png" id="9_step5"]
+[ext_resource type="Texture2D" path="res://Assets/referenceStep6.png" id="10_step6"]
+[ext_resource type="Texture2D" path="res://Assets/referenceMapNavigate.png" id="11_mapnav"]
+[ext_resource type="Texture2D" path="res://Assets/referenceTalkingNPC.png" id="12_talknpc"]
+[ext_resource type="Texture2D" path="res://Assets/referenceQuest.png" id="13_quest"]
 
 [node name="CombatTutorialPopup" type="Control"]
 layout_mode = 3
@@ -17,6 +26,15 @@ script = ExtResource("1_script")
 terminal_reference_image = ExtResource("2_wi56y")
 timing_reference_image = ExtResource("3_bq25e")
 nodes_reference_image = ExtResource("4_ln4gi")
+step1_reference_image = ExtResource("5_step1")
+step2_reference_image = ExtResource("6_step2")
+step3_1_reference_image = ExtResource("7_step31")
+step4_1_reference_image = ExtResource("8_step41")
+step5_reference_image = ExtResource("9_step5")
+step6_reference_image = ExtResource("10_step6")
+map_navigation_reference_image = ExtResource("11_mapnav")
+talking_npc_reference_image = ExtResource("12_talknpc")
+quest_notes_reference_image = ExtResource("13_quest")
 
 [node name="Overlay" type="ColorRect" parent="."]
 layout_mode = 1

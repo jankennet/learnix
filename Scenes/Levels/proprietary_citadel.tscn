@@ -1,11 +1,11 @@
-[gd_scene load_steps=20 format=3 uid="uid://cgnaqsfcnjcqh"]
+[gd_scene load_steps=21 format=3 uid="uid://cgnaqsfcnjcqh"]
 
 [ext_resource type="PackedScene" uid="uid://c130218kdolm1" path="res://levelAssets/gtlfLevels/CitadelKaykit.glb" id="1_7lphe"]
 [ext_resource type="Texture2D" uid="uid://2sr4mubj2xie" path="res://levelAssets/hdris/DaySkyHDRI046A_1K_HDR.exr" id="1_pcl2b"]
 [ext_resource type="Script" uid="uid://bck3pddiufo8o" path="res://scripts/collision_builder.gd" id="3_w7pyj"]
 [ext_resource type="Script" uid="uid://kli8g5vspyy6" path="res://scripts/proprietary_citadel.gd" id="4_karma"]
 [ext_resource type="Texture2D" uid="uid://c1pnywisgeo0c" path="res://Assets/characterSpriteSheets/ss_Tux/tux_idle.png" id="4_vgi1g"]
-[ext_resource type="Script" path="res://scripts/npc_script.gd" id="5_tuxnpc"]
+[ext_resource type="Script" uid="uid://b0ir6gis4a7s3" path="res://scripts/npc_script.gd" id="5_tuxnpc"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_vgi1g"]
 panorama = ExtResource("1_pcl2b")

@@ -1,3 +1,6 @@
+CSGBox3D
+MultiMeshInstance3D
+MeshInstance3D
 AnimatedSprite2D
 Camera3D
 CollisionShape3D
@@ -10,6 +13,3 @@ AnimatedSprite3D
 CharacterBody3D
 Node3D
 StaticBody3D
-CSGBox3D
-SpotLight3D
-MeshInstance3D

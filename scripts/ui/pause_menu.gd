@@ -449,7 +449,10 @@ func _activate_selection() -> void:
 			_open_in_game_file_explorer()
 		"TITLE SCREEN":
 			_resume_game()
-			get_tree().change_scene_to_file(TITLE_SCENE)
+			if SceneManager and SceneManager.has_method("transition_to_scene"):
+				SceneManager.call_deferred("transition_to_scene", TITLE_SCENE, 0.35)
+			else:
+				get_tree().change_scene_to_file(TITLE_SCENE)
 		"SETTINGS":
 			_open_settings_menu()
 		"QUIT GAME":
@@ -733,7 +736,10 @@ func _on_confirmation_dialog_custom_action(action: StringName) -> void:
 		confirmation_dialog.hide()
 	if confirmation_mode == "quit" and String(action) == "to_main_menu":
 		_resume_game()
-		get_tree().change_scene_to_file(TITLE_SCENE)
+		if SceneManager and SceneManager.has_method("transition_to_scene"):
+			SceneManager.call_deferred("transition_to_scene", TITLE_SCENE, 0.35)
+		else:
+			get_tree().change_scene_to_file(TITLE_SCENE)
 	confirmation_mode = ""
 
 func _get_load_summary_text() -> String:

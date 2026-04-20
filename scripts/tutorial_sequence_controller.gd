@@ -139,7 +139,7 @@ func _run_tutorial() -> void:
 		"Step 1: Press E or Left Click To Continue",
 		"When dialogue appears, press [E] or [LMB] to keep going.\nYou can also left-click.",
 		"Big goal: keep pressing [E] or [LMB] until Tux is done.",
-		"placeholder"
+		"step1"
 	)
 	_show_hint_card("Press E or Left Click", "Press E or Left Click to continue dialogue.", "", "", "", false)
 	await _show_dialogue("wake_up", [self])
@@ -266,7 +266,7 @@ func _terminal_checkpoint() -> void:
 		"Terminal Time",
 		"Tap the terminal icon.",
 		"Arrow shows the way.",
-		"placeholder"
+		"step5"
 	)
 	_show_hint_card("Opening Terminal", "Tap it now.", "", "", "", false)
 	_show_terminal_arrow()
@@ -281,7 +281,7 @@ func _terminal_checkpoint() -> void:
 			"Try These Commands",
 			"pwd\nls\ncat onboarding_notes.txt",
 			"",
-			"placeholder"
+			"step6"
 		)
 		await _section_pause(0.45)
 		_update_terminal_objective_canvas()
@@ -580,7 +580,7 @@ func _show_wasd_canvas() -> void:
 		"Step 2: Move With WASD",
 		"Use WASD to move in all four directions.\n\n  [W]\n[A] [S] [D]",
 		"Try each key once: W, A, S, and D.",
-		"placeholder"
+		"step2"
 	)
 
 func _show_interact_canvas() -> void:
@@ -588,7 +588,7 @@ func _show_interact_canvas() -> void:
 		"Step 3: Press E Near Tux",
 		"Move to Tux and the glowing marker, then press [E] to interact.",
 		"Action key: E",
-		"placeholder"
+		"step3_1"
 	)
 
 func _show_hud_guide_canvas() -> void:
@@ -596,7 +596,7 @@ func _show_hud_guide_canvas() -> void:
 		"Step 4: MainHUD Unlocked",
 		"Bottom bar is your quick menu.\nTUX icon helps you.\nTERMINAL icon opens commands.",
 		"You will use this bar throughout Linuxia.",
-		"placeholder"
+		"step4_1"
 	)
 
 func _show_terminal_objective_canvas() -> void:
@@ -604,7 +604,7 @@ func _show_terminal_objective_canvas() -> void:
 		"Step 6: Terminal Practice",
 		"Type the three basics in order.\n[ ] pwd  (where am I?)\n[ ] ls  (what is here?)\n[ ] cat <file_name>  (read a file)",
 		"Complete all 3 checks to finish terminal training.\n" + _last_terminal_feedback,
-		"placeholder"
+		"step6"
 	)
 
 func _update_terminal_objective_canvas() -> void:

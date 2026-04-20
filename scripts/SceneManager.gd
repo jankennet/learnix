@@ -7,10 +7,13 @@ const FALLBACK_HAMLET_SCENE_PATH := "res://Scenes/Levels/fallback_hamlet.tscn"
 const FILESYSTEM_FOREST_SCENE_PATH := "res://Scenes/Levels/file_system_forest.tscn"
 const DEAMON_DEPTHS_SCENE_PATH := "res://Scenes/Levels/deamon_depths.tscn"
 const TUTORIAL_CONTROLLER_SCRIPT_PATH := "res://scripts/tutorial_sequence_controller.gd"
+const TITLE_MENU_SCENE_PATH := "res://Scenes/ui/title_menu.tscn"
 const TUTORIAL_DIALOGUE_PATH := "res://dialogues/TutorialFlow.dialogue"
 const TUTORIAL_POST_TELEPORT_LABEL := "linuxia_arrival_intro"
 const FILESYSTEM_FOREST_POST_TELEPORT_LABEL := "filesystem_forest_architecture_intro"
 const DEAMON_DEPTHS_POST_TELEPORT_LABEL := "deamon_depths_architecture_intro"
+const COMBAT_TUTORIAL_POPUP_SCENE_PATH := "res://Scenes/combat/combat_tutorial_popup.tscn"
+const POST_TUTORIAL_WORLD_GUIDE_META_KEY := "post_tutorial_world_guide_shown"
 const PLAYER_FOLLOW_TUX_NODE_NAME := "Tux"
 const WORLD_MAIN_SCENE_PATH := "res://Scenes/world_main.tscn"
 const MAIN_HUD_SCENE_PATH := "res://Scenes/ui/MainHUD.tscn"
@@ -30,6 +33,8 @@ const FILESYSTEM_FOREST_ARRIVAL_META_KEY := "filesystem_forest_arrival_intro_sho
 const DEAMON_DEPTHS_ARRIVAL_META_KEY := "deamon_depths_arrival_intro_shown"
 const PENDING_REWARD_META_KEY := "pending_reward_popup_key"
 const SKILL_UNLOCK_RECEIPTS_META_KEY := "skill_unlock_receipts"
+const POST_LOAD_SETTLE_FRAMES := 4
+const POST_LOAD_SETTLE_PHYSICS_FRAMES := 2
 
 const LEVEL_DEFAULT_SPAWNS := {
 	"res://Scenes/Levels/tutorial - Copy.tscn": "Spawn_player",
@@ -332,7 +337,7 @@ func _load_game_from_data(save_data: Dictionary) -> void:
 		push_warning("Loaded save without a valid player instance.")
 
 	_activate_scene_npcs(new_scene)
-	await get_tree().process_frame
+	await _wait_for_scene_settle()
 	if active_player and is_instance_valid(active_player):
 		active_player.set_physics_process(true)
 	await _hide_loading_screen()
@@ -808,7 +813,7 @@ func _player_floor_clearance(active_player: CharacterBody3D) -> float:
 	return max(0.2, -min_bottom)
 
 # 🌀 Universal teleport (with loading screen + NPC refresh)
-func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.0, preserve_gameplay_nodes: bool = true) -> void:
+func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 0.35, preserve_gameplay_nodes: bool = true) -> void:
 	print("🌍 Teleporting to: ", scene_path)
 	input_locked = true
 	# Play teleport SFX
@@ -903,9 +908,7 @@ func teleport_to_scene(scene_path: String, spawn_name: String, delay: float = 1.
 	if loading_ui and loading_ui.has_method("set_loading_progress"):
 		loading_ui.set_loading_progress(1.0)
 
-	# Give the new scene a full frame/physics tick to settle while still covered.
-	await get_tree().process_frame
-	await get_tree().physics_frame
+	await _wait_for_scene_settle()
 
 	await _hide_loading_screen()
 	await _run_first_visit_arrival_sequence(scene_path)
@@ -966,7 +969,8 @@ func _is_bios_vault_scene(scene_path: String) -> bool:
 	return scene_path == BIOS_VAULT_SCENE_PATH or scene_path == BIOS_VAULT_ALT_SCENE_PATH
 
 func _should_hide_companion_tux_in_scene(scene_path: String) -> bool:
-	return _is_bios_vault_scene(scene_path) \
+	return scene_path == TUTORIAL_SCENE_PATH \
+		or _is_bios_vault_scene(scene_path) \
 		or scene_path == PROPRIETARY_CITADEL_SCENE_PATH \
 		or scene_path == EVIL_TUX_BOSS_SCENE_PATH \
 		or bool(get_meta(EVIL_TUX_HIDE_NPCS_META_KEY, false))
@@ -1056,8 +1060,11 @@ func start_new_game(scene_path: String) -> void:
 	else:
 		push_warning("Failed to instantiate player for new game.")
 
-	await get_tree().process_frame
+	await _wait_for_scene_settle()
 	await _hide_loading_screen()
+
+func transition_to_scene(scene_path: String, delay: float = 0.35) -> void:
+	await teleport_to_scene(scene_path, "", delay, false)
 
 func _attach_tutorial_controller(scene: Node, active_player: CharacterBody3D, scene_path: String) -> void:
 	if scene_path != TUTORIAL_SCENE_PATH:
@@ -1125,7 +1132,7 @@ func _activate_scene_npcs(scene: Node):
 		var npc_root = scene.get_node("NPC")
 		for npc in npc_root.get_children():
 			if npc.has_method("on_scene_activated"):
-				npc.call_deferred("on_scene_activated")
+				npc.call("on_scene_activated")
 				print("💬 Activated NPC:", npc.name)
 
 # Background music helpers
@@ -1328,6 +1335,12 @@ func _hide_loading_screen():
 	await _fade_in_current(0.6)
 	return
 
+func _wait_for_scene_settle(process_frames: int = POST_LOAD_SETTLE_FRAMES, physics_frames: int = POST_LOAD_SETTLE_PHYSICS_FRAMES) -> void:
+	for _i in range(max(1, process_frames)):
+		await get_tree().process_frame
+	for _j in range(max(1, physics_frames)):
+		await get_tree().physics_frame
+
 func _run_post_tutorial_arrival_sequence(previous_scene_path: String, target_scene_path: String, active_player: CharacterBody3D) -> void:
 	if previous_scene_path != TUTORIAL_SCENE_PATH:
 		return
@@ -1337,6 +1350,56 @@ func _run_post_tutorial_arrival_sequence(previous_scene_path: String, target_sce
 	_restore_player_companion_tux(active_player)
 	await get_tree().process_frame
 	await _play_dialogue_sequence(TUTORIAL_DIALOGUE_PATH, TUTORIAL_POST_TELEPORT_LABEL, [self])
+	await _show_post_tutorial_world_guide()
+
+func _show_post_tutorial_world_guide() -> void:
+	if bool(get_meta(POST_TUTORIAL_WORLD_GUIDE_META_KEY, false)):
+		return
+	set_meta(POST_TUTORIAL_WORLD_GUIDE_META_KEY, true)
+
+	var popup_scene := load(COMBAT_TUTORIAL_POPUP_SCENE_PATH)
+	if not (popup_scene is PackedScene):
+		return
+
+	var popup_instance := (popup_scene as PackedScene).instantiate()
+	if popup_instance == null:
+		return
+
+	var popup_layer := CanvasLayer.new()
+	popup_layer.name = "PostTutorialGuideCanvas"
+	popup_layer.layer = 275
+	get_tree().root.add_child(popup_layer)
+	popup_layer.add_child(popup_instance)
+
+	if not popup_instance.has_method("show_popup") or not popup_instance.has_signal("closed"):
+		popup_layer.queue_free()
+		return
+
+	popup_instance.call("show_popup",
+		"How To Navigate The World",
+		"Walk with WASD and explore marked paths.\nOpen the terminal any time for quick travel once unlocked.",
+		"Explore at your pace.",
+		"map_navigation"
+	)
+	await popup_instance.closed
+
+	popup_instance.call("show_popup",
+		"Talking To NPCs",
+		"Move near an NPC and press E to interact.\nKeep talking to uncover hints and story clues.",
+		"NPCs unlock quests and progression.",
+		"talking_npc"
+	)
+	await popup_instance.closed
+
+	popup_instance.call("show_popup",
+		"Checking Quests",
+		"Use the Tux icon in your HUD to open quest help.\nTrack active objectives before heading out.",
+		"Use quest guidance when you feel stuck.",
+		"quest_notes"
+	)
+	await popup_instance.closed
+
+	popup_layer.queue_free()
 
 func _restore_player_companion_tux(active_player: CharacterBody3D) -> void:
 	if active_player == null:
