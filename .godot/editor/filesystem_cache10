@@ -1,5 +1,5 @@
 f098f8d3115d962055284dee314b4f89
-::res://::1776673585
+::res://::1776836295
 dungeonEntrance.gdshader::Shader::6234696419347358226::1773758680::0::1::::<><><>0<>0<><>::
 export_presets.cfg::TextFile::-1::1776002117::0::1::::<><><>0<>0<><>::
 grass.gdshader::Shader::8998852723237408497::1776673585::0::1::::<><><>0<>0<><>::
@@ -8,14 +8,14 @@ README.md::TextFile::-1::1775543665::0::1::::<><><>0<>0<><>::
 ::res://addons/::1773760902
 ::res://addons/dialogue_manager/::1766204428
 constants.gd::GDScript::4240262336831424009::1766202527::0::1::::DMConstants<>RefCounted<><>0<>0<><>::
-dialogue_label.gd::GDScript::480611383085669467::1766202527::0::1::::DialogueLabel<>RichTextLabel<><>0<>1<><>::
+dialogue_label.gd::GDScript::480611383085669467::1766202527::0::1::::DialogueLabel<>RichTextLabel<>res://addons/dialogue_manager/assets/icon.svg<>0<>1<><>::
 dialogue_label.tscn::PackedScene::5518490004210093266::1766202528::0::1::::<><><>0<>0<><>::uid://g32um0mltv5d::::res://addons/dialogue_manager/dialogue_label.gd
 dialogue_line.gd::GDScript::1208905219044177333::1766202528::0::1::::DialogueLine<>RefCounted<><>0<>0<><>::
 dialogue_manager.gd::GDScript::6774079045493014679::1771950207::0::1::::<>Node<><>0<>0<><>::
 dialogue_processor.gd::GDScript::900179394300351269::1766202528::0::1::::DMDialogueProcessor<>RefCounted<><>0<>0<><>::
-dialogue_resource.gd::GDScript::7268423792262407282::1766202528::0::1::::DialogueResource<>Resource<><>0<>1<><>::
+dialogue_resource.gd::GDScript::7268423792262407282::1766202528::0::1::::DialogueResource<>Resource<>res://addons/dialogue_manager/assets/icon.svg<>0<>1<><>::
 dialogue_response.gd::GDScript::5668140482552713515::1766202528::0::1::::DialogueResponse<>RefCounted<><>0<>0<><>::
-dialogue_responses_menu.gd::GDScript::2520211531407682507::1766202528::0::1::::DialogueResponsesMenu<>Container<><>0<>0<><>::
+dialogue_responses_menu.gd::GDScript::2520211531407682507::1766202528::0::1::::DialogueResponsesMenu<>Container<>res://addons/dialogue_manager/assets/responses_menu.svg<>0<>0<><>::
 editor_translation_parser_plugin.gd::GDScript::6952218891186463517::1766202528::0::1::::DMTranslationParserPlugin<>EditorTranslationParserPlugin<><>0<>0<><>::
 export_plugin.gd::GDScript::1265275163198105838::1766202529::0::1::::DMExportPlugin<>EditorExportPlugin<><>0<>0<><>::
 import_plugin.gd::GDScript::7696928728755687928::1766202529::0::1::::DMImportPlugin<>EditorImportPlugin<><>0<>1<><>::
@@ -109,7 +109,7 @@ GdUnitResultAssert.gd::GDScript::5268391371111166085::1766203140::0::1::::GdUnit
 GdUnitSceneRunner.gd::GDScript::1897048730647899801::1766203140::0::1::::GdUnitSceneRunner<>RefCounted<><>1<>0<><>::
 GdUnitSignalAssert.gd::GDScript::1234121406187725083::1766203140::0::1::::GdUnitSignalAssert<>GdUnitAssert<><>1<>0<><>::
 GdUnitStringAssert.gd::GDScript::5436867490981425444::1766203140::0::1::::GdUnitStringAssert<>GdUnitAssert<><>1<>0<><>::
-GdUnitTestSuite.gd::GDScript::587085039103452470::1766203140::0::1::::GdUnitTestSuite<>Node<><>0<>0<><>::
+GdUnitTestSuite.gd::GDScript::587085039103452470::1766203140::0::1::::GdUnitTestSuite<>Node<>res://addons/gdUnit4/src/ui/settings/logo.png<>0<>0<><>::
 GdUnitTuple.gd::GDScript::4536934156368302588::1766203140::0::1::::GdUnitTuple<>RefCounted<><>0<>0<><>::
 GdUnitValueExtractor.gd::GDScript::4599245013557902606::1766203140::0::1::::GdUnitValueExtractor<>RefCounted<><>0<>0<><>::
 GdUnitVectorAssert.gd::GDScript::127355809428924047::1766203141::0::1::::GdUnitVectorAssert<>GdUnitAssert<><>1<>0<><>::
@@ -359,9 +359,9 @@ dot1.png::CompressedTexture2D::7166621501565270876::1766203156::1766203663::1:::
 dot2.png::CompressedTexture2D::4851983250050402842::1766203156::1766203664::1::::<><><>0<>0<>a81297d72d3c6914476654e08efe68df<>res://.godot/imported/dot2.png-86a9db80ef4413e353c4339ad8f68a5f.ctex::
 embedded.png::CompressedTexture2D::6770921736681233239::1766203157::1766203663::1::::<><><>0<>0<>ed1e69304b7e66bc672463ff1f2c838c<>res://.godot/imported/embedded.png-29390948772209a603567d24f8766495.ctex::
 horizontal-line2.png::CompressedTexture2D::2822315393280434635::1766203157::1766203663::1::::<><><>0<>0<>2b7e67f2fc3806dd7e6907ebe39513ff<>res://.godot/imported/horizontal-line2.png-92618e6ee5cc9002847547a8c9deadbc.ctex::
-::res://addons/godot_landscaper/::1776673121
+::res://addons/godot_landscaper/::1776836306
 icon.svg::CompressedTexture2D::5783167400173111000::1773760879::1773760900::0::::<><><>0<>0<>364f06ae67125f23f23d38f8e41eb17f<>::
-icon_clean.png::CompressedTexture2D::711444754842548895::1773760879::1776673121::0::::<><><>0<>0<>1e4be8ad33324bc1586218d68f9b5a61<>::
+icon_clean.png::CompressedTexture2D::711444754842548895::1773760879::1776836306::0::::<><><>0<>0<>1e4be8ad33324bc1586218d68f9b5a61<>::
 plugin.cfg::TextFile::-1::1773760879::0::1::::<><><>0<>0<><>::
 plugin_landscaper.gd::GDScript::5343232134170777213::1773760879::0::1::::GLandscaper<>EditorPlugin<><>0<>1<><>::
 ::res://addons/godot_landscaper/assets_manager/::1773760899
@@ -369,7 +369,7 @@ assets_manager.gd::GDScript::2761983864336899505::1773760875::0::1::::GLAssetsMa
 assets_manager.tscn::PackedScene::5015021326319734201::1773760875::0::1::::<><><>0<>0<><>::uid://dywhmafci8bk5::::res://addons/godot_landscaper/assets_manager/assets_manager.gd
 ::res://addons/godot_landscaper/controllers/::1773760877
 ::res://addons/godot_landscaper/controllers/core/::1773760899
-controller.gd::GDScript::7210826988111493491::1773760875::0::1::::GLController<>Node<><>1<>1<><>::
+controller.gd::GDScript::7210826988111493491::1773760875::0::1::::GLController<>Node<>res://addons/godot_landscaper/scene_element/core/base_icon.svg<>1<>1<><>::
 ::res://addons/godot_landscaper/controllers/core/apis/::1773760899
 api.gd::GDScript::370032151763882686::1773760875::0::1::::GLAPI<>Resource<><>1<>1<><>::
 tween.gd::GDScript::8690982408075474398::1773760875::0::1::::GLAPITween<>GLAPI<><>0<>1<><>::
@@ -388,7 +388,7 @@ light.gdshaderinc::ShaderInclude::4365187639202988163::1773760875::0::1::::<><><
 ::res://addons/godot_landscaper/controllers/core/validators/::1773760876
 validator.gd::GDScript::2280275710661440611::1773760876::0::1::::GLValidator<>Resource<><>1<>1<><>::
 ::res://addons/godot_landscaper/controllers/grass/::1773760899
-grass_controller.gd::GDScript::7173737058337926389::1773760876::0::1::::GLControllerGrass<>GLController<><>0<>1<><>::
+grass_controller.gd::GDScript::7173737058337926389::1773760876::0::1::::GLControllerGrass<>GLController<>uid://bayr1rdodg66t<>0<>1<><>::
 ::res://addons/godot_landscaper/controllers/grass/apis/::1773760899
 grass_trample.gd::GDScript::1461566124640980171::1773760876::0::1::::GLAPIGrassTrample<>GLAPI<><>0<>1<><>::
 grass_wind.gd::GDScript::6499460827578124869::1773760876::0::1::::GLAPIGrassWind<>GLAPI<><>0<>1<><>::
@@ -433,7 +433,7 @@ grass_templater.gd::GDScript::4085389407436993959::1773760876::0::1::::GLTemplat
 ::res://addons/godot_landscaper/controllers/grass/validators/::1773760876
 validator_grass.gd::GDScript::4654257889337265829::1773760876::0::1::::GLValidatorGrass<>GLValidator<><>0<>1<><>::
 ::res://addons/godot_landscaper/controllers/packed_scene/::1773760899
-packed_scene_controller.gd::GDScript::8042780934564557279::1773760877::0::1::::GLControllerPackedScene<>GLController<><>0<>1<><>::
+packed_scene_controller.gd::GDScript::8042780934564557279::1773760877::0::1::::GLControllerPackedScene<>GLController<>uid://dkeyetdoidrwn<>0<>1<><>::
 ::res://addons/godot_landscaper/controllers/packed_scene/brushes/::1773760899
 scene_instancer.gd::GDScript::5132726272782087108::1773760876::0::1::::GLBrushSceneInstancer<>GLBrush<><>0<>1<><>::
 scene_instancer.tres::Resource/GLBrushSceneInstancer::7343693769978178338::1773760876::0::1::::<><><>0<>0<><>::uid://1x50xrtyhnmr::::res://addons/godot_landscaper/controllers/packed_scene/icons/packed_scene_icon.svg<>uid://ptx755ibqhev::::res://addons/godot_landscaper/controllers/packed_scene/brushes/scene_instancer.gd
@@ -455,7 +455,7 @@ packed_scene_templater.gd::GDScript::3365056796204167883::1773760877::0::1::::GL
 ::res://addons/godot_landscaper/controllers/packed_scene/validators/::1773760899
 packed_scene_validator.gd::GDScript::9002109689153094231::1773760877::0::1::::GLValidatorPackedScene<>GLValidator<><>0<>1<><>::
 ::res://addons/godot_landscaper/controllers/terrain/::1773760878
-terrain_controller.gd::GDScript::758102892366444793::1773760878::0::1::::GLControllerTerrain<>GLController<><>0<>1<><>::
+terrain_controller.gd::GDScript::758102892366444793::1773760878::0::1::::GLControllerTerrain<>GLController<>uid://bv48muu3c1tif<>0<>1<><>::
 ::res://addons/godot_landscaper/controllers/terrain/brushes/::1773760899
 0_terrain_builder.tres::Resource/GLBrushTerrainBuider::5324117367436536::1773760877::0::1::::<><><>0<>0<><>::uid://cuhiamhh8gann::::res://addons/godot_landscaper/controllers/terrain/icons/tab_terrain_build.svg<>uid://byui0q6lutlyl::::res://addons/godot_landscaper/controllers/terrain/brushes/terrain_builder.gd
 1_terrain_height.tres::Resource/GLBrushTerrainHeight::2227790003061710554::1773760877::0::1::::<><><>0<>0<><>::uid://dgjsktynk4pnw::::res://addons/godot_landscaper/controllers/terrain/icons/tab_terrain_height.svg<>uid://dxggt0kdy7bwq::::res://addons/godot_landscaper/controllers/terrain/brushes/terrain_height.gd
@@ -530,7 +530,7 @@ plugin.cfg::TextFile::-1::1759814508::0::1::::<><><>0<>0<><>::
 README.md::TextFile::-1::1759814508::0::1::::<><><>0<>0<><>::
 terrain3d_00_00.res::Terrain3DRegion::5551519945458341323::1773758246::0::1::::<><><>0<>0<><>::
 terrain.gdextension::GDExtension::2625506675569593757::1759814510::0::1::::<><><>0<>0<><>::
-::res://addons/terrain_3d/bin/::1776673105
+::res://addons/terrain_3d/bin/::1776836290
 ::res://addons/terrain_3d/bin/libterrain.macos.debug.framework/::1760967133
 ::res://addons/terrain_3d/bin/libterrain.macos.release.framework/::1760967133
 ::res://addons/terrain_3d/extras/::1760967133
@@ -635,7 +635,7 @@ terminal-bg-2.mp3::AudioStreamMP3::4349821950747245732::1728700718::1774764750::
 terminal-bg.mp3::AudioStreamMP3::8472917690359817311::1773052598::1774764725::1::::<><><>0<>0<>2fe2a03e060283bbd2027a747dd28816<>res://.godot/imported/terminal-bg.mp3-696231f3d28f5b8d1a25b2e63590014f.mp3str::
 walk.mp3::AudioStreamMP3::5981557156430814602::1740484553::1774764816::1::::<><><>0<>0<>e1093113bab0622553f6d60119de3d81<>res://.godot/imported/walk.mp3-611e4bd4e21f3662b47a6abcf5a3ef35.mp3str::
 walking-on-wood.mp3::AudioStreamMP3::2096884025810885268::1653835112::1774764599::1::::<><><>0<>0<>74249531f38c40d11477468f37747009<>res://.godot/imported/walking-on-wood.mp3-f3817e41874be2d3f38ccdea18eb6861.mp3str::
-::res://Assets/::1776692524
+::res://Assets/::1776692525
 arrow.png::CompressedTexture2D::1773638675446185444::1776569274::1776569275::1::::<><><>0<>0<>c53d1b0bf398d259b203025b0c73be90<>res://.godot/imported/arrow.png-57f8c059c3343415ea6369e587d21c52.ctex::
 bgsheet_ver2.png::CompressedTexture2D::2224864755165252578::1775741275::1775741344::1::::<><><>0<>0<>d4b1e7ca257aa3385463ee858fa2b397<>res://.godot/imported/bgsheet_ver2.png-c54fdbd661d6b1b9e189abd6d82fe0ae.ctex::
 Glass-Cracks-PNG-HD.png::CompressedTexture2D::5489873830268789744::1775181440::1775181555::1::::<><><>0<>0<>9ffe74965d92cb33b5c4f85600457cce<>res://.godot/imported/Glass-Cracks-PNG-HD.png-d9e1f42b6c1a7dfef3d64c00b9b3c350.ctex::
@@ -824,7 +824,7 @@ world_main.tscn::PackedScene::7802616945458743415::1772160304::0::1::::<><><>0<>
 ::res://Scenes/combat/::1776673160
 combat_encounter.tscn::PackedScene::-1::1766898201::0::1::::<><><>0<>0<><>::res://scripts/combat/combat_ui.gd
 combat_terminal_ui.tscn::PackedScene::2273704854269644536::1775197154::0::1::::<><><>0<>0<><>::uid://p3mbu7wibxub::::res://scripts/combat/combat_terminal_ui.gd<>uid://doak8ce36xvhu::::res://Scenes/combat/crt_terminal_theme.tres<>uid://cmh6cx1xegkl0::::res://Scenes/combat/crt_effect.gdshader<>uid://dgaayvix000r3::::res://Scenes/combat/cracked_glass.gdshader<>uid://bvbsrdib0cx5f::::res://Assets/mainHUD_Icons_Tux.png<>uid://ckhlojn5y0q8g::::res://Assets/Glass-Cracks-PNG-HD.png
-combat_tutorial_popup.tscn::PackedScene::953085090578869325::1776682176::0::1::::<><><>0<>0<><>::uid://duq8yc24f2l7s::::res://scripts/combat/combat_tutorial_popup.gd<>uid://dkn65j1w4mubb::::res://Assets/referenceTerminalUI.png<>uid://d0ccc1ppt0xyq::::res://Assets/referenceTimingUI.png<>uid://d3b7uwl7tl3ef::::res://Assets/referenceDependencyUI.png
+combat_tutorial_popup.tscn::PackedScene::953085090578869325::1776697274::0::1::::<><><>0<>0<><>::uid://duq8yc24f2l7s::::res://scripts/combat/combat_tutorial_popup.gd<>uid://dkn65j1w4mubb::::res://Assets/referenceTerminalUI.png<>uid://d0ccc1ppt0xyq::::res://Assets/referenceTimingUI.png<>uid://d3b7uwl7tl3ef::::res://Assets/referenceDependencyUI.png<>res://Assets/referenceStep1.png<>res://Assets/referenceStep2.png<>res://Assets/referenceStep3.1.png<>res://Assets/referenceStep4.1.png<>res://Assets/referenceStep5.png<>res://Assets/referenceStep6.png<>res://Assets/referenceMapNavigate.png<>res://Assets/referenceTalkingNPC.png<>res://Assets/referenceQuest.png
 cracked_glass.gdshader::Shader::7580439088389438586::1776673160::0::1::::<><><>0<>0<><>::
 cracked_glass.tres::VisualShader::1483161597512276276::1775181776::0::1::::<><><>0<>0<><>::
 crt_effect.gdshader::Shader::5631445182937155335::1767356428::0::1::::<><><>0<>0<><>::
@@ -851,11 +851,11 @@ tutorial - Copy.tscn::PackedScene::4919734157153184481::1776677095::0::1::::<><>
 ::res://Scenes/Player/::1776674971
 player.tscn::PackedScene::7836641686751441938::1776674971::0::1::::<><><>0<>0<><>::uid://3tjo4ty6qgpg::::res://scripts/nova_controls.gd<>uid://backns8cap53v::::res://Assets/characterSpriteSheets/ss_Nova/nova_idle.png<>uid://n6i68hiiyroe::::res://Assets/characterSpriteSheets/ss_Nova/run_anim_down.png<>uid://bdq2n2oonhcjl::::res://Assets/characterSpriteSheets/ss_Nova/run_anim_left.png<>uid://jm2dpg6wg6::::res://Assets/characterSpriteSheets/ss_Nova/run_anim_up.png<>uid://n06vxg7mgtfl::::res://Assets/characterSpriteSheets/ss_Nova/walk_anim_down.png<>uid://vflcwvvg6oog::::res://Assets/characterSpriteSheets/ss_Nova/walk_anim_left.png<>uid://chjcr0bqm755::::res://Assets/characterSpriteSheets/ss_Nova/walk_anim_up.png<>uid://dexka4nfcsts4::::res://Scenes/Player/tux.tscn<>uid://s4pt2krh3jop::::res://scripts/camera_main.gd
 tux.tscn::PackedScene::7488106827392663645::1775522269::0::1::::<><><>0<>0<><>::uid://dcqi50kevwdju::::res://scripts/tux_follower.gd<>uid://du62yhyjwyg58::::res://Assets/characterSpriteSheets/ss_Tux/tux_idleBackward.png<>uid://c1pnywisgeo0c::::res://Assets/characterSpriteSheets/ss_Tux/tux_idle.png
-::res://Scenes/ui/::1776692512
+::res://Scenes/ui/::1776697565
 black_text_cutscene.tscn::PackedScene::7551114987822502651::1775524623::0::1::::<><><>0<>0<><>::uid://cquegk3hkghfq::::res://scripts/ui/black_text_cutscene.gd<>uid://dh1u874bymph0::::res://Assets/secret/SpecialEndCreds.ogv<>uid://lqtbary7gh5r::::res://Assets/fonts/PressStart2P-Regular.ttf
 controls_help.tscn::PackedScene::-1::1771729334::0::1::::<><><>0<>0<><>::res://scripts/ui/controls_help.gd<>res://Assets/fonts/PressStart2P-Regular.ttf
 interaction_prompt.tscn::PackedScene::-1::1767362059::0::1::::<><><>0<>0<><>::res://scripts/ui/interaction_prompt.gd<>res://Assets/fonts/PressStart2P-Regular.ttf
-MainHUD.tscn::PackedScene::7522535084660538802::1776692512::0::1::::<><><>0<>0<><>::uid://lqtbary7gh5r::::res://Assets/fonts/PressStart2P-Regular.ttf<>uid://mqkv64skk1kd::::res://scripts/ui/main_hud.gd<>uid://doak8ce36xvhu::::res://Scenes/combat/crt_terminal_theme.tres<>uid://bjc51rva8ysea::::res://Assets/mainHUD_Icons_File.png<>uid://cmh6cx1xegkl0::::res://Scenes/combat/crt_effect.gdshader<>uid://b1pfxsi5467pn::::res://Assets/mainHUD_Icons_Terminal.png<>uid://7fewxymqksne::::res://Assets/mainHUD_Icons_Quests.png<>uid://bvbsrdib0cx5f::::res://Assets/mainHUD_Icons_Tux.png
+MainHUD.tscn::PackedScene::7522535084660538802::1776697565::0::1::::<><><>0<>0<><>::uid://lqtbary7gh5r::::res://Assets/fonts/PressStart2P-Regular.ttf<>uid://mqkv64skk1kd::::res://scripts/ui/main_hud.gd<>uid://doak8ce36xvhu::::res://Scenes/combat/crt_terminal_theme.tres<>uid://bjc51rva8ysea::::res://Assets/mainHUD_Icons_File.png<>uid://cmh6cx1xegkl0::::res://Scenes/combat/crt_effect.gdshader<>uid://b1pfxsi5467pn::::res://Assets/mainHUD_Icons_Terminal.png<>uid://7fewxymqksne::::res://Assets/mainHUD_Icons_Quests.png<>uid://bvbsrdib0cx5f::::res://Assets/mainHUD_Icons_Tux.png
 pause_menu.tscn::PackedScene::6609627896699606664::1775751650::0::1::::<><><>0<>0<><>::uid://chk07vk2dvelr::::res://scripts/ui/pause_menu.gd<>uid://lqtbary7gh5r::::res://Assets/fonts/PressStart2P-Regular.ttf<>uid://ysncei6ynsrf::::res://shaders/ui/pause_crt_blur.gdshader
 QuestList.tscn::PackedScene::3185445307682786787::1774784574::0::1::::<><><>0<>0<><>::
 QuestListItem.tscn::PackedScene::6935339806164525848::1775103845::0::1::::<><><>0<>0<><>::uid://o5ubrp41lfdy::::res://scripts/QuestListItem.gd
@@ -893,7 +893,7 @@ QuestListItem.gd::GDScript::1045792186625309802::1775530702::0::1::::QuestListIt
 QuestManager.gd::GDScript::2210091108176930201::1775444924::0::1::::QuestManager<>Node<><>0<>0<><>::
 QuestUI.gd::GDScript::1290171723566393364::1775097616::0::1::::QuestUI<>Control<><>0<>0<><>::
 README.md::TextFile::-1::1775535417::0::1::::<><><>0<>0<><>::
-SceneManager.gd::GDScript::7671005010212015614::1776683609::0::1::::<>Node<><>0<>0<><>::
+SceneManager.gd::GDScript::7671005010212015614::1776697274::0::1::::<>Node<><>0<>0<><>::
 sudo_boss_door.gd::GDScript::5105555475541877700::1775524387::0::1::::<>Area3D<><>0<>0<><>::
 teleport.gd::GDScript::8669728031606914071::1775789073::0::1::::<>Area3D<><>0<>0<><>::
 tutorial_sequence_controller.gd::GDScript::7361884804977790024::1776682176::0::1::::<>Node<><>0<>0<><>::
@@ -902,7 +902,7 @@ tux_dialogue_controller.gd::GDScript::1759325493277682849::1775789073::0::1::::<
 tux_follower.gd::GDScript::7333210420922073938::1775788050::0::1::::<>CharacterBody3D<><>0<>0<><>::
 ::res://scripts/combat/::1775793006
 combat_terminal_ui.gd::GDScript::1111366722302342733::1776566741::0::1::::CombatTerminalUI<>Control<><>0<>0<><>::
-combat_tutorial_popup.gd::GDScript::8598115635801721606::1776682393::0::1::::CombatTutorialPopup<>Control<><>0<>0<><>::
+combat_tutorial_popup.gd::GDScript::8598115635801721606::1776697274::0::1::::CombatTutorialPopup<>Control<><>0<>0<><>::
 command_parser.gd::GDScript::8493907204863814775::1775495520::0::1::::CommandParser<>RefCounted<><>0<>0<><>::
 dependency_resolver_minigame.gd::GDScript::2221706111779197876::1775798618::0::1::::DependencyResolverMinigame<>Control<><>0<>0<><>::
 encounter_controller.gd::GDScript::1113640327864676408::1775752752::0::1::::EncounterController<>Node<><>0<>0<><>::

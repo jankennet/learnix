@@ -91,8 +91,8 @@ custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-scroll_active = false
 scroll_following = true
+autowrap_mode = 0
 
 [node name="TerminalInputRow" type="HBoxContainer" parent="PanelBg/MarginContainer/VBox"]
 layout_mode = 2

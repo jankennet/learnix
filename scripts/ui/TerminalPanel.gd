@@ -13,6 +13,8 @@ class_name TerminalPanel
 const TERMINAL_BG = Color(0.02, 0.08, 0.02, 0.98)  # Almost black with green tint
 const TERMINAL_TEXT = Color(0.4, 0.95, 0.45, 1.0)  # Bright phosphor green
 const TERMINAL_BORDER = Color(0.4, 0.95, 0.45, 1.0)  # Match text color
+const TERMINAL_FONT: FontFile = preload("res://Assets/fonts/PressStart2P-Regular.ttf")
+const TERMINAL_FONT_SIZE := 12
 
 func _ready() -> void:
 	visible = false
@@ -34,6 +36,9 @@ func _ready() -> void:
 	
 	# Style terminal output with CRT phosphor green text
 	terminal_output.add_theme_color_override("default_color", TERMINAL_TEXT)
+	terminal_output.add_theme_font_override("normal_font", TERMINAL_FONT)
+	terminal_output.add_theme_font_size_override("normal_font_size", TERMINAL_FONT_SIZE)
+	terminal_output.autowrap_mode = TextServer.AUTOWRAP_OFF
 	
 	# Style header and buttons with CRT theme
 	var header_label = terminal_header.get_node("HeaderLabel")
@@ -64,6 +69,8 @@ func _ready() -> void:
 	# Style input field with CRT theme
 	terminal_input.add_theme_color_override("font_color", TERMINAL_TEXT)
 	terminal_input.add_theme_color_override("caret_color", TERMINAL_TEXT)
+	terminal_input.add_theme_font_override("font", TERMINAL_FONT)
+	terminal_input.add_theme_font_size_override("font_size", TERMINAL_FONT_SIZE)
 	var input_sb := StyleBoxFlat.new()
 	input_sb.bg_color = Color(0.0, 0.0, 0.0, 0.0)  # Transparent
 	input_sb.border_width_left = 0

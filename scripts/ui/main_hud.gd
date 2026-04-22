@@ -405,7 +405,7 @@ func _update_world_map_visibility(should_show: bool) -> void:
 	if _world_map_root == null or not is_instance_valid(_world_map_root):
 		return
 
-	if not should_show or _is_shop_open():
+	if not should_show or _is_shop_open() or _terminal_is_open:
 		_world_map_root.visible = false
 		return
 
@@ -738,6 +738,7 @@ func _open_terminal() -> void:
 	_acquire_terminal_input_lock()
 	_terminal_is_open = true
 	terminal_panel.visible = true
+	_update_world_map_visibility(false)
 	if SceneManager:
 		SceneManager.play_sfx("res://album/sfx/open-terminal.mp3")
 	if terminal_output and terminal_output.get_parsed_text().is_empty():
@@ -756,6 +757,7 @@ func _close_terminal() -> void:
 	_release_terminal_input_lock()
 	if terminal_panel:
 		terminal_panel.visible = false
+	_update_world_map_visibility(visible)
 
 func _on_run_command_pressed() -> void:
 	if terminal_input:
@@ -798,7 +800,7 @@ func _process_terminal_command(raw_command: String) -> void:
 			if _is_tutorial_terminal_guided_mode():
 				_print_tutorial_help_guidance()
 			else:
-				var help_text = "Commands: help, map, pwd, ls, cat <file>, explorer, history, shop, save, quit, clear"
+				var help_text = "Commands: help, map, pwd, ls, cat <file>, explorer, history, shop, save, quit, clear, sysinfo"
 				if _is_cd_command_unlocked():
 					help_text += ", cd <location>, cd .."
 				help_text += ", echo <text>, whoami, date, uname, touch <file>, mkdir <dir>, rm <file>, sudo shutdown, wget <url>"
@@ -841,6 +843,8 @@ func _process_terminal_command(raw_command: String) -> void:
 			_print_terminal_line(Time.get_datetime_string_from_system())
 		"uname":
 			_print_terminal_line("Linuxia 5.15.0 #1 SMP x86_64 GNU/Linux")
+		"sysinfo":
+			_print_terminal_sysinfo()
 		"touch":
 			if args.is_empty():
 				_print_terminal_line("touch: missing file operand")
@@ -1359,6 +1363,234 @@ func _maybe_print_fun_fact() -> void:
 		return
 	var fact :String = TERMINAL_FUN_FACTS[randi() % TERMINAL_FUN_FACTS.size()]
 	_print_terminal_line("[fun] %s" % fact)
+
+func _print_terminal_sysinfo() -> void:
+	var lines := _build_sysinfo_lines()
+	for line in lines:
+		_print_terminal_line(String(line))
+
+func _build_sysinfo_lines() -> Array[String]:
+	var user_host := _build_sysinfo_user_host()
+	var host_name := _build_sysinfo_host_name()
+	var mode_label := _build_sysinfo_mode_label()
+	var karma := _get_sysinfo_karma_label()
+	var uptime := _format_sysinfo_uptime(Time.get_ticks_msec() / 1000.0)
+	var location := _get_current_location_key()
+	if location == "":
+		location = _terminal_home_location()
+
+	var constructive_score := _get_constructive_score()
+	var destructive_score := _get_destructive_score()
+	var quest_summary := _build_sysinfo_quest_summary()
+	var unlocked_skills := _count_unlocked_skills()
+	var total_skills := SKILL_UNLOCK_FLAGS.size()
+
+	var info_lines: Array[String] = [
+		"%s" % user_host,
+		"------------------------",
+		"OS: Learnix Linuxia",
+		"Host: %s" % host_name,
+		"Kernel: 5.15.0-learnix",
+		"Uptime: %s" % uptime,
+		"Shell: nova-shell",
+		"Terminal: MainHUD",
+		"Location: %s" % location,
+		"Data Bits: %d" % int(SceneManager.get("data_bits") if SceneManager else 0),
+		"Karma: %s" % karma,
+		"Mode: %s" % mode_label,
+		"Constructive: %d" % constructive_score,
+		"Destructive: %d" % destructive_score,
+		"Quests: %s" % quest_summary,
+		"Skills: %d/%d unlocked" % [unlocked_skills, total_skills],
+	]
+
+	var logo_lines: Array[String] = [
+		"            .-/+oossssoo+/-.",
+		"        `:+ssssssssssssssssss+:`",
+		"      -+ssssssssssssssssssyyssss+-",
+		"    .ossssssssssssssssssdMMMNysssso.",
+		"   /ssssssssssshdmmNNmmyNMMMMhssssss/",
+		"  +ssssssssshmydMMMMMMMNddddyssssssss+",
+		" /sssssssshNMMMyhhyyyyhmNMMMNhssssssss/",
+		".ssssssssdMMMNhsssssssssshNMMMdssssssss.",
+		"+sssshhhyNMMNyssssssssssssyNMMMysssssss+",
+		"ossyNMMMNyMMhsssssssssssssshmmmhssssssso",
+		"ossyNMMMNyMMhsssssssssssssshmmmhssssssso",
+		"+sssshhhyNMMNyssssssssssssyNMMMysssssss+",
+		".ssssssssdMMMNhsssssssssshNMMMdssssssss.",
+		" /sssssssshNMMMyhhyyyyhdNMMMNhssssssss/",
+		"  +sssssssssdmydMMMMMMMMddddyssssssss+",
+		"   /ssssssssssshdmNNNNmyNMMMMhssssss/",
+		"    .ossssssssssssssssssdMMMNysssso.",
+		"      -+sssssssssssssssssyyyssss+-",
+		"        `:+ssssssssssssssssss+:`",
+		"            .-/+oossssoo+/-.",
+	]
+
+	var lines: Array[String] = []
+	var columns := _estimated_terminal_columns()
+	var logo_width := 0
+	for line in logo_lines:
+		logo_width = maxi(logo_width, line.length())
+	
+	# Side-by-side layout: stable logo width + 2 spaces + info
+	if columns >= logo_width + 24:
+		var max_rows := maxi(logo_lines.size(), info_lines.size())
+		for i in range(max_rows):
+			var logo_line: String = logo_lines[i] if i < logo_lines.size() else ""
+			var info_line: String = info_lines[i] if i < info_lines.size() else ""
+			while logo_line.length() < logo_width:
+				logo_line += " "
+			lines.append(logo_line + "  " + info_line)
+	# Stacked layout for narrow terminals
+	else:
+		for logo_line in logo_lines:
+			lines.append(logo_line)
+		lines.append("")
+		for info_line in info_lines:
+			lines.append(info_line)
+
+	return lines
+
+func _estimated_terminal_columns() -> int:
+	# Use fullscreen viewport if fullscreen
+	if _terminal_is_fullscreen:
+		var viewport := get_viewport().get_visible_rect()
+		return maxi(70, int(viewport.size.x / 8.0))
+	
+	# Otherwise use terminal_output size
+	if terminal_output == null or terminal_output.size.x <= 0:
+		return 80  # Default fallback
+	
+	# Estimate: ~8px per monospace char
+	return maxi(70, int(terminal_output.size.x / 8.0))
+
+func _clip_terminal_line(text: String, max_columns: int) -> String:
+	if max_columns <= 0:
+		return ""
+	if text.length() <= max_columns:
+		return text
+	if max_columns <= 3:
+		return text.substr(0, max_columns)
+	return "%s..." % text.substr(0, max_columns - 3)
+
+func _build_sysinfo_user_host() -> String:
+	var host_name := _build_sysinfo_host_name()
+	return "nova@%s" % host_name
+
+func _build_sysinfo_host_name() -> String:
+	var location := _get_current_location_key()
+	if location == "":
+		location = _terminal_home_location()
+	if location == "":
+		return "learnix-node"
+	return "%s-node" % location
+
+func _get_sysinfo_karma_label() -> String:
+	if SceneManager == null:
+		return "neutral"
+	var karma := String(SceneManager.get("player_karma")).strip_edges().to_lower()
+	if karma == "":
+		return "neutral"
+	return karma
+
+func _build_sysinfo_mode_label() -> String:
+	var constructive_score := _get_constructive_score()
+	var destructive_score := _get_destructive_score()
+
+	if constructive_score > destructive_score:
+		return "building"
+	if destructive_score > constructive_score:
+		return "destructive"
+
+	var karma := _get_sysinfo_karma_label()
+	if karma == "good":
+		return "building"
+	if karma == "bad":
+		return "destructive"
+	return "balanced"
+
+func _get_constructive_score() -> int:
+	if SceneManager == null:
+		return 0
+	var score := 0
+	if SceneManager.get("helped_lost_file") == true:
+		score += 2
+	if _is_skill_unlocked("mkdir_construct"):
+		score += 2
+	if _is_skill_unlocked("file_explorer"):
+		score += 1
+	if _is_skill_unlocked("teleport"):
+		score += 1
+	if _is_skill_unlocked("potion_patch"):
+		score += 1
+	if _is_skill_unlocked("potion_hardening"):
+		score += 1
+	if String(SceneManager.get("player_karma")).to_lower() == "good":
+		score += 1
+	return score
+
+func _get_destructive_score() -> int:
+	if SceneManager == null:
+		return 0
+	var score := 0
+	if SceneManager.get("deleted_lost_file") == true:
+		score += 2
+	if SceneManager.get("broken_link_defeated") == true:
+		score += 1
+	if SceneManager.get("driver_remnant_defeated") == true:
+		score += 1
+	if SceneManager.get("printer_beast_defeated") == true:
+		score += 1
+	if SceneManager.get("hardware_ghost_defeated") == true:
+		score += 1
+	if SceneManager.get("bios_vault_sage_defeated") == true:
+		score += 1
+	if _is_skill_unlocked("taskkill"):
+		score += 2
+	if _is_skill_unlocked("sudo_privilege"):
+		score += 1
+	if _is_skill_unlocked("potion_overclock"):
+		score += 1
+	if String(SceneManager.get("player_karma")).to_lower() == "bad":
+		score += 1
+	return score
+
+func _build_sysinfo_quest_summary() -> String:
+	if SceneManager == null or SceneManager.quest_manager == null:
+		return "n/a"
+	var active_count := 0
+	var completed_count := 0
+	for quest_id in SceneManager.quest_manager.quests.keys():
+		var quest: Variant = SceneManager.quest_manager.quests[quest_id]
+		if quest == null:
+			continue
+		var status := String(quest.status)
+		if status == "active":
+			active_count += 1
+		elif status == "completed":
+			completed_count += 1
+	return "%d active, %d completed" % [active_count, completed_count]
+
+func _count_unlocked_skills() -> int:
+	var count := 0
+	for skill_name in SKILL_UNLOCK_FLAGS.keys():
+		if _is_skill_unlocked(String(skill_name)):
+			count += 1
+	return count
+
+func _format_sysinfo_uptime(total_seconds: float) -> String:
+	var seconds := maxi(0, int(total_seconds))
+	var days := seconds / 86400
+	seconds = seconds % 86400
+	var hours := seconds / 3600
+	seconds = seconds % 3600
+	var minutes := seconds / 60
+	if days > 0:
+		return "%dd, %dh, %dm" % [days, hours, minutes]
+	if hours > 0:
+		return "%dh, %dm" % [hours, minutes]
+	return "%dm" % minutes
 
 func _print_terminal_line(text: String) -> void:
 	if terminal_output == null:
