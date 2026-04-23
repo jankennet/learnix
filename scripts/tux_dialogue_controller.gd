@@ -502,6 +502,8 @@ func _run_hud_dialogue_session() -> void:
 		titles.append(_pick_label(_tone_dialogue_titles(), "hud_tone_neutral_a"))
 	elif topic == "shop":
 		titles.append(_pick_label(_shop_dialogue_titles(), "hud_shop_hint_a"))
+	elif topic == "status":
+		titles.append(_pick_label(_status_dialogue_titles(), "hud_status_hint_a"))
 	elif topic == "full":
 		titles = [
 			_pick_label(_location_dialogue_titles(), "hud_location_unknown_a"),
@@ -514,6 +516,17 @@ func _run_hud_dialogue_session() -> void:
 		titles.append("hud_exit")
 
 	for title in titles:
+		# If the player asked for status, open the MainHUD terminal and run `sysinfo` so
+		# the information appears in the terminal while Tux speaks.
+		if topic == "status":
+			var main_hud := get_tree().get_root().find_child("MainHUD", true, false)
+			if main_hud != null:
+				if main_hud.has_method("_open_terminal"):
+					main_hud.call("_open_terminal")
+				# Defer the command to ensure the terminal is ready to accept it.
+				if main_hud.has_method("_process_terminal_command"):
+					main_hud.call_deferred("_process_terminal_command", "sysinfo")
+
 		dm.show_dialogue_balloon(dialogue, title, [self])
 		if dm.has_signal("dialogue_ended"):
 			await dm.dialogue_ended
@@ -534,6 +547,9 @@ func choose_hud_topic_tone() -> void:
 
 func choose_hud_topic_shop() -> void:
 	_hud_selected_topic = "shop"
+
+func choose_hud_topic_status() -> void:
+	_hud_selected_topic = "status"
 
 func choose_hud_topic_full() -> void:
 	_hud_selected_topic = "full"
@@ -612,6 +628,10 @@ func _shop_dialogue_titles() -> Array[String]:
 		return ["hud_shop_ready_a", "hud_shop_ready_b"]
 
 	return ["hud_shop_hint_a", "hud_shop_hint_b"]
+
+func _status_dialogue_titles() -> Array[String]:
+	# Simple help lines for how to open the Status view
+	return ["hud_status_hint_a", "hud_status_hint_b"]
 
 func _pick_label(options: Array[String], fallback: String) -> String:
 	if options.is_empty():

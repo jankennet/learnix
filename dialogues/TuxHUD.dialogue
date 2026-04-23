@@ -10,6 +10,8 @@ Tux: Need a quick brief, Nova?
 	=> hud_pick_tone
 - How do I use the skill shop?
 	=> hud_pick_shop
+- How do I check my status window?
+	=> hud_pick_status
 - Give me the full brief.
 	=> hud_pick_full
 - Never mind.
@@ -33,6 +35,10 @@ do choose_hud_topic_tone()
 
 ~ hud_pick_shop
 do choose_hud_topic_shop()
+=> END
+
+~ hud_pick_status
+do choose_hud_topic_status()
 => END
 
 ~ hud_pick_full
@@ -237,6 +243,15 @@ Tux: That opens the skill graph where wget unlock commands are listed.
 ~ hud_shop_hint_b
 Tux: The shop is terminal-driven here.
 Tux: Use shop, then copy the wget unlock command for the skill you want.
+=> END
+
+~ hud_status_hint_a
+Tux: Open TERMINAL and type: sysinfo
+Tux: That prints your HP, skills, quests, and other system info.
+=> END
+
+~ hud_status_hint_b
+Tux: Tip: open TERMINAL (click the terminal icon or press I) then run `sysinfo`.
 => END
 
 ~ hud_shop_ready_a

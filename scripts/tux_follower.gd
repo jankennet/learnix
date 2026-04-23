@@ -27,6 +27,8 @@ extends CharacterBody3D
 
 @onready var sprite: AnimatedSprite3D = $AnimatedSprite3D
 
+var _bubble_font_size: int = 20
+
 var _player: CharacterBody3D
 var _hint_timer: float = 0.0
 var _next_hint_interval: float = 0.0
@@ -51,6 +53,8 @@ var _boot_hint_shown: bool = false
 
 
 func _ready() -> void:
+	# Keep processing while paused so we can immediately hide the bubble under modal UI.
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	randomize()
 	_try_resolve_player()
 
@@ -62,6 +66,12 @@ func _ready() -> void:
 	collision_mask = 0
 	_load_fun_facts()
 	_schedule_next_hint_interval()
+	_hint_timer = _next_hint_interval
+
+	if _bubble_layer:
+		_bubble_layer.queue_free()
+		_bubble_layer = null
+
 	if show_floating_hints:
 		_create_speech_bubble()
 
@@ -72,6 +82,10 @@ func _exit_tree() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if get_tree().paused:
+		_hide_bubble_temporarily()
+		return
+
 	if _player == null:
 		_try_resolve_player()
 	if _player == null:
@@ -209,42 +223,53 @@ func _create_speech_bubble() -> void:
 		return
 
 	_bubble_layer = CanvasLayer.new()
-	# Keep bubble visible in gameplay; overlay suppression is handled by explicit blockers.
-	_bubble_layer.layer = 15
+
+	# Must be above gameplay UI.
+	# Overlays hide it explicitly via blocker detection.
+	_bubble_layer.layer = 90
+
 	get_tree().root.add_child(_bubble_layer)
 
 	_bubble_root = PanelContainer.new()
 	_bubble_root.visible = false
 	_bubble_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(1.0, 1.0, 1.0, 0.95)
-	style.border_color = Color(0.08, 0.08, 0.08, 1.0)
+	style.bg_color = Color(1,1,1,0.95)
+	style.border_color = Color(0.08,0.08,0.08,1)
 	style.border_width_left = 2
 	style.border_width_top = 2
 	style.border_width_right = 2
 	style.border_width_bottom = 2
+
 	style.corner_radius_top_left = 12
 	style.corner_radius_top_right = 12
 	style.corner_radius_bottom_left = 12
 	style.corner_radius_bottom_right = 12
+
 	_bubble_root.add_theme_stylebox_override("panel", style)
 
 	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 12)
-	margin.add_theme_constant_override("margin_top", 10)
-	margin.add_theme_constant_override("margin_right", 12)
-	margin.add_theme_constant_override("margin_bottom", 10)
+	margin.add_theme_constant_override("margin_left",12)
+	margin.add_theme_constant_override("margin_top",10)
+	margin.add_theme_constant_override("margin_right",12)
+	margin.add_theme_constant_override("margin_bottom",10)
+
 	_bubble_root.add_child(margin)
 
 	_bubble_label = Label.new()
 	_bubble_label.autowrap_mode = TextServer.AUTOWRAP_OFF
-	_bubble_label.modulate = Color(0.07, 0.07, 0.07, 1.0)
-	_bubble_label.add_theme_font_size_override("font_size", 20)
-	_bubble_label.custom_minimum_size = Vector2(420.0, 0.0)
+	_bubble_label.modulate = Color(0.07,0.07,0.07,1)
+	_bubble_label.add_theme_font_size_override("font_size", _bubble_font_size)
+	# Allow the label to size itself; we'll control the bubble width dynamically when showing text.
+	_bubble_label.custom_minimum_size = Vector2(0,0)
+
 	margin.add_child(_bubble_label)
 
 	_bubble_layer.add_child(_bubble_root)
-	_bubble_root.custom_minimum_size = Vector2(440.0, bubble_fixed_height)
+
+	# A reasonable default width; will be adjusted per-message when possible.
+	_bubble_root.custom_minimum_size = Vector2(360, bubble_fixed_height)
 
 
 func _show_line(line: String) -> void:
@@ -266,6 +291,33 @@ func _show_line(line: String) -> void:
 	_message_pages = _paginate_text(line, maxi(16, speech_max_line_chars), maxi(1, speech_max_lines))
 	if _message_pages.is_empty():
 		return
+	# Compute an estimated characters-per-line from bubble width and font size
+	var approx_char_width := maxf(6.0, float(_bubble_font_size) * 0.55)
+	var bubble_w := 360.0
+	if _bubble_root and is_instance_valid(_bubble_root):
+		bubble_w = _bubble_root.custom_minimum_size.x
+
+	# Account for internal margins: left+right ~24 each in creation
+	var content_w := maxf(120.0, bubble_w - 48.0)
+	var estimated_chars := int(content_w / approx_char_width)
+	estimated_chars = clamp(estimated_chars, 16, 120)
+
+	_message_pages = _paginate_text(line, estimated_chars, maxi(1, speech_max_lines))
+	if _message_pages.is_empty():
+		return
+
+	# Try to shrink the bubble to the longest line in the first page to avoid wasted space
+	if _bubble_root and is_instance_valid(_bubble_root):
+		var first_page := _message_pages[0]
+		var longest := 0
+		for l in first_page.split("\n", false):
+			if l.length() > longest:
+				longest = l.length()
+
+		var needed_w := float(longest) * approx_char_width + 48.0
+		# Clamp to reasonable bounds
+		needed_w = clamp(needed_w, 220.0, 560.0)
+		_bubble_root.custom_minimum_size.x = needed_w
 	_active_page_index = 0
 	_begin_page_typing(_active_page_index)
 	_bubble_root.visible = true
@@ -389,8 +441,11 @@ func _hide_bubble_temporarily() -> void:
 
 func _is_ui_overlay_blocking_bubble() -> bool:
 	var sm := get_node_or_null("/root/SceneManager")
-	if sm and bool(sm.get("input_locked")):
-		return true
+	if sm != null:
+		if sm.has_method("get"):
+			var locked = sm.get("input_locked")
+			if locked == true:
+				return true
 	if get_tree().paused:
 		return true
 
@@ -398,10 +453,13 @@ func _is_ui_overlay_blocking_bubble() -> bool:
 	if root == null:
 		return false
 
-	for node_name in ["TerminalPanel", "TerminalShop", "QuestList", "QuestWindow", "FileExplorerWindow"]:
-		var node := root.find_child(node_name, true, false)
-		if node is CanvasItem and (node as CanvasItem).visible:
-			return true
+	# Hard-block bubble whenever any matching modal UI panel is visible.
+	# Use find_children (plural) because multiple nodes can share the same name.
+	for node_name in ["PauseMenu", "TerminalPanel", "TerminalShop", "FileExplorerWindow", "QuestWindow", "CombatTerminalUI"]:
+		var matches := root.find_children(node_name, "", true, false)
+		for node in matches:
+			if node is CanvasItem and (node as CanvasItem).visible:
+				return true
 
 	return false
 
@@ -424,9 +482,16 @@ func _pick_random_fact_index() -> int:
 
 
 func _is_bubble_busy() -> bool:
-	if _speech_hide_timer and _speech_hide_timer.time_left > 0.0:
+	if _typing_active:
 		return true
-	return _bubble_root != null and _bubble_root.visible
+
+	if _speech_hide_timer:
+		if _speech_hide_timer.time_left > 0.0:
+			return true
+		else:
+			_speech_hide_timer = null
+
+	return false
 
 
 func _load_fun_facts() -> void:

@@ -18,6 +18,8 @@ const WINDOW_MODE_OPTIONS := ["WINDOWED", "BORDERLESS", "FULLSCREEN"]
 const RESOLUTION_OPTIONS: Array[Vector2i] = [Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1080)]
 const QUALITY_OPTIONS := ["LOW", "MEDIUM", "HIGH"]
 const QUALITY_SCALES: Array[float] = [0.67, 0.85, 1.0]
+const MENU_SELECTED_COLOR := Color(0.98, 0.92, 0.78, 1.0)
+const MENU_UNSELECTED_COLOR := Color(0.82, 0.85, 0.9, 1.0)
 
 # --- UI References ---
 @onready var logo_label: Label = $CenterContainer/MainColumn/LogoLabel
@@ -409,7 +411,7 @@ func _update_menu_visuals() -> void:
 			continue
 		label.show()
 		label.text = ("> " if i == display_index else "  ") + items[i]
-		label.modulate = Color(1.0, 1.0, 1.0, 1.0) if i == display_index else Color(0.82, 0.82, 0.82, 1.0)
+		label.modulate = MENU_SELECTED_COLOR if i == display_index else MENU_UNSELECTED_COLOR
 
 func _get_active_menu_items() -> Array[String]:
 	if SceneManager and SceneManager.has_method("has_save_game") and SceneManager.has_save_game():
