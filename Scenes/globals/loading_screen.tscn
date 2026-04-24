@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://4jy31f1108jc"]
 
 [ext_resource type="Script" uid="uid://d14cf7gr3ghxy" path="res://scripts/loading_screen.gd" id="1_ty0e1"]
-[ext_resource type="FontFile" path="res://Assets/fonts/PressStart2P-Regular.ttf" id="2_font"]
+[ext_resource type="FontVariation" path="res://Assets/fonts/PressStart2P-Spaced.tres" id="2_font"]
 [ext_resource type="Shader" path="res://Scenes/combat/crt_effect.gdshader" id="3_shader"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_crt"]

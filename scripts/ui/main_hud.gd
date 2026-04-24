@@ -1456,14 +1456,14 @@ func _estimated_terminal_columns() -> int:
 	# Use fullscreen viewport if fullscreen
 	if _terminal_is_fullscreen:
 		var viewport := get_viewport().get_visible_rect()
-		return maxi(70, int(viewport.size.x / 8.0))
+		return maxi(48, int(viewport.size.x / 10.5))
 	
 	# Otherwise use terminal_output size
 	if terminal_output == null or terminal_output.size.x <= 0:
-		return 80  # Default fallback
+		return 64  # Default fallback
 	
-	# Estimate: ~8px per monospace char
-	return maxi(70, int(terminal_output.size.x / 8.0))
+	# Press Start is wide; use tighter estimate so wrapping stays inside panel.
+	return maxi(48, int((terminal_output.size.x - 18.0) / 10.5))
 
 func _clip_terminal_line(text: String, max_columns: int) -> String:
 	if max_columns <= 0:
@@ -1595,7 +1595,40 @@ func _format_sysinfo_uptime(total_seconds: float) -> String:
 func _print_terminal_line(text: String) -> void:
 	if terminal_output == null:
 		return
-	terminal_output.append_text("%s\n" % text)
+	var columns := _estimated_terminal_columns()
+	for line in _wrap_terminal_text(text, columns):
+		terminal_output.append_text("%s\n" % line)
+
+func _wrap_terminal_text(text: String, max_columns: int) -> Array[String]:
+	if max_columns <= 0:
+		return [text]
+	if text.length() <= max_columns:
+		return [text]
+
+	var words := text.split(" ", false)
+	if words.is_empty():
+		return [text]
+
+	var lines: Array[String] = []
+	var current := ""
+	for word in words:
+		var candidate := word if current == "" else "%s %s" % [current, word]
+		if candidate.length() <= max_columns:
+			current = candidate
+			continue
+		if current != "":
+			lines.append(current)
+			current = word
+		else:
+			# Hard-split extra-long tokens.
+			var remaining := word
+			while remaining.length() > max_columns:
+				lines.append(remaining.substr(0, max_columns))
+				remaining = remaining.substr(max_columns)
+			current = remaining
+	if current != "":
+		lines.append(current)
+	return lines
 
 func _push_terminal_history(command_text: String) -> void:
 	var normalized := command_text.strip_edges()

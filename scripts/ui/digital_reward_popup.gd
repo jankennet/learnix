@@ -1,7 +1,7 @@
 extends CanvasLayer
 class_name DigitalRewardPopup
 
-const FONT_PATH := "res://Assets/fonts/PressStart2P-Regular.ttf"
+const FONT_PATH := "res://Assets/fonts/PressStart2P-Spaced.tres"
 
 var _backdrop: ColorRect
 var _panel: PanelContainer

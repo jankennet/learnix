@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/controls_help.gd" id="1_script"]
-[ext_resource type="FontFile" path="res://Assets/fonts/PressStart2P-Regular.ttf" id="2_font"]
+[ext_resource type="FontVariation" path="res://Assets/fonts/PressStart2P-Spaced.tres" id="2_font"]
 
 [node name="ControlsHelp" type="CanvasLayer"]
 layer = 9

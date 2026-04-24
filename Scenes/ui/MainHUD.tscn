@@ -1,6 +1,6 @@
 [gd_scene load_steps=15 format=3 uid="uid://dff8b3gde762a"]
 
-[ext_resource type="FontFile" uid="uid://lqtbary7gh5r" path="res://Assets/fonts/PressStart2P-Regular.ttf" id="1_font"]
+[ext_resource type="FontVariation" uid="uid://lqtbary7gh5r" path="res://Assets/fonts/PressStart2P-Spaced.tres" id="1_font"]
 [ext_resource type="Script" uid="uid://mqkv64skk1kd" path="res://scripts/ui/main_hud.gd" id="2_mainhud"]
 [ext_resource type="Theme" uid="uid://doak8ce36xvhu" path="res://Scenes/combat/crt_terminal_theme.tres" id="3_crt_theme"]
 [ext_resource type="Texture2D" uid="uid://bjc51rva8ysea" path="res://Assets/mainHUD_Icons_File.png" id="3_wpdjs"]

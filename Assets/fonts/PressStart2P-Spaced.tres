@@ -1,0 +1,8 @@
+[gd_resource type="FontVariation" load_steps=2 format=3 uid="uid://bdtor86hujq0f"]
+
+[ext_resource type="FontFile" uid="uid://lqtbary7gh5r" path="res://Assets/fonts/PressStart2P-Regular.ttf" id="1_font"]
+
+[resource]
+base_font = ExtResource("1_font")
+spacing_glyph = 2
+spacing_space = 3

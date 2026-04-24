@@ -74,6 +74,24 @@ theme_override_font_sizes/normal_font_size = 12
 bbcode_enabled = true
 scroll_following = true
 
+[node name="CommandGuidePanel" type="PanelContainer" parent="TerminalContainer"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 86)
+
+[node name="GuideMargin" type="MarginContainer" parent="TerminalContainer/CommandGuidePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="GuideLabel" type="Label" parent="TerminalContainer/CommandGuidePanel/GuideMargin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.95, 0.62, 1)
+theme_override_font_sizes/font_size = 10
+text = "NEXT: type continue to keep listening\nCOMMANDS: continue | attack | puzzle | help"
+autowrap_mode = 3
+
 [node name="InputContainer" type="HBoxContainer" parent="TerminalContainer"]
 layout_mode = 2
 

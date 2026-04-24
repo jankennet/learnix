@@ -25,9 +25,19 @@ extends CharacterBody3D
 
 @export var mentor_lines: Array[String] = []
 
+const ALLOWED_INTERACTION_SCENES: Array[String] = [
+	"res://Scenes/Levels/fallback_hamlet.tscn",
+	"res://Scenes/Levels/file_system_forest.tscn",
+	"res://Scenes/Levels/deamon_depths.tscn",
+]
+
 @onready var sprite: AnimatedSprite3D = $AnimatedSprite3D
 
+@onready var interaction_shape: CollisionShape3D = $CollisionShape3D
+
 var _bubble_font_size: int = 20
+var _interaction_manager_cache: Node = null
+var _is_interaction_enabled: bool = false
 
 var _player: CharacterBody3D
 var _hint_timer: float = 0.0
@@ -75,8 +85,11 @@ func _ready() -> void:
 	if show_floating_hints:
 		_create_speech_bubble()
 
+	_update_interaction_state()
+
 
 func _exit_tree() -> void:
+	_set_current_interactable(false)
 	if _bubble_layer and is_instance_valid(_bubble_layer):
 		_bubble_layer.queue_free()
 
@@ -89,12 +102,13 @@ func _physics_process(delta: float) -> void:
 	if _player == null:
 		_try_resolve_player()
 	if _player == null:
+		_set_interaction_state(false)
 		return
 
+	_update_interaction_state()
 	_follow_player(delta)
 	_sync_vertical_position(delta)
 	_update_animation()
-	_update_guidance(delta)
 	_update_typing(delta)
 	_update_bubble_position()
 
@@ -166,38 +180,6 @@ func _update_animation() -> void:
 		sprite.play("tux_idle_side")
 		sprite.flip_h = move.x < 0.0
 
-
-func _update_guidance(delta: float) -> void:
-	if not show_floating_hints:
-		return
-	if _is_ui_overlay_blocking_bubble():
-		_hide_bubble_temporarily()
-		return
-	if _typing_active or _is_bubble_busy():
-		return
-
-	_hint_timer += delta
-
-	var planar_speed := _player.velocity
-	planar_speed.y = 0.0
-	var is_player_moving := planar_speed.length() >= 0.05
-	if not is_player_moving:
-		_still_time += delta
-	else:
-		_still_time = 0.0
-
-	_last_player_position = _player.global_position
-
-	if _hint_timer < _next_hint_interval:
-		return
-
-	if _still_time < afk_threshold_seconds:
-		return
-
-	_hint_timer = 0.0
-	_schedule_next_hint_interval()
-	var line := _choose_guidance_line()
-	_show_line(line)
 
 
 func _choose_guidance_line() -> String:
@@ -522,6 +504,108 @@ func _load_fun_facts() -> void:
 
 	if current.strip_edges() != "":
 		_fun_facts.append(current.strip_edges())
+
+
+func _update_interaction_state() -> void:
+	var allowed := _is_interaction_scene_allowed()
+	_set_interaction_state(allowed)
+
+	if not allowed:
+		_hide_speech_label()
+		_set_current_interactable(false)
+		if sprite:
+			sprite.visible = false
+		if interaction_shape:
+			interaction_shape.disabled = true
+		return
+
+	if sprite:
+		sprite.visible = true
+	if interaction_shape:
+		interaction_shape.disabled = false
+
+	var player_in_range := _is_player_within_interaction_range()
+	_set_current_interactable(player_in_range)
+
+
+func _is_interaction_scene_allowed() -> bool:
+	var current_scene := get_tree().current_scene
+	if current_scene == null:
+		return false
+	var scene_path := String(current_scene.scene_file_path)
+	return scene_path in ALLOWED_INTERACTION_SCENES
+
+
+func _is_player_within_interaction_range() -> bool:
+	if _player == null:
+		return false
+	if interaction_shape == null or interaction_shape.shape == null:
+		return global_position.distance_to(_player.global_position) <= 1.4
+
+	var radius := 1.4
+	if interaction_shape.shape is SphereShape3D:
+		var node_scale := global_transform.basis.get_scale()
+		radius = (interaction_shape.shape as SphereShape3D).radius * maxf(node_scale.x, maxf(node_scale.y, node_scale.z))
+
+	var delta_pos := _player.global_position - global_position
+	delta_pos.y = 0.0
+	return delta_pos.length() <= radius + 0.2
+
+
+func _get_interaction_manager() -> Node:
+	if _interaction_manager_cache and is_instance_valid(_interaction_manager_cache):
+		return _interaction_manager_cache
+	if Engine.has_singleton("InteractionManager"):
+		_interaction_manager_cache = Engine.get_singleton("InteractionManager")
+		return _interaction_manager_cache
+	_interaction_manager_cache = get_tree().root.get_node_or_null("InteractionManager")
+	return _interaction_manager_cache
+
+
+func _set_current_interactable(enabled: bool) -> void:
+	var im := _get_interaction_manager()
+	if im == null:
+		return
+
+	if enabled:
+		if im.current_interactable == null or im.current_interactable == self:
+			im.current_interactable = self
+	else:
+		if im.current_interactable == self:
+			im.current_interactable = null
+
+
+func _set_interaction_state(enabled: bool) -> void:
+	_is_interaction_enabled = enabled
+
+
+func get_interact_prompt() -> String:
+	return "Hear a fun fact"
+
+
+func on_interact() -> void:
+	if not _is_interaction_enabled:
+		return
+	if not _is_interaction_scene_allowed():
+		return
+	if _player == null:
+		return
+	if not _is_player_within_interaction_range():
+		return
+
+	var line := _choose_facts_only_line()
+	_show_line(line)
+
+
+func _choose_facts_only_line() -> String:
+	if not _fun_facts.is_empty():
+		var idx := _pick_random_fact_index()
+		return "Linux fact: %s" % _fun_facts[idx]
+
+	if mentor_lines.is_empty():
+		return "Linux fact mode is online."
+
+	return mentor_lines[randi() % mentor_lines.size()]
 
 
 func _try_resolve_player() -> void:

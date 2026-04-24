@@ -608,9 +608,9 @@ func _show_terminal_objective_canvas() -> void:
 	)
 
 func _update_terminal_objective_canvas() -> void:
-	var pwd_mark := "[x]" if bool(_required_terminal_commands.get("pwd", false)) else "[ ]"
-	var ls_mark := "[x]" if bool(_required_terminal_commands.get("ls", false)) else "[ ]"
-	var cat_mark := "[x]" if bool(_required_terminal_commands.get("cat", false)) else "[ ]"
+	var pwd_mark := "[✔️]" if bool(_required_terminal_commands.get("pwd", false)) else "[ ]"
+	var ls_mark := "[✔️]" if bool(_required_terminal_commands.get("ls", false)) else "[ ]"
+	var cat_mark := "[✔️]" if bool(_required_terminal_commands.get("cat", false)) else "[ ]"
 	var checklist_body := "%s pwd\n%s ls\n%s cat onboarding_notes.txt" % [pwd_mark, ls_mark, cat_mark]
 	_show_hint_card("Terminal Tasks", checklist_body, _last_terminal_feedback, "", "", false)
 

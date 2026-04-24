@@ -16,6 +16,7 @@ signal tutorial_popup_closed
 @onready var prompt_label: Label = $TerminalContainer/InputContainer/PromptLabel
 @onready var submit_button: Button = $TerminalContainer/InputContainer/SubmitButton
 @onready var exit_button: Button = $TerminalContainer/InputContainer/ExitButton
+@onready var command_guide_label: Label = $TerminalContainer/CommandGuidePanel/GuideMargin/GuideLabel
 @onready var status_panel: Panel = $StatusPanel
 @onready var status_vbox: VBoxContainer = $StatusPanel/VBox
 @onready var status_title_label: Label = $StatusPanel/VBox/StatusTitle
@@ -67,6 +68,7 @@ const TUX_HELPER_POPUP_SCENE_PATH := "res://Scenes/combat/tux_terminal_helper_po
 const PUZZLE_INTEL_LIBRARY = preload("res://scripts/combat/puzzle_intel_library.gd")
 const SKILL_UNLOCK_RECEIPTS_META_KEY := "skill_unlock_receipts"
 const COMMAND_FOCUS_GUARD_INTERVAL := 0.1
+const BLOCK_CURSOR_BLINK_INTERVAL := 0.32
 const NPC_REVEAL_SHADER_PATH := "res://shaders/ui/npc_reveal_wipe.gdshader"
 const CRACKED_GLASS_SHADER_PATH := "res://Scenes/combat/cracked_glass.gdshader"
 const CRACKED_GLASS_TEXTURE_PATH := "res://Assets/Glass-Cracks-PNG-HD.png"
@@ -128,6 +130,8 @@ var _command_history: Array[String] = []
 var _history_index := -1
 var _history_draft := ""
 var _command_focus_guard_elapsed := 0.0
+var _block_cursor_elapsed := 0.0
+var _block_cursor_visible := true
 
 func _ready() -> void:
 	if not get_viewport().size_changed.is_connected(_on_viewport_resized):
@@ -139,6 +143,8 @@ func _ready() -> void:
 		command_input.text_submitted.connect(_on_command_submitted)
 		if not command_input.focus_exited.is_connected(_on_command_input_focus_exited):
 			command_input.focus_exited.connect(_on_command_input_focus_exited)
+		if not command_input.focus_entered.is_connected(_on_command_input_focus_entered):
+			command_input.focus_entered.connect(_on_command_input_focus_entered)
 	
 	if submit_button:
 		submit_button.pressed.connect(_on_submit_pressed)
@@ -153,6 +159,8 @@ func _ready() -> void:
 	_setup_dependency_minigame()
 	_setup_terminal_visuals()
 	_ensure_tutorial_popup_ui()
+	_update_command_guide_for_mode(_get_current_mode())
+	_reset_input_placeholder()
 	if help_label:
 		help_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	if tux_help_button:
@@ -169,6 +177,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if not is_open:
 		return
+	_update_in_input_block_cursor(delta)
 	_command_focus_guard_elapsed += delta
 	if _command_focus_guard_elapsed < COMMAND_FOCUS_GUARD_INTERVAL:
 		return
@@ -215,9 +224,16 @@ func _apply_responsive_ui() -> void:
 	_update_crack_sprite_transform(scale_factor)
 
 	terminal_output.add_theme_font_size_override("normal_font_size", roundi(12.0 * scale_factor))
+	if command_guide_label:
+		command_guide_label.add_theme_font_size_override("font_size", roundi(10.0 * scale_factor))
+		command_guide_label.add_theme_constant_override("line_spacing", roundi(4.0 * scale_factor))
 	prompt_label.add_theme_font_size_override("font_size", roundi(16.0 * scale_factor))
 	command_input.add_theme_font_size_override("font_size", roundi(16.0 * scale_factor))
 	command_input.custom_minimum_size = Vector2(0.0, 34.0 * scale_factor)
+	command_input.add_theme_color_override("caret_color", Color(0.95, 1.0, 0.62, 1.0))
+	command_input.add_theme_constant_override("caret_width", maxi(2, roundi(2.0 * scale_factor)))
+	command_input.caret_blink = true
+	command_input.caret_blink_interval = 0.35
 	submit_button.add_theme_font_size_override("font_size", roundi(12.0 * scale_factor))
 	exit_button.add_theme_font_size_override("font_size", roundi(12.0 * scale_factor))
 
@@ -503,9 +519,13 @@ func _unhandled_input(event: InputEvent) -> void:
 				_claim_command_input_focus()
 
 func _on_command_input_focus_exited() -> void:
+	_reset_input_placeholder()
 	if not _can_restore_command_focus():
 		return
 	_claim_command_input_focus()
+
+func _on_command_input_focus_entered() -> void:
+	_reset_input_placeholder()
 
 func _is_combat_focus_modal_active() -> bool:
 	if _tutorial_popup_visible:
@@ -544,6 +564,37 @@ func _claim_command_input_focus() -> void:
 		focus_owner.release_focus()
 	command_input.grab_focus()
 	command_input.call_deferred("grab_focus")
+	_reset_input_placeholder()
+
+func _reset_input_placeholder() -> void:
+	if command_input == null:
+		return
+	_block_cursor_elapsed = 0.0
+	_block_cursor_visible = true
+	command_input.placeholder_text = "█ type command here..."
+	prompt_label.text = "$"
+
+func _update_in_input_block_cursor(delta: float) -> void:
+	if command_input == null:
+		return
+	if not command_input.has_focus() or not command_input.editable:
+		if command_input.placeholder_text != "type command here...":
+			command_input.placeholder_text = "type command here..."
+		_block_cursor_elapsed = 0.0
+		_block_cursor_visible = true
+		return
+	if command_input.text != "":
+		# Placeholder is hidden while typing, but keep state ready.
+		_block_cursor_elapsed = 0.0
+		_block_cursor_visible = true
+		return
+
+	_block_cursor_elapsed += delta
+	if _block_cursor_elapsed >= BLOCK_CURSOR_BLINK_INTERVAL:
+		_block_cursor_elapsed = 0.0
+		_block_cursor_visible = not _block_cursor_visible
+
+	command_input.placeholder_text = "█ type command here..." if _block_cursor_visible else "  type command here..."
 
 func _route_key_to_command_input(key_event: InputEventKey) -> bool:
 	if command_input == null:
@@ -861,6 +912,7 @@ func _show_contextual_help() -> void:
 	match current_mode:
 		0:  # DIALOGUE
 			_print_terminal("[color=#66f266]HELP - DIALOGUE MODE[/color]\n\n")
+			_print_terminal("  next       - type continue to keep listening\n")
 			_print_terminal("  continue   - Proceed with dialogue\n")
 			_print_terminal("  attack     - Start fighting\n")
 			_print_terminal("  puzzle     - Try to help them instead\n")
@@ -868,6 +920,7 @@ func _show_contextual_help() -> void:
 		
 		1:  # COMBAT
 			_print_terminal("[color=#66f266]HELP - COMBAT MODE[/color]\n\n")
+			_print_terminal("  next          - choose one action now, then press Enter\n")
 			_print_terminal("  attack, hit   - Strike the enemy\n")
 			_print_terminal("  defend, block - Reduce incoming damage\n")
 			_print_terminal("  heal, repair  - Restore your integrity\n")
@@ -877,6 +930,7 @@ func _show_contextual_help() -> void:
 		
 		2:  # PUZZLE
 			_print_terminal("[color=#66f266]HELP - PUZZLE MODE (Investigation Log)[/color]\n\n")
+			_print_terminal("  next       - run ls first, then read clues with cat\n")
 			_print_terminal("  ls         - list files in the current directory\n")
 			_print_terminal("  cat <file> - read the clue file named in the log\n")
 			_print_terminal("  find <n>   - search the current directory for a clue\n")
@@ -1590,7 +1644,22 @@ func _update_side_help_for_mode() -> void:
 		objective_title_label.text = objective_title
 
 	help_label.text = _join_lines(lines)
+	_update_command_guide_for_mode(current_mode)
 	_refresh_terminal_visuals()
+
+func _update_command_guide_for_mode(current_mode: int) -> void:
+	if command_guide_label == null:
+		return
+
+	match current_mode:
+		0:
+			command_guide_label.text = "NEXT: type continue to keep listening\nCOMMANDS: continue | attack | puzzle | help"
+		1:
+			command_guide_label.text = "NEXT: choose one action each turn\nCOMMANDS: attack/hit | defend/block | heal/repair | kill | restore | flee"
+		2:
+			command_guide_label.text = "NEXT: LS -> CAT clue -> SCAN -> act\nCOMMANDS: ls | cat <file> | find <n> | scan | fight"
+		_:
+			command_guide_label.text = "NEXT: encounter resolved\nCOMMANDS: help"
 
 func _build_puzzle_objective_lines() -> Array[String]:
 	var puzzle_data = enemy_controller.puzzle_data if enemy_controller and ("puzzle_data" in enemy_controller) else null

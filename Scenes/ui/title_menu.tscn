@@ -1,7 +1,7 @@
 [gd_scene load_steps=15 format=3 uid="uid://h62f7fssbqql"]
 
 [ext_resource type="Script" uid="uid://ckdhtdqpse7py" path="res://scripts/ui/title_menu.gd" id="1_script"]
-[ext_resource type="FontFile" uid="uid://lqtbary7gh5r" path="res://Assets/fonts/PressStart2P-Regular.ttf" id="2_font"]
+[ext_resource type="FontVariation" uid="uid://lqtbary7gh5r" path="res://Assets/fonts/PressStart2P-Spaced.tres" id="2_font"]
 [ext_resource type="Texture2D" uid="uid://6x0gyi86qreg" path="res://Assets/bgsheet_ver2.png" id="3_brseh"]
 [ext_resource type="Shader" uid="uid://b8gpuq6lauslf" path="res://shaders/ui/title_crt_overlay.gdshader" id="3_shader"]
 

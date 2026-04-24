@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cquegk3hkghfq" path="res://scripts/ui/black_text_cutscene.gd" id="1_h0a2q"]
 [ext_resource type="VideoStream" uid="uid://dh1u874bymph0" path="res://Assets/secret/SpecialEndCreds.ogv" id="2_b4iec"]
-[ext_resource type="FontFile" uid="uid://lqtbary7gh5r" path="res://Assets/fonts/PressStart2P-Regular.ttf" id="3_font"]
+[ext_resource type="FontVariation" uid="uid://lqtbary7gh5r" path="res://Assets/fonts/PressStart2P-Spaced.tres" id="3_font"]
 
 [node name="BlackTextCutscene" type="CanvasLayer"]
 script = ExtResource("1_h0a2q")

@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://interaction_prompt"]
 
 [ext_resource type="Script" path="res://scripts/ui/interaction_prompt.gd" id="1_script"]
-[ext_resource type="FontFile" path="res://Assets/fonts/PressStart2P-Regular.ttf" id="2_font"]
+[ext_resource type="FontVariation" path="res://Assets/fonts/PressStart2P-Spaced.tres" id="2_font"]
 
 [node name="InteractionPrompt" type="CanvasLayer"]
 layer = 10

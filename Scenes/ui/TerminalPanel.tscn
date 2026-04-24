@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://bg3bjr6eeodbl"]
 
 [ext_resource type="Script" uid="uid://b3vpsfht005en" path="res://scripts/ui/TerminalPanel.gd" id="1_script"]
-[ext_resource type="FontFile" uid="uid://lqtbary7gh5r" path="res://Assets/fonts/PressStart2P-Regular.ttf" id="2_font"]
+[ext_resource type="FontVariation" uid="uid://lqtbary7gh5r" path="res://Assets/fonts/PressStart2P-Spaced.tres" id="2_font"]
 
 [node name="TerminalPanel" type="Control"]
 z_index = 100

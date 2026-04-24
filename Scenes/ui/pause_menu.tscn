@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://c1f0uujtrtu05"]
 
 [ext_resource type="Script" uid="uid://chk07vk2dvelr" path="res://scripts/ui/pause_menu.gd" id="1_script"]
-[ext_resource type="FontFile" uid="uid://lqtbary7gh5r" path="res://Assets/fonts/PressStart2P-Regular.ttf" id="2_font"]
+[ext_resource type="FontVariation" uid="uid://lqtbary7gh5r" path="res://Assets/fonts/PressStart2P-Spaced.tres" id="2_font"]
 [ext_resource type="Shader" uid="uid://ysncei6ynsrf" path="res://shaders/ui/pause_crt_blur.gdshader" id="3_shader"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_pause"]

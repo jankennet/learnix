@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://Scenes/dialogue_balloon.gd" id="1_7xpau"]
 [ext_resource type="PackedScene" uid="uid://ckvgyvclnwggo" path="res://addons/dialogue_manager/dialogue_label.tscn" id="2_dlabel"]
 [ext_resource type="Script" uid="uid://bb52rsfwhkxbn" path="res://addons/dialogue_manager/dialogue_responses_menu.gd" id="3_responses"]
-[ext_resource type="FontFile" path="res://Assets/fonts/PressStart2P-Regular.ttf" id="4_font"]
+[ext_resource type="FontVariation" path="res://Assets/fonts/PressStart2P-Spaced.tres" id="4_font"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
 bg_color = Color(0.105882, 0.121569, 0.227451, 0.95)

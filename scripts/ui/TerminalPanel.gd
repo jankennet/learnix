@@ -13,7 +13,7 @@ class_name TerminalPanel
 const TERMINAL_BG = Color(0.02, 0.08, 0.02, 0.98)  # Almost black with green tint
 const TERMINAL_TEXT = Color(0.4, 0.95, 0.45, 1.0)  # Bright phosphor green
 const TERMINAL_BORDER = Color(0.4, 0.95, 0.45, 1.0)  # Match text color
-const TERMINAL_FONT: FontFile = preload("res://Assets/fonts/PressStart2P-Regular.ttf")
+const TERMINAL_FONT: Font = preload("res://Assets/fonts/PressStart2P-Spaced.tres")
 const TERMINAL_FONT_SIZE := 12
 
 func _ready() -> void:
