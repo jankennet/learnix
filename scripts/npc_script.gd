@@ -25,6 +25,10 @@ var sprite: AnimatedSprite3D = null
 var _last_scene_state: String = ""
 var _gatekeeper_transfer_running: bool = false
 var _interaction_enabled: bool = true
+var _status_bubble_layer: CanvasLayer = null
+var _status_bubble_root: PanelContainer = null
+var _status_bubble_label: Label = null
+var _status_bubble_timer: SceneTreeTimer = null
 
 func _ready():
 	root_node = self
@@ -178,12 +182,16 @@ func _ready():
 
 func _process(_delta: float) -> void:
 	_apply_state_visuals_from_scene_state()
+	_update_status_bubble_position()
 	if npc_name == "Driver Remnant" and SceneManager and npc_name in SceneManager.npc_states:
 		if str(SceneManager.npc_states[npc_name]) == "defeated":
 			if _interaction_enabled:
 				_set_interaction_enabled(false)
 			if root_node and root_node.visible:
 				_hide_self(true)
+
+func _exit_tree() -> void:
+	_clear_status_bubble()
 
 func _is_encounter_npc() -> bool:
 	if encounter_id.strip_edges() != "":
@@ -433,6 +441,16 @@ func start_bios_vault_transfer() -> void:
 	_gatekeeper_transfer_running = true
 	call_deferred("_run_bios_vault_transfer")
 
+func elder_shell_show_sysinfo_status() -> void:
+	if SceneManager and SceneManager.has_method("mark_npc_interacted"):
+		SceneManager.mark_npc_interacted(npc_name)
+
+	_close_active_dialogue_balloon()
+
+	var mode := _elder_shell_mode_label()
+	var line := _elder_shell_status_line(mode)
+	_show_status_bubble(line)
+
 func start_proprietary_citadel_good_pass_ending() -> void:
 	_call_scene_controller("start_good_pass_ending")
 
@@ -494,6 +512,137 @@ func _close_active_dialogue_balloon() -> void:
 	for child in get_tree().root.get_children():
 		if child != null and child.get_script() == balloon_script:
 			child.queue_free()
+
+func _elder_shell_mode_label() -> String:
+	if SceneManager == null:
+		return "balanced"
+
+	var helpful_score := 0
+	var destructive_score := 0
+
+	if SceneManager.get("helped_lost_file") == true:
+		helpful_score += 2
+	if SceneManager.get("deleted_lost_file") == true:
+		destructive_score += 2
+
+	if SceneManager.get("hardware_ghost_defeated") == true:
+		destructive_score += 1
+	if SceneManager.get("broken_link_defeated") == true:
+		destructive_score += 1
+	if SceneManager.get("driver_remnant_defeated") == true:
+		destructive_score += 1
+	if SceneManager.get("printer_beast_defeated") == true:
+		destructive_score += 1
+
+	var karma := String(SceneManager.get("player_karma")).strip_edges().to_lower()
+	if karma == "good":
+		helpful_score += 1
+	elif karma == "bad":
+		destructive_score += 1
+
+	if helpful_score > destructive_score:
+		return "helpful"
+	if destructive_score > helpful_score:
+		return "destructive"
+	return "balanced"
+
+func _elder_shell_status_line(mode: String) -> String:
+	match mode:
+		"helpful":
+			return "sysinfo: You are walking a helpful path. Your choices are repairing more than they are breaking."
+		"destructive":
+			return "sysinfo: You are trending destructive. Slow down and verify before you execute."
+		_:
+			return "sysinfo: You are balanced between helpful and destructive choices."
+
+func _show_status_bubble(text: String) -> void:
+	if text.strip_edges() == "":
+		return
+
+	if _status_bubble_layer == null or not is_instance_valid(_status_bubble_layer):
+		_status_bubble_layer = CanvasLayer.new()
+		_status_bubble_layer.layer = 95
+		get_tree().root.add_child(_status_bubble_layer)
+
+		_status_bubble_root = PanelContainer.new()
+		_status_bubble_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+		var style := StyleBoxFlat.new()
+		style.bg_color = Color(0.95, 0.98, 1.0, 0.96)
+		style.border_color = Color(0.06, 0.12, 0.2, 1.0)
+		style.border_width_left = 2
+		style.border_width_top = 2
+		style.border_width_right = 2
+		style.border_width_bottom = 2
+		style.corner_radius_top_left = 12
+		style.corner_radius_top_right = 12
+		style.corner_radius_bottom_left = 12
+		style.corner_radius_bottom_right = 12
+		_status_bubble_root.add_theme_stylebox_override("panel", style)
+
+		var margin := MarginContainer.new()
+		margin.add_theme_constant_override("margin_left", 12)
+		margin.add_theme_constant_override("margin_top", 9)
+		margin.add_theme_constant_override("margin_right", 12)
+		margin.add_theme_constant_override("margin_bottom", 9)
+		_status_bubble_root.add_child(margin)
+
+		_status_bubble_label = Label.new()
+		_status_bubble_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_status_bubble_label.modulate = Color(0.07, 0.09, 0.12, 1.0)
+		_status_bubble_label.custom_minimum_size = Vector2(430.0, 0.0)
+		margin.add_child(_status_bubble_label)
+
+		_status_bubble_layer.add_child(_status_bubble_root)
+
+	if _status_bubble_label:
+		_status_bubble_label.text = text
+
+	if _status_bubble_root:
+		_status_bubble_root.visible = true
+
+	_update_status_bubble_position()
+
+	if _status_bubble_timer and _status_bubble_timer.time_left > 0.0:
+		_status_bubble_timer = null
+	_status_bubble_timer = get_tree().create_timer(4.2)
+	_status_bubble_timer.timeout.connect(_hide_status_bubble)
+
+func _update_status_bubble_position() -> void:
+	if _status_bubble_root == null or not is_instance_valid(_status_bubble_root):
+		return
+	if not _status_bubble_root.visible:
+		return
+
+	var camera := get_viewport().get_camera_3d()
+	if camera == null:
+		_status_bubble_root.visible = false
+		return
+
+	var anchor_source: Node3D = root_node as Node3D if root_node is Node3D else self
+	var anchor := anchor_source.global_position + Vector3(0.0, 1.2, 0.0)
+	if camera.is_position_behind(anchor):
+		_status_bubble_root.visible = false
+		return
+
+	var screen_pos := camera.unproject_position(anchor) + Vector2(0.0, 28.0)
+	var bubble_size := _status_bubble_root.get_combined_minimum_size()
+	var viewport_size := get_viewport().get_visible_rect().size
+	var x := clampf(screen_pos.x - (bubble_size.x * 0.5), 12.0, viewport_size.x - bubble_size.x - 12.0)
+	var y := clampf(screen_pos.y - (bubble_size.y * 0.5), 12.0, viewport_size.y - bubble_size.y - 12.0)
+	_status_bubble_root.position = Vector2(x, y)
+
+func _hide_status_bubble() -> void:
+	if _status_bubble_root and is_instance_valid(_status_bubble_root):
+		_status_bubble_root.visible = false
+
+func _clear_status_bubble() -> void:
+	if _status_bubble_layer and is_instance_valid(_status_bubble_layer):
+		_status_bubble_layer.queue_free()
+	_status_bubble_layer = null
+	_status_bubble_root = null
+	_status_bubble_label = null
+	_status_bubble_timer = null
 
 func _pan_camera_to_gatekeeper(duration: float = 0.9) -> void:
 	var showtime_cam := _get_gatekeeper_showtime_camera()

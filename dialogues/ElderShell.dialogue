@@ -1,6 +1,9 @@
 ~ start
 if SceneManager.met_elder_shell == true:
 	Elder Shell: Reflection is a process that never ends, Nova.
+	- Check my current status.
+		do elder_shell_show_sysinfo_status()
+		=> END
 	if SceneManager.met_gate_keeper == true:
 		- Who is speaking as the Gate Keeper?
 			Elder Shell: A watcher, not a tyrant. A role written into policy.
@@ -14,6 +17,10 @@ else:
 	Elder Shell: Ah… a new process enters the loop.
 	Elder Shell: Sit, Nova. Observe before you execute.
 	Elder Shell: Linux rewards patience. The shell is your teacher.
+	- Check my current status.
+		do elder_shell_show_sysinfo_status()
+		set SceneManager.met_elder_shell = true
+		=> END
 	- Teach me
 		Elder Shell: Begin with understanding structure.
 		Elder Shell: The filesystem is organized like a tree - root (/) at the top.

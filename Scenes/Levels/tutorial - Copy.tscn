@@ -123,7 +123,11 @@ use_collision = true
 size = Vector3(60, 1, 50)
 
 [node name="Grass" type="MultiMeshInstance3D" parent="Floor and grass"]
-transform = Transform3D(1, 0, 0, 0, 0.5, 0, 0, 0, 1, 0, 0, 0)
+transform = Transform3D(0.505, 0, 0, 0, 0.205, 0, 0, 0, 0.8, -13.951872, 0, 0)
+multimesh = SubResource("MultiMesh_tok8y")
+
+[node name="Grass2" type="MultiMeshInstance3D" parent="Floor and grass"]
+transform = Transform3D(0.435, 0, 0, 0, 0.2, 0, 0, 0, 0.8, 14.053734, 0, 0)
 multimesh = SubResource("MultiMesh_tok8y")
 
 [node name="Spawn_player" type="Marker3D" parent="." groups=["spawn_point"]]

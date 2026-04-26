@@ -1,6 +1,7 @@
-[gd_scene load_steps=15 format=3 uid="uid://dff8b3gde762a"]
+[gd_scene load_steps=16 format=3 uid="uid://dff8b3gde762a"]
 
-[ext_resource type="FontVariation" uid="uid://lqtbary7gh5r" path="res://Assets/fonts/PressStart2P-Spaced.tres" id="1_font"]
+[ext_resource type="FontFile" uid="uid://lqtbary7gh5r" path="res://Assets/fonts/PressStart2P-Regular.ttf" id="1_font"]
+[ext_resource type="Texture2D" uid="uid://xudwaceg4n4h" path="res://Assets/Contorls.png" id="2_ccgw8"]
 [ext_resource type="Script" uid="uid://mqkv64skk1kd" path="res://scripts/ui/main_hud.gd" id="2_mainhud"]
 [ext_resource type="Theme" uid="uid://doak8ce36xvhu" path="res://Scenes/combat/crt_terminal_theme.tres" id="3_crt_theme"]
 [ext_resource type="Texture2D" uid="uid://bjc51rva8ysea" path="res://Assets/mainHUD_Icons_File.png" id="3_wpdjs"]
@@ -113,6 +114,7 @@ mouse_filter = 2
 script = ExtResource("2_mainhud")
 
 [node name="SoftGradientTint" type="ColorRect" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -121,6 +123,11 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 color = Color(0.572549, 0.815686, 0.501961, 0.06)
+
+[node name="Contorls" type="Sprite2D" parent="."]
+position = Vector2(522.5, 417.5)
+scale = Vector2(1.6261262, 1.6613332)
+texture = ExtResource("2_ccgw8")
 
 [node name="TopRight" type="PanelContainer" parent="."]
 layout_mode = 1

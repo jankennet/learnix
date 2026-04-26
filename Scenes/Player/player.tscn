@@ -450,6 +450,6 @@ text = "Press E to Teleport"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.1049933, 0.14652622, 0)
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.8024114, 0.5967713, 0, -0.5967713, 0.8024114, 0, 2.47571, 3.60368)
+transform = Transform3D(1, 0, 0, 0, 0.8024114, 0.5967713, 0, -0.5967713, 0.8024114, 0, 1.7573807, 3.60368)
 current = true
 script = ExtResource("9_jhyir")

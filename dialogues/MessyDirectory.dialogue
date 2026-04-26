@@ -16,8 +16,6 @@ elif SceneManager.quest_manager.is_quest_active("find_lost_file"):
 	Messy Directory: Have you found my child yet?
 	- Not yet. (Leave)
 		=> END
-	- I found them...
-		=> found_lost_file
 else:
 	Messy Directory: You... you see them too, don't you?
 	Messy Directory: My child... my Lost File...

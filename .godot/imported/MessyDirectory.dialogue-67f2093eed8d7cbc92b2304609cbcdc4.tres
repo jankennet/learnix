@@ -6,7 +6,7 @@
 script = ExtResource("1_n44i6")
 using_states = PackedStringArray()
 titles = {
-"found_lost_file": "46",
+"found_lost_file": "44",
 "start": "2"
 }
 character_names = PackedStringArray("Messy Directory")
@@ -82,8 +82,8 @@ lines = {
 },
 &"id": "14",
 &"next_id": "15",
-&"next_id_after": "45",
-&"next_sibling_id": "20",
+&"next_id_after": "43",
+&"next_sibling_id": "18",
 &"type": "condition"
 },
 "15": {
@@ -96,7 +96,7 @@ lines = {
 "16": {
 &"id": "16",
 &"next_id": "17",
-&"responses": PackedStringArray("16", "18"),
+&"responses": PackedStringArray("16"),
 &"text": "Not yet. (Leave)",
 &"type": "response"
 },
@@ -108,17 +108,18 @@ lines = {
 &"type": "goto"
 },
 "18": {
+&"condition": {},
 &"id": "18",
 &"next_id": "19",
-&"text": "I found them...",
-&"type": "response"
+&"next_id_after": "43",
+&"type": "condition"
 },
 "19": {
+&"character": "Messy Directory",
 &"id": "19",
-&"is_snippet": false,
-&"next_id": "46",
-&"next_id_after": "",
-&"type": "goto"
+&"next_id": "20",
+&"text": "You... you see them too, don't you?",
+&"type": "dialogue"
 },
 "2": {
 &"condition": {
@@ -145,78 +146,78 @@ lines = {
 },
 &"id": "2",
 &"next_id": "3",
-&"next_id_after": "45",
+&"next_id_after": "43",
 &"next_sibling_id": "9",
 &"type": "condition"
 },
 "20": {
-&"condition": {},
+&"character": "Messy Directory",
 &"id": "20",
 &"next_id": "21",
-&"next_id_after": "45",
-&"type": "condition"
+&"text": "My child... my Lost File...",
+&"type": "dialogue"
 },
 "21": {
-&"character": "Messy Directory",
 &"id": "21",
 &"next_id": "22",
-&"text": "You... you see them too, don't you?",
-&"type": "dialogue"
+&"responses": PackedStringArray("21", "27", "31"),
+&"text": "What happened?",
+&"type": "response"
 },
 "22": {
 &"character": "Messy Directory",
 &"id": "22",
 &"next_id": "23",
-&"text": "My child... my Lost File...",
+&"text": "Someone ran rm without thinking.",
 &"type": "dialogue"
 },
 "23": {
+&"character": "Messy Directory",
 &"id": "23",
 &"next_id": "24",
-&"responses": PackedStringArray("23", "29", "33"),
-&"text": "What happened?",
-&"type": "response"
+&"text": "No backup. No confirmation.",
+&"type": "dialogue"
 },
 "24": {
 &"character": "Messy Directory",
 &"id": "24",
 &"next_id": "25",
-&"text": "Someone ran rm without thinking.",
+&"text": "Just... gone. Like dust in the /dev/null.",
 &"type": "dialogue"
 },
 "25": {
 &"character": "Messy Directory",
 &"id": "25",
 &"next_id": "26",
-&"text": "No backup. No confirmation.",
+&"text": "The worst part? I didn't even know they used -r -f.",
 &"type": "dialogue"
 },
 "26": {
 &"character": "Messy Directory",
 &"id": "26",
-&"next_id": "27",
-&"text": "Just... gone. Like dust in the /dev/null.",
+&"next_id": "37",
+&"text": "Recursive force delete. No trash, no recovery.",
 &"type": "dialogue"
 },
 "27": {
-&"character": "Messy Directory",
 &"id": "27",
 &"next_id": "28",
-&"text": "The worst part? I didn't even know they used -r -f.",
-&"type": "dialogue"
+&"text": "I can help",
+&"type": "response"
 },
 "28": {
 &"character": "Messy Directory",
 &"id": "28",
-&"next_id": "39",
-&"text": "Recursive force delete. No trash, no recovery.",
+&"next_id": "29",
+&"text": "Can you? Or will you delete what remains?",
 &"type": "dialogue"
 },
 "29": {
+&"character": "Messy Directory",
 &"id": "29",
 &"next_id": "30",
-&"text": "I can help",
-&"type": "response"
+&"text": "The Lost File fragments are scattered through the Filesystem Forest.",
+&"type": "dialogue"
 },
 "3": {
 &"character": "Messy Directory",
@@ -228,88 +229,67 @@ lines = {
 "30": {
 &"character": "Messy Directory",
 &"id": "30",
-&"next_id": "31",
-&"text": "Can you? Or will you delete what remains?",
+&"next_id": "37",
+&"text": "I fear they're corrupted... but maybe you can find them.",
 &"type": "dialogue"
 },
 "31": {
-&"character": "Messy Directory",
 &"id": "31",
 &"next_id": "32",
-&"text": "The Lost File fragments are scattered through the Filesystem Forest.",
-&"type": "dialogue"
+&"text": "What should I know about keeping files safe?",
+&"type": "response"
 },
 "32": {
 &"character": "Messy Directory",
 &"id": "32",
-&"next_id": "39",
-&"text": "I fear they're corrupted... but maybe you can find them.",
+&"next_id": "33",
+&"text": "Organization is everything. Consider:",
 &"type": "dialogue"
 },
 "33": {
+&"character": "Messy Directory",
 &"id": "33",
 &"next_id": "34",
-&"text": "What should I know about keeping files safe?",
-&"type": "response"
+&"text": "Always use version control, like git.",
+&"type": "dialogue"
 },
 "34": {
 &"character": "Messy Directory",
 &"id": "34",
 &"next_id": "35",
-&"text": "Organization is everything. Consider:",
+&"text": "Keep backups in a separate location, never just -c",
 &"type": "dialogue"
 },
 "35": {
 &"character": "Messy Directory",
 &"id": "35",
 &"next_id": "36",
-&"text": "Always use version control, like git.",
+&"text": "Use permissions wisely - chmod carefully.",
 &"type": "dialogue"
 },
 "36": {
 &"character": "Messy Directory",
 &"id": "36",
 &"next_id": "37",
-&"text": "Keep backups in a separate location, never just -c",
+&"text": "Understand what a command does before running it!",
 &"type": "dialogue"
 },
 "37": {
 &"character": "Messy Directory",
 &"id": "37",
 &"next_id": "38",
-&"text": "Use permissions wisely - chmod carefully.",
+&"text": "Find my child in the Filesystem Forest.",
 &"type": "dialogue"
 },
 "38": {
 &"character": "Messy Directory",
 &"id": "38",
 &"next_id": "39",
-&"text": "Understand what a command does before running it!",
-&"type": "dialogue"
-},
-"39": {
-&"character": "Messy Directory",
-&"id": "39",
-&"next_id": "40",
-&"text": "Find my child in the Filesystem Forest.",
-&"type": "dialogue"
-},
-"4": {
-&"character": "Messy Directory",
-&"id": "4",
-&"next_id": "5",
-&"text": "My child is alive. Whole again.",
-&"type": "dialogue"
-},
-"40": {
-&"character": "Messy Directory",
-&"id": "40",
-&"next_id": "41",
 &"text": "Try to restore them... or end their suffering wisely.",
 &"type": "dialogue"
 },
-"41": {
-&"id": "41",
+"39": {
+&"id": "39",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"i": 4,
@@ -333,11 +313,18 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "42",
+&"next_id": "40",
 &"type": "mutation"
 },
-"42": {
-&"id": "42",
+"4": {
+&"character": "Messy Directory",
+&"id": "4",
+&"next_id": "5",
+&"text": "My child is alive. Whole again.",
+&"type": "dialogue"
+},
+"40": {
+&"id": "40",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"i": 3,
@@ -368,27 +355,27 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "43",
+&"next_id": "41",
 &"type": "mutation"
 },
-"43": {
-&"id": "43",
+"41": {
+&"id": "41",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"44": {
-&"id": "44",
-&"next_id": "45",
+"42": {
+&"id": "42",
+&"next_id": "43",
 &"type": ""
 },
-"45": {
-&"id": "45",
-&"next_id": "46",
+"43": {
+&"id": "43",
+&"next_id": "44",
 &"type": "title"
 },
-"46": {
+"44": {
 &"condition": {
 &"expression": Array[Dictionary]([{
 &"i": 3,
@@ -426,49 +413,42 @@ lines = {
 &"value": "helped"
 }])
 },
+&"id": "44",
+&"next_id": "45",
+&"next_id_after": "63",
+&"next_sibling_id": "52",
+&"type": "condition"
+},
+"45": {
+&"character": "Messy Directory",
+&"id": "45",
+&"next_id": "46",
+&"text": "You helped them? You gave them peace?",
+&"type": "dialogue"
+},
+"46": {
+&"character": "Messy Directory",
 &"id": "46",
 &"next_id": "47",
-&"next_id_after": "65",
-&"next_sibling_id": "54",
-&"type": "condition"
+&"text": "[Tears of digital rain]",
+&"type": "dialogue"
 },
 "47": {
 &"character": "Messy Directory",
 &"id": "47",
 &"next_id": "48",
-&"text": "You helped them? You gave them peace?",
+&"text": "Thank you. Thank you for restoring what was lost.",
 &"type": "dialogue"
 },
 "48": {
 &"character": "Messy Directory",
 &"id": "48",
 &"next_id": "49",
-&"text": "[Tears of digital rain]",
-&"type": "dialogue"
-},
-"49": {
-&"character": "Messy Directory",
-&"id": "49",
-&"next_id": "50",
-&"text": "Thank you. Thank you for restoring what was lost.",
-&"type": "dialogue"
-},
-"5": {
-&"character": "Messy Directory",
-&"id": "5",
-&"next_id": "6",
-&"text": "You gave me back what I thought was lost forever.",
-&"type": "dialogue"
-},
-"50": {
-&"character": "Messy Directory",
-&"id": "50",
-&"next_id": "51",
 &"text": "You're not like the others. You understand that every file matters.",
 &"type": "dialogue"
 },
-"51": {
-&"id": "51",
+"49": {
+&"id": "49",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"i": 4,
@@ -492,11 +472,18 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "52",
+&"next_id": "50",
 &"type": "mutation"
 },
-"52": {
-&"id": "52",
+"5": {
+&"character": "Messy Directory",
+&"id": "5",
+&"next_id": "6",
+&"text": "You gave me back what I thought was lost forever.",
+&"type": "dialogue"
+},
+"50": {
+&"id": "50",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"i": 3,
@@ -527,17 +514,17 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "53",
+&"next_id": "51",
 &"type": "mutation"
 },
-"53": {
-&"id": "53",
+"51": {
+&"id": "51",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"54": {
+"52": {
 &"condition": {
 &"expression": Array[Dictionary]([{
 &"i": 5,
@@ -575,35 +562,35 @@ lines = {
 &"value": "hostile"
 }])
 },
+&"id": "52",
+&"next_id": "53",
+&"next_id_after": "63",
+&"next_sibling_id": "59",
+&"type": "condition"
+},
+"53": {
+&"character": "Messy Directory",
+&"id": "53",
+&"next_id": "54",
+&"text": "You... you destroyed them?",
+&"type": "dialogue"
+},
+"54": {
+&"character": "Messy Directory",
 &"id": "54",
 &"next_id": "55",
-&"next_id_after": "65",
-&"next_sibling_id": "61",
-&"type": "condition"
+&"text": "My child is truly gone now.",
+&"type": "dialogue"
 },
 "55": {
 &"character": "Messy Directory",
 &"id": "55",
 &"next_id": "56",
-&"text": "You... you destroyed them?",
-&"type": "dialogue"
-},
-"56": {
-&"character": "Messy Directory",
-&"id": "56",
-&"next_id": "57",
-&"text": "My child is truly gone now.",
-&"type": "dialogue"
-},
-"57": {
-&"character": "Messy Directory",
-&"id": "57",
-&"next_id": "58",
 &"text": "I don't know what you are, but you are not welcome here.",
 &"type": "dialogue"
 },
-"58": {
-&"id": "58",
+"56": {
+&"id": "56",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"i": 4,
@@ -627,11 +614,11 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "59",
+&"next_id": "57",
 &"type": "mutation"
 },
-"59": {
-&"id": "59",
+"57": {
+&"id": "57",
 &"mutation": {
 &"expression": Array[Dictionary]([{
 &"i": 3,
@@ -662,8 +649,22 @@ lines = {
 }]),
 &"is_blocking": true
 },
-&"next_id": "60",
+&"next_id": "58",
 &"type": "mutation"
+},
+"58": {
+&"id": "58",
+&"is_snippet": false,
+&"next_id": "end",
+&"next_id_after": "",
+&"type": "goto"
+},
+"59": {
+&"condition": {},
+&"id": "59",
+&"next_id": "60",
+&"next_id_after": "63",
+&"type": "condition"
 },
 "6": {
 &"character": "Messy Directory",
@@ -673,40 +674,26 @@ lines = {
 &"type": "dialogue"
 },
 "60": {
-&"id": "60",
-&"is_snippet": false,
-&"next_id": "end",
-&"next_id_after": "",
-&"type": "goto"
-},
-"61": {
-&"condition": {},
-&"id": "61",
-&"next_id": "62",
-&"next_id_after": "65",
-&"type": "condition"
-},
-"62": {
 &"character": "Messy Directory",
-&"id": "62",
-&"next_id": "63",
+&"id": "60",
+&"next_id": "61",
 &"text": "What happened? Did you find them?",
 &"type": "dialogue"
 },
-"63": {
-&"id": "63",
+"61": {
+&"id": "61",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"64": {
-&"id": "64",
-&"next_id": "65",
+"62": {
+&"id": "62",
+&"next_id": "63",
 &"type": ""
 },
-"65": {
-&"id": "65",
+"63": {
+&"id": "63",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
@@ -751,7 +738,7 @@ lines = {
 },
 &"id": "9",
 &"next_id": "10",
-&"next_id_after": "45",
+&"next_id_after": "43",
 &"next_sibling_id": "14",
 &"type": "condition"
 }
@@ -774,8 +761,6 @@ elif SceneManager.quest_manager.is_quest_active(\"find_lost_file\"):
 	Messy Directory: Have you found my child yet?
 	- Not yet. (Leave)
 		=> END
-	- I found them...
-		=> found_lost_file
 else:
 	Messy Directory: You... you see them too, don't you?
 	Messy Directory: My child... my Lost File...

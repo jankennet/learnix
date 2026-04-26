@@ -5,6 +5,8 @@ extends Camera3D
 @export var collision_offset: float = 0.2 
 
 # --- NEW CONTROLS ---
+@export var use_editor_offsets_on_start: bool = true
+@export var side_offset: float = 0.0
 @export var height_offset: float = 2.0      # How high the camera sits
 @export var distance_horizontal: float = 3.0 # How far back the camera sits
 # --------------------
@@ -16,6 +18,7 @@ func _ready() -> void:
 	_fixed_rotation = global_rotation  # Lock the angle set in the editor
 	if not player:
 		player = get_node("../CharacterBody3D")
+	_capture_editor_offsets_if_enabled()
 	call_deferred("_reassert_active_camera")
 
 func _enter_tree() -> void:
@@ -39,8 +42,7 @@ func force_sync_to_player() -> void:
 
 func _sync_camera_to_player(delta: float) -> void:
 	var target_pivot = player.global_position
-	var back_dir = Vector3(0, 0, 1)
-	var desired_pos = target_pivot + (back_dir * distance_horizontal) + (Vector3.UP * height_offset)
+	var desired_pos = target_pivot + Vector3(side_offset, height_offset, distance_horizontal)
 
 	var space_state = get_world_3d().direct_space_state
 	var query = PhysicsRayQueryParameters3D.create(target_pivot, desired_pos)
@@ -57,3 +59,15 @@ func _sync_camera_to_player(delta: float) -> void:
 
 	# Restore fixed rotation — never rotates with the player
 	global_rotation = _fixed_rotation
+
+func _capture_editor_offsets_if_enabled() -> void:
+	if not use_editor_offsets_on_start:
+		return
+	if player == null:
+		return
+
+	# Read the camera placement from the editor and convert it to runtime offsets.
+	var editor_delta := global_position - player.global_position
+	side_offset = editor_delta.x
+	height_offset = editor_delta.y
+	distance_horizontal = editor_delta.z
