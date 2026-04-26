@@ -843,7 +843,7 @@ func _show_terminal_arrow() -> void:
 		_terminal_arrow.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		_terminal_arrow.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
 		_terminal_arrow.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		_terminal_arrow.size = Vector2(250.0, 250.0)
+		_terminal_arrow.size = Vector2(180.0, 180.0)
 		_terminal_arrow.modulate = Color(1, 1, 1, 0.98)
 		_tutorial_canvas.add_child(_terminal_arrow)
 	_terminal_arrow.visible = true
@@ -876,7 +876,7 @@ func _update_terminal_arrow(delta: float) -> void:
 	var arrow_size := _terminal_arrow.size
 	var target := Vector2(
 		rect.position.x + (rect.size.x * 0.5) - (arrow_size.x * 0.5),
-		rect.position.y - arrow_size.y - 20.0 + wave
+		rect.position.y - arrow_size.y + 28.0 + wave
 	)
 	var viewport_size := get_viewport().get_visible_rect().size
 	target.x = clampf(target.x, 8.0, viewport_size.x - arrow_size.x - 8.0)

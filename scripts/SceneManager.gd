@@ -31,6 +31,13 @@ const TERMINAL_EXPLORED_META_KEY := "terminal_explored_locations"
 const BIOS_VAULT_SAGE_META_KEY := "bios_vault_sage_quiz_passed"
 const FILESYSTEM_FOREST_ARRIVAL_META_KEY := "filesystem_forest_arrival_intro_shown"
 const DEAMON_DEPTHS_ARRIVAL_META_KEY := "deamon_depths_arrival_intro_shown"
+const FALLBACK_HAMLET_WORLD_ARROW_TUTORIAL_META_KEY := "fallback_hamlet_world_arrow_tutorial_done"
+const FALLBACK_HAMLET_PHASE_ONE_META_KEY := "fallback_hamlet_talk_to_forest_tutorial_done"
+const FOREST_ARROW_TUTORIAL_DONE_META_KEY := "forest_lost_file_arrow_tutorial_done"
+const FOREST_BAG_HINT_PENDING_META_KEY := "forest_bag_item_hint_pending"
+const FOREST_BAG_HINT_DONE_META_KEY := "forest_bag_item_hint_done"
+const FALLBACK_HAMLET_SHOP_PENDING_META_KEY := "fallback_hamlet_shop_tutorial_pending"
+const FALLBACK_HAMLET_SHOP_OPENED_META_KEY := "fallback_hamlet_shop_opened_once"
 const PENDING_REWARD_META_KEY := "pending_reward_popup_key"
 const SKILL_UNLOCK_RECEIPTS_META_KEY := "skill_unlock_receipts"
 const POST_LOAD_SETTLE_FRAMES := 4
@@ -510,6 +517,13 @@ func _persistent_meta_keys() -> Array[String]:
 		BIOS_VAULT_SAGE_META_KEY,
 		FILESYSTEM_FOREST_ARRIVAL_META_KEY,
 		DEAMON_DEPTHS_ARRIVAL_META_KEY,
+		FALLBACK_HAMLET_WORLD_ARROW_TUTORIAL_META_KEY,
+		FALLBACK_HAMLET_PHASE_ONE_META_KEY,
+		FOREST_ARROW_TUTORIAL_DONE_META_KEY,
+		FOREST_BAG_HINT_PENDING_META_KEY,
+		FOREST_BAG_HINT_DONE_META_KEY,
+		FALLBACK_HAMLET_SHOP_PENDING_META_KEY,
+		FALLBACK_HAMLET_SHOP_OPENED_META_KEY,
 		EVIL_TUX_BOSS_CLEARED_META_KEY,
 		EVIL_TUX_ENDGAME_META_KEY,
 		EVIL_TUX_HIDE_NPCS_META_KEY,
@@ -1384,16 +1398,16 @@ func _show_post_tutorial_world_guide() -> void:
 	await popup_instance.closed
 
 	popup_instance.call("show_popup",
-		"Talking To NPCs",
-		"Move near an NPC and press E to interact.\nKeep talking to uncover hints and story clues.",
-		"NPCs unlock quests and progression.",
+		"Talking to NPC",
+		"Use the Key [E] to interact and talk to NPCS.",
+		"Understand what they're trying to say.",
 		"talking_npc"
 	)
 	await popup_instance.closed
 
 	popup_instance.call("show_popup",
 		"Checking Quests",
-		"Use the Tux icon in your HUD to open quest help.\nTrack active objectives before heading out.",
+		"Use the Notes icon in your HUD to open quest help.\nTrack active objectives before heading out.",
 		"Use quest guidance when you feel stuck.",
 		"quest_notes"
 	)

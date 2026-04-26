@@ -15,6 +15,10 @@ signal closed
 @export var map_navigation_reference_image: Texture2D
 @export var talking_npc_reference_image: Texture2D
 @export var quest_notes_reference_image: Texture2D
+@export var shop_overview_reference_image: Texture2D
+@export var skill_status_reference_image: Texture2D
+@export var skill_copy_reference_image: Texture2D
+@export var skill_paste_reference_image: Texture2D
 
 @onready var overlay: ColorRect = $Overlay
 @onready var title_label: Label = $Panel/Margin/VBox/Title
@@ -77,6 +81,14 @@ func _texture_for_kind(kind: String) -> Texture2D:
 			resolved = talking_npc_reference_image
 		"quest_notes":
 			resolved = quest_notes_reference_image
+		"shop_overview":
+			resolved = shop_overview_reference_image
+		"skill_status":
+			resolved = skill_status_reference_image
+		"skill_copy":
+			resolved = skill_copy_reference_image
+		"skill_paste":
+			resolved = skill_paste_reference_image
 		"timing":
 			resolved = timing_reference_image
 		"nodes":

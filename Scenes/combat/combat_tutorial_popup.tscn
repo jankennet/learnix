@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://ntxf4b6r0ccj"]
+[gd_scene load_steps=18 format=3 uid="uid://ntxf4b6r0ccj"]
 
 [ext_resource type="Script" uid="uid://duq8yc24f2l7s" path="res://scripts/combat/combat_tutorial_popup.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://dkn65j1w4mubb" path="res://Assets/referenceTerminalUI.png" id="2_wi56y"]
@@ -13,6 +13,10 @@
 [ext_resource type="Texture2D" path="res://Assets/referenceMapNavigate.png" id="11_mapnav"]
 [ext_resource type="Texture2D" path="res://Assets/referenceTalkingNPC.png" id="12_talknpc"]
 [ext_resource type="Texture2D" path="res://Assets/referenceQuest.png" id="13_quest"]
+[ext_resource type="Texture2D" path="res://Assets/referenceShopOverview.png" id="14_shopovr"]
+[ext_resource type="Texture2D" path="res://Assets/referenceSkillStatus.png" id="15_skillstatus"]
+[ext_resource type="Texture2D" path="res://Assets/referenceSkillCopy.png" id="16_skillcopy"]
+[ext_resource type="Texture2D" path="res://Assets/referenceSkillPaste.png" id="17_skillpaste"]
 
 [node name="CombatTutorialPopup" type="Control"]
 layout_mode = 3
@@ -35,6 +39,10 @@ step6_reference_image = ExtResource("10_step6")
 map_navigation_reference_image = ExtResource("11_mapnav")
 talking_npc_reference_image = ExtResource("12_talknpc")
 quest_notes_reference_image = ExtResource("13_quest")
+shop_overview_reference_image = ExtResource("14_shopovr")
+skill_status_reference_image = ExtResource("15_skillstatus")
+skill_copy_reference_image = ExtResource("16_skillcopy")
+skill_paste_reference_image = ExtResource("17_skillpaste")
 
 [node name="Overlay" type="ColorRect" parent="."]
 layout_mode = 1

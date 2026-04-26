@@ -5,6 +5,11 @@ signal terminal_command_executed(command: String, args: Array)
 const COMBAT_UI_NODE_NAME := "CombatTerminalUI"
 const QUEST_LIST_NODE_NAME := "QuestList"
 const VISIBILITY_CHECK_INTERVAL := 0.15
+const BAG_HINT_ARROW_TEXTURE := preload("res://Assets/arrow.png")
+const FOREST_BAG_HINT_PENDING_KEY := "forest_bag_item_hint_pending"
+const FOREST_BAG_HINT_DONE_KEY := "forest_bag_item_hint_done"
+const SHOP_TUTORIAL_PENDING_KEY := "fallback_hamlet_shop_tutorial_pending"
+const SHOP_OPENED_ONCE_KEY := "fallback_hamlet_shop_opened_once"
 const WORLD_MAP_TEXTURES := {
 	"fallback_hamlet": preload("res://Assets/mapFallbackHamlet.png"),
 	"filesystem_forest": preload("res://Assets/MapFilesystemForest.png"),
@@ -153,6 +158,7 @@ var _check_timer := 0.0
 @onready var term_item: Control = $TopRight/MenuStack/MessagesItem
 @onready var quest_item: Control = $TopRight/MenuStack/BagItem
 @onready var tux_item: Control = $TopRight/MenuStack/QuestItem
+@onready var controls_overlay: CanvasItem = $Contorls
 
 var terminal_panel: TerminalPanel = null
 var terminal_output: RichTextLabel = null
@@ -187,6 +193,8 @@ var _world_map_root: PanelContainer = null
 var _world_map_texture_rect: TextureRect = null
 var _world_map_player_dot_outer: PanelContainer = null
 var _world_map_player_dot_inner: ColorRect = null
+var _bag_hint_arrow: TextureRect = null
+var _bag_hint_arrow_time: float = 0.0
 
 func _ready() -> void:
 	# Instantiate TerminalPanel scene
@@ -232,8 +240,10 @@ func _ready() -> void:
 	_record_current_location_explored()
 	randomize()
 	_setup_world_map_widget()
+	_setup_bag_item_hint_arrow()
 	_update_visibility()
 	_update_world_map_visibility(visible)
+	_update_controls_overlay_visibility(visible)
 	_setup_shutdown_confirm_dialog()
 
 	# Taskbar quest icon replaces the side exclamation marker.
@@ -245,6 +255,7 @@ func _process(delta: float) -> void:
 	_restore_terminal_focus_if_needed()
 	_update_world_map_player_marker()
 	_check_timer -= delta
+	_update_bag_item_hint(delta)
 	if _check_timer > 0.0:
 		return
 	_check_timer = VISIBILITY_CHECK_INTERVAL
@@ -319,11 +330,87 @@ func _update_visibility() -> void:
 	visible = should_show
 	_set_quest_list_visible(should_show)
 	_update_world_map_visibility(should_show)
+	_update_controls_overlay_visibility(should_show)
 	# Hide file item until file explorer is unlocked.
 	if file_item:
 		file_item.visible = should_show and _is_file_explorer_unlocked()
 	if not should_show and _terminal_is_open:
 		_close_terminal()
+
+func _update_controls_overlay_visibility(should_show: bool) -> void:
+	if controls_overlay == null:
+		return
+	controls_overlay.visible = should_show and not _terminal_is_open and not _is_shop_open()
+
+func _setup_bag_item_hint_arrow() -> void:
+	if _bag_hint_arrow != null and is_instance_valid(_bag_hint_arrow):
+		return
+
+	_bag_hint_arrow = TextureRect.new()
+	_bag_hint_arrow.name = "BagItemHintArrow"
+	_bag_hint_arrow.texture = BAG_HINT_ARROW_TEXTURE
+	_bag_hint_arrow.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_bag_hint_arrow.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_bag_hint_arrow.custom_minimum_size = Vector2(116.0, 116.0)
+	_bag_hint_arrow.size = Vector2(116.0, 116.0)
+	_bag_hint_arrow.rotation_degrees = 0.0
+	_bag_hint_arrow.modulate = Color(1.0, 0.95, 0.75, 1.0)
+	_bag_hint_arrow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_bag_hint_arrow.visible = false
+	add_child(_bag_hint_arrow)
+
+func _update_bag_item_hint(delta: float) -> void:
+	if _bag_hint_arrow == null or not is_instance_valid(_bag_hint_arrow):
+		return
+
+	if not _should_show_bag_item_hint():
+		_bag_hint_arrow.visible = false
+		_bag_hint_arrow_time = 0.0
+		return
+
+	_bag_hint_arrow_time += delta
+	var target_rect := quest_item.get_global_rect()
+	var base_global := Vector2(
+		target_rect.position.x + (target_rect.size.x * 0.5) - (_bag_hint_arrow.size.x * 0.5),
+		target_rect.position.y - 86.0
+	)
+	var bob := sin(_bag_hint_arrow_time * 4.0) * 10.0
+	var final_global := base_global + Vector2(0.0, bob)
+	_bag_hint_arrow.global_position = final_global
+	_bag_hint_arrow.visible = true
+
+func _should_show_bag_item_hint() -> bool:
+	if SceneManager == null:
+		return false
+	if quest_item == null:
+		return false
+	if not visible:
+		return false
+	if _terminal_is_open or _is_shop_open():
+		return false
+	if bool(SceneManager.get_meta(FOREST_BAG_HINT_DONE_KEY, false)):
+		return false
+	if not bool(SceneManager.get_meta(FOREST_BAG_HINT_PENDING_KEY, false)):
+		return false
+	return _is_in_scene("res://Scenes/Levels/file_system_forest.tscn")
+
+func _consume_bag_item_hint_if_active() -> void:
+	if not _should_show_bag_item_hint():
+		return
+	if SceneManager == null:
+		return
+
+	SceneManager.set_meta(FOREST_BAG_HINT_DONE_KEY, true)
+	SceneManager.set_meta(FOREST_BAG_HINT_PENDING_KEY, false)
+	SceneManager.set_meta(SHOP_TUTORIAL_PENDING_KEY, true)
+	if _bag_hint_arrow and is_instance_valid(_bag_hint_arrow):
+		_bag_hint_arrow.visible = false
+
+func _is_in_scene(scene_path: String) -> bool:
+	var current_scene := get_tree().current_scene
+	if current_scene == null:
+		return false
+	return String(current_scene.scene_file_path) == scene_path
 
 func _setup_world_map_widget() -> void:
 	if _world_map_root != null and is_instance_valid(_world_map_root):
@@ -686,6 +773,8 @@ func _open_tux_helper_from_hud() -> void:
 	_open_quest_window_or_toggle_list()
 
 func _open_quest_window_or_toggle_list() -> void:
+	_consume_bag_item_hint_if_active()
+
 	# Fallback behavior when Tux dialogue controller is unavailable.
 	if has_node("/root/SceneManager") and SceneManager and SceneManager.quest_manager:
 		var qm := SceneManager.quest_manager
@@ -739,6 +828,7 @@ func _open_terminal() -> void:
 	_terminal_is_open = true
 	terminal_panel.visible = true
 	_update_world_map_visibility(false)
+	_update_controls_overlay_visibility(visible)
 	if SceneManager:
 		SceneManager.play_sfx("res://album/sfx/open-terminal.mp3")
 	if terminal_output and terminal_output.get_parsed_text().is_empty():
@@ -758,6 +848,7 @@ func _close_terminal() -> void:
 	if terminal_panel:
 		terminal_panel.visible = false
 	_update_world_map_visibility(visible)
+	_update_controls_overlay_visibility(visible)
 
 func _on_run_command_pressed() -> void:
 	if terminal_input:
@@ -1792,6 +1883,11 @@ func _open_shop_from_terminal() -> void:
 		_shop_panel.call("open_shop")
 	elif _shop_panel:
 		_shop_panel.visible = true
+
+	if SceneManager and _is_in_scene("res://Scenes/Levels/fallback_hamlet.tscn"):
+		SceneManager.set_meta(SHOP_OPENED_ONCE_KEY, true)
+	_update_world_map_visibility(visible)
+	_update_controls_overlay_visibility(visible)
 
 func _acquire_terminal_input_lock() -> void:
 	if SceneManager == null:

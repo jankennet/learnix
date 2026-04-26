@@ -2,6 +2,7 @@ class_name TerminalShop
 extends Control
 
 const SKILL_UNLOCK_RECEIPTS_META_KEY := "skill_unlock_receipts"
+const COMBAT_TUTORIAL_POPUP_SCENE_PATH := "res://Scenes/combat/combat_tutorial_popup.tscn"
 
 @onready var data_bits_label: Label = $Backdrop/ShopWindow/Margin/VRoot/HeaderRow/DataBitsLabel
 @onready var close_button: Button = $Backdrop/ShopWindow/Margin/VRoot/HeaderRow/CloseButton
@@ -33,6 +34,8 @@ var _owned_input_lock := false
 var _previous_input_locked := false
 var _skill_buttons: Dictionary = {}
 var _selected_skill_id := ""
+var _shop_tutorial_shown: bool = false
+var _shop_tutorial_running: bool = false
 
 const _SKILL_ORDER := [
 	"cli_history",
@@ -122,10 +125,82 @@ func open_shop() -> void:
 	visible = true
 	if close_button:
 		close_button.grab_focus()
+	call_deferred("_show_shop_tutorial_if_needed")
 
 func close_shop() -> void:
 	visible = false
 	_release_input_lock()
+
+func _show_shop_tutorial_if_needed() -> void:
+	if _shop_tutorial_shown or _shop_tutorial_running:
+		return
+	if not visible:
+		return
+
+	_shop_tutorial_running = true
+
+	await _show_shop_tutorial_popup(
+		"Skill Shop Overview",
+		"This is the Skill Shop. Select a skill card to view details and unlock commands.",
+		"Use this screen to plan your unlock path.",
+		"shop_overview"
+	)
+	if not visible:
+		_shop_tutorial_running = false
+		return
+
+	await _show_shop_tutorial_popup(
+		"Skill Status",
+		"Each skill shows a status: LOCKED, REQUIREMENTS MET, or UNLOCKED.",
+		"Requirements must be met before copying unlock commands.",
+		"skill_status"
+	)
+	if not visible:
+		_shop_tutorial_running = false
+		return
+
+	await _show_shop_tutorial_popup(
+		"Copy Skill Command",
+		"Click a skill entry to copy its unlock command to your clipboard.",
+		"Copied commands are ready to paste into terminal.",
+		"skill_copy"
+	)
+	if not visible:
+		_shop_tutorial_running = false
+		return
+
+	await _show_shop_tutorial_popup(
+		"Paste In Terminal",
+		"Open terminal and paste the copied command, then press Enter.",
+		"Tip: Ctrl+V pastes into the terminal input box.",
+		"skill_paste"
+	)
+
+	_shop_tutorial_shown = true
+	_shop_tutorial_running = false
+
+func _show_shop_tutorial_popup(title: String, body: String, footer: String, visual_kind: String) -> void:
+	var popup_scene := load(COMBAT_TUTORIAL_POPUP_SCENE_PATH)
+	if not (popup_scene is PackedScene):
+		return
+
+	var popup_instance := (popup_scene as PackedScene).instantiate()
+	if popup_instance == null:
+		return
+
+	var popup_layer := CanvasLayer.new()
+	popup_layer.name = "TerminalShopTutorialPopup"
+	popup_layer.layer = 290
+	get_tree().root.add_child(popup_layer)
+	popup_layer.add_child(popup_instance)
+
+	if not popup_instance.has_method("show_popup") or not popup_instance.has_signal("closed"):
+		popup_layer.queue_free()
+		return
+
+	popup_instance.call("show_popup", title, body, footer, visual_kind)
+	await popup_instance.closed
+	popup_layer.queue_free()
 
 func _on_close_pressed() -> void:
 	close_shop()
