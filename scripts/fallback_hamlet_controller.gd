@@ -161,7 +161,7 @@ func _run_return_shop_tutorial_intro() -> void:
 		"Spend Data Bits",
 		"Now that you're back, spend your Data Bits at the shop, or type 'shop' in terminal.",
 		"Follow the arrow to the shop to continue.",
-		"map_navigation"
+		"shop_overview"
 	)
 
 	_world_tutorial_flow_running = false

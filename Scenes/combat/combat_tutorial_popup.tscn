@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://ntxf4b6r0ccj"]
+[gd_scene load_steps=22 format=3 uid="uid://ntxf4b6r0ccj"]
 
 [ext_resource type="Script" uid="uid://duq8yc24f2l7s" path="res://scripts/combat/combat_tutorial_popup.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://dkn65j1w4mubb" path="res://Assets/referenceTerminalUI.png" id="2_wi56y"]
@@ -13,10 +13,15 @@
 [ext_resource type="Texture2D" path="res://Assets/referenceMapNavigate.png" id="11_mapnav"]
 [ext_resource type="Texture2D" path="res://Assets/referenceTalkingNPC.png" id="12_talknpc"]
 [ext_resource type="Texture2D" path="res://Assets/referenceQuest.png" id="13_quest"]
-[ext_resource type="Texture2D" path="res://Assets/referenceShopOverview.png" id="14_shopovr"]
-[ext_resource type="Texture2D" path="res://Assets/referenceSkillStatus.png" id="15_skillstatus"]
-[ext_resource type="Texture2D" path="res://Assets/referenceSkillCopy.png" id="16_skillcopy"]
-[ext_resource type="Texture2D" path="res://Assets/referenceSkillPaste.png" id="17_skillpaste"]
+[ext_resource type="Texture2D" path="res://Assets/referenceShop.png" id="14_shopovr"]
+[ext_resource type="Texture2D" path="res://Assets/referenceShopOverview.png" id="15_shopskillovr"]
+[ext_resource type="Texture2D" path="res://Assets/referenceSkillStatus.png" id="16_skillstatus"]
+[ext_resource type="Texture2D" path="res://Assets/referenceSkillCopy.png" id="17_skillcopy"]
+[ext_resource type="Texture2D" path="res://Assets/referenceSkillPaste.png" id="18_skillpaste"]
+[ext_resource type="Texture2D" path="res://Assets/referenceSelectingNodes.png" id="19_selecting"]
+[ext_resource type="Texture2D" path="res://Assets/referenceAppGoal.png" id="20_goal"]
+[ext_resource type="Texture2D" path="res://Assets/referenceConnectNodes.png" id="21_connect"]
+[ext_resource type="FontVariation" uid="uid://lqtbary7gh5r" path="res://Assets/fonts/PressStart2P-Spaced.tres" id="22_font"]
 
 [node name="CombatTutorialPopup" type="Control"]
 layout_mode = 3
@@ -40,9 +45,13 @@ map_navigation_reference_image = ExtResource("11_mapnav")
 talking_npc_reference_image = ExtResource("12_talknpc")
 quest_notes_reference_image = ExtResource("13_quest")
 shop_overview_reference_image = ExtResource("14_shopovr")
-skill_status_reference_image = ExtResource("15_skillstatus")
-skill_copy_reference_image = ExtResource("16_skillcopy")
-skill_paste_reference_image = ExtResource("17_skillpaste")
+skill_shop_overview_reference_image = ExtResource("15_shopskillovr")
+skill_status_reference_image = ExtResource("16_skillstatus")
+skill_copy_reference_image = ExtResource("17_skillcopy")
+skill_paste_reference_image = ExtResource("18_skillpaste")
+selecting_nodes_reference_image = ExtResource("19_selecting")
+app_goal_reference_image = ExtResource("20_goal")
+connect_nodes_reference_image = ExtResource("21_connect")
 
 [node name="Overlay" type="ColorRect" parent="."]
 layout_mode = 1
@@ -82,11 +91,13 @@ theme_override_constants/separation = 10
 
 [node name="Title" type="Label" parent="Panel/Margin/VBox"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("22_font")
 theme_override_font_sizes/font_size = 24
 text = "Tutorial"
 
 [node name="Body" type="Label" parent="Panel/Margin/VBox"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("22_font")
 theme_override_font_sizes/font_size = 15
 text = "Description"
 autowrap_mode = 3
@@ -108,6 +119,7 @@ mouse_filter = 2
 
 [node name="Footer" type="Label" parent="Panel/Margin/VBox"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("22_font")
 theme_override_font_sizes/font_size = 14
 text = "Footer note"
 autowrap_mode = 3
@@ -115,4 +127,5 @@ autowrap_mode = 3
 [node name="ContinueButton" type="Button" parent="Panel/Margin/VBox"]
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
+theme_override_fonts/font = ExtResource("22_font")
 text = "Continue"

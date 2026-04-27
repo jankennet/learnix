@@ -351,8 +351,8 @@ func _setup_bag_item_hint_arrow() -> void:
 	_bag_hint_arrow.texture = BAG_HINT_ARROW_TEXTURE
 	_bag_hint_arrow.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_bag_hint_arrow.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_bag_hint_arrow.custom_minimum_size = Vector2(116.0, 116.0)
-	_bag_hint_arrow.size = Vector2(116.0, 116.0)
+	_bag_hint_arrow.custom_minimum_size = Vector2(152.0, 152.0)
+	_bag_hint_arrow.size = Vector2(152.0, 152.0)
 	_bag_hint_arrow.rotation_degrees = 0.0
 	_bag_hint_arrow.modulate = Color(1.0, 0.95, 0.75, 1.0)
 	_bag_hint_arrow.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -826,6 +826,7 @@ func _open_terminal() -> void:
 		_current_terminal_path = _terminal_home_location()
 	_acquire_terminal_input_lock()
 	_terminal_is_open = true
+	terminal_panel.z_index = 1000
 	terminal_panel.visible = true
 	_update_world_map_visibility(false)
 	_update_controls_overlay_visibility(visible)
@@ -1908,8 +1909,6 @@ func _release_terminal_input_lock() -> void:
 
 func _is_terminal_modal_active() -> bool:
 	if _shutdown_confirm_dialog and is_instance_valid(_shutdown_confirm_dialog) and _shutdown_confirm_dialog.visible:
-		return true
-	if _shop_panel and is_instance_valid(_shop_panel) and _shop_panel.visible:
 		return true
 	return false
 

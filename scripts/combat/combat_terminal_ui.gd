@@ -594,7 +594,7 @@ func _update_in_input_block_cursor(delta: float) -> void:
 		_block_cursor_elapsed = 0.0
 		_block_cursor_visible = not _block_cursor_visible
 
-	command_input.placeholder_text = "█ type command here..." if _block_cursor_visible else "  type command here..."
+	command_input.placeholder_text = "▌ type command here..." if _block_cursor_visible else "  type command here..."
 
 func _route_key_to_command_input(key_event: InputEventKey) -> bool:
 	if command_input == null:
@@ -1390,8 +1390,8 @@ func _show_timing_intro_tutorial_if_needed() -> void:
 
 	await _show_tutorial_popup(
 		"Step B: Timing Bar",
-		"Press SPACE when the moving marker is in the good zone.\nGreen = good. Yellow = super good. Red = miss.",
-		"Trivia: timing games test rhythm and focus.",
+		"Press SPACE when the moving marker is in the good zone.",
+		"Stay focused, hit that critical!",
 		"timing"
 	)
 	_mark_tutorial_seen(TUTORIAL_META_TIMING_INTRO)
@@ -1401,10 +1401,31 @@ func _show_dependency_intro_tutorial_if_needed() -> void:
 		return
 
 	await _show_tutorial_popup(
-		"Step C: Connect The Path",
-		"Connect nodes from Kernel to App.\nGreen links are safe. Red links are broken.",
+		"Step C1: Dependency Overview",
+		"This panel shows how the app is built from connected parts.\nStart by hovering at nodes first.",
 		"Trivia: dependencies are parts that other parts need.",
 		"nodes"
+	)
+
+	await _show_tutorial_popup(
+		"Step C2: Selecting Nodes",
+		"Click a node to inspect it.\nPick the parts you want to understand before linking anything.",
+		"Focus on one node at a time.",
+		"selecting_nodes"
+	)
+
+	await _show_tutorial_popup(
+		"Step C3: Check The App Goal",
+		"Read the app goal so you know what the full dependency chain is trying to achieve.\nThe goal tells you which path matters.",
+		"Always check the goal before connecting nodes.",
+		"app_goal"
+	)
+
+	await _show_tutorial_popup(
+		"Step C4: Connect Nodes",
+		"Now connect the nodes into a valid path.\nKeep the links green so the app can run cleanly.",
+		"Finish by connecting the required nodes in order.",
+		"connect_nodes"
 	)
 	_mark_tutorial_seen(TUTORIAL_META_DEPENDENCY_INTRO)
 

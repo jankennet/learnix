@@ -143,7 +143,7 @@ func _show_shop_tutorial_if_needed() -> void:
 		"Skill Shop Overview",
 		"This is the Skill Shop. Select a skill card to view details and unlock commands.",
 		"Use this screen to plan your unlock path.",
-		"shop_overview"
+		"skill_shop_overview"
 	)
 	if not visible:
 		_shop_tutorial_running = false
