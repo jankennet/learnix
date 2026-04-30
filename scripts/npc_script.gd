@@ -2,6 +2,8 @@ extends Node3D
 
 const DIALOGUE_CANCEL_LOCK_META_KEY := "dialogue_cancel_locked"
 const BIOS_VAULT_GATEKEEPER_ARRIVAL_META_KEY := "bios_vault_gatekeeper_arrival"
+const GATEKEEPER_FINAL_TUTORIAL_DONE_KEY := "fallback_hamlet_gatekeeper_final_tutorial_done"
+const COMBAT_TUTORIAL_POPUP_SCENE_PATH := "res://Scenes/combat/combat_tutorial_popup.tscn"
 const BLACK_TEXT_CUTSCENE_SCENE := preload("res://Scenes/ui/black_text_cutscene.tscn")
 const BIOS_VAULT_TRANSFER_LINES_GOOD: Array[String] = ["You've done well.", "You'll handle the next task properly...", "I hope."]
 const BIOS_VAULT_TRANSFER_LINES_BAD: Array[String] = ["There's nothing for you here.", "Be gone."]
@@ -441,6 +443,11 @@ func start_bios_vault_transfer() -> void:
 	_gatekeeper_transfer_running = true
 	call_deferred("_run_bios_vault_transfer")
 
+func start_gatekeeper_final_tutorial() -> void:
+	if SceneManager and bool(SceneManager.get_meta(GATEKEEPER_FINAL_TUTORIAL_DONE_KEY, false)):
+		return
+	call_deferred("_run_gatekeeper_final_tutorial")
+
 func elder_shell_show_sysinfo_status() -> void:
 	if SceneManager and SceneManager.has_method("mark_npc_interacted"):
 		SceneManager.mark_npc_interacted(npc_name)
@@ -719,6 +726,55 @@ func _play_gatekeeper_transfer_cutscene(scene_path: String, spawn_name: String) 
 	if is_instance_valid(cutscene):
 		cutscene.queue_free()
 	return true
+
+func _run_gatekeeper_final_tutorial() -> void:
+	var popup_scene := load(COMBAT_TUTORIAL_POPUP_SCENE_PATH)
+	if not (popup_scene is PackedScene):
+		_finalize_gatekeeper_final_tutorial()
+		return
+
+	var popup_instance := (popup_scene as PackedScene).instantiate()
+	if popup_instance == null:
+		_finalize_gatekeeper_final_tutorial()
+		return
+
+	var popup_layer := CanvasLayer.new()
+	popup_layer.name = "GatekeeperFinalTutorialPopup"
+	popup_layer.layer = 279
+	get_tree().root.add_child(popup_layer)
+	popup_layer.add_child(popup_instance)
+
+	if not popup_instance.has_method("show_popup") or not popup_instance.has_signal("closed"):
+		popup_layer.queue_free()
+		_finalize_gatekeeper_final_tutorial()
+		return
+
+	popup_instance.call(
+		"show_popup",
+		"Exploring Linuxia",
+		"Explore Linuxia at your own pace. You must get these keys in order to proceed.\nBroken Link in the Filesystem Forest and the Printer Beast in Daemon Depths hold the Proficiency keys.",
+		"Take your time, then come back to GateKeeper when you're ready.",
+		"quest_notes"
+	)
+	await popup_instance.closed
+
+	popup_instance.call(
+		"show_popup",
+		"Enjoy the Journey",
+		"Have fun learning Linuxia — explore, experiment, and remember your actions have consequences.",
+		"Good luck!",
+		"quest_notes"
+	)
+	await popup_instance.closed
+	popup_layer.queue_free()
+	_finalize_gatekeeper_final_tutorial()
+
+func _finalize_gatekeeper_final_tutorial() -> void:
+	if SceneManager:
+		SceneManager.set_meta(GATEKEEPER_FINAL_TUTORIAL_DONE_KEY, true)
+	var scene_controller := get_tree().current_scene
+	if scene_controller and scene_controller.has_method("finalize_gatekeeper_tutorial"):
+		scene_controller.call("finalize_gatekeeper_tutorial")
 
 func _flash_red_light() -> void:
 	var flash_layer := CanvasLayer.new()

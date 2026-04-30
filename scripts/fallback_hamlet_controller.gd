@@ -20,6 +20,7 @@ enum WorldTutorialState {
 	GO_TO_FOREST_HINT,
 	GO_TO_FOREST_TELEPORT,
 	SHOP_PROMPT,
+	GATEKEEPER_PROMPT,
 	COMPLETED,
 }
 
@@ -39,6 +40,7 @@ var _tux_priority_applied: bool = false
 var _world_tutorial_state: int = WorldTutorialState.DISABLED
 var _world_tutorial_flow_running: bool = false
 var _arrow_root: Node3D = null
+var _arrow_to_gatekeeper: Sprite3D = null
 var _arrow_to_use_shop: Sprite3D = null
 var _arrow_talk_to_md: Sprite3D = null
 var _arrow_to_forest_hint: Sprite3D = null
@@ -69,6 +71,7 @@ func _setup_world_arrow_tutorial_nodes() -> void:
 	if _arrow_root == null:
 		return
 
+	_arrow_to_gatekeeper = _arrow_root.get_node_or_null("ArrowtoGatekeeper") as Sprite3D
 	_arrow_to_use_shop = _arrow_root.get_node_or_null("ArrowtoUseshop") as Sprite3D
 	_arrow_talk_to_md = _arrow_root.get_node_or_null("ArrowtalktoMD") as Sprite3D
 	_arrow_to_forest_tp = _arrow_root.get_node_or_null("ArrowtoForestTP") as Sprite3D
@@ -79,6 +82,7 @@ func _setup_world_arrow_tutorial_nodes() -> void:
 	_forest_tp_area = get_node_or_null("Fallback_Hamlet_Final/ForestTP") as Area3D
 
 	var tutorial_arrows: Array[Sprite3D] = [
+		_arrow_to_gatekeeper,
 		_arrow_to_use_shop,
 		_arrow_talk_to_md,
 		_arrow_to_forest_hint,
@@ -225,6 +229,9 @@ func _update_world_arrow_tutorial_progress() -> void:
 				_world_tutorial_state = WorldTutorialState.DISABLED
 		WorldTutorialState.SHOP_PROMPT:
 			if _has_opened_shop_once():
+				_set_world_tutorial_state(WorldTutorialState.GATEKEEPER_PROMPT)
+		WorldTutorialState.GATEKEEPER_PROMPT:
+			if _is_world_arrow_tutorial_complete():
 				_complete_world_arrow_tutorial()
 		_:
 			pass
@@ -243,12 +250,16 @@ func _set_world_tutorial_state(new_state: int) -> void:
 			_show_only_tutorial_arrow(_arrow_to_forest_tp)
 		WorldTutorialState.SHOP_PROMPT:
 			_show_only_tutorial_arrow(_arrow_to_use_shop)
+		WorldTutorialState.GATEKEEPER_PROMPT:
+			_show_only_tutorial_arrow(_arrow_to_gatekeeper)
 		WorldTutorialState.COMPLETED, WorldTutorialState.DISABLED:
 			_hide_all_world_tutorial_arrows()
 
 func _show_only_tutorial_arrow(target_arrow: Sprite3D) -> void:
 	if _arrow_to_use_shop:
 		_arrow_to_use_shop.visible = (_arrow_to_use_shop == target_arrow)
+	if _arrow_to_gatekeeper:
+		_arrow_to_gatekeeper.visible = (_arrow_to_gatekeeper == target_arrow)
 	if _arrow_talk_to_md:
 		_arrow_talk_to_md.visible = (_arrow_talk_to_md == target_arrow)
 	if _arrow_to_forest_hint:
@@ -259,6 +270,8 @@ func _show_only_tutorial_arrow(target_arrow: Sprite3D) -> void:
 func _hide_all_world_tutorial_arrows() -> void:
 	if _arrow_to_use_shop:
 		_arrow_to_use_shop.visible = false
+	if _arrow_to_gatekeeper:
+		_arrow_to_gatekeeper.visible = false
 	if _arrow_talk_to_md:
 		_arrow_talk_to_md.visible = false
 	if _arrow_to_forest_hint:
@@ -295,6 +308,9 @@ func _complete_world_arrow_tutorial() -> void:
 	_world_tutorial_state = WorldTutorialState.COMPLETED
 	_world_tutorial_flow_running = false
 	_hide_all_world_tutorial_arrows()
+
+func finalize_gatekeeper_tutorial() -> void:
+	_complete_world_arrow_tutorial()
 
 func _mark_hamlet_phase_one_done() -> void:
 	if SceneManager == null:

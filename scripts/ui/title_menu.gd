@@ -54,6 +54,11 @@ var quit_confirm_dialog: ConfirmationDialog = null
 
 # --- Initialization ---
 func _ready() -> void:
+	# Set custom cursor for the entire game
+	var cursor_texture := load("res://Assets/icons8-cursor-48.png") as Texture2D
+	if cursor_texture:
+		Input.set_custom_mouse_cursor(cursor_texture)
+	
 	_set_global_ui_visibility(false)
 	_cleanup_gameplay_ui_artifacts()
 	if background_anim:

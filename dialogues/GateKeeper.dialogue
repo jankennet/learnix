@@ -43,6 +43,7 @@ else:
 	- Understood.
 	set SceneManager.met_gate_keeper = true
 	do SceneManager.quest_manager.start_quest("gatekeeper_proficiency")
+	do start_gatekeeper_final_tutorial()
 	=> END
 
 ~ reminder

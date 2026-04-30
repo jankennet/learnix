@@ -6,7 +6,7 @@
 script = ExtResource("1_xwbkm")
 using_states = PackedStringArray()
 titles = {
-"reminder": "48",
+"reminder": "49",
 "start": "1"
 }
 character_names = PackedStringArray("Gate Keeper")
@@ -156,7 +156,7 @@ lines = {
 },
 &"id": "16",
 &"next_id": "17",
-&"next_id_after": "47",
+&"next_id_after": "48",
 &"next_sibling_id": "19",
 &"type": "condition"
 },
@@ -222,7 +222,7 @@ lines = {
 },
 &"id": "19",
 &"next_id": "20",
-&"next_id_after": "47",
+&"next_id_after": "48",
 &"next_sibling_id": "22",
 &"type": "condition"
 },
@@ -279,7 +279,7 @@ lines = {
 },
 &"id": "22",
 &"next_id": "23",
-&"next_id_after": "47",
+&"next_id_after": "48",
 &"next_sibling_id": "28",
 &"type": "condition"
 },
@@ -300,7 +300,7 @@ lines = {
 "25": {
 &"id": "25",
 &"is_snippet": false,
-&"next_id": "48",
+&"next_id": "49",
 &"next_id_after": "",
 &"type": "goto"
 },
@@ -321,7 +321,7 @@ lines = {
 &"condition": {},
 &"id": "28",
 &"next_id": "29",
-&"next_id_after": "47",
+&"next_id_after": "48",
 &"type": "condition"
 },
 "29": {
@@ -499,33 +499,43 @@ lines = {
 },
 "45": {
 &"id": "45",
+&"mutation": {
+&"expression": Array[Dictionary]([{
+&"function": "start_gatekeeper_final_tutorial",
+&"i": 3,
+&"type": &"function",
+&"value": Array[Array]([Array[Dictionary]([{
+&"i": 35,
+&"type": &"parens_close"
+}])])
+}]),
+&"is_blocking": true
+},
+&"next_id": "46",
+&"type": "mutation"
+},
+"46": {
+&"id": "46",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"46": {
-&"id": "46",
-&"next_id": "47",
-&"type": ""
-},
 "47": {
 &"id": "47",
 &"next_id": "48",
-&"type": "title"
+&"type": ""
 },
 "48": {
-&"character": "Gate Keeper",
 &"id": "48",
 &"next_id": "49",
-&"text": "Broken Link in the Filesystem Forest holds one key.",
-&"type": "dialogue"
+&"type": "title"
 },
 "49": {
 &"character": "Gate Keeper",
 &"id": "49",
 &"next_id": "50",
-&"text": "The Printer boss in the Deamon Depths holds the other.",
+&"text": "Broken Link in the Filesystem Forest holds one key.",
 &"type": "dialogue"
 },
 "5": {
@@ -576,24 +586,31 @@ lines = {
 },
 &"id": "5",
 &"next_id": "6",
-&"next_id_after": "47",
+&"next_id_after": "48",
 &"next_sibling_id": "16",
 &"type": "condition"
 },
 "50": {
+&"character": "Gate Keeper",
 &"id": "50",
+&"next_id": "51",
+&"text": "The Printer boss in the Deamon Depths holds the other.",
+&"type": "dialogue"
+},
+"51": {
+&"id": "51",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
 &"type": "goto"
 },
-"51": {
-&"id": "51",
-&"next_id": "52",
-&"type": ""
-},
 "52": {
 &"id": "52",
+&"next_id": "53",
+&"type": ""
+},
+"53": {
+&"id": "53",
 &"is_snippet": false,
 &"next_id": "end",
 &"next_id_after": "",
@@ -722,6 +739,7 @@ else:
 	- Understood.
 	set SceneManager.met_gate_keeper = true
 	do SceneManager.quest_manager.start_quest(\"gatekeeper_proficiency\")
+	do start_gatekeeper_final_tutorial()
 	=> END
 
 ~ reminder

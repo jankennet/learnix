@@ -167,6 +167,8 @@ func open_minigame() -> void:
 	move_to_front()
 	_is_active = true
 	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
+	# Clear custom cursor for dependency minigame
+	Input.set_custom_mouse_cursor(null)
 
 func close_minigame() -> void:
 	hide()
@@ -177,6 +179,10 @@ func close_minigame() -> void:
 	if _metadata_tooltip:
 		_metadata_tooltip.visible = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	# Restore custom cursor when closing minigame
+	var cursor_texture := load("res://Assets/icons8-cursor-48.png") as Texture2D
+	if cursor_texture:
+		Input.set_custom_mouse_cursor(cursor_texture)
 	resolver_closed.emit()
 
 func configure_for_encounter(profile: String) -> void:

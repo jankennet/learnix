@@ -178,6 +178,9 @@ func _show_shop_tutorial_if_needed() -> void:
 
 	_shop_tutorial_shown = true
 	_shop_tutorial_running = false
+	# Notify the fallback hamlet controller to re-evaluate world tutorial state
+	# Use deferred call to avoid interfering with current popup cleanup
+	call_deferred("_notify_fallback_controller_to_recheck")
 
 func _show_shop_tutorial_popup(title: String, body: String, footer: String, visual_kind: String) -> void:
 	var popup_scene := load(COMBAT_TUTORIAL_POPUP_SCENE_PATH)
@@ -530,3 +533,28 @@ func _release_input_lock() -> void:
 		return
 	_scene_manager.set("input_locked", _previous_input_locked)
 	_owned_input_lock = false
+
+
+func _notify_fallback_controller_to_recheck() -> void:
+	var root := get_tree().root
+	var controller := _find_node_with_method(root, "_start_world_arrow_tutorial_if_needed")
+	# Ensure SceneManager records that the shop was opened at least once
+	if _scene_manager != null:
+		_scene_manager.set_meta("fallback_hamlet_shop_opened_once", true)
+
+	if controller != null and is_instance_valid(controller):
+		# Force the fallback controller to re-evaluate tutorial progress immediately
+		controller.call_deferred("_update_world_arrow_tutorial_progress")
+
+
+func _find_node_with_method(node: Node, method_name: String) -> Node:
+	if node == null:
+		return null
+	if node.has_method(method_name):
+		return node
+	for child in node.get_children():
+		if child is Node:
+			var found := _find_node_with_method(child, method_name)
+			if found != null:
+				return found
+	return null
