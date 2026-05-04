@@ -1,7 +1,6 @@
 extends Node
 
 const DIALOGUE_PATH := "res://dialogues/TutorialFlow.dialogue"
-const BLACK_TEXT_CUTSCENE_SCENE := preload("res://Scenes/ui/black_text_cutscene.tscn")
 const FALLBACK_HAMLET_SCENE_PATH := "res://Scenes/Levels/fallback_hamlet.tscn"
 const FALLBACK_HAMLET_SPAWN_PATH := "Fallback_Hamlet_Final/first_spawn"
 const HUD_NODE_PATH := "UI/MainHUD"
@@ -18,13 +17,6 @@ const PLAYER_FOLLOW_TUX_NODE_NAME := "Tux"
 const TUTORIAL_TUX_ACTOR_SCRIPT_PATH := "res://scripts/tutorial_tux_actor.gd"
 const COMBAT_TUTORIAL_POPUP_SCENE_PATH := "res://Scenes/combat/combat_tutorial_popup.tscn"
 const TERMINAL_ARROW_TEXTURE := preload("res://Assets/arrow.png")
-const PRE_TUTORIAL_INTRO_LINES: Array[String] = [
-	"Operating Systems, period three.",
-	"Professor Shell is explaining process scheduling and memory paging.",
-	"Your eyelids get heavier... and heavier...",
-	"Everything fades to black."
-]
-const PRE_TUTORIAL_LINE_DURATION := 3.00
 
 var _player: CharacterBody3D = null
 var _dialogue_resource: Resource = null
@@ -61,31 +53,7 @@ func setup(active_player: CharacterBody3D) -> void:
 	_player = active_player
 
 func _ready() -> void:
-	call_deferred("_run_intro_then_tutorial")
-
-func _run_intro_then_tutorial() -> void:
-	await _play_pre_tutorial_cutscene()
-	_run_tutorial()
-
-func _play_pre_tutorial_cutscene() -> void:
-	_lock_input(true)
-	_force_hide_hud = true
-	_hide_hud()
-
-	var cutscene := BLACK_TEXT_CUTSCENE_SCENE.instantiate()
-	if cutscene == null:
-		return
-
-	get_tree().root.add_child(cutscene)
-	if cutscene.has_method("play_lines"):
-		await cutscene.play_lines(PRE_TUTORIAL_INTRO_LINES, PRE_TUTORIAL_LINE_DURATION)
-	elif cutscene.has_method("play"):
-		await cutscene.play("\n".join(PRE_TUTORIAL_INTRO_LINES), PRE_TUTORIAL_LINE_DURATION * float(PRE_TUTORIAL_INTRO_LINES.size()))
-	elif cutscene.has_signal("finished"):
-		await cutscene.finished
-
-	if is_instance_valid(cutscene):
-		cutscene.queue_free()
+	call_deferred("_run_tutorial")
 
 func _process(delta: float) -> void:
 	if _force_hide_hud:

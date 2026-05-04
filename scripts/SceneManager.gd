@@ -3,6 +3,7 @@ extends Node
 const SAVE_FILE_PATH := "user://savegame.json"
 const SAVE_FORMAT_VERSION := 1
 const TUTORIAL_SCENE_PATH := "res://Scenes/Levels/tutorial - Copy.tscn"
+const NEW_GAME_INTRO_SCENE_PATH := "res://Scenes/ui/new_game_intro.tscn"
 const FALLBACK_HAMLET_SCENE_PATH := "res://Scenes/Levels/fallback_hamlet.tscn"
 const FILESYSTEM_FOREST_SCENE_PATH := "res://Scenes/Levels/file_system_forest.tscn"
 const DEAMON_DEPTHS_SCENE_PATH := "res://Scenes/Levels/deamon_depths.tscn"
@@ -1036,11 +1037,20 @@ func _assign_camera_to_terrain_recursive(node: Node, camera: Camera3D) -> void:
 func start_new_game(scene_path: String) -> void:
 	_reset_runtime_state()
 	input_locked = true
-	var loading_ui = await _show_loading_screen(scene_path)
+	if scene_path == TUTORIAL_SCENE_PATH:
+		stop_music()
+		await _play_new_game_intro_if_needed(scene_path)
+
+	var loading_ui: Node = null
+	if scene_path != TUTORIAL_SCENE_PATH:
+		loading_ui = await _show_loading_screen(scene_path)
 	var packed_scene := await _load_scene_threaded(scene_path, loading_ui)
 	if not packed_scene:
 		push_error("Failed to load startup scene: " + scene_path)
-		await _hide_loading_screen()
+		if loading_ui:
+			await _hide_loading_screen()
+		else:
+			input_locked = false
 		return
 
 	var root := get_tree().root
@@ -1075,7 +1085,37 @@ func start_new_game(scene_path: String) -> void:
 		push_warning("Failed to instantiate player for new game.")
 
 	await _wait_for_scene_settle()
-	await _hide_loading_screen()
+	if loading_ui:
+		await _hide_loading_screen()
+	else:
+		input_locked = false
+
+func _play_new_game_intro_if_needed(scene_path: String) -> void:
+	if scene_path != TUTORIAL_SCENE_PATH:
+		return
+
+	var intro_scene := load(NEW_GAME_INTRO_SCENE_PATH) as PackedScene
+	if intro_scene == null:
+		push_warning("New game intro scene not found: " + NEW_GAME_INTRO_SCENE_PATH)
+		return
+
+	var root := get_tree().root
+	var previous_scene := get_tree().current_scene
+	if previous_scene:
+		previous_scene.queue_free()
+
+	var intro_instance := intro_scene.instantiate()
+	if intro_instance == null:
+		return
+
+	root.add_child(intro_instance)
+	get_tree().current_scene = intro_instance
+
+	if intro_instance.has_signal("intro_finished"):
+		await intro_instance.intro_finished
+
+	if is_instance_valid(intro_instance):
+		intro_instance.queue_free()
 
 func transition_to_scene(scene_path: String, delay: float = 0.35) -> void:
 	await teleport_to_scene(scene_path, "", delay, false)
