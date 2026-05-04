@@ -182,7 +182,8 @@ func close_minigame() -> void:
 	# Restore custom cursor when closing minigame
 	var cursor_texture := load("res://Assets/icons8-cursor-48.png") as Texture2D
 	if cursor_texture:
-		Input.set_custom_mouse_cursor(cursor_texture)
+		Input.set_custom_mouse_cursor(cursor_texture, Input.CURSOR_ARROW)
+		Input.set_custom_mouse_cursor(cursor_texture, Input.CURSOR_POINTING_HAND)
 	resolver_closed.emit()
 
 func configure_for_encounter(profile: String) -> void:

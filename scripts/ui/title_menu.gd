@@ -2,14 +2,7 @@ extends Control
 
 # --- Constants & Config ---
 const WORLD_MAIN_SCENE := "res://Scenes/Levels/tutorial - Copy.tscn"
-const ASCII_LOGO := """ /$$         /$$$$$$$$  /$$$$$$  /$$$$$$$  /$$   /$$ /$$$$$$ /$$   /$$
-| $$        | $$_____/ /$$__  $$| $$__  $$| $$$ | $$|_  $$_/| $$  / $$
-| $$        | $$      | $$  \\ $$| $$  \\ $$| $$$$| $$  | $$  |  $$/ $$/
-| $$        | $$$$$   | $$$$$$$$| $$$$$$$/| $$ $$ $$  | $$   \\  $$$$/
-| $$        | $$__/   | $$__  $$| $$__  $$| $$  $$$$  | $$    >$$  $$
-| $$        | $$      | $$  | $$| $$  \\ $$| $$\\  $$$  | $$   /$$/\\  $$
-| $$$$$$$$| $$$$$$$$| $$  | $$| $$  | $$| $$ \\  $$ /$$$$$$| $$  \\ $$
-|________/|________/|__/  |__/|__/  |__/|__/  \\__/|______/|__/  \\__/"""
+
 
 const MENU_ITEMS_WITH_SAVE: Array[String] = ["CONTINUE", "NEW GAME", "SETTINGS", "QUIT GAME"]
 const MENU_ITEMS_NO_SAVE: Array[String] = ["NEW GAME", "SETTINGS", "QUIT GAME"]
@@ -24,8 +17,8 @@ const MENU_UNSELECTED_COLOR := Color(0.82, 0.85, 0.9, 1.0)
 # --- UI References ---
 @onready var logo_label: Label = $CenterContainer/MainColumn/LogoLabel
 @onready var subtitle_label: Label = $CenterContainer/MainColumn/SubtitleLabel
-@onready var menu_vbox: VBoxContainer = $CenterContainer/MainColumn/MenuVBox
-@onready var menu_labels: Array = $CenterContainer/MainColumn/MenuVBox.get_children()
+@onready var menu_vbox: VBoxContainer = $CenterContainer/MainColumn/MenuPanel/MenuVBox
+@onready var menu_labels: Array = $CenterContainer/MainColumn/MenuPanel/MenuVBox.get_children()
 @onready var background_anim: AnimatedSprite2D = get_node_or_null("AnimatedSprite2D")
 
 @onready var settings_overlay: Control = $SettingsOverlay
@@ -57,7 +50,8 @@ func _ready() -> void:
 	# Set custom cursor for the entire game
 	var cursor_texture := load("res://Assets/icons8-cursor-48.png") as Texture2D
 	if cursor_texture:
-		Input.set_custom_mouse_cursor(cursor_texture)
+		Input.set_custom_mouse_cursor(cursor_texture, Input.CURSOR_ARROW)
+		Input.set_custom_mouse_cursor(cursor_texture, Input.CURSOR_POINTING_HAND)
 	
 	_set_global_ui_visibility(false)
 	_cleanup_gameplay_ui_artifacts()
@@ -67,7 +61,6 @@ func _ready() -> void:
 		var viewport: Viewport = get_viewport()
 		if viewport and not viewport.size_changed.is_connected(_on_viewport_size_changed):
 			viewport.size_changed.connect(_on_viewport_size_changed)
-	logo_label.text = ASCII_LOGO
 	subtitle_label.text = "A LINUX BUILDER RPG"
 	
 	_setup_lists()

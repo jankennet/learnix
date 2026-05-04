@@ -380,6 +380,8 @@ func _leave_after_defeat() -> void:
 
 	encounter_ended.emit("defeat_leave")
 	state_changed.emit("ended")
+	if SceneManager and SceneManager.has_method("respawn_after_defeat"):
+		await SceneManager.respawn_after_defeat()
 	queue_free()
 
 func _combat_state_meta_key(npc_name: String) -> String:

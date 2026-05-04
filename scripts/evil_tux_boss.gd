@@ -250,7 +250,13 @@ func retry_evil_tux_boss() -> void:
 
 func decline_evil_tux_retry() -> void:
 	_cleanup_retry_overlay()
-	call_deferred("_return_to_citadel")
+	call_deferred("_leave_after_defeat")
+
+func _leave_after_defeat() -> void:
+	if SceneManager and SceneManager.has_method("respawn_after_defeat"):
+		await SceneManager.respawn_after_defeat()
+	else:
+		call_deferred("_return_to_citadel")
 
 func _restart_boss_scene() -> void:
 	if SceneManager:

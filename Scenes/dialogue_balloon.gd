@@ -123,6 +123,9 @@ var mutation_cooldown: Timer = Timer.new()
 ## Indicator to show that player can progress dialogue.
 @onready var progress: Polygon2D = %Progress
 
+## Label showing "Press E to Continue"
+@onready var continue_label: Label = %ContinueLabel
+
 ## The portrait panel and image
 @onready var portrait_panel: PanelContainer = %PortraitPanel
 @onready var portrait: TextureRect = %Portrait
@@ -191,13 +194,10 @@ func _apply_responsive_ui() -> void:
 
 func _process(_delta: float) -> void:
 	if is_instance_valid(dialogue_line):
-		progress.visible = not dialogue_label.is_typing and dialogue_line.responses.size() == 0 and not dialogue_line.has_tag("voice")
-		# Position the arrow relative to the dialogue text block
-		if progress.visible:
-			var panel: Control = balloon.get_node("MarginContainer/PanelContainer")
-			var text_rect: Rect2 = dialogue_label.get_global_rect()
-			var target_global := text_rect.position + Vector2(text_rect.size.x - 12.0, text_rect.size.y + 8.0)
-			progress.position = panel.get_global_transform_with_canvas().affine_inverse() * target_global
+		var show_indicator := not dialogue_label.is_typing and dialogue_line.responses.size() == 0 and not dialogue_line.has_tag("voice")
+		progress.visible = false
+		if is_instance_valid(continue_label):
+			continue_label.visible = show_indicator
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -259,6 +259,8 @@ func apply_dialogue_line() -> void:
 	mutation_cooldown.stop()
 
 	progress.hide()
+	if is_instance_valid(continue_label):
+		continue_label.hide()
 	is_waiting_for_input = false
 	var panel: Control = balloon.get_node("MarginContainer/PanelContainer")
 	balloon.focus_mode = Control.FOCUS_ALL

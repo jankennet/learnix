@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://h62f7fssbqql"]
+[gd_scene load_steps=17 format=3 uid="uid://h62f7fssbqql"]
 
 [ext_resource type="Script" uid="uid://ckdhtdqpse7py" path="res://scripts/ui/title_menu.gd" id="1_script"]
 [ext_resource type="FontFile" uid="uid://lqtbary7gh5r" path="res://Assets/fonts/PressStart2P-Regular.ttf" id="2_font"]
@@ -69,6 +69,22 @@ animations = [{
 "name": &"default",
 "speed": 5.0
 }]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_menu_backdrop"]
+content_margin_left = 22.0
+content_margin_top = 18.0
+content_margin_right = 22.0
+content_margin_bottom = 18.0
+bg_color = Color(0.02, 0.03, 0.05, 0.72)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.11, 0.16, 0.22, 0.85)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_crt"]
 shader = ExtResource("3_shader")
@@ -155,11 +171,15 @@ horizontal_alignment = 1
 custom_minimum_size = Vector2(0, 18)
 layout_mode = 2
 
-[node name="MenuVBox" type="VBoxContainer" parent="CenterContainer/MainColumn"]
+[node name="MenuPanel" type="PanelContainer" parent="CenterContainer/MainColumn"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_menu_backdrop")
+
+[node name="MenuVBox" type="VBoxContainer" parent="CenterContainer/MainColumn/MenuPanel"]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="ContinueLabel" type="Label" parent="CenterContainer/MainColumn/MenuVBox"]
+[node name="ContinueLabel" type="Label" parent="CenterContainer/MainColumn/MenuPanel/MenuVBox"]
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(0, 0, 0, 0.95)
 theme_override_constants/outline_size = 2
@@ -168,7 +188,7 @@ theme_override_font_sizes/font_size = 16
 text = "Continue"
 horizontal_alignment = 1
 
-[node name="NewGameLabel" type="Label" parent="CenterContainer/MainColumn/MenuVBox"]
+[node name="NewGameLabel" type="Label" parent="CenterContainer/MainColumn/MenuPanel/MenuVBox"]
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(0, 0, 0, 0.95)
 theme_override_constants/outline_size = 2
@@ -177,7 +197,7 @@ theme_override_font_sizes/font_size = 16
 text = "New Game"
 horizontal_alignment = 1
 
-[node name="SettingsLabel" type="Label" parent="CenterContainer/MainColumn/MenuVBox"]
+[node name="SettingsLabel" type="Label" parent="CenterContainer/MainColumn/MenuPanel/MenuVBox"]
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(0, 0, 0, 0.95)
 theme_override_constants/outline_size = 2
@@ -186,7 +206,7 @@ theme_override_font_sizes/font_size = 16
 text = "Settings"
 horizontal_alignment = 1
 
-[node name="QuitLabel" type="Label" parent="CenterContainer/MainColumn/MenuVBox"]
+[node name="QuitLabel" type="Label" parent="CenterContainer/MainColumn/MenuPanel/MenuVBox"]
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(0, 0, 0, 0.95)
 theme_override_constants/outline_size = 2

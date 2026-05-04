@@ -168,6 +168,7 @@ var quest_definitions = preload("res://scripts/QuestDefinitions.gd")
 var lost_file_spawner_class = preload("res://scripts/LostFileSpawner.gd")
 var lost_file_spawner: Node
 var _load_in_progress := false
+var _defeat_respawn_in_progress := false
 
 func _ready() -> void:
 
@@ -1119,6 +1120,64 @@ func _play_new_game_intro_if_needed(scene_path: String) -> void:
 
 func transition_to_scene(scene_path: String, delay: float = 0.35) -> void:
 	await teleport_to_scene(scene_path, "", delay, false)
+
+func respawn_after_defeat() -> void:
+	if _defeat_respawn_in_progress:
+		return
+
+	_defeat_respawn_in_progress = true
+
+	var current_scene := get_tree().current_scene
+	var current_scene_path := String(current_scene.scene_file_path) if current_scene else ""
+	var target_scene_path := current_scene_path
+	var target_spawn_name := ""
+
+	if current_scene_path == EVIL_TUX_BOSS_SCENE_PATH:
+		target_scene_path = String(get_meta(EVIL_TUX_RETURN_SCENE_META_KEY, PROPRIETARY_CITADEL_SCENE_PATH))
+		target_spawn_name = String(get_meta(EVIL_TUX_RETURN_SPAWN_META_KEY, "Spawn_BVTPC"))
+	else:
+		target_spawn_name = _find_nearest_spawn_name_in_scene(current_scene)
+
+	if target_spawn_name == "":
+		target_spawn_name = String(LEVEL_DEFAULT_SPAWNS.get(target_scene_path, ""))
+
+	if target_spawn_name == "" and target_scene_path == FALLBACK_HAMLET_SCENE_PATH:
+		target_spawn_name = "first_spawn"
+
+	if target_scene_path == "":
+		target_scene_path = FALLBACK_HAMLET_SCENE_PATH
+		if target_spawn_name == "":
+			target_spawn_name = "first_spawn"
+
+	await teleport_to_scene(target_scene_path, target_spawn_name, 0.25, true)
+	_defeat_respawn_in_progress = false
+
+func _find_nearest_spawn_name_in_scene(scene: Node) -> String:
+	if scene == null:
+		return ""
+
+	var active_player := _ensure_player()
+	if active_player == null:
+		return ""
+
+	var nearest: Node3D = null
+	var nearest_distance := INF
+
+	for candidate in scene.get_tree().get_nodes_in_group("spawn_point"):
+		if not (candidate is Node3D):
+			continue
+		if not scene.is_ancestor_of(candidate):
+			continue
+		var spawn_node := candidate as Node3D
+		var distance := active_player.global_position.distance_to(spawn_node.global_position)
+		if distance < nearest_distance:
+			nearest_distance = distance
+			nearest = spawn_node
+
+	if nearest == null:
+		return ""
+
+	return String(scene.get_path_to(nearest))
 
 func _attach_tutorial_controller(scene: Node, active_player: CharacterBody3D, scene_path: String) -> void:
 	if scene_path != TUTORIAL_SCENE_PATH:

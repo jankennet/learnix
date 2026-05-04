@@ -67,6 +67,9 @@ var mutation_cooldown: Timer = Timer.new()
 ## Indicator to show that player can progress dialogue.
 @onready var progress: Polygon2D = %Progress
 
+## A small label shown before the progress indicator
+@onready var continue_label: Label = %ContinueLabel
+
 
 func _ready() -> void:
 	balloon.hide()
@@ -87,7 +90,10 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	if is_instance_valid(dialogue_line):
-		progress.visible = not dialogue_label.is_typing and dialogue_line.responses.size() == 0 and not dialogue_line.has_tag("voice")
+		var show_progress := not dialogue_label.is_typing and dialogue_line.responses.size() == 0 and not dialogue_line.has_tag("voice")
+		progress.visible = show_progress
+		if is_instance_valid(continue_label):
+			continue_label.visible = show_progress
 
 
 func _unhandled_input(_event: InputEvent) -> void:
@@ -122,6 +128,8 @@ func apply_dialogue_line() -> void:
 	mutation_cooldown.stop()
 
 	progress.hide()
+	if is_instance_valid(continue_label):
+		continue_label.hide()
 	is_waiting_for_input = false
 	balloon.focus_mode = Control.FOCUS_ALL
 	balloon.grab_focus()
