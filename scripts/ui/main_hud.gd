@@ -879,7 +879,8 @@ func _process_terminal_command(raw_command: String) -> void:
 	_terminal_history_index = -1
 	_terminal_history_draft = ""
 
-	_print_terminal_line("$ %s" % text)
+	# Echo player input with a distinct color for readability (use BBCode if available)
+	_print_terminal_line("$ [color=#FFD27F]%s[/color]" % text)
 
 	var parts := text.split(" ", false)
 	var command := parts[0].to_lower()
@@ -1424,15 +1425,15 @@ func _track_tutorial_terminal_progress(command: String, args: Array) -> void:
 
 func _print_tutorial_help_guidance() -> void:
 	if not bool(_tutorial_terminal_progress.get("pwd", false)):
-		_print_terminal_line("Try typing pwd")
+		_print_terminal_line("Try typing [color=#FFD27F]pwd[/color]")
 		return
 	if not bool(_tutorial_terminal_progress.get("ls", false)):
-		_print_terminal_line("Great. Now try typing ls")
+		_print_terminal_line("Great. Now try typing [color=#7FD7FF]ls[/color]")
 		return
 	if not bool(_tutorial_terminal_progress.get("cat", false)):
-		_print_terminal_line("Nice. Now try: cat onboarding_notes.txt")
+		_print_terminal_line("Nice. Now try: [color=#8CFF8C]cat[/color] [color=#FFD27F]onboarding_notes.txt[/color]")
 		return
-	_print_terminal_line("Great job. Tutorial commands: pwd, ls, cat <file-name>")
+	_print_terminal_line("Great job. Tutorial commands: [color=#FFD27F]pwd[/color], [color=#7FD7FF]ls[/color], [color=#8CFF8C]cat[/color] <file-name>")
 
 func _is_tutorial_terminal_progress_empty() -> bool:
 	if bool(_tutorial_terminal_progress.get("pwd", false)):
@@ -1689,7 +1690,7 @@ func _print_terminal_line(text: String) -> void:
 		return
 	var columns := _estimated_terminal_columns()
 	for line in _wrap_terminal_text(text, columns):
-		terminal_output.append_text("%s\n" % line)
+		terminal_output.append_text("%s\n\n" % line)
 
 func _wrap_terminal_text(text: String, max_columns: int) -> Array[String]:
 	if max_columns <= 0:

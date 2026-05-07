@@ -268,13 +268,13 @@ color = Color(0.02, 0.08, 0.02, 0.98)
 [node name="TerminalMargin" type="MarginContainer" parent="TerminalPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 12
+theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_bottom = 20
 
 [node name="TerminalVBox" type="VBoxContainer" parent="TerminalPanel/TerminalMargin"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 16
 
 [node name="TerminalHeader" type="HBoxContainer" parent="TerminalPanel/TerminalMargin/TerminalVBox"]
 layout_mode = 2
@@ -295,7 +295,7 @@ layout_mode = 2
 text = "X"
 
 [node name="TerminalOutput" type="RichTextLabel" parent="TerminalPanel/TerminalMargin/TerminalVBox"]
-custom_minimum_size = Vector2(0, 220)
+custom_minimum_size = Vector2(0, 160)
 layout_mode = 2
 size_flags_vertical = 3
 bbcode_enabled = true

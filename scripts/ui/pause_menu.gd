@@ -1065,43 +1065,36 @@ func _on_explorer_item_activated(index: int) -> void:
 	_maybe_show_npc_dialogue(index)
 
 func _on_explorer_preview_meta_clicked(meta: Variant) -> void:
-	"""Handle when player clicks on a command in the file preview."""
 	if not explorer_quiz:
 		return
-	
+
 	var meta_str := String(meta)
-	
-	# Check if this is a command click (format: cmd_command_name)
-	if meta_str.begins_with("cmd_"):
-		var command_name := meta_str.trim_prefix("cmd_").uri_decode()
-		var result := explorer_quiz.check_answer(command_name)
-		
-		if result.get("correct", false):
-			# Correct answer!
-			var reward: int = result.get("reward", 0)
-			if reward > 0 and SceneManager and SceneManager.has_method("award_data_bits"):
-				var source_file := "unknown_file"
-				if explorer_quiz and not explorer_quiz.current_file_entry.is_empty():
-					source_file = String(explorer_quiz.current_file_entry.get("filename", "unknown_file"))
-				SceneManager.call("award_data_bits", reward, "file_explorer_quiz:%s" % source_file)
-			_show_status("Correct! +%d DATA BITS" % reward)
-			
-			if result.get("complete", false):
-				# Quiz completed!
-				_show_status("Quiz Complete! Earned %d DATA BITS total!" % explorer_quiz.get_total_bits())
+	if not meta_str.begins_with("cmd_"):
+		return
+
+	var command_name := meta_str.trim_prefix("cmd_").uri_decode()
+	var result := explorer_quiz.check_answer(command_name)
+
+	if result.get("correct", false):
+		var reward: int = result.get("reward", 0)
+		if reward > 0 and SceneManager and SceneManager.has_method("award_data_bits"):
+			var source_file := "unknown_file"
+			if not explorer_quiz.current_file_entry.is_empty():
+				source_file = String(explorer_quiz.current_file_entry.get("filename", "unknown_file"))
+			SceneManager.call("award_data_bits", reward, "file_explorer_quiz:%s" % source_file)
+		_show_status("Correct! +%d DATA BITS" % reward)
+		if result.get("complete", false):
+			_show_status("Quiz Complete! Earned %d DATA BITS total!" % explorer_quiz.get_total_bits())
+	else:
+		if result.get("failed", false):
+			_show_status("Quiz failed - 3 wrong answers. Starting over...")
 		else:
-			# Wrong answer
-			if result.get("failed", false):
-				# Quiz failed - reset
-				_show_status("Quiz failed - 3 wrong answers. Starting over...")
-			else:
-				_show_status("Incorrect. Try again.")
-		
-		# Refresh preview to show updated progress
-		if not explorer_file_list or explorer_file_list.get_selected_items().is_empty():
-			return
-		var selected_item_index := explorer_file_list.get_selected_items()[0]
-		_show_explorer_preview_for_index(selected_item_index)
+			_show_status("Incorrect. Try again.")
+
+	if not explorer_file_list or explorer_file_list.get_selected_items().is_empty():
+		return
+	var selected_item_index := explorer_file_list.get_selected_items()[0]
+	_show_explorer_preview_for_index(selected_item_index)
 
 func _activate_explorer_selected_item() -> void:
 	if not explorer_file_list:
@@ -1159,7 +1152,7 @@ func _show_explorer_preview_for_index(index: int) -> void:
 			for cmd_entry in options:
 				var cmd_info: Dictionary = cmd_entry as Dictionary
 				var cmd := String(cmd_info.get("cmd", "unknown"))
-				display_text += "\n[color=ffff99][url=cmd_%s][u]%s[/u][/url][/color]" % [cmd.uri_encode(), cmd]
+				display_text += "\n[color=ffff99][url=cmd_%s]%s[/url][/color]" % [cmd.uri_encode(), cmd]
 
 		display_text += "\n\n[b]Lesson Notes[/b]\n%s" % body
 	else:

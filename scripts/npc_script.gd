@@ -754,7 +754,7 @@ func _run_gatekeeper_final_tutorial() -> void:
 		"Exploring Linuxia",
 		"Explore Linuxia at your own pace. You must get these keys in order to proceed.\nBroken Link in the Filesystem Forest and the Printer Beast in Daemon Depths hold the Proficiency keys.",
 		"Take your time, then come back to GateKeeper when you're ready.",
-		"quest_notes"
+		"reference_keys"
 	)
 	await popup_instance.closed
 
@@ -763,7 +763,7 @@ func _run_gatekeeper_final_tutorial() -> void:
 		"Enjoy the Journey",
 		"Have fun learning Linuxia — explore, experiment, and remember your actions have consequences.",
 		"Good luck!",
-		"quest_notes"
+		"reference_tutorial_done"
 	)
 	await popup_instance.closed
 	popup_layer.queue_free()

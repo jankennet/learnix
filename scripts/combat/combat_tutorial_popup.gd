@@ -23,6 +23,8 @@ signal closed
 @export var selecting_nodes_reference_image: Texture2D
 @export var app_goal_reference_image: Texture2D
 @export var connect_nodes_reference_image: Texture2D
+@export var reference_keys_reference_image: Texture2D
+@export var reference_tutorial_done_reference_image: Texture2D
 
 @onready var overlay: ColorRect = $Overlay
 @onready var title_label: Label = $Panel/Margin/VBox/Title
@@ -105,6 +107,10 @@ func _texture_for_kind(kind: String) -> Texture2D:
 			resolved = app_goal_reference_image
 		"connect_nodes":
 			resolved = connect_nodes_reference_image
+		"reference_keys":
+			resolved = reference_keys_reference_image
+		"reference_tutorial_done":
+			resolved = reference_tutorial_done_reference_image
 		_:
 			resolved = terminal_reference_image
 	if resolved != null:

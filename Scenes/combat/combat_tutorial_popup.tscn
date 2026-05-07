@@ -21,6 +21,8 @@
 [ext_resource type="Texture2D" path="res://Assets/referenceSelectingNodes.png" id="19_selecting"]
 [ext_resource type="Texture2D" path="res://Assets/referenceAppGoal.png" id="20_goal"]
 [ext_resource type="Texture2D" path="res://Assets/referenceConnectNodes.png" id="21_connect"]
+[ext_resource type="Texture2D" path="res://Assets/referenceKeys.png" id="22_refkeys"]
+[ext_resource type="Texture2D" path="res://Assets/referenceTutorialDone.png" id="23_reftutdone"]
 [ext_resource type="FontVariation" uid="uid://lqtbary7gh5r" path="res://Assets/fonts/PressStart2P-Spaced.tres" id="22_font"]
 
 [node name="CombatTutorialPopup" type="Control"]
@@ -52,6 +54,8 @@ skill_paste_reference_image = ExtResource("18_skillpaste")
 selecting_nodes_reference_image = ExtResource("19_selecting")
 app_goal_reference_image = ExtResource("20_goal")
 connect_nodes_reference_image = ExtResource("21_connect")
+reference_keys_reference_image = ExtResource("22_refkeys")
+reference_tutorial_done_reference_image = ExtResource("23_reftutdone")
 
 [node name="Overlay" type="ColorRect" parent="."]
 layout_mode = 1

@@ -761,7 +761,8 @@ static func _build_sequence_directory_snapshot(puzzle: PuzzleData, current_index
 	for i in range(clue_files.size()):
 		var clue := str(clue_files[i])
 		if i == current_index:
-			lines.append("* %s  [current clue]" % clue)
+			# Highlight the current clue
+			lines.append("* [color=#8CFF8C]%s[/color]  [color=#FFD27F]current clue[/color]" % clue)
 		else:
 			lines.append("- %s" % clue)
 	var expected_sequence: Array = puzzle.custom_data.get("expected_sequence", [])
@@ -778,9 +779,9 @@ static func _build_sequence_guidance_message(_puzzle: PuzzleData, expected_cmd: 
 	var noun := _extract_expected_noun(expected_cmd)
 	var verbs := _verb_family_for_expected(expected_cmd)
 	var phase := _phase_from_expected_command(expected_cmd)
-	var header := "TUX GUIDANCE // %s PHASE (%d/%d)" % [phase, current_index + 1, maxi(1, total_steps)]
-	var verb_line := "Try verbs: %s" % (", ".join(verbs) if not verbs.is_empty() else "scan, ls, help")
-	var noun_line := "Current noun from clues: %s" % noun
+	var header := "[color=#7FD7FF]TUX GUIDANCE[/color] // %s PHASE ([color=#FFD27F]%d/%d[/color])" % [phase, current_index + 1, maxi(1, total_steps)]
+	var verb_line := "Try verbs: [color=#7FD7FF]%s[/color]" % (", ".join(verbs) if not verbs.is_empty() else "scan, ls, help")
+	var noun_line := "Current noun from clues: [color=#8CFF8C]%s[/color]" % noun
 
 	if lower.begins_with("cat"):
 		return "%s\n%s\n%s\nUse a read-only command on the clue file to inspect state." % [header, noun_line, verb_line]
@@ -803,7 +804,7 @@ static func _build_wrong_sequence_command_message(puzzle: PuzzleData, expected_c
 		noun = str(clue_files[current_index])
 	var verbs := _verb_family_for_expected(expected_cmd)
 	var phase := _phase_from_expected_command(expected_cmd)
-	return "Wrong command.\nPhase: %s (%d/%d)\nNoun: %s\nUse one verb from: %s\nTip: type ls to view clue files or scan for guidance." % [phase, current_index + 1, maxi(1, total_steps), noun, ", ".join(verbs)]
+	return "[color=#FF7F7F]Wrong command.[/color]\nPhase: %s ([color=#FFD27F]%d/%d[/color])\nNoun: [color=#8CFF8C]%s[/color]\nUse one verb from: [color=#7FD7FF]%s[/color]\nTip: type [color=#FFD27F]ls[/color] to view clue files or [color=#FFD27F]scan[/color] for guidance." % [phase, current_index + 1, maxi(1, total_steps), noun, ", ".join(verbs)]
 
 static func _extract_expected_noun(expected_cmd: String) -> String:
 	var tokens := expected_cmd.strip_edges().split(" ", false)
