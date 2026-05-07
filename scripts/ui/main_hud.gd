@@ -833,12 +833,12 @@ func _open_terminal() -> void:
 	if SceneManager:
 		SceneManager.play_sfx("res://album/sfx/open-terminal.mp3")
 	if terminal_output and terminal_output.get_parsed_text().is_empty():
-		_print_terminal_line("NOVA SHELL ready. Type help to list commands.")
-		_print_terminal_line("Current directory: %s" % _terminal_pwd())
+		_print_terminal_line("[color=#8CFF8C]NOVA SHELL ready.[/color] Type [color=#FFD27F]help[/color] to list commands.")
+		_print_terminal_line("Current directory: [color=#7FD7FF]%s[/color]" % _terminal_pwd())
 	if _is_tutorial_terminal_guided_mode():
 		if _is_tutorial_terminal_progress_empty():
 			_reset_tutorial_terminal_progress()
-		_print_terminal_line("Tutorial mode: we only need 3 commands for now -> pwd, ls, cat <file-name>")
+		_print_terminal_line("Tutorial mode: use [color=#FFD27F]pwd[/color], [color=#7FD7FF]ls[/color], [color=#8CFF8C]cat[/color] <file-name>")
 	if terminal_input:
 		terminal_input.call_deferred("grab_focus")
 

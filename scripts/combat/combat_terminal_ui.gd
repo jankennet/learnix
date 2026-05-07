@@ -896,11 +896,11 @@ func _print_terminal(bbcode_text: String) -> void:
 func _show_contextual_help() -> void:
 	if _is_tutorial_scene_active():
 		_print_terminal("\n")
-		_print_terminal("[color=#66f266]TUTORIAL HELP[/color]\n\n")
+		_print_terminal("[color=#8CFF8C]TUTORIAL HELP[/color]\n\n")
 		_print_terminal("  pwd         - show your current location\n")
 		_print_terminal("  ls          - list files\n")
 		_print_terminal("  cat <file>  - read a file\n\n")
-		_print_terminal("[color=#f2e066]Try typing pwd[/color]\n\n")
+		_print_terminal("[color=#FFD27F]Try typing pwd[/color]\n\n")
 		return
 
 	# Get current mode from enemy controller
@@ -911,15 +911,15 @@ func _show_contextual_help() -> void:
 	_print_terminal("\n")
 	match current_mode:
 		0:  # DIALOGUE
-			_print_terminal("[color=#66f266]HELP - DIALOGUE MODE[/color]\n\n")
+			_print_terminal("[color=#8CFF8C]HELP - DIALOGUE MODE[/color]\n\n")
 			_print_terminal("  next       - type continue to keep listening\n")
 			_print_terminal("  continue   - Proceed with dialogue\n")
 			_print_terminal("  attack     - Start fighting\n")
 			_print_terminal("  puzzle     - Try to help them instead\n")
-			_print_terminal("\n[color=#f2e066]Tip: Type 'help combat' or 'help puzzle' for more.[/color]\n")
+			_print_terminal("\n[color=#FFD27F]Tip: Type 'help combat' or 'help puzzle' for more.[/color]\n")
 		
 		1:  # COMBAT
-			_print_terminal("[color=#66f266]HELP - COMBAT MODE[/color]\n\n")
+			_print_terminal("[color=#8CFF8C]HELP - COMBAT MODE[/color]\n\n")
 			_print_terminal("  next          - choose one action now, then press Enter\n")
 			_print_terminal("  attack, hit   - Strike the enemy\n")
 			_print_terminal("  defend, block - Reduce incoming damage\n")
@@ -929,14 +929,14 @@ func _show_contextual_help() -> void:
 			_print_terminal("  escape, flee  - Attempt to flee\n")
 		
 		2:  # PUZZLE
-			_print_terminal("[color=#66f266]HELP - PUZZLE MODE (Investigation Log)[/color]\n\n")
+			_print_terminal("[color=#8CFF8C]HELP - PUZZLE MODE (Investigation Log)[/color]\n\n")
 			_print_terminal("  next       - run ls first, then read clues with cat\n")
 			_print_terminal("  ls         - list files in the current directory\n")
 			_print_terminal("  cat <file> - read the clue file named in the log\n")
 			_print_terminal("  find <n>   - search the current directory for a clue\n")
 			_print_terminal("  scan       - ask Tux for a plain-language clue\n")
 			_print_terminal("  fight      - return to combat\n")
-			_print_terminal("\n[color=#f2e066]Start here: LS -> CAT clue -> SCAN -> act.[/color]\n")
+			_print_terminal("\n[color=#FFD27F]Start here: LS -> CAT clue -> SCAN -> act.[/color]\n")
 			var puzzle_data = enemy_controller.puzzle_data if enemy_controller and ("puzzle_data" in enemy_controller) else null
 			var enemy_id := _get_current_enemy_id()
 			for help_line in PUZZLE_INTEL_LIBRARY.get_context_help_lines(enemy_id, puzzle_data):
@@ -1301,19 +1301,19 @@ func _get_color_for_type(type) -> String:
 	# INFO=0, SUCCESS=1, WARNING=2, ERROR=3, DAMAGE=4, HEAL=5, STATUS=6
 	match type:
 		1:  # SUCCESS
-			return "#4df24d"
+			return "#8CFF8C"
 		2:  # WARNING
-			return "#e6cc33"
+			return "#FFD27F"
 		3:  # ERROR
-			return "#e65959"
+			return "#FF7F7F"
 		4:  # DAMAGE
-			return "#e68c33"
+			return "#FFB36B"
 		5:  # HEAL
-			return "#4de6b3"
+			return "#7FD7FF"
 		6:  # STATUS
-			return "#d9bf40"
+			return "#E6D36B"
 		_:  # INFO
-			return "#4de64d"
+			return "#66F266"
 
 func _combat_state_meta_key(npc_name: String) -> String:
 	var sanitized_name := ""
